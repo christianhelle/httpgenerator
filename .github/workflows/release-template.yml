@@ -16,6 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
       - name: Sets environment variables - branch-name
         uses: nelonoel/branch-name@v1.0.1
       - name: Sets environment variables - Nerdbank.GitVersioning
