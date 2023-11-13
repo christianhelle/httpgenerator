@@ -28,7 +28,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:    
     - name: 🛒 Checkout repository
-      uses: actions/checkout@v3        
+      uses: actions/checkout@v3
+    - uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'      
     - name: 🛠️ Build
       run: dotnet build -c Release src/HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
     - name: 🧪 Test
