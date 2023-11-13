@@ -1,0 +1,41 @@
+name: Regression Tests
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - "**/*"
+      - "!.github/workflows/regression-tests.yml"
+    branches:
+      - "main"
+
+jobs:
+  template:
+    strategy:
+      fail-fast: false
+      matrix:
+        format: [json, yaml]
+        version: [v2.0, v3.0]
+        os: [macos-latest, windows-latest, ubuntu-latest]
+        openapi: [
+          "api-with-examples",
+          "callback-example",
+          "link-example",
+          "uber",
+          "uspto",
+          "petstore",
+          "petstore-expanded",
+          "petstore-minimal",
+          "petstore-simple",
+          "petstore-with-external-docs",
+          "ingram-micro",
+          "hubspot-events",
+          "hubspot-webhooks"
+        ]
+    uses: ./.github/workflows/template.yml
+    with:
+      format: ${{ matrix.format }}
+      version: ${{ matrix.version }}
+      openapi: ${{ matrix.openapi }}
+      os: ${{ matrix.os }}
+      command: 'dotnet run --project ../src/HttpGenerator/HttpGenerator.csproj'
