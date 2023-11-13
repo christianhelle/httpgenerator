@@ -21,7 +21,7 @@ public static class HttpFileGenerator
                 var operation = operations.Value;
                 var verb = operations.Key.CapitalizeFirstCharacter();
                 var name = GenerateOperationName(kv.Key, verb, operation, document, generator);
-                var filename = $"{name}.http";
+                var filename = $"{name.CapitalizeFirstCharacter()}.http";
                 
                 var code = new StringBuilder();
                 code.AppendLine($"### {verb.ToUpperInvariant()} {kv.Key} Request");
@@ -30,7 +30,7 @@ public static class HttpFileGenerator
                 code.AppendLine("Content-Type: application/json");
                 code.AppendLine();
                 
-                if (operation.RequestBody != null)
+                if (operation.RequestBody?.Content?.ContainsKey("application/json") == true)
                 {
                     var requestBody = operation.RequestBody;
                     var requestBodySchema = requestBody.Content["application/json"].Schema.ActualSchema;
