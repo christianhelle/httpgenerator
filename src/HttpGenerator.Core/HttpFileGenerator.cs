@@ -1,16 +1,18 @@
 ﻿using System.Text;
+using System.Text.Json;
 using NSwag;
 using NSwag.CodeGeneration.CSharp;
 
 namespace HttpGenerator.Core;
 
-public class HttpFileGenerator
+public static class HttpFileGenerator
 {
     public static async Task<GeneratorResult> Generate(string openApiPath)
     {
         var document = await OpenApiDocumentFactory.CreateAsync(openApiPath);
         var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
-
+        var baseUrl = document.Servers.First().Url;
+        
         var files = new List<HttpFile>();
         foreach (var kv in document.Paths)
         {
@@ -22,7 +24,26 @@ public class HttpFileGenerator
                 var filename = $"{name}.http";
                 
                 var code = new StringBuilder();
-                // Build .http content
+                code.AppendLine($"### {verb.ToUpperInvariant()} {kv.Key} Request");
+                code.AppendLine();
+                code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{kv.Key}");
+                code.AppendLine("Content-Type: application/json");
+                code.AppendLine();
+                
+                if (operation.RequestBody != null)
+                {
+                    var requestBody = operation.RequestBody;
+                    var requestBodySchema = requestBody.Content["application/json"].Schema.ActualSchema;
+                    var requestBodyJson = requestBodySchema.ToSampleJson().ToString();
+
+                    if (requestBodySchema.Example != null)
+                    {
+                        requestBodyJson = JsonSerializer.Serialize(requestBodySchema.Example);
+                    }
+                    
+                    code.AppendLine(requestBodyJson);
+                }
+                
                 files.Add(new HttpFile(filename, code.ToString()));
             }
         }
