@@ -18,10 +18,10 @@ public class SwaggerPetstoreTests
     }
 
     [Theory]
-    [InlineData("http://raw.githubusercontent.com/christianhelle/refitter/main/test/OpenAPI/v3.0/petstore.json")]
-    [InlineData("http://raw.githubusercontent.com/christianhelle/refitter/main/test/OpenAPI/v3.0/petstore.yaml")]
-    [InlineData("https://raw.githubusercontent.com/christianhelle/refitter/main/test/OpenAPI/v3.0/petstore.json")]
-    [InlineData("https://raw.githubusercontent.com/christianhelle/refitter/main/test/OpenAPI/v3.0/petstore.yaml")]
+    [InlineData("http://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.json")]
+    [InlineData("http://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.yaml")]
+    [InlineData("https://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.json")]
+    [InlineData("https://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.yaml")]
     public async Task Can_Build_Generated_Code_From_Url(string url)
     {
         var generateCode = await HttpFileGenerator.Generate(url);
