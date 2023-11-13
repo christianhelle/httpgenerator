@@ -1,0 +1,73 @@
+name: Smoke Tests
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - "**/*"
+      - '!src/**/*.cs'
+      - '!src/**/*.csproj'
+      - "!.github/workflows/template.yml"
+      - "!.github/workflows/template-url.yml"
+      - "!.github/workflows/smoke-tests.yml"
+    branches:
+      - "*"
+  pull_request:
+    paths-ignore:
+      - "**/*"
+      - '!src/**/*.cs'
+      - '!src/**/*.csproj'
+      - "!.github/workflows/template.yml"
+      - "!.github/workflows/template-url.yml"
+      - "!.github/workflows/smoke-tests.yml"
+    branches:
+      - "*"
+
+jobs:
+  
+  file:
+    strategy:
+      fail-fast: false
+      matrix:
+        format: [json, yaml]
+        version: [v2.0, v3.0]
+        os: [ubuntu-latest]
+        openapi: [
+          "api-with-examples",
+          "callback-example",
+          "link-example",
+          "uber",
+          "uspto",
+          "petstore",
+          "petstore-expanded",
+          "petstore-minimal",
+          "petstore-simple",
+          "petstore-with-external-docs",
+          "ingram-micro",
+          "hubspot-events",
+          "hubspot-webhooks"
+        ]
+    
+    uses: ./.github/workflows/template.yml
+    with:
+      format: ${{ matrix.format }}
+      version: ${{ matrix.version }}
+      openapi: ${{ matrix.openapi }}
+      os: ${{ matrix.os }}
+      command: 'dotnet run --project ../src/HttpGenerator/HttpGenerator.csproj'
+  
+  url:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        openapi_url: [
+          "https://petstore3.swagger.io/api/v3/openapi.json", 
+          "https://petstore3.swagger.io/api/v3/openapi.yaml"
+        ]
+
+    uses: ./.github/workflows/template-url.yml
+    with:
+      os: ${{ matrix.os }}
+      openapi: ${{ matrix.openapi_url }}
+      command: 'dotnet run --project ../src/HttpGenerator/HttpGenerator.csproj'
