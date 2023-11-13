@@ -10,6 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
@@ -31,6 +32,10 @@
     <EmbeddedResource Include="Resources\V3\SwaggerPetstore.yaml" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithDifferentHeaders.json" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithDifferentHeaders.yaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HttpGenerator.Core\HttpGenerator.Core.csproj" />
   </ItemGroup>
 
 </Project>
