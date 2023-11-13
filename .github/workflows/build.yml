@@ -1,0 +1,42 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - '**/*'
+      - '!.github/workflows/build.yml'
+      - '!src/**/*.csproj'
+      - '!src/**/*.cs'
+    branches:
+      - '*'
+  pull_request:
+    paths-ignore:
+      - '**/*'
+      - '!.github/workflows/build.yml'
+      - '!src/**/*.csproj'
+      - '!src/**/*.cs'
+    branches:
+      - '*'
+
+env:
+  VERSION: 0.1.0.${{ github.run_number }}
+
+jobs:
+  build:
+    name: 👌 Verify build
+    runs-on: ubuntu-latest
+    steps:    
+    - name: 🛒 Checkout repository
+      uses: actions/checkout@v3        
+    - name: 🛠️ Build
+      run: dotnet build -c Release src/HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+    - name: 🧪 Test
+      run: dotnet test src/HttpGenerator.sln -c Release    
+    - name: 🗳️ Upload
+      uses: actions/upload-artifact@v3
+      with:
+        name: Packages
+        path: |
+          **/*.nupkg
+          README.md
