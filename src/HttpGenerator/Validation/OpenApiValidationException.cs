@@ -13,10 +13,4 @@ public class OpenApiValidationException : Exception
     {
         ValidationResult = validationResult;
     }
-    
-    protected OpenApiValidationException(
-        SerializationInfo info,
-        StreamingContext context) : base(info, context)
-    {
-    }
 }
