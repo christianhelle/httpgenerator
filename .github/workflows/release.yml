@@ -1,0 +1,14 @@
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "release"
+
+jobs:
+  publish:
+    uses: ./.github/workflows/release-template.yml
+    with:
+      version: 0.1.0
+    secrets: inherit
