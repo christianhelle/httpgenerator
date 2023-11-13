@@ -21,7 +21,7 @@ USAGE:
 
 EXAMPLES:
     httpgenerator ./openapi.json
-    httpgenerator https://petstore3.swagger.io/api/v3/openapi.yaml
+    httpgenerator https://petstore.swagger.io/v2/swagger.json
     httpgenerator ./openapi.json --output ./
 
 ARGUMENTS:

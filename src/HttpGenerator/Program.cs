@@ -28,7 +28,7 @@ internal static class Program
                     .AddExample("./openapi.json");
 
                 configuration
-                    .AddExample("https://petstore3.swagger.io/api/v3/openapi.yaml");
+                    .AddExample("https://petstore.swagger.io/v2/swagger.json");
 
                 configuration
                     .AddExample(
