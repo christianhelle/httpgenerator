@@ -5,6 +5,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <LangVersion>default</LangVersion>
+    <Title>HttpGenerator.Core</Title>
+    <PackageId>HttpGenerator.Core</PackageId>
+    <AssemblyName>HttpGenerator.Core</AssemblyName>
+    <RootNamespace>HttpGenerator.Core</RootNamespace>
+    <Product>HttpGenerator Core</Product>
+    <Description>Core library used by the HttpGenerator CLI tool for generating .http files for the popular REST Client IDE extension.</Description>
   </PropertyGroup>
 
   <ItemGroup>
