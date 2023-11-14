@@ -12,6 +12,7 @@
         <Product>HTTP REST Client File Generator</Product>
         <Description>HttpGenerator is a CLI tool for generating .http files for the popular REST Client IDE extension.</Description>
         <PackAsTool>true</PackAsTool>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
