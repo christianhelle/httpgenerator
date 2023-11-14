@@ -25,13 +25,12 @@ public class GenerateCommand : AsyncCommand<Settings>
             await ValidateOpenApiSpec(settings);
             var result = await HttpFileGenerator.Generate(settings.OpenApiPath!);
 
-            var directory = Path.GetDirectoryName(settings.OutputFolder);
-            if (!string.IsNullOrWhiteSpace(directory) && !Directory.Exists(directory))
-                Directory.CreateDirectory(directory);
+            if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
+                Directory.CreateDirectory(settings.OutputFolder);
 
             foreach (var file in result.Files)
             {
-                var outputFile = Path.Combine(directory!, file.Filename);
+                var outputFile = Path.Combine(settings.OutputFolder!, file.Filename);
                 await File.WriteAllTextAsync(outputFile, file.Content);
             }
 
