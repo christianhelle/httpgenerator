@@ -2,9 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <LangVersion>default</LangVersion>
     <Title>HttpGenerator.Core</Title>
     <PackageId>HttpGenerator.Core</PackageId>
     <AssemblyName>HttpGenerator.Core</AssemblyName>
