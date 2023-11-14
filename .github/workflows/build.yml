@@ -33,7 +33,7 @@ jobs:
       with:
         dotnet-version: '8.0.x'
     - name: 🛠️ Build
-      run: dotnet pack -c Release src/HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+      run: dotnet build -c Release src/HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
     - name: 🧪 Test
       run: dotnet test src/HttpGenerator.sln -c Release    
     - name: 🗳️ Upload
