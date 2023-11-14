@@ -19,10 +19,11 @@ ARGUMENTS:
     [URL or input file]    URL or file path to OpenAPI Specification file
 
 OPTIONS:
-                             DEFAULT                                         
-    -h, --help                          Prints help information              
-    -o, --output <OUTPUT>    ./         Output directory                     
-        --no-logging                    Don't log errors or collect telemetry
+                             DEFAULT                                                 
+    -h, --help                          Prints help information                      
+    -o, --output <OUTPUT>    ./         Output directory                             
+        --no-logging                    Don't log errors or collect telemetry        
+        --skip-validation               Skip validation of OpenAPI Specification file
 ```
 
 Running the following:
