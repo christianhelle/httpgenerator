@@ -11,7 +11,7 @@ public static class HttpFileGenerator
     {
         var document = await OpenApiDocumentFactory.CreateAsync(openApiPath);
         var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
-        var baseUrl = document.Servers.First().Url;
+        var baseUrl = document.Servers?.FirstOrDefault()?.Url ?? string.Empty;
         
         var files = new List<HttpFile>();
         foreach (var kv in document.Paths)
