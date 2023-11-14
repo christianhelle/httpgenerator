@@ -27,19 +27,6 @@ jobs:
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
 
-    strategy:
-      matrix:
-        args: [
-          "--cancellation-tokens",
-          "--internal",
-          "--use-api-response",
-          "--use-iso-date-format",
-          "--multiple-interfaces ByEndpoint",
-          "--match-path ^/pet/.*",
-          "--tag pet",
-          "--no-deprecated-operations"
-        ]
-
     steps:
     - name: 🛒 Checkout repository
       uses: actions/checkout@v3
@@ -63,16 +50,7 @@ jobs:
       shell: pwsh
 
     - name: 🛠️ Generate code
-      run: |
-        ${{ inputs.command }} ./openapi.${{ inputs.format }} --no-logging ${{ matrix.args }}
-        Copy-Item Output.cs ./ConsoleApp/Net6/
-        Copy-Item Output.cs ./ConsoleApp/Net7/
-        Copy-Item Output.cs ./ConsoleApp/Net48/
-        Copy-Item Output.cs ./ConsoleApp/Net472/
-        Copy-Item Output.cs ./ConsoleApp/Net462/
-        Copy-Item Output.cs ./ConsoleApp/Net481/
-        Copy-Item Output.cs ./ConsoleApp/NetStandard20/
-        Copy-Item Output.cs ./ConsoleApp/NetStandard21/
+      run: ${{ inputs.command }} ./openapi.${{ inputs.format }} --no-logging ${{ matrix.args }}
       working-directory: test
       shell: pwsh
       if: steps.prepare_openapi_spec.outputs.exists == 'True'
@@ -81,45 +59,5 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Generated Code (${{ inputs.openapi }}.${{ inputs.format }}, ${{ inputs.version }}, ${{ inputs.os }})
-        path: test/*.cs
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET 6 generated code
-      run: dotnet build ./ConsoleApp/Net6/Net6.csproj
-      working-directory: test
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET 7 generated code
-      run: dotnet build ./ConsoleApp/Net7/Net7.csproj
-      working-directory: test
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET 4.8.1 generated code
-      run: dotnet build ./ConsoleApp/Net481/Net481.csproj
-      if: ${{ steps.prepare_openapi_spec.outputs.exists == 'True' && inputs.os == 'windows-2022' }}
-      working-directory: test
-
-    - name: 🛠️ Build .NET 4.8 generated code
-      run: dotnet build ./ConsoleApp/Net48/Net48.csproj
-      working-directory: test
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET 4.7.2 generated code
-      run: dotnet build ./ConsoleApp/Net472/Net472.csproj
-      working-directory: test
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET 4.6.2 generated code
-      run: dotnet build ./ConsoleApp/Net462/Net462.csproj
-      working-directory: test
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET Standard 2.0 generated code
-      run: dotnet build ./ConsoleApp/NetStandard20/NetStandard20.csproj
-      working-directory: test
-      if: steps.prepare_openapi_spec.outputs.exists == 'True'
-
-    - name: 🛠️ Build .NET Standard 2.1 generated code
-      run: dotnet build ./ConsoleApp/NetStandard21/NetStandard21.csproj
-      working-directory: test
+        path: test/*.http
       if: steps.prepare_openapi_spec.outputs.exists == 'True'
