@@ -1,4 +1,7 @@
+[![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
+
 # HTTP File Generator
+
 Generate .http files from OpenAPI specifications
 
 `.http` files were made populate by the Visual Studio Code extension REST Client, which then was adopted by the JetBrains IDE's, and later on Visual Studio 2022
