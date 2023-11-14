@@ -10,7 +10,7 @@
         <AssemblyName>httpgenerator</AssemblyName>
         <RootNamespace>HttpGenerator</RootNamespace>
         <Product>HTTP REST Client File Generator</Product>
-        <Description>HttpGenerator is a CLI tool for generating a .http file for the popular REST Client IDE extension.</Description>
+        <Description>HttpGenerator is a CLI tool for generating .http files for the popular REST Client IDE extension.</Description>
         <PackAsTool>true</PackAsTool>
     </PropertyGroup>
 
@@ -24,6 +24,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\HttpGenerator.Core\HttpGenerator.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>
