@@ -18,4 +18,9 @@ public class Settings : CommandSettings
     [CommandOption("--no-logging")]
     [DefaultValue(false)]
     public bool NoLogging { get; set; }
+
+    [Description("Skip validation of OpenAPI Specification file")]
+    [CommandOption("--skip-validation")]
+    [DefaultValue(false)]
+    public bool SkipValidation { get; set; }
 }

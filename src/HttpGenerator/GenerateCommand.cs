@@ -22,7 +22,9 @@ public class GenerateCommand : AsyncCommand<Settings>
                     ? "[green]Support key: Unavailable when logging is disabled[/]"
                     : $"[green]Support key: {SupportInformation.GetSupportKey()}[/]");
             
-            await ValidateOpenApiSpec(settings);
+            if (!settings.SkipValidation)
+                await ValidateOpenApiSpec(settings);
+            
             var result = await HttpFileGenerator.Generate(settings.OpenApiPath!);
 
             if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
