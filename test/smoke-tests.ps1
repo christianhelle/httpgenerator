@@ -20,19 +20,11 @@ function Generate {
     
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
 
-    if ($args.Contains("settings-file")) {        
-        Write-Host "HttpGenerator --no-logging"
-        $process = Start-Process "./bin/HttpGenerator" `
-            -Args "--no-logging $args" `
-            -NoNewWindow `
-            -PassThru
-    } else {        
-        Write-Host "HttpGenerator ./openapi.$format --output ./GeneratedCode/$outputPath --no-logging"
-        $process = Start-Process "./bin/HttpGenerator" `
-            -Args "./openapi.$format --output ./GeneratedCode --no-logging" `
-            -NoNewWindow `
-            -PassThru
-    }
+    Write-Host "HttpGenerator ./openapi.$format --output ./GeneratedCode/$outputPath --no-logging"
+    $process = Start-Process "./bin/HttpGenerator" `
+        -Args "./openapi.$format --output ./GeneratedCode --no-logging" `
+        -NoNewWindow `
+        -PassThru
 
     $process | Wait-Process
     if ($process.ExitCode -ne 0) {
@@ -58,7 +50,6 @@ function RunTests {
         "petstore-minimal",
         "petstore-simple",
         "petstore-with-external-docs",
-        "ingram-micro",
         "api-with-examples",
         "callback-example",
         "link-example",
@@ -79,6 +70,7 @@ function RunTests {
                 $filename = "./OpenAPI/$version/$_.$format"
                 $exists = Test-Path -Path $filename -PathType Leaf
                 if ($exists -eq $true) {
+                    Write-Host "Testing $filename"
                     Copy-Item $filename ./openapi.$format
                     Generate -format $format
                 }
