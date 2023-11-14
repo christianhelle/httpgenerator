@@ -11,8 +11,8 @@
     <Authors>Christian Resma Helle</Authors>
     <Company>Christian Resma Helle</Company>
     <PackageLicenseExpression>GPL-3.0-only</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/christianhelle/refitter</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/christianhelle/refitter</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/christianhelle/httpgenerator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/christianhelle/httpgenerator</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <DebugType>embedded</DebugType>
