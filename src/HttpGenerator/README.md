@@ -120,7 +120,7 @@ az account get-access-token --scope [Some Application ID URI]/.default `
     httpgenerator `
         https://api.example.com/swagger/v1/swagger.json `
         --authorization-header ("Bearer " + $_.accessToken) `
-        --base-url https://api.example.com
+        --base-url https://api.example.com `
         --output ./HttpFiles 
 }
 ```
