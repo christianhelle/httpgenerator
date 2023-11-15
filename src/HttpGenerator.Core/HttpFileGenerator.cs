@@ -14,7 +14,7 @@ public static class HttpFileGenerator
         var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
         generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator(document);
 
-        var baseUrl = document.Servers?.FirstOrDefault()?.Url ?? string.Empty;
+        var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
 
         var files = new List<HttpFile>();
         foreach (var kv in document.Paths)

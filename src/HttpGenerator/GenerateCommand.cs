@@ -32,6 +32,8 @@ public class GenerateCommand : AsyncCommand<Settings>
             {
                 AuthorizationHeader = settings.AuthorizationHeader,
                 OpenApiPath = settings.OpenApiPath,
+                ContentType = settings.ContentType,
+                BaseUrl = settings.BaseUrl
             };
 
             var result = await HttpFileGenerator.Generate(generatorSettings);

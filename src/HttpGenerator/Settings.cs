@@ -27,4 +27,13 @@ public class Settings : CommandSettings
     [Description("Authorization header to use for all requests")]
     [CommandOption("--authorization-header <HEADER>")]
     public string? AuthorizationHeader { get; set; }
+    
+    [Description("Default Content-Type header to use for all requests")]
+    [CommandOption("--content-type <CONTENT-TYPE>")]
+    [DefaultValue("application/json")]
+    public string ContentType { get; set; } = "application/json";
+    
+    [Description("Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL.")]
+    [CommandOption("--base-url <BASE-URL>")]
+    public string? BaseUrl { get; set; }
 }
