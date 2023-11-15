@@ -12,8 +12,10 @@ USAGE:
 
 EXAMPLES:
     httpgenerator ./openapi.json
-    httpgenerator https://petstore.swagger.io/v2/swagger.json
     httpgenerator ./openapi.json --output ./
+    httpgenerator https://petstore.swagger.io/v2/swagger.json
+    httpgenerator https://petstore3.swagger.io/api/v3/openapi.json --base-url https://petstore3.swagger.io
+    httpgenerator ./openapi.json --authorization-header Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
 
 ARGUMENTS:
     [URL or input file]    URL or file path to OpenAPI Specification file
