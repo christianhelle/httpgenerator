@@ -27,8 +27,14 @@ public class GenerateCommand : AsyncCommand<Settings>
             
             if (!settings.SkipValidation)
                 await ValidateOpenApiSpec(settings);
+            
+            var generatorSettings = new GeneratorSettings
+            {
+                AuthorizationHeader = settings.AuthorizationHeader,
+                OpenApiPath = settings.OpenApiPath,
+            };
 
-            var result = await HttpFileGenerator.Generate(settings.OpenApiPath!);
+            var result = await HttpFileGenerator.Generate(generatorSettings);
             await Analytics.LogFeatureUsage(settings);
 
             if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))

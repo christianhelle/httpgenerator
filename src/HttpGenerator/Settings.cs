@@ -23,4 +23,8 @@ public class Settings : CommandSettings
     [CommandOption("--skip-validation")]
     [DefaultValue(false)]
     public bool SkipValidation { get; set; }
+    
+    [Description("Authorization header to use for all requests")]
+    [CommandOption("--authorization-header <HEADER>")]
+    public string? AuthorizationHeader { get; set; }
 }

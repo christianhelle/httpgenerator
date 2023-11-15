@@ -8,9 +8,9 @@ namespace HttpGenerator.Core;
 
 public static class HttpFileGenerator
 {
-    public static async Task<GeneratorResult> Generate(string openApiPath)
+    public static async Task<GeneratorResult> Generate(GeneratorSettings settings)
     {
-        var document = await OpenApiDocumentFactory.CreateAsync(openApiPath);
+        var document = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
         var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
         generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator(document);
 
@@ -30,13 +30,17 @@ public static class HttpFileGenerator
                 code.AppendLine($"### {verb.ToUpperInvariant()} {kv.Key} Request");
                 code.AppendLine();
                 code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{kv.Key}");
-                code.AppendLine("Content-Type: application/json");
-                code.AppendLine();
+                code.AppendLine("Content-Type: " + settings.ContentType);
 
-                if (operation.RequestBody?.Content?.ContainsKey("application/json") == true)
+                if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
+                {
+                    code.AppendLine($"Authorization: {settings.AuthorizationHeader}");
+                }
+                
+                if (operation.RequestBody?.Content?.ContainsKey(settings.ContentType) == true)
                 {
                     var requestBody = operation.RequestBody;
-                    var requestBodySchema = requestBody.Content["application/json"].Schema.ActualSchema;
+                    var requestBodySchema = requestBody.Content[settings.ContentType].Schema.ActualSchema;
                     var requestBodyJson = requestBodySchema.ToSampleJson().ToString();
 
                     if (requestBodySchema.Example != null)
@@ -44,6 +48,7 @@ public static class HttpFileGenerator
                         requestBodyJson = JsonSerializer.Serialize(requestBodySchema.Example);
                     }
 
+                    code.AppendLine();
                     code.AppendLine(requestBodyJson);
                 }
 
