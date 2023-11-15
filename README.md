@@ -31,11 +31,14 @@ ARGUMENTS:
     [URL or input file]    URL or file path to OpenAPI Specification file
 
 OPTIONS:
-                             DEFAULT                                                 
-    -h, --help                          Prints help information                      
-    -o, --output <OUTPUT>    ./         Output directory                             
-        --no-logging                    Don't log errors or collect telemetry        
-        --skip-validation               Skip validation of OpenAPI Specification file
+                                           DEFAULT                                                                                                                           
+    -h, --help                                                 Prints help information                                                                                       
+    -o, --output <OUTPUT>                  ./                  Output directory                                                                                              
+        --no-logging                                           Don't log errors or collect telemetry                                                                         
+        --skip-validation                                      Skip validation of OpenAPI Specification file                                                                 
+        --authorization-header <HEADER>                        Authorization header to use for all requests                                                                  
+        --content-type <CONTENT-TYPE>      application/json    Default Content-Type header to use for all requests                                                           
+        --base-url <BASE-URL>                                  Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL
 ```
 
 Running the following:
