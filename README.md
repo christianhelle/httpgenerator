@@ -122,3 +122,17 @@ Content-Type: application/json
   "status": "available"
 }
 ```
+
+Here's an advanced example of generating `.http` files for a REST API hosted on Microsoft Azure that uses the Microsoft Entra ID service as an STS. For this example, I use Azure CLI to retrieve an access token for the user I'm currently logged in with.
+
+```powershell
+az account get-access-token --scope [Some Application ID URI]/.default `
+| ConvertFrom-Json `
+| %{
+    httpgenerator `
+        https://api.example.com/swagger/v1/swagger.json `
+        --authorization-header ("Bearer " + $_.accessToken) `
+        --base-url https://api.example.com
+        --output ./HttpFiles 
+}
+```
