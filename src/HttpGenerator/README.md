@@ -40,7 +40,7 @@ httpgenerator https://petstore.swagger.io/v2/swagger.json
 Outputs the following:
 
 ```
-HTTP File Generator v0.1.0
+HTTP File Generator v0.1.1
 Support key: mbmbqvd
 
 OpenAPI statistics:
