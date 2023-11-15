@@ -13,6 +13,9 @@ public class GenerateCommand : AsyncCommand<Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
+        if (!settings.NoLogging)
+            Analytics.Configure();
+
         try
         {
             var stopwatch = Stopwatch.StartNew();
@@ -24,8 +27,9 @@ public class GenerateCommand : AsyncCommand<Settings>
             
             if (!settings.SkipValidation)
                 await ValidateOpenApiSpec(settings);
-            
+
             var result = await HttpFileGenerator.Generate(settings.OpenApiPath!);
+            await Analytics.LogFeatureUsage(settings);
 
             if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
                 Directory.CreateDirectory(settings.OutputFolder);
