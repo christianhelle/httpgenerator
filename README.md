@@ -13,7 +13,7 @@ This is tool is distrubuted as a .NET Tool on NuGet.org
 To install, simply use the following command
 
 ```bash
-dotnet tool install --global httpgenerator --prerelease
+dotnet tool install --global httpgenerator
 ```
 
 ## Usage
