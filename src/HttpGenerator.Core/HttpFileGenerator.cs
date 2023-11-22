@@ -36,11 +36,14 @@ public static class HttpFileGenerator
                 {
                     code.AppendLine($"Authorization: {settings.AuthorizationHeader}");
                 }
-                
-                if (operation.RequestBody?.Content?.ContainsKey(settings.ContentType) == true)
+
+                var contentType = operation.RequestBody?.Content?.Keys
+                    ?.FirstOrDefault(c => c.Contains(settings.ContentType));
+
+                if (operation.RequestBody?.Content is not null && contentType is not null)
                 {
                     var requestBody = operation.RequestBody;
-                    var requestBodySchema = requestBody.Content[settings.ContentType].Schema.ActualSchema;
+                    var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
                     var requestBodyJson = requestBodySchema.ToSampleJson().ToString();
 
                     if (requestBodySchema.Example != null)
