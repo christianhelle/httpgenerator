@@ -44,9 +44,9 @@ public static class HttpFileGenerator
                 {
                     var requestBody = operation.RequestBody;
                     var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
-                    var requestBodyJson = requestBodySchema.ToSampleJson().ToString();
+                    var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString();
 
-                    if (requestBodySchema.Example != null)
+                    if (requestBodySchema?.Example != null)
                     {
                         requestBodyJson = JsonSerializer.Serialize(requestBodySchema.Example);
                     }
