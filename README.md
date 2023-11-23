@@ -57,7 +57,7 @@ httpgenerator https://petstore.swagger.io/v2/swagger.json
 Outputs the following:
 
 ```
-HTTP File Generator v0.1.1
+HTTP File Generator v0.1.5
 Support key: mbmbqvd
 
 OpenAPI statistics:
@@ -141,6 +141,31 @@ az account get-access-token --scope [Some Application ID URI]/.default `
         --output ./HttpFiles 
 }
 ```
+
+### Error Logging, Telemetry, and Privacy
+
+This tool collects errors and tracks features usages to service called [Exceptionless](https://exceptionless.com/)
+
+By default, error logging and telemetry collection is enabled but it is possible to **opt-out** by using the `--no-logging` CLI argument. 
+
+User tracking is done anonymously using the **Support key** shown when running the tool and a generated anonymous identity based on a secure hash algorithm of username@host. 
+
+```
+HTTP File Generator v0.1.5
+Support key: mbmbqvd
+```
+
+The support key is just the first 7 characters of the generated anonymous identity
+
+![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-overview.png)
+
+![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-exception.png)
+
+The `--authorization-header` value is **`[REDACTED]`** and the same goes for all personal identifiable information like the IP address, machine name, and file system folders
+
+![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-environment.png)
+
+It's important to know that no **support key** will be generated if you opt-out from telemetry collection and that the Exceptionless SDK will be completely disabled.
 
 #
 
