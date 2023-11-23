@@ -25,6 +25,9 @@ public class RedactedEnvironmentInfoPlugin : IEventPlugin
             info.IpAddress = "[REDACTED]";
             info.MachineName = null!;
 
+            if (info.Data.ContainsKey("ApplicationBasePath"))
+                info.Data.Remove("ApplicationBasePath");
+
             info.InstallId = context.Client.Configuration.GetInstallId();
             context.Event.Data[Event.KnownDataKeys.EnvironmentInfo] = info;
         }
