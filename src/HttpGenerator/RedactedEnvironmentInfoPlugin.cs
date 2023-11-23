@@ -22,7 +22,7 @@ public class RedactedEnvironmentInfoPlugin : IEventPlugin
             var info = collector.GetEnvironmentInfo();
             RedactCommandLineInfo(info);
 
-            info.IpAddress = null!;
+            info.IpAddress = "[REDACTED]";
             info.MachineName = null!;
 
             info.InstallId = context.Client.Configuration.GetInstallId();
