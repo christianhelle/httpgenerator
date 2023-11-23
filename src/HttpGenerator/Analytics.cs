@@ -3,6 +3,7 @@ using Exceptionless;
 using Exceptionless.Plugins;
 using Spectre.Console.Cli;
 using HttpGenerator.Core;
+using Exceptionless.Plugins.Default;
 
 namespace HttpGenerator;
 
@@ -15,6 +16,8 @@ public static class Analytics
             SupportInformation.GetSupportKey());
 
         ExceptionlessClient.Default.Configuration.UseSessions();
+        ExceptionlessClient.Default.Configuration.RemovePlugin<EnvironmentInfoPlugin>();
+        ExceptionlessClient.Default.Configuration.AddPlugin<RedactedEnvironmentInfoPlugin>();
         ExceptionlessClient.Default.Configuration.SetVersion(typeof(GenerateCommand).Assembly.GetName().Version!);
         ExceptionlessClient.Default.Startup("7VSRHLYiJdF7Xp0WaVwmEbJxVmrjqHnTIZNKkrkI");
     }
