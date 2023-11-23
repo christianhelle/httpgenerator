@@ -46,14 +46,18 @@ public class RedactedEnvironmentInfoPlugin : IEventPlugin
         info.CommandLine = Regex.Replace(
             info.CommandLine,
             "--authorization-header \"Bearer [^ ]+\"",
-            "--authorization-header [REDACTED]");
+            "--authorization-header [REDACTED]",
+            RegexOptions.IgnoreCase,
+            TimeSpan.FromSeconds(1));
 
         try
         {
             info.CommandLine = Regex.Replace(
                 info.CommandLine,
                 @"^.*?httpgenerator\.dll",
-                "httpgenerator");
+                "httpgenerator",
+                RegexOptions.IgnoreCase,
+                TimeSpan.FromSeconds(1));
         }
         catch (Exception e)
         {
