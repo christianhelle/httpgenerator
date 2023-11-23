@@ -400,3 +400,4 @@ FodyWeavers.xsd
 test/GeneratedCode
 test/openapi.json
 test/openapi.yaml
+*.http
