@@ -6,29 +6,47 @@ namespace HttpGenerator.Tests;
 
 public class SwaggerPetstoreTests
 {
+    private const string Https = "https";
+    private const string Http = "http";
+
+    private const string HttpsUrlPrefix =
+        Https + "://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/";
+
+    private const string HttpUrlPrefix =
+        Http + "://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/";
+
     [Theory]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV3, "SwaggerPetstore.json")]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV3, "SwaggerPetstore.yaml")]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV2, "SwaggerPetstore.json")]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV2, "SwaggerPetstore.yaml")]
-    public async Task Can_Generate_Code(SampleOpenSpecifications version, string filename)
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    public async Task Can_Generate_Code(SampleOpenSpecifications version, string filename, OutputType outputType)
     {
-        var generateCode = await GenerateCode(version, filename);
+        var generateCode = await GenerateCode(version, filename, outputType);
         generateCode.Should().NotBeNull();
         generateCode.Files.Should().NotBeNullOrEmpty();
     }
 
     [Theory]
-    [InlineData("http://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.json")]
-    [InlineData("http://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.yaml")]
-    [InlineData("https://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.json")]
-    [InlineData("https://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.yaml")]
-    public async Task Can_Build_Generated_Code_From_Url(string url)
+    [InlineData(HttpsUrlPrefix + "petstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.json", OutputType.OneFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneFile)]
+    [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneFile)]
+    [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneFile)]
+    public async Task Can_Generate_Code_From_Url(string url, OutputType outputType)
     {
         var generateCode = await HttpFileGenerator.Generate(
             new GeneratorSettings
             {
-                OpenApiPath = url
+                OpenApiPath = url,
+                OutputType = outputType,
             });
 
         generateCode.Should().NotBeNull();
@@ -37,13 +55,16 @@ public class SwaggerPetstoreTests
 
     private static async Task<GeneratorResult> GenerateCode(
         SampleOpenSpecifications version,
-        string filename)
+        string filename,
+        OutputType outputType)
     {
-        var swaggerFile = await TestFile.CreateSwaggerFile(EmbeddedResources.GetSwaggerPetstore(version), filename);
+        var json = EmbeddedResources.GetSwaggerPetstore(version);
+        var swaggerFile = await TestFile.CreateSwaggerFile(json, filename);
         return await HttpFileGenerator.Generate(
             new GeneratorSettings
             {
-                OpenApiPath = swaggerFile
+                OpenApiPath = swaggerFile,
+                OutputType = outputType,
             });
     }
 }
