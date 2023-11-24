@@ -1,4 +1,6 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using HttpGenerator.Core;
 using Spectre.Console.Cli;
 
 namespace HttpGenerator;
@@ -36,4 +38,12 @@ public class Settings : CommandSettings
     [Description("Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL.")]
     [CommandOption("--base-url <BASE-URL>")]
     public string? BaseUrl { get; set; }
+    
+    [Description(
+        $"{nameof(OutputType.OneRequestPerFile)} generates one .http file per request. " +
+        $"{nameof(OutputType.OneFile)} generates a single .http file for all requests.")]
+    [CommandOption("--output-type <OUTPUT-TYPE>")]
+    [DefaultValue(OutputType.OneRequestPerFile)]
+    [AllowedValues(nameof(OutputType.OneRequestPerFile), nameof(OutputType.OneFile))]
+    public OutputType OutputType { get; set; } = OutputType.OneRequestPerFile;
 }
