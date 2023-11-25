@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpGenerator.Core", "src\HttpGenerator.Core\HttpGenerator.Core.csproj", "{9D1C5497-195B-486D-B98B-4377B719E6C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpGenerator.Core.Tests", "src\HttpGenerator.Core.Tests\HttpGenerator.Core.Tests.csproj", "{763965E5-01A9-4488-9218-50EAAB08A3D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpGenerator.Tests", "src\HttpGenerator.Tests\HttpGenerator.Tests.csproj", "{763965E5-01A9-4488-9218-50EAAB08A3D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpGenerator", "src\HttpGenerator\HttpGenerator.csproj", "{C04DC0CA-3692-4216-8E8E-621E8D9FF736}"
 EndProject

@@ -1,4 +1,4 @@
-﻿namespace HttpGenerator.Core.Tests.Resources;
+﻿namespace HttpGenerator.Tests.Resources;
 
 public static class EmbeddedResources
 {

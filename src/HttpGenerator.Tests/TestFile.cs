@@ -1,4 +1,4 @@
-﻿namespace HttpGenerator.Core.Tests;
+﻿namespace HttpGenerator.Tests;
 
 public static class TestFile
 {
