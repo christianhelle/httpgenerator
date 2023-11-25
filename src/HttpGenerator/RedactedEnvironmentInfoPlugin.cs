@@ -43,12 +43,7 @@ public class RedactedEnvironmentInfoPlugin : IEventPlugin
 
     private static void RedactCommandLineInfo(EnvironmentInfo info)
     {
-        info.CommandLine = Regex.Replace(
-            info.CommandLine,
-            "--authorization-header \"Bearer [^ ]+\"",
-            "--authorization-header [REDACTED]",
-            RegexOptions.IgnoreCase,
-            TimeSpan.FromSeconds(1));
+        info.CommandLine = PrivacyHelper.RedactAuthorizationHeaders(info.CommandLine);
 
         try
         {
