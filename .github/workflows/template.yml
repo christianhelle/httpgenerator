@@ -26,6 +26,13 @@ jobs:
     name: ${{ inputs.openapi }}.${{ inputs.format }} (${{ inputs.version }}) ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
+    
+    strategy:
+      matrix:
+        args: [ 
+          "--output-type OneFile", 
+          "--output-type OneRequestPerFile"
+        ]
 
     steps:
     - name: 🛒 Checkout repository

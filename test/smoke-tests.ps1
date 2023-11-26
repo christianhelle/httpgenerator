@@ -30,6 +30,17 @@ function Generate {
     if ($process.ExitCode -ne 0) {
         throw "HttpGenerator failed"
     }
+
+    Write-Host "HttpGenerator ./openapi.$format --output ./GeneratedCode/$outputPath --output-type OneFile --no-logging"
+    $process = Start-Process "./bin/HttpGenerator" `
+        -Args "./openapi.$format --output ./GeneratedCode --output-type OneFile --no-logging" `
+        -NoNewWindow `
+        -PassThru
+
+    $process | Wait-Process
+    if ($process.ExitCode -ne 0) {
+        throw "HttpGenerator failed"
+    }
 }
 
 function RunTests {
