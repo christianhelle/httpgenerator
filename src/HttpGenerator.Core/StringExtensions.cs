@@ -1,6 +1,8 @@
+using System.Text.RegularExpressions;
+
 namespace HttpGenerator.Core;
 
-internal static class StringCasingExtensions
+public static class StringExtensions
 {
     public static string ConvertKebabCaseToPascalCase(this string str)
     {

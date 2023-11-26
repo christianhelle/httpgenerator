@@ -1,7 +1,8 @@
 ﻿using FluentAssertions;
-using HttpGenerator.Core.Tests.Resources;
+using HttpGenerator.Core;
+using HttpGenerator.Tests.Resources;
 
-namespace HttpGenerator.Core.Tests;
+namespace HttpGenerator.Tests;
 
 public class OpenApiDocumentFactoryTests
 {
