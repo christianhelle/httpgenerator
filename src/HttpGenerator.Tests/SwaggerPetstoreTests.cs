@@ -65,6 +65,7 @@ public class SwaggerPetstoreTests
             {
                 OpenApiPath = swaggerFile,
                 OutputType = outputType,
+                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
             });
     }
 }
