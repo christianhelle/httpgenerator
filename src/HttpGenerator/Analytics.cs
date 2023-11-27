@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Exceptionless;
 using Exceptionless.Plugins;
 using Spectre.Console.Cli;
@@ -7,6 +8,7 @@ using Exceptionless.Plugins.Default;
 
 namespace HttpGenerator;
 
+[ExcludeFromCodeCoverage]
 public static class Analytics
 {
     public static void Configure()

@@ -1,10 +1,12 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using HttpGenerator.Core;
 using Spectre.Console.Cli;
 
 namespace HttpGenerator;
 
+[ExcludeFromCodeCoverage]
 public class Settings : CommandSettings
 {
     [Description("URL or file path to OpenAPI Specification file")]
