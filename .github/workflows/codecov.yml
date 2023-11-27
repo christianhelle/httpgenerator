@@ -37,7 +37,7 @@ jobs:
         dotnet-version: '8.0.x'    
     
     - name: 🧪 Test
-      run: dotnet test src/HttpGenerator.Core.Tests/HttpGenerator.Core.Tests.csproj -c Release --collect "Code coverage" -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}"
+      run: dotnet test src/HttpGenerator.Tests/HttpGenerator.Tests.csproj -c Release --collect "Code coverage" -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}"
     
     - name: 🗳️ Upload
       uses: actions/upload-artifact@v3
