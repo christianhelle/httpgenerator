@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using Exceptionless;
 using Exceptionless.Dependency;
 using Exceptionless.Logging;
@@ -8,6 +9,7 @@ using Exceptionless.Plugins;
 
 namespace HttpGenerator;
 
+[ExcludeFromCodeCoverage]
 [Priority(50)]
 public class RedactedEnvironmentInfoPlugin : IEventPlugin
 {
