@@ -47,6 +47,7 @@ public class SwaggerPetstoreTests
             {
                 OpenApiPath = url,
                 OutputType = outputType,
+                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
             });
 
         generateCode.Should().NotBeNull();
