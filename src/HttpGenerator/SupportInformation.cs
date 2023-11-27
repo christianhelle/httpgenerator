@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -11,6 +12,7 @@ public static class SupportInformation
     public static string GetAnonymousIdentity()
         => $"{Environment.UserName}@{GetMachineName()}".ToSha256();
 
+    [ExcludeFromCodeCoverage]
     private static string GetMachineName()
     {
         try
