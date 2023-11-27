@@ -17,11 +17,11 @@ public class OpenApiDocumentFactoryTests
     }
     
     [Theory]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV3, "SwaggerPetstore.json")]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV3, "SwaggerPetstore.yaml")]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreJsonV2, "SwaggerPetstore.json")]
-    [InlineData(SampleOpenSpecifications.SwaggerPetstoreYamlV2, "SwaggerPetstore.yaml")]
-    public async Task Create_From_File_Returns_NotNull(SampleOpenSpecifications version, string filename)
+    [InlineData(Samples.PetstoreJsonV3, "SwaggerPetstore.json")]
+    [InlineData(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml")]
+    [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json")]
+    [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml")]
+    public async Task Create_From_File_Returns_NotNull(Samples version, string filename)
     {
         var swaggerFile = await TestFile.CreateSwaggerFile(EmbeddedResources.GetSwaggerPetstore(version), filename);
         (await OpenApiDocumentFactory.CreateAsync(swaggerFile))

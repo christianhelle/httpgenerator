@@ -90,18 +90,18 @@ public static class EmbeddedResources
 
 
 
-    public static string GetSwaggerPetstore(SampleOpenSpecifications version)
+    public static string GetSwaggerPetstore(Samples version)
     {
         return version switch
         {
-            SampleOpenSpecifications.SwaggerPetstoreJsonV2 => SwaggerPetstoreJsonV2,
-            SampleOpenSpecifications.SwaggerPetstoreJsonV3 => SwaggerPetstoreJsonV3,
-            SampleOpenSpecifications.SwaggerPetstoreYamlV2 => SwaggerPetstoreYamlV2,
-            SampleOpenSpecifications.SwaggerPetstoreYamlV3 => SwaggerPetstoreYamlV3,
-            SampleOpenSpecifications.SwaggerPetstoreJsonV2WithDifferentHeaders => SwaggerPetstoreJsonV2WithDifferentHeaders,
-            SampleOpenSpecifications.SwaggerPetstoreJsonV3WithDifferentHeaders => SwaggerPetstoreJsonV3WithDifferentHeaders,
-            SampleOpenSpecifications.SwaggerPetstoreYamlV2WithDifferentHeaders => SwaggerPetstoreYamlV2WithDifferentHeaders,
-            SampleOpenSpecifications.SwaggerPetstoreYamlV3WithDifferentHeaders => SwaggerPetstoreYamlV3WithDifferentHeaders,
+            Samples.PetstoreJsonV2 => SwaggerPetstoreJsonV2,
+            Samples.PetstoreJsonV3 => SwaggerPetstoreJsonV3,
+            Samples.PetstoreYamlV2 => SwaggerPetstoreYamlV2,
+            Samples.PetstoreYamlV3 => SwaggerPetstoreYamlV3,
+            Samples.PetstoreJsonV2WithDifferentHeaders => SwaggerPetstoreJsonV2WithDifferentHeaders,
+            Samples.PetstoreJsonV3WithDifferentHeaders => SwaggerPetstoreJsonV3WithDifferentHeaders,
+            Samples.PetstoreYamlV2WithDifferentHeaders => SwaggerPetstoreYamlV2WithDifferentHeaders,
+            Samples.PetstoreYamlV3WithDifferentHeaders => SwaggerPetstoreYamlV3WithDifferentHeaders,
             _ => throw new ArgumentOutOfRangeException(nameof(version), version, null)
         };
     }
