@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.Json;
 using NSwag;
 using NSwag.CodeGeneration.CSharp;
 
@@ -57,7 +56,10 @@ public static class HttpFileGenerator
             {
                 var operation = operations.Value;
                 var verb = operations.Key.CapitalizeFirstCharacter();
-                var name = GenerateOperationName(kv.Key, verb, operation, document, generator);
+                var name = generator
+                    .BaseSettings
+                    .OperationNameGenerator
+                    .GetOperationName(document, kv.Key, verb, operation);
                 var filename = $"{name.CapitalizeFirstCharacter()}.http";
 
                 var code = GenerateRequest(settings, baseUrl, verb, kv, operation);
@@ -95,33 +97,9 @@ public static class HttpFileGenerator
 
         var requestBody = operation.RequestBody;
         var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
-        var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString();
-
-        if (requestBodySchema?.Example != null)
-        {
-            requestBodyJson = JsonSerializer.Serialize(requestBodySchema.Example);
-        }
+        var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString() ?? string.Empty;
 
         code.AppendLine(requestBodyJson);
         return code.ToString();
-    }
-
-    private static string GenerateOperationName(
-        string path,
-        string verb,
-        OpenApiOperation operation,
-        OpenApiDocument document,
-        CSharpClientGenerator generator,
-        bool capitalizeFirstCharacter = false)
-    {
-        var operationName = generator
-            .BaseSettings
-            .OperationNameGenerator
-            .GetOperationName(document, path, verb, operation);
-
-        if (capitalizeFirstCharacter)
-            operationName = operationName.CapitalizeFirstCharacter();
-
-        return operationName;
     }
 }
