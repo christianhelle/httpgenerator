@@ -8,8 +8,6 @@ namespace HttpGenerator.Core;
 [ExcludeFromCodeCoverage]
 public class GeneratorSettings
 {
-    public const string DefaultOutputFolder = "./Generated";
-
     /// <summary>
     /// Gets or sets the path to the Open API (local file or URL)
     /// </summary>
