@@ -17,7 +17,7 @@ internal class OperationNameGenerator : IOperationNameGenerator
     }
 
     [ExcludeFromCodeCoverage]
-    public bool SupportsMultipleClients => throw new System.NotImplementedException();
+    public bool SupportsMultipleClients => throw new NotImplementedException();
 
     [ExcludeFromCodeCoverage]
     public string GetClientName(OpenApiDocument document, string path, string httpMethod, OpenApiOperation operation)

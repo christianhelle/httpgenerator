@@ -95,14 +95,13 @@ public static class EmbeddedResources
         return version switch
         {
             Samples.PetstoreJsonV2 => SwaggerPetstoreJsonV2,
-            Samples.PetstoreJsonV3 => SwaggerPetstoreJsonV3,
             Samples.PetstoreYamlV2 => SwaggerPetstoreYamlV2,
             Samples.PetstoreYamlV3 => SwaggerPetstoreYamlV3,
             Samples.PetstoreJsonV2WithDifferentHeaders => SwaggerPetstoreJsonV2WithDifferentHeaders,
             Samples.PetstoreJsonV3WithDifferentHeaders => SwaggerPetstoreJsonV3WithDifferentHeaders,
             Samples.PetstoreYamlV2WithDifferentHeaders => SwaggerPetstoreYamlV2WithDifferentHeaders,
             Samples.PetstoreYamlV3WithDifferentHeaders => SwaggerPetstoreYamlV3WithDifferentHeaders,
-            _ => throw new ArgumentOutOfRangeException(nameof(version), version, null)
+            _ => SwaggerPetstoreJsonV3
         };
     }
 }
