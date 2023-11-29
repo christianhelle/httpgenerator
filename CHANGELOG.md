@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.1.6...HEAD)
+
+**Implemented enhancements:**
+
+- Generate Content-Type and Authorization headers to use variables [\#13](https://github.com/christianhelle/httpgenerator/pull/13) ([christianhelle](https://github.com/christianhelle))
+
 ## [0.1.6](https://github.com/christianhelle/httpgenerator/tree/0.1.6) (2023-11-29)
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.1.5...0.1.6)
