@@ -25,6 +25,8 @@ public static class HttpFileGenerator
         string baseUrl)
     {
         var code = new StringBuilder();
+        WriteFileHeaders(settings, code);
+
         foreach (var kv in document.Paths)
         {
             foreach (var operations in kv.Value)
@@ -41,6 +43,18 @@ public static class HttpFileGenerator
 
         return new GeneratorResult(
             new[] { new HttpFile("Requests.http", code.ToString()) });
+    }
+
+    private static void WriteFileHeaders(GeneratorSettings settings, StringBuilder code)
+    {
+        code.AppendLine($"@contentType = {settings.ContentType}");
+
+        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
+        {
+            code.AppendLine($"@authorization = {settings.AuthorizationHeader}");
+        }
+        
+        code.AppendLine();
     }
 
     private static GeneratorResult GenerateMultipleFiles(
@@ -62,8 +76,11 @@ public static class HttpFileGenerator
                     .GetOperationName(document, kv.Key, verb, operation);
                 var filename = $"{name.CapitalizeFirstCharacter()}.http";
 
-                var code = GenerateRequest(settings, baseUrl, verb, kv, operation);
-                files.Add(new HttpFile(filename, code));
+                var code = new StringBuilder();
+                WriteFileHeaders(settings, code);
+                code.AppendLine(GenerateRequest(settings, baseUrl, verb, kv, operation));
+                
+                files.Add(new HttpFile(filename, code.ToString()));
             }
         }
 
@@ -81,11 +98,11 @@ public static class HttpFileGenerator
         code.AppendLine($"### {verb.ToUpperInvariant()} {kv.Key} Request");
         code.AppendLine();
         code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{kv.Key}");
-        code.AppendLine("Content-Type: " + settings.ContentType);
+        code.AppendLine("Content-Type: @contentType");
 
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
         {
-            code.AppendLine($"Authorization: {settings.AuthorizationHeader}");
+            code.AppendLine($"Authorization: @authorization");
         }
 
         var contentType = operation.RequestBody?.Content?.Keys
