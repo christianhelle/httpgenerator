@@ -43,11 +43,11 @@ public class GenerateCommand : AsyncCommand<Settings>
             if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
                 Directory.CreateDirectory(settings.OutputFolder);
 
-            foreach (var file in result.Files)
-            {
-                var outputFile = Path.Combine(settings.OutputFolder!, file.Filename);
-                await File.WriteAllTextAsync(outputFile, file.Content);
-            }
+            await Task.WhenAll(
+                result.Files.Select(
+                    file => File.WriteAllTextAsync(
+                        Path.Combine(settings.OutputFolder!, file.Filename),
+                        file.Content)));
 
             AnsiConsole.MarkupLine($"[green]Files: {result.Files.Count}[/]");
             AnsiConsole.MarkupLine($"[green]Duration: {stopwatch.Elapsed}{Crlf}[/]");
