@@ -46,7 +46,7 @@ public class GenerateCommand : AsyncCommand<Settings>
             await Task.WhenAll(
                 result.Files.Select(
                     file => File.WriteAllTextAsync(
-                        Path.Combine(settings.OutputFolder!, file.Filename),
+                        Path.Combine(settings.OutputFolder, file.Filename),
                         file.Content)));
 
             AnsiConsole.MarkupLine($"[green]Files: {result.Files.Count}[/]");
