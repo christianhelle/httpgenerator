@@ -10,7 +10,7 @@ public static class HttpFileGenerator
     {
         var document = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
         var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
-        generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator(document);
+        generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator();
 
         var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
 

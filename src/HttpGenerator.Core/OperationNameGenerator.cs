@@ -10,12 +10,6 @@ internal class OperationNameGenerator : IOperationNameGenerator
     private readonly IOperationNameGenerator defaultGenerator =
         new MultipleClientsFromOperationIdOperationNameGenerator();
 
-    public OperationNameGenerator(OpenApiDocument document)
-    {
-        if (CheckForDuplicateOperationIds(document))
-            defaultGenerator = new MultipleClientsFromFirstTagAndPathSegmentsOperationNameGenerator();
-    }
-
     [ExcludeFromCodeCoverage]
     public bool SupportsMultipleClients => throw new NotImplementedException();
 
@@ -38,7 +32,11 @@ internal class OperationNameGenerator : IOperationNameGenerator
                 .CapitalizeFirstCharacter()
                 .ConvertKebabCaseToPascalCase()
                 .ConvertRouteToCamelCase()
-                .ConvertSpacesToPascalCase();
+                .ConvertSpacesToPascalCase()
+                .Prefix(
+                    httpMethod
+                        .ToLowerInvariant()
+                        .CapitalizeFirstCharacter());
         }
         catch (Exception e)
         {
