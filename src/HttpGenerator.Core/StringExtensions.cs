@@ -44,5 +44,12 @@ public static class StringExtensions
         return string.Join(string.Empty, parts);
     }
 
-    public static string Prefix(this string str, string prefix) => prefix + str;
+    public static string Prefix(this string str, string prefix)
+    {
+        if (str.StartsWith(prefix))
+        {
+            return str;
+        }
+        return prefix + str;
+    }
 }

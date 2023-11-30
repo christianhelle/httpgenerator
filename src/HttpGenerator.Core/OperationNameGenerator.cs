@@ -33,7 +33,10 @@ internal class OperationNameGenerator : IOperationNameGenerator
                 .ConvertKebabCaseToPascalCase()
                 .ConvertRouteToCamelCase()
                 .ConvertSpacesToPascalCase()
-                .Prefix(httpMethod.ToLowerInvariant().CapitalizeFirstCharacter());
+                .Prefix(
+                    httpMethod
+                        .ToLowerInvariant()
+                        .CapitalizeFirstCharacter());
         }
         catch (Exception e)
         {
