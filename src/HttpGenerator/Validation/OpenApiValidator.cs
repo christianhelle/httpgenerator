@@ -31,7 +31,8 @@ public static class OpenApiValidator
                 var httpClientHandler = new HttpClientHandler()
                 {
                     SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
-                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                    ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator,
                 };
                 using var httpClient = new HttpClient(httpClientHandler);
                 httpClient.DefaultRequestVersion = HttpVersion.Version20;

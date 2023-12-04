@@ -51,6 +51,7 @@ public static class OpenApiDocumentFactory
     {
         var httpMessageHandler = new HttpClientHandler();
         httpMessageHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+        httpMessageHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
         using var http = new HttpClient(httpMessageHandler);
         var content = await http.GetStringAsync(openApiPath);
         return content;
