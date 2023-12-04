@@ -27,7 +27,6 @@ jobs:
   
   file:
     strategy:
-      fail-fast: false
       matrix:
         format: [json, yaml]
         version: [v2.0, v3.0]
@@ -58,7 +57,6 @@ jobs:
   
   url:
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         openapi_url: [
