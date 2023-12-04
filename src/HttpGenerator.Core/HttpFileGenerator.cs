@@ -14,7 +14,7 @@ public static class HttpFileGenerator
 
         var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
         if (!Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute) &&
-            settings.OpenApiPath.StartsWith("http"))
+            settings.OpenApiPath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
         {
             baseUrl = new Uri(settings.OpenApiPath)
                           .GetLeftPart(UriPartial.Authority) +
