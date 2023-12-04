@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using HttpGenerator.Core;
 using HttpGenerator.Tests.Resources;
 
@@ -35,8 +36,14 @@ public class SwaggerPetstoreTests
     public async Task Can_Generate_Code(Samples version, string filename, OutputType outputType)
     {
         var generateCode = await GenerateCode(version, filename, outputType);
+        
+        using var scope = new AssertionScope();
         generateCode.Should().NotBeNull();
         generateCode.Files.Should().NotBeNullOrEmpty();
+        generateCode.Files
+            .All(file => file.Content.Count(c => c == '#') >= 6)
+            .Should()
+            .BeTrue();
     }
 
     [Theory]
@@ -58,8 +65,13 @@ public class SwaggerPetstoreTests
                 AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
             });
 
+        using var scope = new AssertionScope();
         generateCode.Should().NotBeNull();
         generateCode.Files.Should().NotBeNullOrEmpty();
+        generateCode.Files
+            .All(file => file.Content.Count(c => c == '#') >= 6)
+            .Should()
+            .BeTrue();
     }
 
     private static async Task<GeneratorResult> GenerateCode(

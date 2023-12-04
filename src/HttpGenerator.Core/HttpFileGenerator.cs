@@ -53,7 +53,7 @@ public static class HttpFileGenerator
         {
             code.AppendLine($"@authorization = {settings.AuthorizationHeader}");
         }
-        
+
         code.AppendLine();
     }
 
@@ -79,7 +79,7 @@ public static class HttpFileGenerator
                 var code = new StringBuilder();
                 WriteFileHeaders(settings, code);
                 code.AppendLine(GenerateRequest(settings, baseUrl, verb, kv, operation));
-                
+
                 files.Add(new HttpFile(filename, code.ToString()));
             }
         }
@@ -95,8 +95,7 @@ public static class HttpFileGenerator
         OpenApiOperation operation)
     {
         var code = new StringBuilder();
-        code.AppendLine($"### {verb.ToUpperInvariant()} {kv.Key} Request");
-        code.AppendLine();
+        AppendSummary(verb, kv, operation, code);
         code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{kv.Key}");
         code.AppendLine("Content-Type: @contentType");
 
@@ -118,5 +117,37 @@ public static class HttpFileGenerator
 
         code.AppendLine(requestBodyJson);
         return code.ToString();
+    }
+
+    private static void AppendSummary(
+        string verb,
+        KeyValuePair<string, OpenApiPathItem> kv,
+        OpenApiOperation operation,
+        StringBuilder code)
+    {
+        var request = $"### {verb.ToUpperInvariant()} {kv.Key} Request";
+        var length = request.Length + 2;
+        length = Math.Max(length, Math.Max(operation.Summary?.Length ?? 0, operation.Description?.Length ?? 0));
+
+        for (var i = 0; i < length; i++)
+        {
+            code.Insert(0, "#");
+        }
+
+        code.AppendLine();
+        code.AppendLine(request);
+
+        if (!string.IsNullOrWhiteSpace(operation.Summary) ||
+            !string.IsNullOrWhiteSpace(operation.Description))
+        {
+            code.AppendLine($"### {operation.Summary ?? operation.Description}");
+        }
+
+        for (var i = 0; i < length; i++)
+        {
+            code.Insert(code.Length, "#");
+        }
+
+        code.AppendLine(Environment.NewLine);
     }
 }
