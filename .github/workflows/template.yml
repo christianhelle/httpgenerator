@@ -14,7 +14,7 @@ jobs:
   
   test:
 
-    name: ${{ matrix.openapi }}.${{ matrix.format }} (${{ matrix.version }}) ${{ inputs.os }}
+    name: ${{ matrix.openapi }}.${{ matrix.format }} (${{ matrix.version }})
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
     
