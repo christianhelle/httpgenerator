@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Unsafe Server Certificate Validation Bypass [\#15](https://github.com/christianhelle/httpgenerator/pull/15) ([christianhelle](https://github.com/christianhelle))
 - Update output filenames to be prefixed with HTTP Method [\#14](https://github.com/christianhelle/httpgenerator/pull/14) ([christianhelle](https://github.com/christianhelle))
 - Generate Content-Type and Authorization headers to use variables [\#13](https://github.com/christianhelle/httpgenerator/pull/13) ([christianhelle](https://github.com/christianhelle))
 
