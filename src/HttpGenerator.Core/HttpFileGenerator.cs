@@ -127,7 +127,7 @@ public static class HttpFileGenerator
     {
         var request = $"### {verb.ToUpperInvariant()} {kv.Key} Request";
         var length = request.Length + 2;
-        length = Math.Max(length, Math.Max(operation.Summary.Length, operation.Description.Length));
+        length = Math.Max(length, Math.Max(operation.Summary?.Length ?? 0, operation.Description?.Length ?? 0));
 
         for (var i = 0; i < length; i++)
         {
