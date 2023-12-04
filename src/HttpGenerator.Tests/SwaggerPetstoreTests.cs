@@ -74,6 +74,33 @@ public class SwaggerPetstoreTests
             .BeTrue();
     }
 
+    [Theory]
+    [InlineData(HttpsUrlPrefix + "petstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.json", OutputType.OneFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneFile)]
+    [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneFile)]
+    [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneFile)]
+    public async Task Files_Generated_From_Url_Uses_OpenApiPath_Authority_As_For_BaseUrl(
+        string url,
+        OutputType outputType)
+    {
+        var generateCode = await HttpFileGenerator.Generate(
+            new GeneratorSettings
+            {
+                OpenApiPath = url,
+                OutputType = outputType
+            });
+
+        generateCode
+            .Files
+            .All(file => file.Content.Contains(new Uri(url).GetLeftPart(UriPartial.Authority)))
+            .Should()
+            .BeTrue();
+    }
+
     private static async Task<GeneratorResult> GenerateCode(
         Samples version,
         string filename,
