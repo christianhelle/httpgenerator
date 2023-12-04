@@ -17,28 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        format: [json, yaml]
-        version: [V2, V3]
         os: [macos-latest, windows-latest, ubuntu-latest]
-        openapi: [
-          "api-with-examples",
-          "callback-example",
-          "link-example",
-          "uber",
-          "uspto",
-          "petstore",
-          "petstore-expanded",
-          "petstore-minimal",
-          "petstore-simple",
-          "petstore-with-external-docs",
-          "ingram-micro",
-          "hubspot-events",
-          "hubspot-webhooks"
-        ]
     uses: ./.github/workflows/template.yml
     with:
       os: ${{ matrix.os }}
-      format: ${{ matrix.format }}
-      version: ${{ matrix.version }}
-      openapi: ${{ matrix.openapi }}
       command: 'dotnet tool install --global --prerelease HttpGenerator; HttpGenerator'

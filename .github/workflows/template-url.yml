@@ -3,9 +3,6 @@ name: Run Tests (URL)
 on:
   workflow_call:
     inputs:
-      openapi:
-        required: true
-        type: string
       os:
         type: string
         default: ubuntu-latest
@@ -17,9 +14,20 @@ jobs:
   
   test:
 
-    name: ${{ inputs.openapi }}.${{ inputs.format }} (${{ inputs.version }}) ${{ inputs.os }}
+    name: ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
+    
+    strategy:
+      matrix:        
+        openapi_url: [
+          "https://petstore3.swagger.io/api/v3/openapi.json",
+          "https://petstore3.swagger.io/api/v3/openapi.yaml"
+        ]
+        args: [
+          "--output-type OneFile",
+          "--output-type OneRequestPerFile"
+        ]
 
     steps:
     - name: 🛒 Checkout repository
@@ -30,6 +38,6 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: 🛠️ Generate code
-      run: ${{ inputs.command }} "${{ inputs.openapi }}" --no-logging
+      run: ${{ inputs.command }} "${{ matrix.openapi }}" --no-logging ${{ matrix.args }}
       working-directory: test
       shell: pwsh
