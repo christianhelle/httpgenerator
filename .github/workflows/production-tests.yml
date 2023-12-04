@@ -6,8 +6,6 @@ on:
     paths-ignore:
       - "**/*"
       - "!.github/workflows/production-tests.yml"
-    branches:
-      - "main"
   schedule:
     - cron: '0 8 * * *'
 
