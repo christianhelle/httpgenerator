@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Use the Authority part of OpenAPI path as the Base URL if not specified [\#17](https://github.com/christianhelle/httpgenerator/pull/17) ([christianhelle](https://github.com/christianhelle))
 - Include operation summary or description in generated .http files [\#16](https://github.com/christianhelle/httpgenerator/pull/16) ([christianhelle](https://github.com/christianhelle))
 - Unsafe Server Certificate Validation Bypass [\#15](https://github.com/christianhelle/httpgenerator/pull/15) ([christianhelle](https://github.com/christianhelle))
 - Update output filenames to be prefixed with HTTP Method [\#14](https://github.com/christianhelle/httpgenerator/pull/14) ([christianhelle](https://github.com/christianhelle))
