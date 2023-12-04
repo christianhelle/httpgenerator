@@ -13,6 +13,13 @@ public static class HttpFileGenerator
         generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator();
 
         var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
+        if (!Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute) &&
+            settings.OpenApiPath.StartsWith("http"))
+        {
+            baseUrl = new Uri(settings.OpenApiPath)
+                          .GetLeftPart(UriPartial.Authority) +
+                      baseUrl;
+        }
 
         return settings.OutputType == OutputType.OneRequestPerFile
             ? GenerateMultipleFiles(settings, document, generator, baseUrl)

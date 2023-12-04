@@ -11,12 +11,17 @@
       "name": "Apache 2.0",
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     },
-    "version": "1.0.5"
+    "version": "1.0.17"
   },
   "externalDocs": {
     "description": "Find out more about Swagger",
     "url": "http://swagger.io"
   },
+  "servers": [
+    {
+      "url": "/api/v3"
+    }
+  ],
   "tags": [
     {
       "name": "pet",
@@ -28,15 +33,15 @@
     },
     {
       "name": "store",
-      "description": "Operations about user"
-    },
-    {
-      "name": "user",
       "description": "Access to Petstore orders",
       "externalDocs": {
         "description": "Find out more about our store",
         "url": "http://swagger.io"
       }
+    },
+    {
+      "name": "user",
+      "description": "Operations about user"
     }
   ],
   "paths": {
@@ -192,6 +197,14 @@
           "200": {
             "description": "successful operation",
             "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              },
               "application/json": {
                 "schema": {
                   "type": "array",
@@ -243,6 +256,14 @@
           "200": {
             "description": "successful operation",
             "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Pet"
+                  }
+                }
+              },
               "application/json": {
                 "schema": {
                   "type": "array",
@@ -264,8 +285,7 @@
               "read:pets"
             ]
           }
-        ],
-        "deprecated": true
+        ]
       }
     },
     "/pet/{petId}": {
@@ -557,7 +577,7 @@
           "store"
         ],
         "summary": "Find purchase order by ID",
-        "description": "For valid response try integer IDs with value <= 5 or > 10. Other values will generated exceptions",
+        "description": "For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.",
         "operationId": "getOrderById",
         "parameters": [
           {
@@ -575,6 +595,11 @@
           "200": {
             "description": "successful operation",
             "content": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Order"
@@ -748,7 +773,7 @@
                 }
               },
               "X-Expires-After": {
-                "description": "date in UTC when toekn expires",
+                "description": "date in UTC when token expires",
                 "schema": {
                   "type": "string",
                   "format": "date-time"
@@ -756,6 +781,11 @@
               }
             },
             "content": {
+              "application/xml": {
+                "schema": {
+                  "type": "string"
+                }
+              },
               "application/json": {
                 "schema": {
                   "type": "string"
@@ -808,6 +838,11 @@
           "200": {
             "description": "successful operation",
             "content": {
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              },
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
