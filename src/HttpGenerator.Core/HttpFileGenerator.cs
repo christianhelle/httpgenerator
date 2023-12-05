@@ -132,9 +132,17 @@ public static class HttpFileGenerator
         OpenApiOperation operation,
         StringBuilder code)
     {
-        var request = $"### {verb.ToUpperInvariant()} {kv.Key} Request";
-        var length = request.Length + 2;
-        length = Math.Max(length, Math.Max(operation.Summary?.Length ?? 0, operation.Description?.Length ?? 0));
+        const int padding = 2;
+        const string summary = "### Summary: ";
+        const string description = "### Description: ";
+        
+        var request = $"### Request: {verb.ToUpperInvariant()} {kv.Key}";
+        var length = request.Length + padding;
+        length = Math.Max(
+            length,
+            Math.Max(
+                (operation.Summary?.Length ?? 0) + summary.Length + padding,
+                (operation.Description?.Length ?? 0) + description.Length + padding));
 
         for (var i = 0; i < length; i++)
         {
@@ -144,10 +152,14 @@ public static class HttpFileGenerator
         code.AppendLine();
         code.AppendLine(request);
 
-        if (!string.IsNullOrWhiteSpace(operation.Summary) ||
-            !string.IsNullOrWhiteSpace(operation.Description))
+        if (!string.IsNullOrWhiteSpace(operation.Summary))
         {
-            code.AppendLine($"### {operation.Summary ?? operation.Description}");
+            code.AppendLine($"{summary}{operation.Summary}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(operation.Description))
+        {
+            code.AppendLine($"{description}{operation.Description}");
         }
 
         for (var i = 0; i < length; i++)
