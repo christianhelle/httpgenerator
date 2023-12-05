@@ -15,14 +15,16 @@ function Generate {
     param (
         [Parameter(Mandatory=$true)]
         [string]
-        $format
+        $format,
+        
+        [Parameter(Mandatory=$true)]
+        [string]
+        $output
     )
-    
-    Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./GeneratedCode/$outputPath --no-logging"
+    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --no-logging"
     $process = Start-Process "./bin/HttpGenerator" `
-        -Args "./openapi.$format --output ./GeneratedCode --no-logging" `
+        -Args "./openapi.$format --output ./Generated/$output --no-logging" `
         -NoNewWindow `
         -PassThru
 
@@ -31,9 +33,9 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./GeneratedCode/$outputPath --output-type OneFile --no-logging"
+    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --output-type OneFile --no-logging"
     $process = Start-Process "./bin/HttpGenerator" `
-        -Args "./openapi.$format --output ./GeneratedCode --output-type OneFile --no-logging" `
+        -Args "./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging" `
         -NoNewWindow `
         -PassThru
 
@@ -70,6 +72,7 @@ function RunTests {
         "hubspot-webhooks"
     )
     
+    Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
     Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=true -p:PublishReadyToRun=true -o bin"
     Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=true -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
     
@@ -83,7 +86,7 @@ function RunTests {
                 if ($exists -eq $true) {
                     Write-Host "Testing $filename"
                     Copy-Item $filename ./openapi.$format
-                    Generate -format $format
+                    Generate -format $format -output $_/$version/$format
                 }
             }
         }
