@@ -104,11 +104,11 @@ public static class HttpFileGenerator
         var code = new StringBuilder();
         AppendSummary(verb, kv, operation, code);
         code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{kv.Key}");
-        code.AppendLine("Content-Type: @contentType");
+        code.AppendLine("Content-Type: {{contentType}}");
 
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
         {
-            code.AppendLine($"Authorization: @authorization");
+            code.AppendLine($"Authorization: {{authorization}}");
         }
 
         var contentType = operation.RequestBody?.Content?.Keys

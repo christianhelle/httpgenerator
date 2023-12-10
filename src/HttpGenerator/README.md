@@ -95,8 +95,8 @@ In this example, the contents of `PostAddPet.http` looks like this:
 ### Description: Add a new pet to the store
 #############################################
 
-POST /api/v3/pet
-Content-Type: @contentType
+POST https://petstore3.swagger.io/api/v3/pet
+Content-Type: {{contentType}}
 
 {
   "id": 0,
