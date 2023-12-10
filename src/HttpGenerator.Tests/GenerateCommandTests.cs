@@ -52,6 +52,57 @@ public class GenerateCommandTests
     }
 
     [Theory]
+    [Inline("V31.non-oauth-scopes.json", OutputType.OneRequestPerFile)]
+    [Inline("V31.non-oauth-scopes.yaml", OutputType.OneRequestPerFile)]
+    [Inline("V31.webhook-example.json", OutputType.OneRequestPerFile)]
+    [Inline("V31.webhook-example.yaml", OutputType.OneRequestPerFile)]
+    [Inline("V31.non-oauth-scopes.json", OutputType.OneFile)]
+    [Inline("V31.non-oauth-scopes.yaml", OutputType.OneFile)]
+    [Inline("V31.webhook-example.json", OutputType.OneFile)]
+    [Inline("V31.webhook-example.yaml", OutputType.OneFile)]
+    public async Task Should_Generate_Code_From_File_V31_Spec_When_Validation_Skipped(
+        string manifestResourceStreamName,
+        OutputType outputType,
+        GenerateCommand sut,
+        CommandContext context,
+        Settings settings)
+    {
+        var json = EmbeddedResources.GetStringFromEmbeddedResource(manifestResourceStreamName);
+        settings.OpenApiPath = await TestFile.CreateSwaggerFile(json, manifestResourceStreamName);
+        settings.NoLogging = true;
+        settings.SkipValidation = true;
+
+        (await sut.ExecuteAsync(context, settings))
+            .Should()
+            .Be(0);
+    }
+
+    [Theory]
+    [Inline("V31.non-oauth-scopes.json", OutputType.OneRequestPerFile)]
+    [Inline("V31.non-oauth-scopes.yaml", OutputType.OneRequestPerFile)]
+    [Inline("V31.webhook-example.json", OutputType.OneRequestPerFile)]
+    [Inline("V31.webhook-example.yaml", OutputType.OneRequestPerFile)]
+    [Inline("V31.non-oauth-scopes.json", OutputType.OneFile)]
+    [Inline("V31.non-oauth-scopes.yaml", OutputType.OneFile)]
+    [Inline("V31.webhook-example.json", OutputType.OneFile)]
+    [Inline("V31.webhook-example.yaml", OutputType.OneFile)]
+    public async Task Should_Fail_Validating_V31_Spec(
+        string manifestResourceStreamName,
+        OutputType outputType,
+        GenerateCommand sut,
+        CommandContext context,
+        Settings settings)
+    {
+        var json = EmbeddedResources.GetStringFromEmbeddedResource(manifestResourceStreamName);
+        settings.OpenApiPath = await TestFile.CreateSwaggerFile(json, manifestResourceStreamName);
+        settings.NoLogging = true;
+
+        (await sut.ExecuteAsync(context, settings))
+            .Should()
+            .NotBe(0);
+    }
+
+    [Theory]
     [Inline(HttpsUrlPrefix + "petstore.json", OutputType.OneRequestPerFile)]
     [Inline(HttpsUrlPrefix + "petstore.yaml", OutputType.OneRequestPerFile)]
     [Inline(HttpUrlPrefix + "petstore.json", OutputType.OneRequestPerFile)]

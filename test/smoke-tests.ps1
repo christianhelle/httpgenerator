@@ -19,12 +19,16 @@ function Generate {
         
         [Parameter(Mandatory=$true)]
         [string]
-        $output
+        $output,
+                       
+        [Parameter(Mandatory=$false)]
+        [string]
+        $args = ""
     )
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --no-logging"
+    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --no-logging $args"
     $process = Start-Process "./bin/HttpGenerator" `
-        -Args "./openapi.$format --output ./Generated/$output --no-logging" `
+        -Args "./openapi.$format --output ./Generated/$output --no-logging $args" `
         -NoNewWindow `
         -PassThru
 
@@ -33,9 +37,9 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --output-type OneFile --no-logging"
+    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --output-type OneFile --no-logging $args"
     $process = Start-Process "./bin/HttpGenerator" `
-        -Args "./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging" `
+        -Args "./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args" `
         -NoNewWindow `
         -PassThru
 
@@ -69,14 +73,16 @@ function RunTests {
         "uber",
         "uspto",
         "hubspot-events",
-        "hubspot-webhooks"
+        "hubspot-webhooks",
+#         "non-oauth-scopes",
+        "webhook-example"
     )
     
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
     Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=true -p:PublishReadyToRun=true -o bin"
     Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=true -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
     
-    "v3.0", "v2.0" | ForEach-Object {
+    "v2.0", "v3.0", "v3.1" | ForEach-Object {
         $version = $_
         "json", "yaml" | ForEach-Object {            
             $format = $_
@@ -86,7 +92,11 @@ function RunTests {
                 if ($exists -eq $true) {
                     Write-Host "Testing $filename"
                     Copy-Item $filename ./openapi.$format
-                    Generate -format $format -output $_/$version/$format
+                    if ($version -eq "v3.1") {
+                        Generate -format $format -output $_/$version/$format -args "--skip-validation"
+                    } else {
+                        Generate -format $format -output $_/$version/$format
+                    }
                 }
             }
         }
