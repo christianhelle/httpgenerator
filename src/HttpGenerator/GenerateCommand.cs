@@ -2,6 +2,7 @@
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Readers.Exceptions;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -24,10 +25,10 @@ public class GenerateCommand : AsyncCommand<Settings>
                 settings.NoLogging
                     ? "[green]Support key: Unavailable when logging is disabled[/]"
                     : $"[green]Support key: {SupportInformation.GetSupportKey()}[/]");
-            
+
             if (!settings.SkipValidation)
                 await ValidateOpenApiSpec(settings);
-            
+
             var generatorSettings = new GeneratorSettings
             {
                 AuthorizationHeader = settings.AuthorizationHeader,
@@ -53,11 +54,23 @@ public class GenerateCommand : AsyncCommand<Settings>
             AnsiConsole.MarkupLine($"[green]Duration: {stopwatch.Elapsed}{Crlf}[/]");
             return 0;
         }
+        catch (OpenApiUnsupportedSpecVersionException exception)
+        {
+            AnsiConsole.MarkupLine($"{Crlf}[red]Error:{Crlf}{exception.Message}[/]");
+            AnsiConsole.MarkupLine(
+                $"{Crlf}[yellow]Tips:{Crlf}" +
+                $"Consider using the --skip-validation argument.{Crlf}" +
+                $"In some cases, the features that are specific to the " +
+                $"unsupported versions of OpenAPI specifications aren't really used.{Crlf}" +
+                $"This tool uses NSwag libraries to parse the OpenAPI document and " +
+                $"Microsoft.OpenApi libraries for validation.{Crlf}{Crlf}[/]");
+            return exception.HResult;
+        }
         catch (Exception exception)
         {
             if (exception is not OpenApiValidationException)
             {
-                AnsiConsole.MarkupLine($"[red]Error:{Crlf}{exception.Message}[/]");
+                AnsiConsole.MarkupLine($"{Crlf}[red]Error:{Crlf}{exception.Message}[/]");
                 AnsiConsole.MarkupLine($"[red]Exception:{Crlf}{exception.GetType()}[/]");
                 AnsiConsole.MarkupLine($"[yellow]Stack Trace:{Crlf}{exception.StackTrace}[/]");
             }
