@@ -6,7 +6,7 @@ Generate .http files from OpenAPI specifications
 
 ## Usage
 
-```
+```sh
 USAGE:
     httpgenerator [URL or input file] [OPTIONS]
 
@@ -42,7 +42,7 @@ httpgenerator https://petstore.swagger.io/v2/swagger.json
 
 Outputs the following:
 
-```
+```sh
 HTTP File Generator v0.1.1
 Support key: mbmbqvd
 
@@ -63,44 +63,48 @@ Duration: 00:00:02.3089450
 Which will produce the following files:
 
 ```sh
--rw-r--r--  1 christian  staff  299 Nov 13 22:40 AddPet.http
--rw-r--r--  1 christian  staff  276 Nov 13 22:40 CreateUser.http
--rw-r--r--  1 christian  staff  332 Nov 13 22:40 CreateUsersWithArrayInput.http
--rw-r--r--  1 christian  staff  330 Nov 13 22:40 CreateUsersWithListInput.http
--rw-r--r--  1 christian  staff  135 Nov 13 22:40 DeleteOrder.http
--rw-r--r--  1 christian  staff  115 Nov 13 22:40 DeletePet.http
--rw-r--r--  1 christian  staff  123 Nov 13 22:40 DeleteUser.http
--rw-r--r--  1 christian  staff  119 Nov 13 22:40 FindPetsByStatus.http
--rw-r--r--  1 christian  staff  115 Nov 13 22:40 FindPetsByTags.http
--rw-r--r--  1 christian  staff  117 Nov 13 22:40 GetInventory.http
--rw-r--r--  1 christian  staff  129 Nov 13 22:40 GetOrderById.http
--rw-r--r--  1 christian  staff  109 Nov 13 22:40 GetPetById.http
--rw-r--r--  1 christian  staff  117 Nov 13 22:40 GetUserByName.http
--rw-r--r--  1 christian  staff  107 Nov 13 22:40 LoginUser.http
--rw-r--r--  1 christian  staff  109 Nov 13 22:40 LogoutUser.http
--rw-r--r--  1 christian  staff  250 Nov 13 22:40 PlaceOrder.http
--rw-r--r--  1 christian  staff  297 Nov 13 22:40 UpdatePet.http
--rw-r--r--  1 christian  staff  111 Nov 13 22:40 UpdatePetWithForm.http
--rw-r--r--  1 christian  staff  296 Nov 13 22:40 UpdateUser.http
--rw-r--r--  1 christian  staff  135 Nov 13 22:40 UploadFile.http
-
+-rw-r--r-- 1 christian 197121  593 Dec 10 10:44 DeleteOrder.http        
+-rw-r--r-- 1 christian 197121  231 Dec 10 10:44 DeletePet.http
+-rw-r--r-- 1 christian 197121  358 Dec 10 10:44 DeleteUser.http
+-rw-r--r-- 1 christian 197121  432 Dec 10 10:44 GetFindPetsByStatus.http
+-rw-r--r-- 1 christian 197121  504 Dec 10 10:44 GetFindPetsByTags.http  
+-rw-r--r-- 1 christian 197121  371 Dec 10 10:44 GetInventory.http       
+-rw-r--r-- 1 christian 197121  247 Dec 10 10:44 GetLoginUser.http       
+-rw-r--r-- 1 christian 197121  291 Dec 10 10:44 GetLogoutUser.http      
+-rw-r--r-- 1 christian 197121  540 Dec 10 10:44 GetOrderById.http
+-rw-r--r-- 1 christian 197121  275 Dec 10 10:44 GetPetById.http
+-rw-r--r-- 1 christian 197121  245 Dec 10 10:44 GetUserByName.http
+-rw-r--r-- 1 christian 197121  513 Dec 10 10:44 PostAddPet.http
+-rw-r--r-- 1 christian 197121  521 Dec 10 10:44 PostCreateUser.http
+-rw-r--r-- 1 christian 197121  610 Dec 10 10:44 PostCreateUsersWithListInput.http
+-rw-r--r-- 1 christian 197121  464 Dec 10 10:44 PostPlaceOrder.http
+-rw-r--r-- 1 christian 197121  299 Dec 10 10:44 PostUpdatePetWithForm.http
+-rw-r--r-- 1 christian 197121  274 Dec 10 10:44 PostUploadFile.http
+-rw-r--r-- 1 christian 197121  513 Dec 10 10:44 PutUpdatePet.http
+-rw-r--r-- 1 christian 197121  541 Dec 10 10:44 PutUpdateUser.http
 ```
 
-In this example, the contents of `AddPet.http` looks like this:
+In this example, the contents of `PostAddPet.http` looks like this:
 
 ```sh
-### POST /pet Request
+@contentType = application/json
 
-POST https://petstore.swagger.io/v2/pet
-Content-Type: application/json
+#############################################
+### Request: POST /pet
+### Summary: Add a new pet to the store
+### Description: Add a new pet to the store
+#############################################
+
+POST /api/v3/pet
+Content-Type: @contentType
 
 {
   "id": 0,
+  "name": "name",
   "category": {
     "id": 0,
     "name": "name"
   },
-  "name": "name",
   "photoUrls": [
     ""
   ],
