@@ -88,7 +88,12 @@ public static class EmbeddedResources
         }
     }
 
-
+    public static string GetStringFromEmbeddedResource(string name)
+    {
+        using var stream = GetStream("V31.webhook-example.json");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
+    }
 
     public static string GetSwaggerPetstore(Samples version)
     {
