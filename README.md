@@ -113,7 +113,7 @@ In this example, the contents of `PostAddPet.http` looks like this:
 #############################################
 
 POST /api/v3/pet
-Content-Type: @contentType
+Content-Type: {{contentType}}
 
 {
   "id": 0,
