@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Fix variable usage in generated .http files [\#20](https://github.com/christianhelle/httpgenerator/pull/20) ([christianhelle](https://github.com/christianhelle))
 - Suggest using --skip-validation when validation fails [\#19](https://github.com/christianhelle/httpgenerator/pull/19) ([christianhelle](https://github.com/christianhelle))
 - Show Operation Description as a separate line [\#18](https://github.com/christianhelle/httpgenerator/pull/18) ([christianhelle](https://github.com/christianhelle))
 - Use the Authority part of OpenAPI path as the Base URL if not specified [\#17](https://github.com/christianhelle/httpgenerator/pull/17) ([christianhelle](https://github.com/christianhelle))
