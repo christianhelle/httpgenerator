@@ -18,6 +18,8 @@
 **Merged pull requests:**
 
 - Bump xunit from 2.6.2 to 2.6.3 [\#23](https://github.com/christianhelle/httpgenerator/pull/23) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump Microsoft.OpenApi.OData from 1.4.0 to 1.5.0 [\#22](https://github.com/christianhelle/httpgenerator/pull/22) ([dependabot[bot]](https://github.com/apps/dependabot))
+- Bump xunit.runner.visualstudio from 2.5.4 to 2.5.5 [\#21](https://github.com/christianhelle/httpgenerator/pull/21) ([dependabot[bot]](https://github.com/apps/dependabot))
 
 ## [0.1.6](https://github.com/christianhelle/httpgenerator/tree/0.1.6) (2023-11-29)
 
