@@ -15,6 +15,10 @@
 - Update output filenames to be prefixed with HTTP Method [\#14](https://github.com/christianhelle/httpgenerator/pull/14) ([christianhelle](https://github.com/christianhelle))
 - Generate Content-Type and Authorization headers to use variables [\#13](https://github.com/christianhelle/httpgenerator/pull/13) ([christianhelle](https://github.com/christianhelle))
 
+**Merged pull requests:**
+
+- Bump xunit from 2.6.2 to 2.6.3 [\#23](https://github.com/christianhelle/httpgenerator/pull/23) ([dependabot[bot]](https://github.com/apps/dependabot))
+
 ## [0.1.6](https://github.com/christianhelle/httpgenerator/tree/0.1.6) (2023-11-29)
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.1.5...0.1.6)
