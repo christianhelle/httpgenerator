@@ -17,6 +17,10 @@
 
 **Merged pull requests:**
 
+- Update actions/setup-dotnet action to v4 [\#28](https://github.com/christianhelle/httpgenerator/pull/28) ([renovate[bot]](https://github.com/apps/renovate))
+- Update actions/github-script action to v7 [\#26](https://github.com/christianhelle/httpgenerator/pull/26) ([renovate[bot]](https://github.com/apps/renovate))
+- Update actions/checkout action to v4 [\#25](https://github.com/christianhelle/httpgenerator/pull/25) ([renovate[bot]](https://github.com/apps/renovate))
+- Configure Renovate [\#24](https://github.com/christianhelle/httpgenerator/pull/24) ([renovate[bot]](https://github.com/apps/renovate))
 - Bump xunit from 2.6.2 to 2.6.3 [\#23](https://github.com/christianhelle/httpgenerator/pull/23) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Bump Microsoft.OpenApi.OData from 1.4.0 to 1.5.0 [\#22](https://github.com/christianhelle/httpgenerator/pull/22) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Bump xunit.runner.visualstudio from 2.5.4 to 2.5.5 [\#21](https://github.com/christianhelle/httpgenerator/pull/21) ([dependabot[bot]](https://github.com/apps/dependabot))
