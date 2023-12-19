@@ -1,10 +1,8 @@
 ﻿using Community.VisualStudio.Toolkit;
-using HttpGenerator.Core;
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
 using System.IO;
-using System.Threading.Tasks;
 using Task = System.Threading.Tasks.Task;
 
 namespace HttpGenerator.VSIX
@@ -41,7 +39,7 @@ namespace HttpGenerator.VSIX
             commandService = commandService ?? throw new ArgumentNullException(nameof(commandService));
 
             var menuCommandID = new CommandID(CommandSet, CommandId);
-            var menuItem = new MenuCommand(this.Execute, menuCommandID);
+            var menuItem = new MenuCommand(Execute, menuCommandID);
 
             commandService.AddCommand(menuItem);
         }
@@ -58,7 +56,7 @@ namespace HttpGenerator.VSIX
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private Microsoft.VisualStudio.Shell.IAsyncServiceProvider ServiceProvider
+        private IAsyncServiceProvider ServiceProvider
         {
             get
             {
@@ -92,25 +90,11 @@ namespace HttpGenerator.VSIX
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             var project = await VS.Solutions.GetActiveProjectAsync();
 
-            var generatorSettings = new GeneratorSettings
-            {
-                OpenApiPath = "https://petstore3.swagger.io/api/v3/openapi.json"
-            };
-
-            var result = await HttpFileGenerator.Generate(generatorSettings);
-
             var output = Path.GetDirectoryName(project.FullPath);
             output = Path.Combine(output, "HttpFiles");
-            if (!Directory.Exists(output))
-            {
-                Directory.CreateDirectory(output);
-            }
 
-            Parallel.ForEach(
-                result.Files,
-                file => File.WriteAllText(
-                    Path.Combine(output, file.Filename),
-                    file.Content));
+            using var dialog = new GenerateDialog(output);
+            dialog.ShowDialog();
         }
     }
 }
