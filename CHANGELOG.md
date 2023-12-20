@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Fix Authorization header format [\#30](https://github.com/christianhelle/httpgenerator/pull/30) ([christianhelle](https://github.com/christianhelle))
 - Fix variable usage in generated .http files [\#20](https://github.com/christianhelle/httpgenerator/pull/20) ([christianhelle](https://github.com/christianhelle))
 - Suggest using --skip-validation when validation fails [\#19](https://github.com/christianhelle/httpgenerator/pull/19) ([christianhelle](https://github.com/christianhelle))
 - Show Operation Description as a separate line [\#18](https://github.com/christianhelle/httpgenerator/pull/18) ([christianhelle](https://github.com/christianhelle))
