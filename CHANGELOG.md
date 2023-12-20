@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Add support for acquiring authorization headers from Azure Entra ID [\#31](https://github.com/christianhelle/httpgenerator/pull/31) ([christianhelle](https://github.com/christianhelle))
 - Fix Authorization header format [\#30](https://github.com/christianhelle/httpgenerator/pull/30) ([christianhelle](https://github.com/christianhelle))
 - Fix variable usage in generated .http files [\#20](https://github.com/christianhelle/httpgenerator/pull/20) ([christianhelle](https://github.com/christianhelle))
 - Suggest using --skip-validation when validation fails [\#19](https://github.com/christianhelle/httpgenerator/pull/19) ([christianhelle](https://github.com/christianhelle))
