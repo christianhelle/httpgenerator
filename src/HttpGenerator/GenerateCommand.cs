@@ -94,6 +94,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 
         try
         {
+            AnsiConsole.MarkupLine($"[green]Acquiring authorization header from Azure Entra ID[/]{Crlf}");
             using var listener = AzureEventSourceListener.CreateConsoleLogger();
             var token = await AzureEntraID
                 .TryGetAccessTokenAsync(
@@ -102,7 +103,10 @@ public class GenerateCommand : AsyncCommand<Settings>
                     CancellationToken.None);
 
             if (!string.IsNullOrWhiteSpace(token))
+            {
                 settings.AuthorizationHeader = $"Bearer {token}";
+                AnsiConsole.MarkupLine($"{Crlf}[green]Successfully acquired access token[/]{Crlf}");
+            }
         }
         catch (Exception exception)
         {
