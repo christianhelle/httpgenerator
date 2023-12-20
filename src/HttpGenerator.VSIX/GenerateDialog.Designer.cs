@@ -45,6 +45,7 @@
             this.txtAuthorizationHeader = new System.Windows.Forms.TextBox();
             this.lblAuthorizationHeader = new System.Windows.Forms.Label();
             this.chkMultipleFiles = new System.Windows.Forms.CheckBox();
+            this.btnAzureAccessToken = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblOpenApiFile
@@ -97,7 +98,7 @@
             this.btnSelectOutputFolder.TabIndex = 4;
             this.btnSelectOutputFolder.Text = "...";
             this.btnSelectOutputFolder.UseVisualStyleBackColor = true;
-            this.btnSelectOutputFolder.Click += new System.EventHandler(this.btnSelectOutputFolder_Click);
+            this.btnSelectOutputFolder.Click += new System.EventHandler(this.OnSelectOutputFolder_Click);
             // 
             // btnSelectOpenApiFile
             // 
@@ -108,7 +109,7 @@
             this.btnSelectOpenApiFile.TabIndex = 5;
             this.btnSelectOpenApiFile.Text = "...";
             this.btnSelectOpenApiFile.UseVisualStyleBackColor = true;
-            this.btnSelectOpenApiFile.Click += new System.EventHandler(this.btnSelectOpenApiFile_Click);
+            this.btnSelectOpenApiFile.Click += new System.EventHandler(this.OnSelectOpenApiFile_Click);
             // 
             // btnOk
             // 
@@ -119,7 +120,7 @@
             this.btnOk.TabIndex = 6;
             this.btnOk.Text = "OK";
             this.btnOk.UseVisualStyleBackColor = true;
-            this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
+            this.btnOk.Click += new System.EventHandler(this.OnOk_Click);
             // 
             // btnCancel
             // 
@@ -131,7 +132,7 @@
             this.btnCancel.TabIndex = 7;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
-            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
+            this.btnCancel.Click += new System.EventHandler(this.OnCancel_Click);
             // 
             // txtBaseUrl
             // 
@@ -212,6 +213,17 @@
             this.chkMultipleFiles.Text = "Generate .http file per request";
             this.chkMultipleFiles.UseVisualStyleBackColor = true;
             // 
+            // btnAzureAccessToken
+            // 
+            this.btnAzureAccessToken.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnAzureAccessToken.Location = new System.Drawing.Point(766, 123);
+            this.btnAzureAccessToken.Name = "btnAzureAccessToken";
+            this.btnAzureAccessToken.Size = new System.Drawing.Size(26, 21);
+            this.btnAzureAccessToken.TabIndex = 15;
+            this.btnAzureAccessToken.Text = "...";
+            this.btnAzureAccessToken.UseVisualStyleBackColor = true;
+            this.btnAzureAccessToken.Click += new System.EventHandler(this.btnAzureAccessToken_Click);
+            // 
             // GenerateDialog
             // 
             this.AcceptButton = this.btnOk;
@@ -219,6 +231,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(804, 355);
+            this.Controls.Add(this.btnAzureAccessToken);
             this.Controls.Add(this.chkMultipleFiles);
             this.Controls.Add(this.txtAuthorizationHeader);
             this.Controls.Add(this.lblAuthorizationHeader);
@@ -260,5 +273,6 @@
         private System.Windows.Forms.TextBox txtAuthorizationHeader;
         private System.Windows.Forms.Label lblAuthorizationHeader;
         private System.Windows.Forms.CheckBox chkMultipleFiles;
+        private System.Windows.Forms.Button btnAzureAccessToken;
     }
 }

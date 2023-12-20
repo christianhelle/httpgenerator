@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.Shell;
 using System;
 using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Task = System.Threading.Tasks.Task;
 
@@ -20,7 +21,7 @@ namespace HttpGenerator.VSIX
         /// <summary>
         /// Command menu group (command set GUID).
         /// </summary>
-        public static readonly Guid CommandSet = new Guid("7A2B56F6-08C0-4124-854D-3CBD96A41190");
+        public static readonly Guid CommandSet = new("7A2B56F6-08C0-4124-854D-3CBD96A41190");
 
         /// <summary>
         /// VS Package that provides this command, not null.
@@ -56,13 +57,7 @@ namespace HttpGenerator.VSIX
         /// <summary>
         /// Gets the service provider from the owner package.
         /// </summary>
-        private IAsyncServiceProvider ServiceProvider
-        {
-            get
-            {
-                return this.package;
-            }
-        }
+        private IAsyncServiceProvider ServiceProvider => package;
 
         /// <summary>
         /// Initializes the singleton instance of the command.
@@ -85,6 +80,10 @@ namespace HttpGenerator.VSIX
         /// </summary>
         /// <param name="sender">Event sender.</param>
         /// <param name="e">Event args.</param>
+        [SuppressMessage(
+            "Usage",
+            "VSTHRD100:Avoid async void methods",
+            Justification = "<Pending>")]
         private async void Execute(object sender, EventArgs e)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

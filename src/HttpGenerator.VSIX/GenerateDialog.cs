@@ -21,19 +21,19 @@ public partial class GenerateDialog : Form
         folderBrowserDialog.SelectedPath = Path.GetDirectoryName(projectPath);
     }
 
-    private void btnSelectOpenApiFile_Click(object sender, EventArgs e)
+    private void OnSelectOpenApiFile_Click(object sender, EventArgs e)
     {
         openFileDialog.ShowDialog();
         txtOpenApiFile.Text = openFileDialog.FileName;
     }
 
-    private void btnSelectOutputFolder_Click(object sender, EventArgs e)
+    private void OnSelectOutputFolder_Click(object sender, EventArgs e)
     {
         folderBrowserDialog.ShowDialog();
         txtOutputFolder.Text = folderBrowserDialog.SelectedPath;
     }
 
-    private void btnCancel_Click(object sender, EventArgs e)
+    private void OnCancel_Click(object sender, EventArgs e)
     {
         Close();
     }
@@ -42,7 +42,7 @@ public partial class GenerateDialog : Form
         "Usage",
         "VSTHRD100:Avoid async void methods",
         Justification = "Legacy API")]
-    private async void btnOk_Click(object sender, EventArgs e)
+    private async void OnOk_Click(object sender, EventArgs e)
     {
         try
         {
@@ -87,5 +87,12 @@ public partial class GenerateDialog : Form
                     file.Content)));
 
         await Task.WhenAll(tasks);
+    }
+
+    private void btnAzureAccessToken_Click(object sender, EventArgs e)
+    {
+        using var dialog = new AzureAccessTokenDialog();
+        dialog.ShowDialog();
+        txtAuthorizationHeader.Text = $"Bearer {dialog.AccessToken}";
     }
 }
