@@ -135,7 +135,7 @@ az account get-access-token --scope [Some Application ID URI]/.default `
 }
 ```
 
-You can also use the `--azure-scope` and `azure-tenant` arguments which internally uses `DefaultAzureCredentials` from the `Microsoft.Extensions.Azure` NuGet package to retrieve an access token for the specified `scope`.
+You can also use the `--azure-scope` and `azure-tenant-id` arguments internally use `DefaultAzureCredentials` from the `Microsoft.Extensions.Azure` NuGet package to retrieve an access token for the specified `scope`.
 
 ```powershell
 httpgenerator `
@@ -144,8 +144,6 @@ httpgenerator `
   --base-url https://api.example.com `
   --output ./HttpFiles 
 ```
-
-This is unfortunately much slower than the approach above using Azure CLI directly and piping the output to `httpgenerator`. On the plus side, `DefaultAzureCredentials` also works using the account signed in with from Visual Studio
 
 #
 
