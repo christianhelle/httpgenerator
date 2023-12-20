@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
 using Microsoft.OpenApi.Models;
@@ -28,6 +29,8 @@ public class GenerateCommand : AsyncCommand<Settings>
 
             if (!settings.SkipValidation)
                 await ValidateOpenApiSpec(settings);
+
+            await AcquireAzureEntraIdToken(settings);
 
             var generatorSettings = new GeneratorSettings
             {
@@ -77,6 +80,33 @@ public class GenerateCommand : AsyncCommand<Settings>
 
             await Analytics.LogError(exception, settings);
             return exception.HResult;
+        }
+    }
+
+    private static async Task AcquireAzureEntraIdToken(Settings settings)
+    {
+        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) ||
+            (string.IsNullOrWhiteSpace(settings.AzureScope) &&
+             string.IsNullOrWhiteSpace(settings.AzureTenantId)))
+        {
+            return;
+        }
+
+        try
+        {
+            using var listener = AzureEventSourceListener.CreateConsoleLogger();
+            var token = await AzureEntraID
+                .TryGetAccessTokenAsync(
+                    settings.AzureTenantId!,
+                    settings.AzureScope!,
+                    CancellationToken.None);
+
+            if (!string.IsNullOrWhiteSpace(token))
+                settings.AuthorizationHeader = $"Bearer {token}";
+        }
+        catch (Exception exception)
+        {
+            AnsiConsole.MarkupLine($"{Crlf}[red]Error:{Crlf}{exception.Message}[/]");
         }
     }
 
