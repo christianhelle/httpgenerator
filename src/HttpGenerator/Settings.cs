@@ -49,11 +49,11 @@ public class Settings : CommandSettings
     [AllowedValues(nameof(OutputType.OneRequestPerFile), nameof(OutputType.OneFile))]
     public OutputType OutputType { get; set; } = OutputType.OneRequestPerFile;
     
-    [Description("Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header")]
-    [CommandOption("--azure-tenant-id <TENANT-ID>")]
-    public string? AzureTenantId { get; set; }
-    
     [Description("Azure Entra ID Scope to use for retrieving Access Token for Authorization header")]
     [CommandOption("--azure-scope <SCOPE>")]
     public string? AzureScope { get; set; }
+    
+    [Description("Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header")]
+    [CommandOption("--azure-tenant-id <TENANT-ID>")]
+    public string? AzureTenantId { get; set; }
 }
