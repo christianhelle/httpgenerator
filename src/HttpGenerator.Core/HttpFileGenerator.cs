@@ -108,7 +108,7 @@ public static class HttpFileGenerator
 
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
         {
-            code.AppendLine($"Authorization: {{authorization}}");
+            code.AppendLine("Authorization: {{authorization}}");
         }
 
         var contentType = operation.RequestBody?.Content?.Keys
@@ -135,7 +135,7 @@ public static class HttpFileGenerator
         const int padding = 2;
         const string summary = "### Summary: ";
         const string description = "### Description: ";
-        
+
         var request = $"### Request: {verb.ToUpperInvariant()} {kv.Key}";
         var length = request.Length + padding;
         length = Math.Max(
