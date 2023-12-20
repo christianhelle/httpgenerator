@@ -157,7 +157,7 @@ You can also use the `--azure-scope` and `azure-tenant-id` arguments internally 
 ```powershell
 httpgenerator `
   https://api.example.com/swagger/v1/swagger.json `
-  --azure-scope [Some Application ID URI]/.default`
+  --azure-scope [Some Application ID URI]/.default `
   --base-url https://api.example.com `
   --output ./HttpFiles 
 ```
