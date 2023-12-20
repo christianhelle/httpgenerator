@@ -1,8 +1,10 @@
-﻿using Azure.Core;
+﻿using System.Diagnostics.CodeAnalysis;
+using Azure.Core;
 using Azure.Identity;
 
 namespace HttpGenerator.Core
 {
+    [ExcludeFromCodeCoverage]
     public static class AzureEntraID
     {
         public static async Task<string?> TryGetAccessTokenAsync(
