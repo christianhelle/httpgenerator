@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpGenerator.Core", "src\HttpGenerator.Core\HttpGenerator.Core.csproj", "{9D1C5497-195B-486D-B98B-4377B719E6C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HttpGenerator.Core", "HttpGenerator.Core\HttpGenerator.Core.csproj", "{9D1C5497-195B-486D-B98B-4377B719E6C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpGenerator.VSIX", "src\HttpGenerator.VSIX\HttpGenerator.VSIX.csproj", "{02778A1A-254C-4434-A3C7-10C5B047C776}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpGenerator.VSIX", "HttpGenerator.VSIX\HttpGenerator.VSIX.csproj", "{02778A1A-254C-4434-A3C7-10C5B047C776}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
