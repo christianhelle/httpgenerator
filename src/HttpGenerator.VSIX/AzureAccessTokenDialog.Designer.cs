@@ -106,6 +106,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(404, 108);
+            this.ControlBox = false;
             this.Controls.Add(this.txtTenantId);
             this.Controls.Add(this.lblTenant);
             this.Controls.Add(this.btnCancel);

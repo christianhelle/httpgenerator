@@ -231,6 +231,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
             this.ClientSize = new System.Drawing.Size(804, 355);
+            this.ControlBox = false;
             this.Controls.Add(this.btnAzureAccessToken);
             this.Controls.Add(this.chkMultipleFiles);
             this.Controls.Add(this.txtAuthorizationHeader);
