@@ -4,6 +4,7 @@
         <Identity Id="HttpGenerator.f87f2d98-94ee-4bd1-86a6-aba346499100" Version="1.0" Language="en-US" Publisher="Christian Resma Helle" />
         <DisplayName>HTTP File Generator for Visual Studio</DisplayName>
         <Description xml:space="preserve">Generate .http files from OpenAPI (Swagger) specifications</Description>
+        <MoreInfo>https://github.com/christianhelle/httpgenerator</MoreInfo>
         <License>License.txt</License>
         <Icon>icon.png</Icon>
         <Tags>OpenAPI; Swagger; REST Client</Tags>
