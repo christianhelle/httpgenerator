@@ -1,5 +1,5 @@
-﻿using Azure.Core;
-using Azure.Identity;
+﻿using Azure.Core.Diagnostics;
+using HttpGenerator.Core;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
@@ -39,16 +39,11 @@ namespace HttpGenerator.VSIX
                 btnOk.Enabled = false;
 
                 var tenantId = string.IsNullOrWhiteSpace(txtTenantId.Text) ? null : txtTenantId.Text;
-                var request = new TokenRequestContext([txtScope.Text], tenantId: tenantId);
-                var credentials = new DefaultAzureCredential(
-                    new DefaultAzureCredentialOptions
-                    {
-                        ExcludeInteractiveBrowserCredential = true,
-                        ExcludeManagedIdentityCredential = true,
-                        ExcludeEnvironmentCredential = true
-                    });
-                var token = await credentials.GetTokenAsync(request, cancellationTokenSource.Token);
-                AccessToken = token.Token;
+                var scope = txtScope.Text;
+
+                var token = cancellationTokenSource.Token;
+                using var listener = AzureEventSourceListener.CreateConsoleLogger();
+                AccessToken = await AzureEntraID.TryGetAccessTokenAsync(tenantId, scope, token);
                 Close();
             }
             catch (OperationCanceledException)
