@@ -89,6 +89,11 @@ namespace HttpGenerator.VSIX
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
             var project = await VS.Solutions.GetActiveProjectAsync();
 
+            if (project is null)
+            {
+                return;
+            }
+
             var output = Path.GetDirectoryName(project.FullPath);
             output = Path.Combine(output, "HttpFiles");
 
