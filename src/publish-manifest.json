@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json.schemastore.org/vsix-publish",
+    "categories": [ "Coding" ],
+    "identity": {
+        "internalName": "httpgenerator",
+        "tags": [ "OpenAPI", "Swagger", "REST Cient", "Code Generator" ]
+    },
+    "overview": "../docs/Marketplace.md",
+    "priceCategory": "free",
+    "publisher": "ChristianResmaHelle",
+    "private": false,
+    "qna": true,
+    "repo": "https://github.com/christianhelle/httpgenerator"
+}
