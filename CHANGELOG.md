@@ -19,6 +19,8 @@
 
 **Merged pull requests:**
 
+- Update xunit-dotnet monorepo [\#35](https://github.com/christianhelle/httpgenerator/pull/35) ([renovate[bot]](https://github.com/apps/renovate))
+- Update microsoft/setup-msbuild action to v1.3 [\#33](https://github.com/christianhelle/httpgenerator/pull/33) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/setup-dotnet action to v4 [\#28](https://github.com/christianhelle/httpgenerator/pull/28) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/github-script action to v7 [\#26](https://github.com/christianhelle/httpgenerator/pull/26) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/checkout action to v4 [\#25](https://github.com/christianhelle/httpgenerator/pull/25) ([renovate[bot]](https://github.com/apps/renovate))
