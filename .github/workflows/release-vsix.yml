@@ -1,0 +1,53 @@
+name: Release (VSIX)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'release'
+
+env:
+  VERSION: 0.2.${{ github.run_number }}
+  NUGET_REPO_URL: 'https://api.nuget.org/v3/index.json'
+
+jobs:
+
+  VSIX:
+    runs-on: windows-2022
+    steps:
+    - uses: actions/checkout@v2
+    - name: Sets environment variables - branch-name
+      uses: nelonoel/branch-name@v1.0.1
+    - name: Sets environment variables - Nerdbank.GitVersioning
+      uses: dotnet/nbgv@master
+      with:
+        setAllVars: true
+    - name: Update Version
+      run: |
+        ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
+        ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
+      working-directory: src
+      shell: pwsh
+    - name: Restore
+      run: dotnet restore VSIX.sln
+      working-directory: src
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v1.1
+    - name: Build
+      run: msbuild VSIX.sln /property:Configuration=Release /t:Rebuild
+      working-directory: src
+    - name: Move build output
+      run: |
+        mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix.vsix
+    - name: Publish artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Visual Studio Extension
+        path: |
+          *.vsix
+          docs/Marketplace*.md
+    - name: Publish VSIX Packages
+      run: |
+        $VsixPublisher = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe"
+        & $VsixPublisher login -personalAccessToken ${{ secrets.MARKETPLACE_PAT }} -publisherName ChristianResmaHelle
+        & $VsixPublisher publish -payload HttpGenerator-${{ env.VERSION }}.vsix.vsix -publishManifest src/publish-manifest.json -ignoreWarnings 'VSIXValidatorWarning01,VSIXValidatorWarning02'
