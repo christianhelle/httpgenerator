@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
     <Metadata>
-        <Identity Id="HttpGenerator.f87f2d98-94ee-4bd1-86a6-aba346499100" Version="1.0.0" Language="en-US" Publisher="Christian Resma Helle" />
+        <Identity Id="f87f2d98-94ee-4bd1-86a6-aba346499100" Version="1.0.0" Language="en-US" Publisher="Christian Resma Helle" />
         <DisplayName>HTTP File Generator for Visual Studio (PREVIEW)</DisplayName>
         <Description xml:space="preserve">Generate .http files from OpenAPI (Swagger) specifications</Description>
         <MoreInfo>https://github.com/christianhelle/httpgenerator</MoreInfo>
