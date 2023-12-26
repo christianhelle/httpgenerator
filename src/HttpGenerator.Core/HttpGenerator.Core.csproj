@@ -8,6 +8,8 @@
     <RootNamespace>HttpGenerator.Core</RootNamespace>
     <Product>HttpGenerator Core</Product>
     <Description>Core library used by the HttpGenerator CLI tool for generating .http files for the popular REST Client IDE extension.</Description>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
