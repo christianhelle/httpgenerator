@@ -1,6 +1,7 @@
 ﻿using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using System;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Windows.Forms;
@@ -19,9 +20,15 @@ namespace HttpGenerator.VSIX
 
         public string AccessToken { get; private set; }
 
+        protected override void OnClosing(CancelEventArgs e)
+        {
+            base.OnClosing(e);
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource.Dispose();
+        }
+
         private void OnCancel_Click(object sender, EventArgs e)
         {
-            cancellationTokenSource.Cancel();
             Close();
         }
 
