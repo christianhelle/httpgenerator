@@ -192,18 +192,23 @@ It's important to know that no **support key** will be generated if you opt-out 
 This tool is also available as a [Visual Studio 2022 extension](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.HttpGenerator)
 
 From the **Tools** menu select **Generate .http files**
+
 ![Tools menu](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_tools.png?raw=true)
 
 This opens the main dialog which has similar input fields as the CLI tool
+
 ![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
 
 You can acquire an Azure Entra ID access token by clicking on the `...` button beside the **Authorization Headers** input field
+
 ![Acquire Azure Entra ID access token](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_azure_entra_id.png?raw=true)
 
 By default, the **Output folder** is pre-filled with the path of the currently active C# Project in the Solution Explorer, suffixed with **\HttpFiles**
+
 ![Solution explorer](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_solution_explorer.png?raw=true)
 
 Once the .http files are generated you can easily open and inspect them
+
 ![.http file](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_http_file.png?raw=true)
 
 #
