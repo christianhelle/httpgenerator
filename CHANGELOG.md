@@ -2,7 +2,17 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.1.6...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.2.1.11-preview...HEAD)
+
+**Merged pull requests:**
+
+- Update nswag monorepo to v14.0.1 [\#45](https://github.com/christianhelle/httpgenerator/pull/45) ([renovate[bot]](https://github.com/apps/renovate))
+- Update build command to disable extension deployment [\#44](https://github.com/christianhelle/httpgenerator/pull/44) ([christianhelle](https://github.com/christianhelle))
+- Disable Dependabot [\#43](https://github.com/christianhelle/httpgenerator/pull/43) ([christianhelle](https://github.com/christianhelle))
+
+## [0.2.1.11-preview](https://github.com/christianhelle/httpgenerator/tree/0.2.1.11-preview) (2024-01-08)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.1.6...0.2.1.11-preview)
 
 **Implemented enhancements:**
 
