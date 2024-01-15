@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency xunit to v2.6.6 [\#46](https://github.com/christianhelle/httpgenerator/pull/46) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to v14.0.1 [\#45](https://github.com/christianhelle/httpgenerator/pull/45) ([renovate[bot]](https://github.com/apps/renovate))
 - Update build command to disable extension deployment [\#44](https://github.com/christianhelle/httpgenerator/pull/44) ([christianhelle](https://github.com/christianhelle))
 - Disable Dependabot [\#43](https://github.com/christianhelle/httpgenerator/pull/43) ([christianhelle](https://github.com/christianhelle))
