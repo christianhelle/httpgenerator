@@ -4,6 +4,10 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.2.1.11-preview...HEAD)
 
+**Implemented enhancements:**
+
+- Add path and query string parameters [\#49](https://github.com/christianhelle/httpgenerator/pull/49) ([christianhelle](https://github.com/christianhelle))
+
 **Merged pull requests:**
 
 - Update nswag monorepo to v14.0.2 [\#48](https://github.com/christianhelle/httpgenerator/pull/48) ([renovate[bot]](https://github.com/apps/renovate))
