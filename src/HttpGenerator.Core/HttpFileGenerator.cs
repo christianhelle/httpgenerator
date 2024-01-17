@@ -184,8 +184,9 @@ public static class HttpFileGenerator
         foreach (var parameter in parameters)
         {
             code.AppendLine($"""
-                             ### {parameter.Description ?? parameter.Name}
+                             ### {parameter.Description?.PrefixLineBreaks() ?? parameter.Name}
                              @{parameter.Name} = {(parameter.ActualSchema.Type == JsonObjectType.Integer ? 0 : "str")}
+                             
                              """);
         }
         
