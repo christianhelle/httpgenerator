@@ -122,11 +122,18 @@ public static class HttpFileGenerator
         if (operation.RequestBody?.Content is null || contentType is null)
             return code.ToString();
 
-        var requestBody = operation.RequestBody;
-        var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
-        var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString() ?? string.Empty;
+        try 
+        {            
+            var requestBody = operation.RequestBody;
+            var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
+            var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString() ?? string.Empty;
+            code.AppendLine(requestBodyJson);
+        }
+        catch (Exception ex)
+        {
+            code.AppendLine($"### Failed to generate request body: {ex.Message}");
+        }
 
-        code.AppendLine(requestBodyJson);
         return code.ToString();
     }
 
