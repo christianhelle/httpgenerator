@@ -10,8 +10,10 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/HttpGenerator/bin/Debug/net8.0/httpgenerator.dll ${workspaceFolder}/test/OpenAPI/v3.0/petstore.yaml",
-            "args": [],
+            "program": "${workspaceFolder}/src/HttpGenerator/bin/Debug/net8.0/httpgenerator.dll",
+            "args": [
+                "${workspaceFolder}/test/OpenAPI/v3.0/petstore.yaml"
+            ],
             "cwd": "${workspaceFolder}/src/HttpGenerator",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console
             "console": "internalConsole",
