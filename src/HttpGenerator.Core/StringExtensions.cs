@@ -59,5 +59,5 @@ public static class StringExtensions
                 Environment.OSVersion.Platform == PlatformID.Unix
                     ? "\r\n" // Environment.NewLine value for non-Unix platforms
                     : "\n", // Environment.NewLine value for Unix platforms
-                $"{Environment.NewLine}{prefix}");
+                $"{Environment.NewLine}{prefix} ");
 }
