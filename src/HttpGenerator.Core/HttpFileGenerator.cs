@@ -82,7 +82,14 @@ public static class HttpFileGenerator
                     .BaseSettings
                     .OperationNameGenerator
                     .GetOperationName(document, kv.Key, verb, operation);
-                var filename = $"{name.CapitalizeFirstCharacter()}.http";
+                var filename = $"{name.CapitalizeFirstCharacter()}";
+                var originalFilename = filename;
+                int ctr = 1;
+                while (files.Any(f => f.Filename == $"{filename}.http"))
+                {
+                    filename = $"{originalFilename}_{ctr++}";
+                }
+                filename += ".http";
 
                 var code = new StringBuilder();
                 WriteFileHeaders(settings, code);

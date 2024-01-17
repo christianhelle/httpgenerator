@@ -8,7 +8,7 @@ namespace HttpGenerator.Core;
 internal class OperationNameGenerator : IOperationNameGenerator
 {
     private readonly IOperationNameGenerator defaultGenerator =
-        new MultipleClientsFromOperationIdOperationNameGenerator();
+        new SingleClientFromOperationIdOperationNameGenerator();
 
     [ExcludeFromCodeCoverage]
     public bool SupportsMultipleClients => throw new NotImplementedException();
@@ -36,7 +36,7 @@ internal class OperationNameGenerator : IOperationNameGenerator
                 .Prefix(
                     httpMethod
                         .ToLowerInvariant()
-                        .CapitalizeFirstCharacter());
+                        .CapitalizeFirstCharacter() + "_");
         }
         catch (Exception e)
         {
