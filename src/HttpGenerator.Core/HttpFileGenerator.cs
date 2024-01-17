@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using NJsonSchema;
 using NSwag;
 using NSwag.CodeGeneration.CSharp;
 
@@ -103,7 +104,10 @@ public static class HttpFileGenerator
     {
         var code = new StringBuilder();
         AppendSummary(verb, kv, operation, code);
-        code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{kv.Key}");
+        AppendParameters(operation, code);
+        
+        var url = kv.Key.Replace("{", "{{").Replace("}", "}}");
+        code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{url}");
         code.AppendLine("Content-Type: {{contentType}}");
 
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
@@ -168,5 +172,24 @@ public static class HttpFileGenerator
         }
 
         code.AppendLine(Environment.NewLine);
+    }
+
+    private static void AppendParameters(OpenApiOperation operation, StringBuilder code)
+    {
+        var parameters = operation
+            .Parameters
+            .Where(c => c.Kind is OpenApiParameterKind.Path or OpenApiParameterKind.Query)
+            .ToArray();
+
+        foreach (var parameter in parameters)
+        {
+            code.AppendLine($"""
+                             ### {parameter.Kind} Parameter: {parameter.Description?.PrefixLineBreaks() ?? parameter.Name}
+                             @{parameter.Name} = {(parameter.ActualSchema.Type == JsonObjectType.Integer ? 0 : "str")}
+                             
+                             """);
+        }
+        
+        code.AppendLine();
     }
 }

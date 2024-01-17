@@ -1,5 +1,3 @@
-using System.Text.RegularExpressions;
-
 namespace HttpGenerator.Core;
 
 public static class StringExtensions
@@ -50,6 +48,16 @@ public static class StringExtensions
         {
             return str;
         }
+
         return prefix + str;
     }
+
+    public static string? PrefixLineBreaks(this string value, string prefix = "###") =>
+        value
+            ?.Replace(
+                Environment.OSVersion.Platform == PlatformID.MacOSX ||
+                Environment.OSVersion.Platform == PlatformID.Unix
+                    ? "\r\n" // Environment.NewLine value for non-Unix platforms
+                    : "\n", // Environment.NewLine value for Unix platforms
+                $"{Environment.NewLine}{prefix} ");
 }
