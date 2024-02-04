@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- Update nswag monorepo to v14.0.3 [\#54](https://github.com/christianhelle/httpgenerator/pull/54) ([renovate[bot]](https://github.com/apps/renovate))
+- Update codecov/codecov-action action to v4 [\#53](https://github.com/christianhelle/httpgenerator/pull/53) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.13 [\#50](https://github.com/christianhelle/httpgenerator/pull/50) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.2.7](https://github.com/christianhelle/httpgenerator/tree/0.2.7) (2024-01-17)
