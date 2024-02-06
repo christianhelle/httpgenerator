@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.NET.Test.Sdk to v17.9.0 [\#55](https://github.com/christianhelle/httpgenerator/pull/55) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to v14.0.3 [\#54](https://github.com/christianhelle/httpgenerator/pull/54) ([renovate[bot]](https://github.com/apps/renovate))
 - Update codecov/codecov-action action to v4 [\#53](https://github.com/christianhelle/httpgenerator/pull/53) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.13 [\#50](https://github.com/christianhelle/httpgenerator/pull/50) ([renovate[bot]](https://github.com/apps/renovate))
