@@ -31,6 +31,16 @@ public class Settings : CommandSettings
     [Description("Authorization header to use for all requests")]
     [CommandOption("--authorization-header <HEADER>")]
     public string? AuthorizationHeader { get; set; }
+
+    [Description("Load the authorization header from an environment variable or define it in the .http file. " +
+                 "You can use --authorization-header-variable-name to specify the environment variable name.")]
+    [CommandOption("--load-authorization-header-from-environment")]
+    public bool AuthorizationHeaderFromEnvironmentVariable { get; set; }
+
+    [Description("Name of the environment variable to load the authorization header from")]
+    [CommandOption("--authorization-header-variable-name <VARIABLE-NAME>")]
+    [DefaultValue("authorization")]
+    public string AuthorizationHeaderVariableName { get; set; } = "authorization";
     
     [Description("Default Content-Type header to use for all requests")]
     [CommandOption("--content-type <CONTENT-TYPE>")]

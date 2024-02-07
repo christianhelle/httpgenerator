@@ -35,6 +35,8 @@ public class GenerateCommand : AsyncCommand<Settings>
             var generatorSettings = new GeneratorSettings
             {
                 AuthorizationHeader = settings.AuthorizationHeader,
+                AuthorizationHeaderVariableName = settings.AuthorizationHeaderVariableName,
+                AuthorizationHeaderFromEnvironmentVariable = settings.AuthorizationHeaderFromEnvironmentVariable,
                 OpenApiPath = settings.OpenApiPath,
                 ContentType = settings.ContentType,
                 BaseUrl = settings.BaseUrl,
