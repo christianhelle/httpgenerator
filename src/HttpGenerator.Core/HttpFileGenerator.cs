@@ -62,9 +62,10 @@ public static class HttpFileGenerator
     {
         code.AppendLine($"@contentType = {settings.ContentType}");
 
-        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
+        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) && 
+            !settings.AuthorizationHeaderFromEnvironmentVariable)
         {
-            code.AppendLine($"@authorization = {settings.AuthorizationHeader}");
+            code.AppendLine($"@{settings.AuthorizationHeaderVariableName} = {settings.AuthorizationHeader}");
         }
 
         code.AppendLine();
@@ -128,9 +129,10 @@ public static class HttpFileGenerator
         code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{url}");
         code.AppendLine("Content-Type: {{contentType}}");
 
-        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader))
+        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) ||
+            settings.AuthorizationHeaderFromEnvironmentVariable)
         {
-            code.AppendLine("Authorization: {{authorization}}");
+            code.AppendLine($"Authorization: {{{{{settings.AuthorizationHeaderVariableName}}}}}");
         }
 
         var contentType = operation.RequestBody?.Content?.Keys

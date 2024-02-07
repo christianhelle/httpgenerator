@@ -17,6 +17,17 @@ public class GeneratorSettings
     /// Gets or sets the authorization header to use for all requests
     /// </summary>
     public string? AuthorizationHeader { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to load the authorization header
+    /// from an environment variable or define it in the .http file
+    /// </summary>
+    public bool AuthorizationHeaderFromEnvironmentVariable { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the environment variable to load the authorization header from
+    /// </summary>
+    public string AuthorizationHeaderVariableName { get; set; } = "authorization";
     
     /// <summary>
     /// Gets or sets the default Content-Type header to use for all requests
