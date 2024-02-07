@@ -6,6 +6,8 @@
 
 **Implemented enhancements:**
 
+- Reference Token from environment file [\#51](https://github.com/christianhelle/httpgenerator/issues/51)
+- Add support for loading authorization header from environment variable [\#57](https://github.com/christianhelle/httpgenerator/pull/57) ([christianhelle](https://github.com/christianhelle))
 - Prefix route variables with operation name when generating single file [\#56](https://github.com/christianhelle/httpgenerator/pull/56) ([christianhelle](https://github.com/christianhelle))
 
 **Fixed bugs:**
