@@ -4,6 +4,14 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.2.7...HEAD)
 
+**Implemented enhancements:**
+
+- Prefix route variables with operation name when generating single file [\#56](https://github.com/christianhelle/httpgenerator/pull/56) ([christianhelle](https://github.com/christianhelle))
+
+**Fixed bugs:**
+
+- Multiple variable definition  [\#52](https://github.com/christianhelle/httpgenerator/issues/52)
+
 **Merged pull requests:**
 
 - Update dependency Microsoft.NET.Test.Sdk to v17.9.0 [\#55](https://github.com/christianhelle/httpgenerator/pull/55) ([renovate[bot]](https://github.com/apps/renovate))
