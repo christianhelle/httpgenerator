@@ -6,7 +6,7 @@ Generate .http files from OpenAPI specifications
 
 ## Usage
 
-```pwsh
+```text
 USAGE:
     httpgenerator [URL or input file] [OPTIONS]
 

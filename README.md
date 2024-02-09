@@ -23,7 +23,7 @@ dotnet tool install --global httpgenerator
 
 ## Usage
 
-```pwsh
+```text
 USAGE:
     httpgenerator [URL or input file] [OPTIONS]
 
