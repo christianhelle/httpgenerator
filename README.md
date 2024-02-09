@@ -40,18 +40,21 @@ ARGUMENTS:
     [URL or input file]    URL or file path to OpenAPI Specification file
 
 OPTIONS:
-                                           DEFAULT                                                                                                                            
-    -h, --help                                                  Prints help information                                                                                       
-    -v, --version                                               Prints version information                                                                                    
-    -o, --output <OUTPUT>                  ./                   Output directory                                                                                              
-        --no-logging                                            Don't log errors or collect telemetry                                                                         
-        --skip-validation                                       Skip validation of OpenAPI Specification file                                                                 
-        --authorization-header <HEADER>                         Authorization header to use for all requests                                                                  
-        --content-type <CONTENT-TYPE>      application/json     Default Content-Type header to use for all requests                                                           
-        --base-url <BASE-URL>                                   Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL
-        --output-type <OUTPUT-TYPE>        OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a single .http file for all requests
-        --azure-scope <SCOPE>                                   Azure Entra ID Scope to use for retrieving Access Token for Authorization header                              
-        --azure-tenant-id <TENANT-ID>                           Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header                          
+                                                                DEFAULT                                                                                                                                                                                       
+    -h, --help                                                                       Prints help information                                                                                                                                                  
+    -v, --version                                                                    Prints version information                                                                                                                                               
+    -o, --output <OUTPUT>                                       ./                   Output directory                                                                                                                                                         
+        --no-logging                                                                 Don't log errors or collect telemetry                                                                                                                                    
+        --skip-validation                                                            Skip validation of OpenAPI Specification file                                                                                                                            
+        --authorization-header <HEADER>                                              Authorization header to use for all requests                                                                                                                             
+        --load-authorization-header-from-environment                                 Load the authorization header from an environment variable or define it in the .http file. You can use --authorization-header-variable-name to specify the environment   
+                                                                                     variable name                                                                                                                                                            
+        --authorization-header-variable-name <VARIABLE-NAME>    authorization        Name of the environment variable to load the authorization header from                                                                                                   
+        --content-type <CONTENT-TYPE>                           application/json     Default Content-Type header to use for all requests                                                                                                                      
+        --base-url <BASE-URL>                                                        Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL                                                           
+        --output-type <OUTPUT-TYPE>                             OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a single .http file for all requests                                                           
+        --azure-scope <SCOPE>                                                        Azure Entra ID Scope to use for retrieving Access Token for Authorization header                                                                                         
+        --azure-tenant-id <TENANT-ID>                                                Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header                                                                                     
 ```
 
 Running the following:
