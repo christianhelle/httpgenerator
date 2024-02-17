@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update xunit-dotnet monorepo [\#61](https://github.com/christianhelle/httpgenerator/pull/61) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to v1.7.2 [\#59](https://github.com/christianhelle/httpgenerator/pull/59) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.3.0](https://github.com/christianhelle/httpgenerator/tree/0.3.0) (2024-02-09)
