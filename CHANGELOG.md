@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- Update dependency coverlet.collector to v6.0.1 [\#63](https://github.com/christianhelle/httpgenerator/pull/63) ([renovate[bot]](https://github.com/apps/renovate))
+- Update actions/upload-artifact action to v4 [\#62](https://github.com/christianhelle/httpgenerator/pull/62) ([renovate[bot]](https://github.com/apps/renovate))
 - Update xunit-dotnet monorepo [\#61](https://github.com/christianhelle/httpgenerator/pull/61) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to v1.7.2 [\#59](https://github.com/christianhelle/httpgenerator/pull/59) ([renovate[bot]](https://github.com/apps/renovate))
 
