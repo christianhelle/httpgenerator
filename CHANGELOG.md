@@ -4,8 +4,13 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.0...HEAD)
 
+**Implemented enhancements:**
+
+- Update StringExtensions.cs [\#66](https://github.com/christianhelle/httpgenerator/pull/66) ([sjchapmanuk](https://github.com/sjchapmanuk))
+
 **Merged pull requests:**
 
+- Revert "Update actions/upload-artifact action to v4" [\#64](https://github.com/christianhelle/httpgenerator/pull/64) ([christianhelle](https://github.com/christianhelle))
 - Update dependency coverlet.collector to v6.0.1 [\#63](https://github.com/christianhelle/httpgenerator/pull/63) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/upload-artifact action to v4 [\#62](https://github.com/christianhelle/httpgenerator/pull/62) ([renovate[bot]](https://github.com/apps/renovate))
 - Update xunit-dotnet monorepo [\#61](https://github.com/christianhelle/httpgenerator/pull/61) ([renovate[bot]](https://github.com/apps/renovate))
