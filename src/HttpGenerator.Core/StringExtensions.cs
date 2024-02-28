@@ -4,7 +4,7 @@ public static class StringExtensions
 {
     public static string ConvertKebabCaseToPascalCase(this string str)
     {
-        var parts = str.Split('-');
+        var parts = str.Split(['-'], StringSplitOptions.RemoveEmptyEntries);
 
         for (var i = 0; i < parts.Length; i++)
         {
@@ -16,7 +16,8 @@ public static class StringExtensions
 
     public static string ConvertRouteToCamelCase(this string str)
     {
-        var parts = str.Split('/');
+        var parts = str.Split(['/'], StringSplitOptions.RemoveEmptyEntries);
+        
         for (var i = 1; i < parts.Length; i++)
         {
             parts[i] = parts[i].CapitalizeFirstCharacter();
@@ -33,7 +34,8 @@ public static class StringExtensions
 
     public static string ConvertSpacesToPascalCase(this string str)
     {
-        var parts = str.Split(' ');
+        var parts = str.Split([' '], StringSplitOptions.RemoveEmptyEntries);
+        
         for (var i = 0; i < parts.Length; i++)
         {
             parts[i] = parts[i].CapitalizeFirstCharacter();
