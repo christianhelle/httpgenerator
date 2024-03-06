@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.1...HEAD)
+
+**Merged pull requests:**
+
+- Update dependency Microsoft.OpenApi.Readers to v1.6.14 [\#67](https://github.com/christianhelle/httpgenerator/pull/67) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.3.1](https://github.com/christianhelle/httpgenerator/tree/0.3.1) (2024-02-28)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.0...0.3.1)
 
 **Implemented enhancements:**
 
