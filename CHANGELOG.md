@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.OpenApi.OData to v1.6.0 [\#70](https://github.com/christianhelle/httpgenerator/pull/70) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.VSSDK.BuildTools to v17.9.3174 [\#69](https://github.com/christianhelle/httpgenerator/pull/69) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.14 [\#67](https://github.com/christianhelle/httpgenerator/pull/67) ([renovate[bot]](https://github.com/apps/renovate))
 
