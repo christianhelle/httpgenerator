@@ -4,6 +4,10 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.1...HEAD)
 
+**Implemented enhancements:**
+
+- Fix issue when setting --base-url to an environment variable [\#71](https://github.com/christianhelle/httpgenerator/pull/71) ([christianhelle](https://github.com/christianhelle))
+
 **Merged pull requests:**
 
 - Update dependency Microsoft.OpenApi.OData to v1.6.0 [\#70](https://github.com/christianhelle/httpgenerator/pull/70) ([renovate[bot]](https://github.com/apps/renovate))
