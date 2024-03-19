@@ -6,6 +6,8 @@ namespace HttpGenerator;
 [ExcludeFromCodeCoverage]
 internal static class Program
 {
+    private const string InputFilename = "./openapi.json";
+
     private static int Main(string[] args)
     {
         if (args.Length == 0)
@@ -25,17 +27,17 @@ internal static class Program
                     .SetApplicationVersion(typeof(GenerateCommand).Assembly.GetName().Version!.ToString());
 
                 configuration
-                    .AddExample("./openapi.json");
+                    .AddExample(InputFilename);
 
                 configuration
                     .AddExample(
-                        "./openapi.json",
+                        InputFilename,
                         "--output",
                         "./");
 
                 configuration
                     .AddExample(
-                        "./openapi.json",
+                        InputFilename,
                         "--output-type",
                         "onefile");
 
@@ -51,14 +53,14 @@ internal static class Program
 
                 configuration
                     .AddExample(
-                        "./openapi.json",
+                        InputFilename,
                         "--authorization-header",
                         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
                     );
 
                 configuration
                     .AddExample(
-                        "./openapi.json",
+                        InputFilename,
                         "--azure-scope",
                         "[Some Application ID URI]/.default"
                     );
