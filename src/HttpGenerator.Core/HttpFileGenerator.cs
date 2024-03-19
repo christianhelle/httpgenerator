@@ -16,6 +16,17 @@ public static class HttpFileGenerator
         generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator();
 
         var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
+
+        if (settings.BaseUrl is not null &&
+            settings.BaseUrl!.StartsWith("{{") &&
+            settings.BaseUrl!.EndsWith("}}"))
+        {
+            // Load the base URL from an environment variable
+            return settings.OutputType == OutputType.OneRequestPerFile
+                ? GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator)
+                : GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl);
+        }
+
         if (!Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute) &&
             settings.OpenApiPath.StartsWith("http", StringComparison.OrdinalIgnoreCase))
         {
@@ -62,7 +73,7 @@ public static class HttpFileGenerator
     {
         code.AppendLine($"@contentType = {settings.ContentType}");
 
-        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) && 
+        if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) &&
             !settings.AuthorizationHeaderFromEnvironmentVariable)
         {
             code.AppendLine($"@{settings.AuthorizationHeaderVariableName} = {settings.AuthorizationHeader}");
