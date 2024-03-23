@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update nswag monorepo to v14.0.4 [\#72](https://github.com/christianhelle/httpgenerator/pull/72) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.0 [\#70](https://github.com/christianhelle/httpgenerator/pull/70) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.VSSDK.BuildTools to v17.9.3174 [\#69](https://github.com/christianhelle/httpgenerator/pull/69) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency coverlet.collector to v6.0.2 [\#68](https://github.com/christianhelle/httpgenerator/pull/68) ([renovate[bot]](https://github.com/apps/renovate))
