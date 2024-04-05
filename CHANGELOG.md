@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Atc.Test to v1.0.89 [\#76](https://github.com/christianhelle/httpgenerator/pull/76) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.1 [\#75](https://github.com/christianhelle/httpgenerator/pull/75) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Exceptionless to v6.0.4 [\#74](https://github.com/christianhelle/httpgenerator/pull/74) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to v14.0.7 [\#73](https://github.com/christianhelle/httpgenerator/pull/73) ([renovate[bot]](https://github.com/apps/renovate))
