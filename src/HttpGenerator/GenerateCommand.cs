@@ -150,7 +150,17 @@ public class GenerateCommand : AsyncCommand<Settings>
         }
         catch
         {
-            // ignored
+            var originalColor = Console.ForegroundColor;
+            Console.ForegroundColor = color switch
+            {
+                "red" => ConsoleColor.Red,
+                "yellow" => ConsoleColor.Yellow,
+                _ => originalColor
+            };
+
+            Console.WriteLine($"{label}:{Crlf}{error}{Crlf}");
+
+            Console.ForegroundColor = originalColor;
         }
     }
 }
