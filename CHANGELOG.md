@@ -6,7 +6,12 @@
 
 **Implemented enhancements:**
 
+- Use Console.WriteLine if AnsiConsole.MarkupLine fails [\#79](https://github.com/christianhelle/httpgenerator/pull/79) ([christianhelle](https://github.com/christianhelle))
 - Fix issue when setting --base-url to an environment variable [\#71](https://github.com/christianhelle/httpgenerator/pull/71) ([christianhelle](https://github.com/christianhelle))
+
+**Fixed bugs:**
+
+- Does not display error messages [\#78](https://github.com/christianhelle/httpgenerator/issues/78)
 
 **Merged pull requests:**
 
