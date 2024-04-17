@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.1...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.2...HEAD)
+
+**Merged pull requests:**
+
+- Update dependency Microsoft.Extensions.Azure to v1.7.3 [\#80](https://github.com/christianhelle/httpgenerator/pull/80) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.3.2](https://github.com/christianhelle/httpgenerator/tree/0.3.2) (2024-04-14)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.1...0.3.2)
 
 **Implemented enhancements:**
 
