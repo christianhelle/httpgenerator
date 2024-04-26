@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.OpenApi.OData to v1.6.2 [\#84](https://github.com/christianhelle/httpgenerator/pull/84) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Spectre.Console.Cli to v0.49.1 [\#83](https://github.com/christianhelle/httpgenerator/pull/83) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Spectre.Console.Cli to v0.49.0 [\#81](https://github.com/christianhelle/httpgenerator/pull/81) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to v1.7.3 [\#80](https://github.com/christianhelle/httpgenerator/pull/80) ([renovate[bot]](https://github.com/apps/renovate))
