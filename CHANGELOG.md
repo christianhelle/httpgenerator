@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update xunit-dotnet monorepo to v2.8.0 [\#85](https://github.com/christianhelle/httpgenerator/pull/85) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.2 [\#84](https://github.com/christianhelle/httpgenerator/pull/84) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Spectre.Console.Cli to v0.49.1 [\#83](https://github.com/christianhelle/httpgenerator/pull/83) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.VSSDK.BuildTools to v17.9.3184 [\#82](https://github.com/christianhelle/httpgenerator/pull/82) ([renovate[bot]](https://github.com/apps/renovate))
