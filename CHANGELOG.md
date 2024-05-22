@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.VSSDK.BuildTools to v17.10.2179 [\#88](https://github.com/christianhelle/httpgenerator/pull/88) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.OpenApi.OData to v1.6.4 [\#87](https://github.com/christianhelle/httpgenerator/pull/87) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.3 [\#86](https://github.com/christianhelle/httpgenerator/pull/86) ([renovate[bot]](https://github.com/apps/renovate))
 - Update xunit-dotnet monorepo to v2.8.0 [\#85](https://github.com/christianhelle/httpgenerator/pull/85) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.2 [\#84](https://github.com/christianhelle/httpgenerator/pull/84) ([renovate[bot]](https://github.com/apps/renovate))
