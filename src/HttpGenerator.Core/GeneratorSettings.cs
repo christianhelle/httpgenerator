@@ -43,6 +43,11 @@ public class GeneratorSettings
     /// Gets or sets the default output type for the generated .http files 
     /// </summary>
     public OutputType OutputType { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the timeout (in seconds) for writing files to disk
+    /// </summary>
+    public int Timeout { get; set; } = 120;
 }
 
 /// <summary>
