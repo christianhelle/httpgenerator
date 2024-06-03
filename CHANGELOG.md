@@ -4,6 +4,10 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.2...HEAD)
 
+**Implemented enhancements:**
+
+- Introduce --timeout option [\#95](https://github.com/christianhelle/httpgenerator/pull/95) ([christianhelle](https://github.com/christianhelle))
+
 **Merged pull requests:**
 
 - Update dependency Microsoft.OpenApi.OData to v1.6.5 [\#92](https://github.com/christianhelle/httpgenerator/pull/92) ([renovate[bot]](https://github.com/apps/renovate))
