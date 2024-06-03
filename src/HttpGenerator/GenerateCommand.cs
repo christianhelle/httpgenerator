@@ -41,6 +41,7 @@ public class GenerateCommand : AsyncCommand<Settings>
                 ContentType = settings.ContentType,
                 BaseUrl = settings.BaseUrl,
                 OutputType = settings.OutputType,
+                Timeout = settings.Timeout,
             };
 
             var result = await HttpFileGenerator.Generate(generatorSettings);
@@ -49,13 +50,21 @@ public class GenerateCommand : AsyncCommand<Settings>
             if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
                 Directory.CreateDirectory(settings.OutputFolder);
 
-            await Task.WhenAll(
+            AnsiConsole.MarkupLine($"[green]Writing {result.Files.Count} file(s)[/]");
+            
+            var timeout = Task.Delay(TimeSpan.FromSeconds(settings.Timeout));
+            var writeFiles = Task.WhenAll(
                 result.Files.Select(
                     file => File.WriteAllTextAsync(
                         Path.Combine(settings.OutputFolder, file.Filename),
                         file.Content)));
 
-            AnsiConsole.MarkupLine($"[green]Files: {result.Files.Count}[/]");
+            if (timeout == await Task.WhenAny(timeout, writeFiles))
+            {
+                AnsiConsole.MarkupLine($"[red]Operation timed out :([/]");
+                return -1;
+            }
+
             AnsiConsole.MarkupLine($"[green]Duration: {stopwatch.Elapsed}{Crlf}[/]");
             return 0;
         }
