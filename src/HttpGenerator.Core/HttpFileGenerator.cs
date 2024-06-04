@@ -27,7 +27,7 @@ public static class HttpFileGenerator
                 OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
                 OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
                 OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-                _ => throw new ArgumentOutOfRangeException()
+                _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType), $"Unknown output type: {settings.OutputType}")
             };
         }
 
@@ -44,7 +44,7 @@ public static class HttpFileGenerator
             OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
             OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
             OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType), $"Unknown output type: {settings.OutputType}")
         };
     }
 
