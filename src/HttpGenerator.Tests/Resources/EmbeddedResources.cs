@@ -90,7 +90,7 @@ public static class EmbeddedResources
 
     public static string GetStringFromEmbeddedResource(string name)
     {
-        using var stream = GetStream("V31.webhook-example.json");
+        using var stream = GetStream(name);
         using var reader = new StreamReader(stream);
         return reader.ReadToEnd();
     }
@@ -106,6 +106,8 @@ public static class EmbeddedResources
             Samples.PetstoreJsonV3WithDifferentHeaders => SwaggerPetstoreJsonV3WithDifferentHeaders,
             Samples.PetstoreYamlV2WithDifferentHeaders => SwaggerPetstoreYamlV2WithDifferentHeaders,
             Samples.PetstoreYamlV3WithDifferentHeaders => SwaggerPetstoreYamlV3WithDifferentHeaders,
+            Samples.PetstoreJsonV3WithMultlineDescriptions => GetStringFromEmbeddedResource("V3.SwaggerPetstoreWithMultlineDescriptions.json"),
+            Samples.PetstoreYamlV3WithMultlineDescriptions => GetStringFromEmbeddedResource("V3.SwaggerPetstoreWithMultlineDescriptions.yaml"),
             _ => SwaggerPetstoreJsonV3
         };
     }

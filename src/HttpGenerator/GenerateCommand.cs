@@ -84,9 +84,19 @@ public class GenerateCommand : AsyncCommand<Settings>
         {
             if (exception is not OpenApiValidationException)
             {
-                AnsiConsole.MarkupLine($"{Crlf}[red]Error:{Crlf}{exception.Message}[/]");
-                AnsiConsole.MarkupLine($"[red]Exception:{Crlf}{exception.GetType()}[/]");
-                AnsiConsole.MarkupLine($"[yellow]Stack Trace:{Crlf}{exception.StackTrace}[/]");
+                TryWriteLine(exception.Message, "red", "Error");
+                TryWriteLine(exception.GetType(), "red", "Exception");
+
+                if (exception.StackTrace != null)
+                    TryWriteLine(exception.StackTrace, "yellow", "Stack Trace");
+
+                if (exception.InnerException != null)
+                {
+                    TryWriteLine(exception.InnerException.Message, "red", "Inner Error");
+                    TryWriteLine(exception.InnerException.GetType(), "red", "Inner Exception");
+                    if (exception.InnerException.StackTrace != null)
+                        TryWriteLine(exception.InnerException.StackTrace, "yellow", "Inner Stack Trace");
+                }
             }
 
             await Analytics.LogError(exception, settings);
@@ -149,7 +159,7 @@ public class GenerateCommand : AsyncCommand<Settings>
     }
 
     private static void TryWriteLine(
-        OpenApiError error,
+        object error,
         string color,
         string label)
     {

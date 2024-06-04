@@ -9,5 +9,7 @@ public enum Samples
     PetstoreJsonV2WithDifferentHeaders,
     PetstoreJsonV3WithDifferentHeaders,
     PetstoreYamlV2WithDifferentHeaders,
-    PetstoreYamlV3WithDifferentHeaders,     
+    PetstoreYamlV3WithDifferentHeaders, 
+    PetstoreYamlV3WithMultlineDescriptions, 
+    PetstoreJsonV3WithMultlineDescriptions,    
 }
