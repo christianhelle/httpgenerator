@@ -209,7 +209,7 @@ public static class HttpFileGenerator
                     description + Environment.NewLine + descriptionPrefix +
                     operation.Description.Replace(
                         "\n",
-                        $"\n{descriptionPrefix}"));
+                        $"{Environment.NewLine}{descriptionPrefix}"));
             }
             else
             {
