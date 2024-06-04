@@ -64,4 +64,9 @@ public enum OutputType
     /// Generate a single .http file for all requests
     /// </summary>
     OneFile,
+
+    /// <summary>
+    /// Generate one .http file per first tag associated with each request
+    /// </summary>
+    OneFilePerTag,
 }

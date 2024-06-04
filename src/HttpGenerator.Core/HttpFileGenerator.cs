@@ -22,9 +22,13 @@ public static class HttpFileGenerator
             settings.BaseUrl!.EndsWith("}}"))
         {
             // Load the base URL from an environment variable
-            return settings.OutputType == OutputType.OneRequestPerFile
-                ? GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator)
-                : GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl);
+            return settings.OutputType switch
+            {
+                OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
+                OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
+                OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
 
         if (!Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute) &&
@@ -35,9 +39,13 @@ public static class HttpFileGenerator
                       baseUrl;
         }
 
-        return settings.OutputType == OutputType.OneRequestPerFile
-            ? GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator)
-            : GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl);
+        return settings.OutputType switch
+        {
+            OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
+            OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
+            OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     private static GeneratorResult GenerateSingleFile(
@@ -107,6 +115,40 @@ public static class HttpFileGenerator
             }
         }
 
+        return new GeneratorResult(files);
+    }
+
+    private static GeneratorResult GenerateFilePerTag(
+        GeneratorSettings settings,
+        OpenApiDocument document,
+        string baseUrl,
+        IOperationNameGenerator operationNameGenerator)
+    {
+        const string defaultTag = "Default";
+        var contents = new Dictionary<string, StringBuilder>();
+
+        foreach (var kv in document.Paths)
+        {
+            foreach (var operations in kv.Value)
+            {
+                var tag = operations.Value.Tags.FirstOrDefault() ?? defaultTag;
+
+                if (!contents.ContainsKey(tag))
+                {
+                    contents[tag] = new StringBuilder();
+                    WriteFileHeaders(settings, contents[tag]);
+                }
+
+                var operation = operations.Value;
+                var verb = operations.Key.CapitalizeFirstCharacter();
+                
+                contents[tag].AppendLine(
+                    GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
+                
+            }
+        }
+
+        var files = contents.Select(x => new HttpFile($"{x.Key}.http", x.Value.ToString())).ToList();
         return new GeneratorResult(files);
     }
 
