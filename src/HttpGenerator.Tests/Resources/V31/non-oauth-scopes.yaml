@@ -5,6 +5,9 @@ info:
 paths:
   /users:
     get:
+      responses: 
+        '200':
+          description: A list of users
       security:
         - bearerAuth:
             - 'read:users'
