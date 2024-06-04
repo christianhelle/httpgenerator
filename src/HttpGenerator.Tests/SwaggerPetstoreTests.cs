@@ -36,7 +36,7 @@ public class SwaggerPetstoreTests
     public async Task Can_Generate_Code(Samples version, string filename, OutputType outputType)
     {
         var generateCode = await GenerateCode(version, filename, outputType);
-        
+
         using var scope = new AssertionScope();
         generateCode.Should().NotBeNull();
         generateCode.Files.Should().NotBeNullOrEmpty();
@@ -74,6 +74,30 @@ public class SwaggerPetstoreTests
         generateCode.Files.Should().NotBeNullOrEmpty();
         generateCode.Files
             .All(file => file.Content.Count(c => c == '#') >= 6)
+            .Should()
+            .BeTrue();
+    }
+
+    [Theory]
+    [InlineData(Samples.PetstoreJsonV3WithMultlineDescriptions, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
+    [InlineData(Samples.PetstoreYamlV3WithMultlineDescriptions, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
+    [InlineData(Samples.PetstoreJsonV3WithMultlineDescriptions, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(Samples.PetstoreYamlV3WithMultlineDescriptions, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    public async Task Can_Generate_Code_With_Multiline_Descriptions(
+        Samples version,
+        string filename,
+        OutputType outputType)
+    {
+        var generateCode = await GenerateCode(version, filename, outputType);
+
+        using var scope = new AssertionScope();
+        generateCode.Should().NotBeNull();
+        generateCode.Files.Should().NotBeNullOrEmpty();
+        generateCode.Files
+            .Any(
+                file => file.Content.Contains(
+                    $"### Description: {Environment.NewLine}",
+                    StringComparison.OrdinalIgnoreCase))
             .Should()
             .BeTrue();
     }
