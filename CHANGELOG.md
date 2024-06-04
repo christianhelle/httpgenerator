@@ -6,7 +6,12 @@
 
 **Implemented enhancements:**
 
+- Handle multi-line operation descriptions [\#96](https://github.com/christianhelle/httpgenerator/pull/96) ([christianhelle](https://github.com/christianhelle))
 - Introduce --timeout option [\#95](https://github.com/christianhelle/httpgenerator/pull/95) ([christianhelle](https://github.com/christianhelle))
+
+**Fixed bugs:**
+
+- Multiline XML Comments are not represented ok [\#94](https://github.com/christianhelle/httpgenerator/issues/94)
 
 **Merged pull requests:**
 
