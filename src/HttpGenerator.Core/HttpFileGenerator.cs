@@ -194,7 +194,27 @@ public static class HttpFileGenerator
 
         if (!string.IsNullOrWhiteSpace(operation.Description))
         {
-            code.AppendLine($"{description}{operation.Description}");
+            const string descriptionPrefix = "###   ";
+            if (operation.Description!.Contains(Environment.NewLine))
+            {
+                code.AppendLine(
+                    description + Environment.NewLine + descriptionPrefix +
+                    operation.Description.Replace(
+                        Environment.NewLine,
+                        $"{Environment.NewLine}{descriptionPrefix}"));
+            }
+            else if (operation.Description!.Contains("\n"))
+            {
+                code.AppendLine(
+                    description + Environment.NewLine + descriptionPrefix +
+                    operation.Description.Replace(
+                        "\n",
+                        $"\n{descriptionPrefix}"));
+            }
+            else
+            {
+                code.AppendLine($"{description}{operation.Description}");
+            }
         }
 
         for (var i = 0; i < length; i++)
