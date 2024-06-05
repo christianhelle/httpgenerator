@@ -6,6 +6,8 @@
 
 **Implemented enhancements:**
 
+- Generate one file per tag [\#97](https://github.com/christianhelle/httpgenerator/issues/97)
+- Generate file per tag [\#98](https://github.com/christianhelle/httpgenerator/pull/98) ([ikopytko](https://github.com/ikopytko))
 - Handle multi-line operation descriptions [\#96](https://github.com/christianhelle/httpgenerator/pull/96) ([christianhelle](https://github.com/christianhelle))
 - Introduce --timeout option [\#95](https://github.com/christianhelle/httpgenerator/pull/95) ([christianhelle](https://github.com/christianhelle))
 
