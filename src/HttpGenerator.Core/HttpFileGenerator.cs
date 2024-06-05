@@ -148,7 +148,9 @@ public static class HttpFileGenerator
             }
         }
 
-        var files = contents.Select(x => new HttpFile($"{x.Key}.http", x.Value.ToString())).ToList();
+        var files = contents
+            .Select(x => new HttpFile($"{x.Key.CapitalizeFirstCharacter()}.http", x.Value.ToString()))
+            .ToList();
         return new GeneratorResult(files);
     }
 
