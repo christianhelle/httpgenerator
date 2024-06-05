@@ -55,6 +55,10 @@ public class SwaggerPetstoreTests
     [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneFile)]
     [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneFile)]
     [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.json", OutputType.OneFilePerTag)]
+    [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneFilePerTag)]
+    [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneFilePerTag)]
+    [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneFilePerTag)]
     public async Task Can_Generate_Code_From_Url(string url, OutputType outputType)
     {
         var generateCode = await HttpFileGenerator.Generate(
@@ -107,6 +111,10 @@ public class SwaggerPetstoreTests
     [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneFile)]
     [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneFile)]
     [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneFile)]
+    [InlineData(HttpsUrlPrefix + "petstore.json", OutputType.OneFilePerTag)]
+    [InlineData(HttpsUrlPrefix + "petstore.yaml", OutputType.OneFilePerTag)]
+    [InlineData(HttpUrlPrefix + "petstore.json", OutputType.OneFilePerTag)]
+    [InlineData(HttpUrlPrefix + "petstore.yaml", OutputType.OneFilePerTag)]
     public async Task Files_Generated_From_Url_Uses_OpenApiPath_Authority_As_For_BaseUrl(
         string url,
         OutputType outputType)
