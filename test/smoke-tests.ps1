@@ -47,6 +47,17 @@ function Generate {
     if ($process.ExitCode -ne 0) {
         throw "HttpGenerator failed"
     }
+
+    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --output-type OneFilePerTag --no-logging $args"
+    $process = Start-Process "./bin/HttpGenerator" `
+        -Args "./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args" `
+        -NoNewWindow `
+        -PassThru
+
+    $process | Wait-Process
+    if ($process.ExitCode -ne 0) {
+        throw "HttpGenerator failed"
+    }
 }
 
 function RunTests {
