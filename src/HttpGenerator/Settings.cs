@@ -53,7 +53,8 @@ public class Settings : CommandSettings
     
     [Description(
         $"{nameof(OutputType.OneRequestPerFile)} generates one .http file per request. " +
-        $"{nameof(OutputType.OneFile)} generates a single .http file for all requests.")]
+        $"{nameof(OutputType.OneFile)} generates a single .http file for all requests. " +
+        $"{nameof(OutputType.OneFilePerTag)} generates one .http file per first tag associated with each request.")]
     [CommandOption("--output-type <OUTPUT-TYPE>")]
     [DefaultValue(OutputType.OneRequestPerFile)]
     [AllowedValues(nameof(OutputType.OneRequestPerFile), nameof(OutputType.OneFile))]
