@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.2...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.4.0...HEAD)
+
+**Merged pull requests:**
+
+- chore\(deps\): update dependency microsoft.openapi.odata to v1.6.6 [\#101](https://github.com/christianhelle/httpgenerator/pull/101) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.4.0](https://github.com/christianhelle/httpgenerator/tree/0.4.0) (2024-06-06)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.3.2...0.4.0)
 
 **Implemented enhancements:**
 
