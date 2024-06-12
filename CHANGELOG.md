@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency microsoft.vssdk.buildtools to v17.10.2185 [\#102](https://github.com/christianhelle/httpgenerator/pull/102) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.openapi.odata to v1.6.6 [\#101](https://github.com/christianhelle/httpgenerator/pull/101) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.4.0](https://github.com/christianhelle/httpgenerator/tree/0.4.0) (2024-06-06)
