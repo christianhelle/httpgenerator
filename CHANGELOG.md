@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update nswag monorepo to v14.0.8 [\#103](https://github.com/christianhelle/httpgenerator/pull/103) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.vssdk.buildtools to v17.10.2185 [\#102](https://github.com/christianhelle/httpgenerator/pull/102) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.openapi.odata to v1.6.6 [\#101](https://github.com/christianhelle/httpgenerator/pull/101) ([renovate[bot]](https://github.com/apps/renovate))
 
