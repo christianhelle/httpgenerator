@@ -79,7 +79,7 @@
       <Version>16.0.507</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Azure">
-      <Version>1.7.3</Version>
+      <Version>1.7.4</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.32112.339" ExcludeAssets="runtime" />
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.10.2185" />
