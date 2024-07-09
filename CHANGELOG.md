@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update xunit-dotnet monorepo [\#107](https://github.com/christianhelle/httpgenerator/pull/107) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.openapi.odata to v1.6.7 [\#106](https://github.com/christianhelle/httpgenerator/pull/106) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.openapi.readers to v1.6.15 [\#105](https://github.com/christianhelle/httpgenerator/pull/105) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.extensions.azure to v1.7.4 [\#104](https://github.com/christianhelle/httpgenerator/pull/104) ([renovate[bot]](https://github.com/apps/renovate))
