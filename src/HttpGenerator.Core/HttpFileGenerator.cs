@@ -192,7 +192,7 @@ public static class HttpFileGenerator
 
             foreach (var parameterName in parameterNameMap)
             {
-                url += $"{parameterName.Key}={{{{{parameterName.Key}}}}}&";
+                url += $"{parameterName.Key}={{{{{parameterName.Value}}}}}&";
             }
         }
 
