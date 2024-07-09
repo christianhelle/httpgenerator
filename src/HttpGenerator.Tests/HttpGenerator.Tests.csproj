@@ -35,14 +35,11 @@
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithDifferentHeaders.yaml" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithMultlineDescriptions.json" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithMultlineDescriptions.yaml" />
-    <None Remove="Resources\V31\non-oauth-scopes.json" />
     <EmbeddedResource Include="Resources\V31\non-oauth-scopes.json" />
-    <None Remove="Resources\V31\non-oauth-scopes.yaml" />
     <EmbeddedResource Include="Resources\V31\non-oauth-scopes.yaml" />
-    <None Remove="Resources\V31\webhook-example.json" />
     <EmbeddedResource Include="Resources\V31\webhook-example.json" />
-    <None Remove="Resources\V31\webhook-example.yaml" />
     <EmbeddedResource Include="Resources\V31\webhook-example.yaml" />
+    <None Remove="README.md" />
   </ItemGroup>
 
   <ItemGroup>
