@@ -18,26 +18,25 @@ public class GenerateCommandTests
         Http + "://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/";
 
     [Theory]
-    [Inline(Samples.PetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneFile)]
-    [Inline(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneFile)]
-    [Inline(Samples.PetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneFile)]
-    [Inline(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneFile)]
-    [Inline(Samples.PetstoreJsonV3WithDifferentHeaders, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreYamlV3WithDifferentHeaders, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreJsonV2WithDifferentHeaders, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreYamlV2WithDifferentHeaders, "SwaggerPetstore.yaml", OutputType.OneRequestPerFile)]
-    [Inline(Samples.PetstoreJsonV3WithDifferentHeaders, "SwaggerPetstore.json", OutputType.OneFile)]
-    [Inline(Samples.PetstoreYamlV3WithDifferentHeaders, "SwaggerPetstore.yaml", OutputType.OneFile)]
-    [Inline(Samples.PetstoreJsonV2WithDifferentHeaders, "SwaggerPetstore.json", OutputType.OneFile)]
-    [Inline(Samples.PetstoreYamlV2WithDifferentHeaders, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    [Inline(Samples.PetstoreJsonV3, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV2, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV3, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV2, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV3WithDifferentHeaders, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV3WithDifferentHeaders, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV2WithDifferentHeaders, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV2WithDifferentHeaders, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV3WithDifferentHeaders, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV3WithDifferentHeaders, "SwaggerPetstore.yaml")]
+    [Inline(Samples.PetstoreJsonV2WithDifferentHeaders, "SwaggerPetstore.json")]
+    [Inline(Samples.PetstoreYamlV2WithDifferentHeaders, "SwaggerPetstore.yaml")]
     public async Task Should_Generate_Code_From_File(
         Samples version,
         string filename,
-        OutputType outputType,
         GenerateCommand sut,
         CommandContext context,
         Settings settings)

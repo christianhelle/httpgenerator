@@ -176,9 +176,26 @@ public static class HttpFileGenerator
             code);
 
         var url = operationPath.Key.Replace("{", "{{").Replace("}", "}}");
-        foreach (var parameterName in parameterNameMap)
+        if (url.Contains("{") || url.Contains("}"))
         {
-            url = url.Replace($"{{{parameterName.Key}}}", $"{{{parameterName.Value}}}");
+            foreach (var parameterName in parameterNameMap)
+            {
+                url = url.Replace($"{{{{{parameterName.Key}}}}}", $"{{{{{parameterName.Value}}}}}");
+            }
+        }
+        else
+        {
+            if (parameterNameMap.Count>0)
+            {
+                url += "?";
+            }
+
+            foreach (var parameterName in parameterNameMap)
+            {
+                url += $"{parameterName.Key}={{{{{parameterName.Value}}}}}&";
+            }
+            
+            url = url.Remove(url.Length - 1);
         }
 
         code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{url}");

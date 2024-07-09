@@ -133,6 +133,27 @@ public class SwaggerPetstoreTests
             .BeTrue();
     }
 
+    [Theory]
+    [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    [InlineData(Samples.PetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    public async Task Can_Generate_Code_With_Query_String_Parameters(
+        Samples version,
+        string filename,
+        OutputType outputType)
+    {
+        var generateCode = await GenerateCode(version, filename, outputType);
+
+        using var scope = new AssertionScope();
+        generateCode.Should().NotBeNull();
+        generateCode.Files.Should().NotBeNullOrEmpty();
+        generateCode.Files
+            .Any(file => file.Content.Contains("?status={{") && file.Content.Contains("}}"))
+            .Should()
+            .BeTrue();
+    }
+
     private static async Task<GeneratorResult> GenerateCode(
         Samples version,
         string filename,
