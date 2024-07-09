@@ -4,6 +4,14 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.4.0...HEAD)
 
+**Implemented enhancements:**
+
+- Include query string parameters on URL [\#108](https://github.com/christianhelle/httpgenerator/pull/108) ([christianhelle](https://github.com/christianhelle))
+
+**Fixed bugs:**
+
+- Query string parameters are not included in the request URL [\#109](https://github.com/christianhelle/httpgenerator/issues/109)
+
 **Merged pull requests:**
 
 - chore\(deps\): update xunit-dotnet monorepo [\#107](https://github.com/christianhelle/httpgenerator/pull/107) ([renovate[bot]](https://github.com/apps/renovate))
