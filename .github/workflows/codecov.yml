@@ -20,7 +20,8 @@ on:
       - '*'
 
 env:
-  VERSION: 0.1.1.${{ github.run_number }}
+  VERSION: 0.5.0.${{ github.run_number }}
+  CODECOV_TOKEN: 62284a15-ac3f-48bb-81c5-1204e3a8b66c
 
 jobs:
   build:
@@ -62,5 +63,5 @@ jobs:
         directory: src
         file: coverage.xml
         flags: unittests
-        fail_ci_if_error: false
+        fail_ci_if_error: true
         verbose: true
