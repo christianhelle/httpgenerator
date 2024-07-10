@@ -21,10 +21,6 @@ public class OpenApiValidatorTests
     [InlineData(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml")]
     [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json")]
     [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml")]
-    [InlineData(Samples.PetstoreJsonV3, "SwaggerPetstore.json")]
-    [InlineData(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml")]
-    [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json")]
-    [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml")]
     public async Task Should_Return_True_For_Local_Files(Samples sample, string filename)
     {
         var json = EmbeddedResources.GetSwaggerPetstore(sample);
@@ -34,10 +30,6 @@ public class OpenApiValidatorTests
     }
 
     [Theory]
-    [InlineData(HttpsUrlPrefix + "petstore.json")]
-    [InlineData(HttpsUrlPrefix + "petstore.yaml")]
-    [InlineData(HttpUrlPrefix + "petstore.json")]
-    [InlineData(HttpUrlPrefix + "petstore.yaml")]
     [InlineData(HttpsUrlPrefix + "petstore.json")]
     [InlineData(HttpsUrlPrefix + "petstore.yaml")]
     [InlineData(HttpUrlPrefix + "petstore.json")]
