@@ -62,5 +62,5 @@ jobs:
         directory: src
         file: coverage.xml
         flags: unittests
-        fail_ci_if_error: false
+        fail_ci_if_error: true
         verbose: true
