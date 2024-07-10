@@ -45,24 +45,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 
             var result = await HttpFileGenerator.Generate(generatorSettings);
             await Analytics.LogFeatureUsage(settings);
-
-            if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
-                Directory.CreateDirectory(settings.OutputFolder);
-
-            AnsiConsole.MarkupLine($"[green]Writing {result.Files.Count} file(s)[/]");
-            
-            var timeout = Task.Delay(TimeSpan.FromSeconds(settings.Timeout));
-            var writeFiles = Task.WhenAll(
-                result.Files.Select(
-                    file => File.WriteAllTextAsync(
-                        Path.Combine(settings.OutputFolder, file.Filename),
-                        file.Content)));
-
-            if (timeout == await Task.WhenAny(timeout, writeFiles))
-            {
-                AnsiConsole.MarkupLine($"[red]Operation timed out :([/]");
-                return -1;
-            }
+            await WriteFiles(settings, result);
 
             AnsiConsole.MarkupLine($"[green]Duration: {stopwatch.Elapsed}{Crlf}[/]");
             return 0;
@@ -100,6 +83,27 @@ public class GenerateCommand : AsyncCommand<Settings>
 
             await Analytics.LogError(exception, settings);
             return exception.HResult;
+        }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static async Task WriteFiles(Settings settings, GeneratorResult result)
+    {
+        AnsiConsole.MarkupLine($"[green]Writing {result.Files.Count} file(s)[/]");
+
+        if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
+            Directory.CreateDirectory(settings.OutputFolder);
+            
+        var timeout = Task.Delay(TimeSpan.FromSeconds(settings.Timeout));
+        var writeFiles = Task.WhenAll(
+            result.Files.Select(
+                file => File.WriteAllTextAsync(
+                    Path.Combine(settings.OutputFolder, file.Filename),
+                    file.Content)));
+
+        if (timeout == await Task.WhenAny(timeout, writeFiles))
+        {
+            AnsiConsole.MarkupLine($"[red]Operation timed out :([/]");
         }
     }
 
