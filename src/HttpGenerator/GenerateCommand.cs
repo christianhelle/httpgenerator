@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
-using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers.Exceptions;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -15,8 +15,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        if (!settings.NoLogging)
-            Analytics.Configure();
+        Analytics.Configure(settings);
 
         try
         {
@@ -46,24 +45,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 
             var result = await HttpFileGenerator.Generate(generatorSettings);
             await Analytics.LogFeatureUsage(settings);
-
-            if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
-                Directory.CreateDirectory(settings.OutputFolder);
-
-            AnsiConsole.MarkupLine($"[green]Writing {result.Files.Count} file(s)[/]");
-            
-            var timeout = Task.Delay(TimeSpan.FromSeconds(settings.Timeout));
-            var writeFiles = Task.WhenAll(
-                result.Files.Select(
-                    file => File.WriteAllTextAsync(
-                        Path.Combine(settings.OutputFolder, file.Filename),
-                        file.Content)));
-
-            if (timeout == await Task.WhenAny(timeout, writeFiles))
-            {
-                AnsiConsole.MarkupLine($"[red]Operation timed out :([/]");
-                return -1;
-            }
+            await WriteFiles(settings, result);
 
             AnsiConsole.MarkupLine($"[green]Duration: {stopwatch.Elapsed}{Crlf}[/]");
             return 0;
@@ -104,6 +86,27 @@ public class GenerateCommand : AsyncCommand<Settings>
         }
     }
 
+    [ExcludeFromCodeCoverage]
+    private static async Task WriteFiles(Settings settings, GeneratorResult result)
+    {
+        AnsiConsole.MarkupLine($"[green]Writing {result.Files.Count} file(s)[/]");
+
+        if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
+            Directory.CreateDirectory(settings.OutputFolder);
+            
+        var timeout = Task.Delay(TimeSpan.FromSeconds(settings.Timeout));
+        var writeFiles = Task.WhenAll(
+            result.Files.Select(
+                file => File.WriteAllTextAsync(
+                    Path.Combine(settings.OutputFolder, file.Filename),
+                    file.Content)));
+
+        if (timeout == await Task.WhenAny(timeout, writeFiles))
+        {
+            AnsiConsole.MarkupLine($"[red]Operation timed out :([/]");
+        }
+    }
+
     private static async Task AcquireAzureEntraIdToken(Settings settings)
     {
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) ||
@@ -138,24 +141,29 @@ public class GenerateCommand : AsyncCommand<Settings>
     private static async Task ValidateOpenApiSpec(Settings settings)
     {
         var validationResult = await OpenApiValidator.Validate(settings.OpenApiPath!);
-        if (!validationResult.IsValid)
-        {
-            AnsiConsole.MarkupLine($"[red]{Crlf}OpenAPI validation failed:{Crlf}[/]");
-
-            foreach (var error in validationResult.Diagnostics.Errors)
-            {
-                TryWriteLine(error, "red", "Error");
-            }
-
-            foreach (var warning in validationResult.Diagnostics.Warnings)
-            {
-                TryWriteLine(warning, "yellow", "Warning");
-            }
-
-            validationResult.ThrowIfInvalid();
-        }
+        WriteValidationResults(validationResult);
+        validationResult.ThrowIfInvalid();
 
         AnsiConsole.MarkupLine($"[green]{Crlf}OpenAPI statistics:{Crlf}{validationResult.Statistics}{Crlf}[/]");
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void WriteValidationResults(OpenApiValidationResult validationResult)
+    {
+        if (validationResult.IsValid)
+            return;
+
+        AnsiConsole.MarkupLine($"[red]{Crlf}OpenAPI validation failed:{Crlf}[/]");
+
+        foreach (var error in validationResult.Diagnostics.Errors)
+        {
+            TryWriteLine(error, "red", "Error");
+        }
+
+        foreach (var warning in validationResult.Diagnostics.Warnings)
+        {
+            TryWriteLine(warning, "yellow", "Warning");
+        }
     }
 
     private static void TryWriteLine(

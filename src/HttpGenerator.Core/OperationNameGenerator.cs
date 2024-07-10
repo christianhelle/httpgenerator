@@ -46,25 +46,4 @@ internal class OperationNameGenerator : IOperationNameGenerator
                        .ConvertSpacesToPascalCase();
         }
     }
-
-    public bool CheckForDuplicateOperationIds(
-        OpenApiDocument document)
-    {
-        List<string> operationNames = new();
-        foreach (var kv in document.Paths)
-        {
-            foreach (var operations in kv.Value)
-            {
-                var operation = operations.Value;
-                operationNames.Add(
-                    GetOperationName(
-                        document,
-                        kv.Key,
-                        operations.Key,
-                        operation));
-            }
-        }
-
-        return operationNames.Distinct().Count() != operationNames.Count;
-    }
 }

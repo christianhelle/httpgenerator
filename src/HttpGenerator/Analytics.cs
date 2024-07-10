@@ -11,8 +11,11 @@ namespace HttpGenerator;
 [ExcludeFromCodeCoverage]
 public static class Analytics
 {
-    public static void Configure()
+    public static void Configure(Settings settings)
     {
+        if (!settings.NoLogging)
+            return;
+
         ExceptionlessClient.Default.Configuration.SetUserIdentity(
             SupportInformation.GetAnonymousIdentity(),
             SupportInformation.GetSupportKey());
