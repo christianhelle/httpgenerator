@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
-using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers.Exceptions;
 using Spectre.Console;
 using Spectre.Console.Cli;
@@ -16,8 +15,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 
     public override async Task<int> ExecuteAsync(CommandContext context, Settings settings)
     {
-        if (!settings.NoLogging)
-            Analytics.Configure();
+        Analytics.Configure(settings);
 
         try
         {
