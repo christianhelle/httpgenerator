@@ -77,17 +77,16 @@ public class GenerateCommandTests
     }
 
     [Theory]
-    [Inline("V31.non-oauth-scopes.json", OutputType.OneRequestPerFile)]
-    [Inline("V31.non-oauth-scopes.yaml", OutputType.OneRequestPerFile)]
-    [Inline("V31.webhook-example.json", OutputType.OneRequestPerFile)]
-    [Inline("V31.webhook-example.yaml", OutputType.OneRequestPerFile)]
-    [Inline("V31.non-oauth-scopes.json", OutputType.OneFile)]
-    [Inline("V31.non-oauth-scopes.yaml", OutputType.OneFile)]
-    [Inline("V31.webhook-example.json", OutputType.OneFile)]
-    [Inline("V31.webhook-example.yaml", OutputType.OneFile)]
+    [Inline("V31.non-oauth-scopes.json")]
+    [Inline("V31.non-oauth-scopes.yaml")]
+    [Inline("V31.webhook-example.json")]
+    [Inline("V31.webhook-example.yaml")]
+    [Inline("V31.non-oauth-scopes.json")]
+    [Inline("V31.non-oauth-scopes.yaml")]
+    [Inline("V31.webhook-example.json")]
+    [Inline("V31.webhook-example.yaml")]
     public async Task Should_Fail_Validating_V31_Spec(
         string manifestResourceStreamName,
-        OutputType outputType,
         GenerateCommand sut,
         CommandContext context,
         Settings settings)
@@ -95,6 +94,7 @@ public class GenerateCommandTests
         var json = EmbeddedResources.GetStringFromEmbeddedResource(manifestResourceStreamName);
         settings.OpenApiPath = await TestFile.CreateSwaggerFile(json, manifestResourceStreamName);
         settings.NoLogging = true;
+        settings.SkipValidation = false;
 
         (await sut.ExecuteAsync(context, settings))
             .Should()
