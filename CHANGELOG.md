@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.4.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0-preview.12...HEAD)
+
+**Implemented enhancements:**
+
+- House Keeping [\#111](https://github.com/christianhelle/httpgenerator/pull/111) ([christianhelle](https://github.com/christianhelle))
+
+## [0.5.0-preview.12](https://github.com/christianhelle/httpgenerator/tree/0.5.0-preview.12) (2024-07-09)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.4.0...0.5.0-preview.12)
 
 **Implemented enhancements:**
 
