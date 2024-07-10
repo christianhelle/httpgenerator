@@ -31,6 +31,8 @@
     <EmbeddedResource Include="Resources\V2\SwaggerPetstoreWithDifferentHeaders.yaml" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstore.json" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstore.yaml" />
+    <EmbeddedResource Include="Resources\V3\SwaggerPetstoreInvalid.json" />
+    <EmbeddedResource Include="Resources\V3\SwaggerPetstoreInvalid.yaml" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithDifferentHeaders.json" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithDifferentHeaders.yaml" />
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithMultlineDescriptions.json" />

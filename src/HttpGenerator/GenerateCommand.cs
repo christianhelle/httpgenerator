@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
@@ -138,24 +139,29 @@ public class GenerateCommand : AsyncCommand<Settings>
     private static async Task ValidateOpenApiSpec(Settings settings)
     {
         var validationResult = await OpenApiValidator.Validate(settings.OpenApiPath!);
-        if (!validationResult.IsValid)
-        {
-            AnsiConsole.MarkupLine($"[red]{Crlf}OpenAPI validation failed:{Crlf}[/]");
-
-            foreach (var error in validationResult.Diagnostics.Errors)
-            {
-                TryWriteLine(error, "red", "Error");
-            }
-
-            foreach (var warning in validationResult.Diagnostics.Warnings)
-            {
-                TryWriteLine(warning, "yellow", "Warning");
-            }
-
-            validationResult.ThrowIfInvalid();
-        }
+        WriteValidationResults(validationResult);
+        validationResult.ThrowIfInvalid();
 
         AnsiConsole.MarkupLine($"[green]{Crlf}OpenAPI statistics:{Crlf}{validationResult.Statistics}{Crlf}[/]");
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void WriteValidationResults(OpenApiValidationResult validationResult)
+    {
+        if (validationResult.IsValid)
+            return;
+
+        AnsiConsole.MarkupLine($"[red]{Crlf}OpenAPI validation failed:{Crlf}[/]");
+
+        foreach (var error in validationResult.Diagnostics.Errors)
+        {
+            TryWriteLine(error, "red", "Error");
+        }
+
+        foreach (var warning in validationResult.Diagnostics.Warnings)
+        {
+            TryWriteLine(warning, "yellow", "Warning");
+        }
     }
 
     private static void TryWriteLine(
