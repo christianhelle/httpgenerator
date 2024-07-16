@@ -6,6 +6,7 @@ using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.OperationNameGenerators;
 using Microsoft.OpenApi.Readers;
+using MicrosoftOpenApiDocument = Microsoft.OpenApi.Models.OpenApiDocument;
 
 namespace HttpGenerator.Core;
 
@@ -24,7 +25,8 @@ public static class HttpFileGenerator
 
         using var stream = await GetStream(settings.OpenApiPath, CancellationToken.None);
         var reader = new OpenApiStreamReader(openApiReaderSettings);
-        var document = await reader.ReadAsync(stream, CancellationToken.None);
+        var readResult = await reader.ReadAsync(stream, CancellationToken.None);
+        var document = readResult.OpenApiDocument;
 
         var nswagDocument = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
         var generator = new CSharpClientGenerator(nswagDocument, new CSharpClientGeneratorSettings());
@@ -41,14 +43,17 @@ public static class HttpFileGenerator
             {
                 OutputType.OneRequestPerFile => GenerateMultipleFiles(settings,
                     nswagDocument,
+                    document,
                     baseUrl,
                     generator.BaseSettings.OperationNameGenerator),
                 OutputType.OneFile => GenerateSingleFile(settings,
                     nswagDocument,
+                    document,
                     generator.BaseSettings.OperationNameGenerator,
                     baseUrl),
                 OutputType.OneFilePerTag => GenerateFilePerTag(settings,
                     nswagDocument,
+                    document,
                     baseUrl,
                     generator.BaseSettings.OperationNameGenerator),
                 _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType),
@@ -68,14 +73,19 @@ public static class HttpFileGenerator
         {
             OutputType.OneRequestPerFile => GenerateMultipleFiles(settings,
                 nswagDocument,
+                document,
                 baseUrl,
                 generator.BaseSettings.OperationNameGenerator),
-            OutputType.OneFile => GenerateSingleFile(settings,
+            OutputType.OneFile => GenerateSingleFile(
+                settings,
                 nswagDocument,
+                document,
                 generator.BaseSettings.OperationNameGenerator,
                 baseUrl),
-            OutputType.OneFilePerTag => GenerateFilePerTag(settings,
+            OutputType.OneFilePerTag => GenerateFilePerTag(
+                settings,
                 nswagDocument,
+                document,
                 baseUrl,
                 generator.BaseSettings.OperationNameGenerator),
             _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType),
@@ -83,21 +93,22 @@ public static class HttpFileGenerator
         };
     }
 
-    private static GeneratorResult GenerateSingleFile(
-        GeneratorSettings settings,
-        OpenApiDocument document,
+    private static GeneratorResult GenerateSingleFile(GeneratorSettings settings,
+        OpenApiDocument nswagDocument,
+        MicrosoftOpenApiDocument document,
         IOperationNameGenerator operationNameGenerator,
         string baseUrl)
     {
         var code = new StringBuilder();
         WriteFileHeaders(settings, code);
 
-        foreach (var kv in document.Paths)
+        foreach (var kv in nswagDocument.Paths)
         {
             foreach (var operations in kv.Value)
             {
                 code.AppendLine(
                     GenerateRequest(
+                        nswagDocument,
                         document,
                         kv,
                         operationNameGenerator,
@@ -125,26 +136,34 @@ public static class HttpFileGenerator
         code.AppendLine();
     }
 
-    private static GeneratorResult GenerateMultipleFiles(
-        GeneratorSettings settings,
-        OpenApiDocument document,
+    private static GeneratorResult GenerateMultipleFiles(GeneratorSettings settings,
+        OpenApiDocument nswagDocument,
+        MicrosoftOpenApiDocument document,
         string baseUrl,
         IOperationNameGenerator operationNameGenerator)
     {
         var files = new List<HttpFile>();
-        foreach (var kv in document.Paths)
+        foreach (var kv in nswagDocument.Paths)
         {
             foreach (var operations in kv.Value)
             {
                 var operation = operations.Value;
                 var verb = operations.Key.CapitalizeFirstCharacter();
-                var name = operationNameGenerator.GetOperationName(document, kv.Key, verb, operation);
+                var name = operationNameGenerator.GetOperationName(nswagDocument, kv.Key, verb, operation);
                 var filename = $"{name.CapitalizeFirstCharacter()}.http";
 
                 var code = new StringBuilder();
                 WriteFileHeaders(settings, code);
                 code.AppendLine(
-                    GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
+                    GenerateRequest(
+                        nswagDocument,
+                        document,
+                        kv,
+                        operationNameGenerator,
+                        settings,
+                        baseUrl,
+                        verb,
+                        operation));
 
                 files.Add(new HttpFile(filename, code.ToString()));
             }
@@ -153,9 +172,9 @@ public static class HttpFileGenerator
         return new GeneratorResult(files);
     }
 
-    private static GeneratorResult GenerateFilePerTag(
-        GeneratorSettings settings,
+    private static GeneratorResult GenerateFilePerTag(GeneratorSettings settings,
         OpenApiDocument document,
+        Microsoft.OpenApi.Models.OpenApiDocument openApiDocument,
         string baseUrl,
         IOperationNameGenerator operationNameGenerator)
     {
@@ -179,7 +198,15 @@ public static class HttpFileGenerator
 
                 contents[tag]
                     .AppendLine(
-                        GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
+                        GenerateRequest(
+                            document,
+                            openApiDocument,
+                            kv,
+                            operationNameGenerator,
+                            settings,
+                            baseUrl,
+                            verb,
+                            operation));
             }
         }
 
@@ -190,7 +217,8 @@ public static class HttpFileGenerator
     }
 
     private static string GenerateRequest(
-        OpenApiDocument document,
+        OpenApiDocument nswagDocument,
+        MicrosoftOpenApiDocument openApiDocument,
         KeyValuePair<string, OpenApiPathItem> operationPath,
         IOperationNameGenerator operationNameGenerator,
         GeneratorSettings settings,
@@ -202,7 +230,7 @@ public static class HttpFileGenerator
         AppendSummary(verb, operationPath, operation, code);
 
         var parameterNameMap = AppendParameters(
-            document,
+            nswagDocument,
             operationPath,
             settings,
             operation,
