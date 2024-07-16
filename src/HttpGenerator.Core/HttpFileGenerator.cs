@@ -1,8 +1,11 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Security;
+using System.Text;
 using NJsonSchema;
 using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.OperationNameGenerators;
+using Microsoft.OpenApi.Readers;
 
 namespace HttpGenerator.Core;
 
@@ -10,11 +13,24 @@ public static class HttpFileGenerator
 {
     public static async Task<GeneratorResult> Generate(GeneratorSettings settings)
     {
-        var document = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
-        var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
+	var openApiFile = settings.OpenApiPath;
+        var directoryName = new FileInfo(openApiFile).DirectoryName;
+        var openApiReaderSettings = new OpenApiReaderSettings
+        {
+            BaseUrl = openApiFile.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                ? new Uri(openApiFile)
+                : new Uri($"file://{directoryName}{Path.DirectorySeparatorChar}")
+        };
+	
+        using var stream = await GetStream(settings.OpenApiPath, CancellationToken.None);
+        var reader = new OpenApiStreamReader(openApiReaderSettings);
+        var document = await reader.ReadAsync(stream, CancellationToken.None);
+ 
+        var nswagDocument = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
+        var generator = new CSharpClientGenerator(nswagDocument, new CSharpClientGeneratorSettings());
         generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator();
 
-        var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
+        var baseUrl = settings.BaseUrl + nswagDocument.Servers?.FirstOrDefault()?.Url;
 
         if (settings.BaseUrl is not null &&
             settings.BaseUrl!.StartsWith("{{") &&
@@ -23,9 +39,9 @@ public static class HttpFileGenerator
             // Load the base URL from an environment variable
             return settings.OutputType switch
             {
-                OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-                OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
-                OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
+                OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, nswagDocument, baseUrl, generator.BaseSettings.OperationNameGenerator),
+                OutputType.OneFile => GenerateSingleFile(settings, nswagDocument, generator.BaseSettings.OperationNameGenerator, baseUrl),
+                OutputType.OneFilePerTag => GenerateFilePerTag(settings, nswagDocument, baseUrl, generator.BaseSettings.OperationNameGenerator),
                 _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType), $"Unknown output type: {settings.OutputType}")
             };
         }
@@ -40,9 +56,9 @@ public static class HttpFileGenerator
 
         return settings.OutputType switch
         {
-            OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-            OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
-            OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
+            OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, nswagDocument, baseUrl, generator.BaseSettings.OperationNameGenerator),
+            OutputType.OneFile => GenerateSingleFile(settings, nswagDocument, generator.BaseSettings.OperationNameGenerator, baseUrl),
+            OutputType.OneFilePerTag => GenerateFilePerTag(settings, nswagDocument, baseUrl, generator.BaseSettings.OperationNameGenerator),
             _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType), $"Unknown output type: {settings.OutputType}")
         };
     }
@@ -344,4 +360,44 @@ public static class HttpFileGenerator
 
         return $"{name}_{parameter.Name}";
     }
+
+    private static async Task<Stream> GetStream(
+        string input,
+        CancellationToken cancellationToken)
+    {
+        if (input.StartsWith("http"))
+        {
+            try
+            {
+                var httpClientHandler = new HttpClientHandler()
+                {
+                    SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+                    AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+                };
+                using var httpClient = new HttpClient(httpClientHandler);
+                return await httpClient.GetStreamAsync(input);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new InvalidOperationException($"Could not download the file at {input}", ex);
+            }
+        }
+
+        try
+        {
+            var fileInput = new FileInfo(input);
+            return fileInput.OpenRead();
+        }
+        catch (Exception ex) when (ex is FileNotFoundException ||
+                                   ex is PathTooLongException ||
+                                   ex is DirectoryNotFoundException ||
+                                   ex is IOException ||
+                                   ex is UnauthorizedAccessException ||
+                                   ex is SecurityException ||
+                                   ex is NotSupportedException)
+        {
+            throw new InvalidOperationException($"Could not open the file at {input}", ex);
+        }
+    }
+
 }
