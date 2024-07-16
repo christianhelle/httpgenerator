@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using NJsonSchema;
 using NSwag;
-using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.OperationNameGenerators;
 
