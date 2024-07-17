@@ -8,6 +8,10 @@
 
 - House Keeping [\#111](https://github.com/christianhelle/httpgenerator/pull/111) ([christianhelle](https://github.com/christianhelle))
 
+**Merged pull requests:**
+
+- Update nswag monorepo to v14.1.0 [\#113](https://github.com/christianhelle/httpgenerator/pull/113) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.5.0-preview.12](https://github.com/christianhelle/httpgenerator/tree/0.5.0-preview.12) (2024-07-09)
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.4.0...0.5.0-preview.12)
