@@ -22,10 +22,8 @@ public static class HttpFileGenerator
                 ? new Uri(openApiFile)
                 : new Uri($"file://{directoryName}{Path.DirectorySeparatorChar}")
         };
-
-        using var stream = await GetStream(settings.OpenApiPath, CancellationToken.None);
-        var reader = new OpenApiStreamReader(openApiReaderSettings);
-        var readResult = await reader.ReadAsync(stream, CancellationToken.None);
+        openApiReaderSettings.AddMicrosoftExtensionParsers();
+        var readResult = await OpenApiMultiFileReader.Read(openApiFile);
         var document = readResult.OpenApiDocument;
 
         var nswagDocument = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
