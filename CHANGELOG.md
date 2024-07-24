@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.OpenApi.OData to v1.6.8 [\#114](https://github.com/christianhelle/httpgenerator/pull/114) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to v14.1.0 [\#113](https://github.com/christianhelle/httpgenerator/pull/113) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.5.0-preview.12](https://github.com/christianhelle/httpgenerator/tree/0.5.0-preview.12) (2024-07-09)
