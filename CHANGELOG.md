@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.OpenApi.Readers to v1.6.16 [\#115](https://github.com/christianhelle/httpgenerator/pull/115) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.8 [\#114](https://github.com/christianhelle/httpgenerator/pull/114) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to v14.1.0 [\#113](https://github.com/christianhelle/httpgenerator/pull/113) ([renovate[bot]](https://github.com/apps/renovate))
 
