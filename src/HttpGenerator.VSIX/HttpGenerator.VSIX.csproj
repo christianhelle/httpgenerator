@@ -78,7 +78,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Community.VisualStudio.Toolkit.16">
-      <Version>16.0.507</Version>
+      <Version>16.0.522</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Azure">
       <Version>1.7.5</Version>
