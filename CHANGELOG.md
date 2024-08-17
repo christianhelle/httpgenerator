@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.Extensions.Azure to v1.7.5 [\#121](https://github.com/christianhelle/httpgenerator/pull/121) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.17 [\#116](https://github.com/christianhelle/httpgenerator/pull/116) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.16 [\#115](https://github.com/christianhelle/httpgenerator/pull/115) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to v1.6.8 [\#114](https://github.com/christianhelle/httpgenerator/pull/114) ([renovate[bot]](https://github.com/apps/renovate))
