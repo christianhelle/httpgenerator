@@ -11,6 +11,7 @@
 **Merged pull requests:**
 
 - Update dependency Microsoft.Extensions.Azure to v1.7.5 [\#121](https://github.com/christianhelle/httpgenerator/pull/121) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Community.VisualStudio.Toolkit.16 to v16.0.522 [\#120](https://github.com/christianhelle/httpgenerator/pull/120) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to v1.0.96 [\#119](https://github.com/christianhelle/httpgenerator/pull/119) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.17 [\#116](https://github.com/christianhelle/httpgenerator/pull/116) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to v1.6.16 [\#115](https://github.com/christianhelle/httpgenerator/pull/115) ([renovate[bot]](https://github.com/apps/renovate))
