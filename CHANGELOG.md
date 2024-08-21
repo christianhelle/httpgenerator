@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.NET.Test.Sdk to v17.11.0 [\#122](https://github.com/christianhelle/httpgenerator/pull/122) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to v1.7.5 [\#121](https://github.com/christianhelle/httpgenerator/pull/121) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Community.VisualStudio.Toolkit.16 to v16.0.522 [\#120](https://github.com/christianhelle/httpgenerator/pull/120) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to v1.0.96 [\#119](https://github.com/christianhelle/httpgenerator/pull/119) ([renovate[bot]](https://github.com/apps/renovate))
