@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Atc.Test to 1.0.100 [\#130](https://github.com/christianhelle/httpgenerator/pull/130) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.0.98 [\#129](https://github.com/christianhelle/httpgenerator/pull/129) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to 6.12.1 [\#128](https://github.com/christianhelle/httpgenerator/pull/128) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.NET.Test.Sdk to 17.11.1 [\#127](https://github.com/christianhelle/httpgenerator/pull/127) ([renovate[bot]](https://github.com/apps/renovate))
