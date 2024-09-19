@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Atc.Test to 1.0.105 [\#132](https://github.com/christianhelle/httpgenerator/pull/132) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.0.102 [\#131](https://github.com/christianhelle/httpgenerator/pull/131) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.0.100 [\#130](https://github.com/christianhelle/httpgenerator/pull/130) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.0.98 [\#129](https://github.com/christianhelle/httpgenerator/pull/129) ([renovate[bot]](https://github.com/apps/renovate))
