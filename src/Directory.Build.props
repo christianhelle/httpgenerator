@@ -21,7 +21,7 @@
     <IsPackable>true</IsPackable>
     <TieredCompilation>true</TieredCompilation>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageTags>refit; rest; openapi</PackageTags>
+    <PackageTags>.http; rest-client; openapi</PackageTags>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
 
