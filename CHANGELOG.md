@@ -1,5 +1,13 @@
 # Changelog
 
+## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0...HEAD)
+
+**Merged pull requests:**
+
+- Update dependency xunit to 2.9.1 [\#133](https://github.com/christianhelle/httpgenerator/pull/133) ([renovate[bot]](https://github.com/apps/renovate))
+
 ## [0.5.0](https://github.com/christianhelle/httpgenerator/tree/0.5.0) (2024-09-20)
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.4.0...0.5.0)
