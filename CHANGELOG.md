@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency xunit to 2.9.2 [\#136](https://github.com/christianhelle/httpgenerator/pull/136) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Community.VisualStudio.Toolkit.16 to 16.0.527 [\#135](https://github.com/christianhelle/httpgenerator/pull/135) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit to 2.9.1 [\#133](https://github.com/christianhelle/httpgenerator/pull/133) ([renovate[bot]](https://github.com/apps/renovate))
 
