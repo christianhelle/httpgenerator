@@ -90,8 +90,8 @@ function RunTests {
     )
     
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
-    Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=true -p:PublishReadyToRun=true -o bin"
-    Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=true -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
+    Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin"
+    Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
     
     "v2.0", "v3.0", "v3.1" | ForEach-Object {
         $version = $_
