@@ -17,7 +17,7 @@ public static class Analytics
 
     public static void Configure(Settings settings)
     {
-        if (!settings.NoLogging)
+        if (settings.NoLogging)
             return;
 
         ExceptionlessClient.Default.Configuration.SetUserIdentity(
