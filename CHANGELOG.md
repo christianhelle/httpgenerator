@@ -4,6 +4,11 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0...HEAD)
 
+**Implemented enhancements:**
+
+- Exceptionless monthly limit exceeded in only a few days [\#134](https://github.com/christianhelle/httpgenerator/issues/134)
+- Use Azure Application Insights for Telemetry data [\#137](https://github.com/christianhelle/httpgenerator/pull/137) ([christianhelle](https://github.com/christianhelle))
+
 **Merged pull requests:**
 
 - Update dependency xunit to 2.9.2 [\#136](https://github.com/christianhelle/httpgenerator/pull/136) ([renovate[bot]](https://github.com/apps/renovate))
