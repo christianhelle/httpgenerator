@@ -11,6 +11,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Atc.Test to 1.1.2 [\#140](https://github.com/christianhelle/httpgenerator/pull/140) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.0.107 [\#139](https://github.com/christianhelle/httpgenerator/pull/139) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.22 [\#138](https://github.com/christianhelle/httpgenerator/pull/138) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit to 2.9.2 [\#136](https://github.com/christianhelle/httpgenerator/pull/136) ([renovate[bot]](https://github.com/apps/renovate))
