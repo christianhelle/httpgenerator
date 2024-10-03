@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - Exceptionless monthly limit exceeded in only a few days [\#134](https://github.com/christianhelle/httpgenerator/issues/134)
+- Fix missing last character in URL [\#141](https://github.com/christianhelle/httpgenerator/pull/141) ([christianhelle](https://github.com/christianhelle))
 - Use Azure Application Insights for Telemetry data [\#137](https://github.com/christianhelle/httpgenerator/pull/137) ([christianhelle](https://github.com/christianhelle))
 
 **Merged pull requests:**
