@@ -194,8 +194,11 @@ public static class HttpFileGenerator
             {
                 url += $"{parameterName.Key}={{{{{parameterName.Value}}}}}&";
             }
-            
-            url = url.Remove(url.Length - 1);
+
+            if (parameterNameMap.Count > 0)
+            {
+                url = url.Remove(url.Length - 1);
+            }
         }
 
         code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{url}");
