@@ -1,7 +1,11 @@
 param (
     [Parameter(Mandatory=$false)]
     [bool]
-    $Parallel = $true
+    $Parallel = $true,
+
+    [Parameter(Mandatory=$false)]
+    [switch]
+    $Production = $false
 )
 
 function ThrowOnNativeFailure {
@@ -16,18 +20,27 @@ function Generate {
         [Parameter(Mandatory=$true)]
         [string]
         $format,
-        
+
         [Parameter(Mandatory=$true)]
         [string]
         $output,
-                       
+
         [Parameter(Mandatory=$false)]
         [string]
-        $args = ""
+        $args = "",
+
+        [Parameter(Mandatory=$false)]
+        [bool]
+        $production = $false
     )
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --no-logging $args"
-    $process = Start-Process "./bin/HttpGenerator" `
+    $app = "./bin/HttpGenerator"
+    if ($production) {
+        $app = "httpgenerator"
+    }
+
+    Write-Host "$app ./openapi.$format --output ./Generated/$outputPath --no-logging $args"
+    $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --no-logging $args" `
         -NoNewWindow `
         -PassThru
@@ -37,8 +50,8 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --output-type OneFile --no-logging $args"
-    $process = Start-Process "./bin/HttpGenerator" `
+    Write-Host "$app ./openapi.$format --output ./Generated/$outputPath --output-type OneFile --no-logging $args"
+    $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args" `
         -NoNewWindow `
         -PassThru
@@ -48,8 +61,8 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "HttpGenerator ./openapi.$format --output ./Generated/$outputPath --output-type OneFilePerTag --no-logging $args"
-    $process = Start-Process "./bin/HttpGenerator" `
+    Write-Host "$app ./openapi.$format --output ./Generated/$outputPath --output-type OneFilePerTag --no-logging $args"
+    $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args" `
         -NoNewWindow `
         -PassThru
@@ -69,7 +82,11 @@ function RunTests {
         
         [Parameter(Mandatory=$false)]
         [bool]
-        $Parallel = $false
+        $Parallel = $false,
+
+        [Parameter(Mandatory=$false)]
+        [bool]
+        $Production = $false
     )
 
     $filenames = @(
@@ -88,14 +105,19 @@ function RunTests {
 #         "non-oauth-scopes",
         "webhook-example"
     )
-    
+
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
-    Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin"
-    Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
-    
+ 
+    if ($Production -eq $true) {
+        dotnet tool update -g HttpGenerator --prerelease
+    } else {
+        Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin"
+        Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
+    }
+
     "v2.0", "v3.0", "v3.1" | ForEach-Object {
         $version = $_
-        "json", "yaml" | ForEach-Object {            
+        "json", "yaml" | ForEach-Object { 
             $format = $_
             $filenames | ForEach-Object {
                 $filename = "./OpenAPI/$version/$_.$format"
@@ -104,9 +126,9 @@ function RunTests {
                     Write-Host "Testing $filename"
                     Copy-Item $filename ./openapi.$format
                     if ($version -eq "v3.1") {
-                        Generate -format $format -output $_/$version/$format -args "--skip-validation"
+                        Generate -format $format -output $_/$version/$format -args "--skip-validation" -production $Production
                     } else {
-                        Generate -format $format -output $_/$version/$format
+                        Generate -format $format -output $_/$version/$format -production $Production
                     }
                 }
             }
@@ -114,5 +136,5 @@ function RunTests {
     }
 }
 
-Measure-Command { RunTests -Method "dotnet-run" -Parallel $Parallel }
+Measure-Command { RunTests -Method "dotnet-run" -Parallel $Parallel -Production $Production }
 Write-Host "`r`n"
