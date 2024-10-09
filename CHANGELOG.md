@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0-preview.13...HEAD)
+
+**Merged pull requests:**
+
+- Update dependency System.Text.Json to 8.0.5 \[SECURITY\] [\#144](https://github.com/christianhelle/httpgenerator/pull/144) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.6.0-preview.13](https://github.com/christianhelle/httpgenerator/tree/0.6.0-preview.13) (2024-10-03)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0...0.6.0-preview.13)
 
 **Implemented enhancements:**
 
