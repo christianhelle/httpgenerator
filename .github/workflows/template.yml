@@ -3,6 +3,9 @@ name: Run Tests
 on:
   workflow_call:
     inputs:
+      os:
+        required: true,
+        type: string
       production:
         required: false
         type: bool

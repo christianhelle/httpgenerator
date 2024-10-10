@@ -18,4 +18,5 @@ jobs:
 
     uses: ./.github/workflows/template.yml
     with:
+      os: ${{ intput.os }}
       production: false

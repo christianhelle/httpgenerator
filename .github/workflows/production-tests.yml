@@ -21,4 +21,5 @@ jobs:
 
     uses: ./.github/workflows/template.yml
     with:
+      os: ${{ input.os }}
       production: true
