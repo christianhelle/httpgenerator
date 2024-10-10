@@ -27,13 +27,14 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: 🛠️ Run Smoke Test script
-      run: |
-        if (${{ inputs.production }} -eq $true) {
-          ./smoke-tests.ps1 -Production
-        } else {
-          ./smoke-tests.ps1 
-        }
+    - name: 🛠️ Run Smoke Test (Production) 
+      run: ./smoke-tests.ps1 -Production
       working-directory: test
       shell: pwsh
- 
+      condition: ${{ inputs.production }}
+
+    - name: 🛠️ Run Smoke Test (Local)
+      run: ./smoke-tests.ps1
+      working-directory: test
+      shell: pwsh
+      condition: !${{ inputs.production }}
