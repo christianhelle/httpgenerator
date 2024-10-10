@@ -28,6 +28,8 @@ jobs:
   file:
     runs-on: ubuntu-latest
     steps:
+    - name: 🛒 Checkout repository
+      uses: actions/checkout@v4
     - name: 🛠️ Run Smoke Test
       run: ./smoke-tests.ps1
       working-directory: test
