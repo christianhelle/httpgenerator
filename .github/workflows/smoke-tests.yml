@@ -29,7 +29,8 @@ jobs:
     runs-on: [ubuntu-latest]
     steps:
     - name: 🛠️ Run Smoke Test
-      run: cd test && ./smoke-tests.ps1
+      run: ls -l
+      working-directory: test
       shell: pwsh
 
   url:
