@@ -34,7 +34,7 @@ function Generate {
         $production = $false
     )
 
-    $app = "./bin/HttpGenerator"
+    $app = "./bin/httpgenerator"
     if ($production) {
         $app = "httpgenerator"
     }
