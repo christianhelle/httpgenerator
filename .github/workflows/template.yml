@@ -3,66 +3,34 @@ name: Run Tests
 on:
   workflow_call:
     inputs:
-      openapi:
-        required: true
-        type: string
-      format:
-        required: true
-        type: string
-      version:
-        required: true
-        type: string
-      os:
-        type: string
-        default: ubuntu-latest
-      command:
-        required: true
-        type: string
+      production:
+        required: false
+        type: bool
+        default: true
 
 jobs:
   
   test:
 
-    name: ${{ inputs.openapi }}.${{ inputs.format }} (${{ inputs.version }}) ${{ inputs.os }}
+    name: ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
-    
-    strategy:
-      matrix:
-        args: [ 
-          "--output-type OneFile", 
-          "--output-type OneRequestPerFile"
-        ]
 
     steps:
     - name: 🛒 Checkout repository
       uses: actions/checkout@v4
-      
+
     - uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
 
-    - name: 🛠️ Prepare OpenAPI Spec
-      id: prepare_openapi_spec
+    - name: 🛠️ Run Smoke Test script
       run: |
-        $filename = "./OpenAPI/${{ inputs.version }}/${{ inputs.openapi }}.${{ inputs.format }}"
-        $exists = Test-Path -Path $filename -PathType Leaf
-        if ($exists -eq $true) {
-          Copy-Item $filename ./openapi.${{ inputs.format }}
-          "exists=$true" >> $env:GITHUB_OUTPUT
+        ${{ inputs.production }} {
+          ./smoke-tests.ps1 -Production
         } else {
-          "exists=$false" >> $env:GITHUB_OUTPUT
+          ./smoke-tests.ps1 
         }
       working-directory: test
       shell: pwsh
-
-    - name: 🛠️ Generate code
-      run: ${{ inputs.command }} ./openapi.${{ inputs.format }} --no-logging ${{ matrix.args }}
-      working-directory: test
-      shell: pwsh
-    
-    - name: 🛠️ Publish generated code as Artifact
-      uses: actions/upload-artifact@v3
-      with:
-        name: Generated Code (${{ inputs.openapi }}.${{ inputs.format }}, ${{ inputs.version }}, ${{ inputs.os }})
-        path: test/*.http
+ 

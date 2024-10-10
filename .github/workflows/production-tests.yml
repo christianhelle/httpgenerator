@@ -37,8 +37,4 @@ jobs:
         ]
     uses: ./.github/workflows/template.yml
     with:
-      os: ${{ matrix.os }}
-      format: ${{ matrix.format }}
-      version: ${{ matrix.version }}
-      openapi: ${{ matrix.openapi }}
-      command: 'dotnet tool install --global --prerelease HttpGenerator; HttpGenerator'
+      production: true

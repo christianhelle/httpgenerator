@@ -49,11 +49,7 @@ jobs:
     
     uses: ./.github/workflows/template.yml
     with:
-      format: ${{ matrix.format }}
-      version: ${{ matrix.version }}
-      openapi: ${{ matrix.openapi }}
-      os: ${{ matrix.os }}
-      command: 'dotnet run --project ../src/HttpGenerator/HttpGenerator.csproj'
+      production: false
   
   url:
     strategy:
