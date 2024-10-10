@@ -29,7 +29,7 @@ jobs:
 
     - name: 🛠️ Run Smoke Test script
       run: |
-        ${{ inputs.production }} {
+        if (${{ inputs.production }} -eq $true) {
           ./smoke-tests.ps1 -Production
         } else {
           ./smoke-tests.ps1 
