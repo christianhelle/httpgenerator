@@ -19,6 +19,7 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
 
+    runs-on: ${{ matrix.os }}
     steps:
     - name: 🛠️ Run Smoke Test (Production)
       run: ./smoke-tests.ps1 -Production
