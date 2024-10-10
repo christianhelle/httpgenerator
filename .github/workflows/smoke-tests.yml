@@ -26,10 +26,10 @@ on:
 jobs:
   
   file:
-    runs-on: [ubuntu-latest]
+    runs-on: ubuntu-latest
     steps:
     - name: 🛠️ Run Smoke Test
-      run: ls -l
+      run: ./smoke-tests.ps1
       working-directory: test
       shell: pwsh
 
