@@ -19,7 +19,9 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest, ubuntu-latest]
 
-    uses: ./.github/workflows/template.yml
-    with:
-      os: ${{ input.os }}
-      production: true
+    steps:
+    - name: 🛠️ Run Smoke Test (Production)
+      run: ./smoke-tests.ps1 -Production
+      working-directory: test
+      shell: pwsh
+

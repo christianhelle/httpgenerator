@@ -33,9 +33,4 @@ jobs:
       shell: pwsh
       condition: ${{ inputs.production }}
 
-    - name: 🛠️ Run Smoke Test (Local)
-      run: ./smoke-tests.ps1
-      working-directory: test
-      shell: pwsh
-      condition: !${{ inputs.production }}
-
+ b
