@@ -9,6 +9,7 @@
 - Update dependency Atc.Test to 1.1.4 [\#145](https://github.com/christianhelle/httpgenerator/pull/145) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency System.Text.Json to 8.0.5 \[SECURITY\] [\#144](https://github.com/christianhelle/httpgenerator/pull/144) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to 1.7.6 [\#142](https://github.com/christianhelle/httpgenerator/pull/142) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.VSSDK.BuildTools to 17.11.435 [\#124](https://github.com/christianhelle/httpgenerator/pull/124) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.6.0-preview.13](https://github.com/christianhelle/httpgenerator/tree/0.6.0-preview.13) (2024-10-03)
 
