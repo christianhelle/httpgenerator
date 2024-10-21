@@ -72,4 +72,9 @@ public class Settings : CommandSettings
     [CommandOption("--timeout <SECONDS>")]
     [DefaultValue(120)]
     public int Timeout { get; set; } = 120;
+
+    [Description("Generate IntelliJ tests")]
+    [CommandOption("--generate-intellij-tests")]
+    public bool GenerateIntelliJTests { get; set; }
 }
+
