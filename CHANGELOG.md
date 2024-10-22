@@ -2,18 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0-preview.13...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...HEAD)
 
-**Merged pull requests:**
+**Implemented enhancements:**
 
-- Update dependency Atc.Test to 1.1.4 [\#145](https://github.com/christianhelle/httpgenerator/pull/145) ([renovate[bot]](https://github.com/apps/renovate))
-- Update dependency System.Text.Json to 8.0.5 \[SECURITY\] [\#144](https://github.com/christianhelle/httpgenerator/pull/144) ([renovate[bot]](https://github.com/apps/renovate))
-- Update dependency Microsoft.Extensions.Azure to 1.7.6 [\#142](https://github.com/christianhelle/httpgenerator/pull/142) ([renovate[bot]](https://github.com/apps/renovate))
-- Update dependency Microsoft.VSSDK.BuildTools to 17.11.435 [\#124](https://github.com/christianhelle/httpgenerator/pull/124) ([renovate[bot]](https://github.com/apps/renovate))
+- Add support for generating IntelliJ HTTP client tests [\#147](https://github.com/christianhelle/httpgenerator/pull/147) ([christianhelle](https://github.com/christianhelle))
 
-## [0.6.0-preview.13](https://github.com/christianhelle/httpgenerator/tree/0.6.0-preview.13) (2024-10-03)
+## [0.6.0](https://github.com/christianhelle/httpgenerator/tree/0.6.0) (2024-10-13)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0...0.6.0-preview.13)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.5.0...0.6.0)
 
 **Implemented enhancements:**
 
@@ -23,12 +20,16 @@
 
 **Merged pull requests:**
 
+- Update dependency Atc.Test to 1.1.4 [\#145](https://github.com/christianhelle/httpgenerator/pull/145) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency System.Text.Json to 8.0.5 \[SECURITY\] [\#144](https://github.com/christianhelle/httpgenerator/pull/144) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.Extensions.Azure to 1.7.6 [\#142](https://github.com/christianhelle/httpgenerator/pull/142) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.1.2 [\#140](https://github.com/christianhelle/httpgenerator/pull/140) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.0.107 [\#139](https://github.com/christianhelle/httpgenerator/pull/139) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.22 [\#138](https://github.com/christianhelle/httpgenerator/pull/138) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit to 2.9.2 [\#136](https://github.com/christianhelle/httpgenerator/pull/136) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Community.VisualStudio.Toolkit.16 to 16.0.527 [\#135](https://github.com/christianhelle/httpgenerator/pull/135) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit to 2.9.1 [\#133](https://github.com/christianhelle/httpgenerator/pull/133) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.VSSDK.BuildTools to 17.11.435 [\#124](https://github.com/christianhelle/httpgenerator/pull/124) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.5.0](https://github.com/christianhelle/httpgenerator/tree/0.5.0) (2024-09-20)
 
