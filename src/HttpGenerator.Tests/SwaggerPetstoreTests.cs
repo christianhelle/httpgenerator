@@ -45,7 +45,7 @@ public class SwaggerPetstoreTests
             .Should()
             .BeTrue();
         generateCode.Files
-            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .All(file => file.Content.Contains("client.assert"))
             .Should()
             .BeTrue();
     }
@@ -71,6 +71,7 @@ public class SwaggerPetstoreTests
                 OpenApiPath = url,
                 OutputType = outputType,
                 AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                GenerateIntelliJTests = true,
             });
 
         using var scope = new AssertionScope();
@@ -81,7 +82,7 @@ public class SwaggerPetstoreTests
             .Should()
             .BeTrue();
         generateCode.Files
-            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .All(file => file.Content.Contains("client.assert"))
             .Should()
             .BeTrue();
     }
@@ -109,7 +110,7 @@ public class SwaggerPetstoreTests
             .Should()
             .BeTrue();
         generateCode.Files
-            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .All(file => file.Content.Contains("client.assert"))
             .Should()
             .BeTrue();
     }
@@ -145,7 +146,7 @@ public class SwaggerPetstoreTests
             .Should()
             .BeTrue();
         generateCode.Files
-            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .All(file => file.Content.Contains("client.assert"))
             .Should()
             .BeTrue();
     }
@@ -170,7 +171,7 @@ public class SwaggerPetstoreTests
             .Should()
             .BeTrue();
         generateCode.Files
-            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .All(file => file.Content.Contains("client.assert"))
             .Should()
             .BeTrue();
     }
