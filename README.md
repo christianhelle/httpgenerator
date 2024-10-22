@@ -159,6 +159,32 @@ GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
 Content-Type: {{contentType}}
 ```
 
+with the `--generate-intellij-tests` option, the output looks like this:
+
+```sh
+@contentType = application/json
+
+#######################################
+### Request: GET /pet/{petId}
+### Summary: Find pet by ID
+### Description: Returns a single pet
+#######################################
+
+### Path Parameter: ID of pet to return
+@petId = 1
+
+GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
+Content-Type: {{contentType}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(
+            response.status === 200, 
+            "Response status is not 200");
+    });
+%}
+```
+
 Here's an advanced example of generating `.http` files for a REST API hosted on Microsoft Azure that uses the Microsoft Entra ID service as an STS. For this example, I use PowerShell and Azure CLI to retrieve an access token for the user I'm currently logged in with.
 
 ```powershell
