@@ -44,6 +44,10 @@ public class SwaggerPetstoreTests
             .All(file => file.Content.Count(c => c == '#') >= 6)
             .Should()
             .BeTrue();
+        generateCode.Files
+            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .Should()
+            .BeTrue();
     }
 
     [Theory]
@@ -66,7 +70,7 @@ public class SwaggerPetstoreTests
             {
                 OpenApiPath = url,
                 OutputType = outputType,
-                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
             });
 
         using var scope = new AssertionScope();
@@ -74,6 +78,10 @@ public class SwaggerPetstoreTests
         generateCode.Files.Should().NotBeNullOrEmpty();
         generateCode.Files
             .All(file => file.Content.Count(c => c == '#') >= 6)
+            .Should()
+            .BeTrue();
+        generateCode.Files
+            .All(file => file.Content.Contains("client.assert(response.status === 200"))
             .Should()
             .BeTrue();
     }
@@ -100,6 +108,10 @@ public class SwaggerPetstoreTests
                     StringComparison.OrdinalIgnoreCase))
             .Should()
             .BeTrue();
+        generateCode.Files
+            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .Should()
+            .BeTrue();
     }
 
     [Theory]
@@ -123,12 +135,17 @@ public class SwaggerPetstoreTests
             new GeneratorSettings
             {
                 OpenApiPath = url,
-                OutputType = outputType
+                OutputType = outputType,
+                GenerateIntelliJTests = true,
             });
 
         generateCode
             .Files
             .All(file => file.Content.Contains(new Uri(url).GetLeftPart(UriPartial.Authority)))
+            .Should()
+            .BeTrue();
+        generateCode.Files
+            .All(file => file.Content.Contains("client.assert(response.status === 200"))
             .Should()
             .BeTrue();
     }
@@ -152,6 +169,10 @@ public class SwaggerPetstoreTests
             .Any(file => file.Content.Contains("?status={{") && file.Content.Contains("}}"))
             .Should()
             .BeTrue();
+        generateCode.Files
+            .All(file => file.Content.Contains("client.assert(response.status === 200"))
+            .Should()
+            .BeTrue();
     }
 
     private static async Task<GeneratorResult> GenerateCode(
@@ -166,7 +187,8 @@ public class SwaggerPetstoreTests
             {
                 OpenApiPath = swaggerFile,
                 OutputType = outputType,
-                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9"
+                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                GenerateIntelliJTests = true,
             });
     }
 }

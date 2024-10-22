@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using NJsonSchema;
 using NSwag;
-using NSwag.CodeGeneration;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.OperationNameGenerators;
 
@@ -185,7 +184,7 @@ public static class HttpFileGenerator
         }
         else
         {
-            if (parameterNameMap.Count>0)
+            if (parameterNameMap.Count > 0)
             {
                 url += "?";
             }
@@ -215,14 +214,37 @@ public static class HttpFileGenerator
 
         code.AppendLine();
         if (operation.RequestBody?.Content is null || contentType is null)
+        {
+            GenerateIntelliJTest(settings, code);
             return code.ToString();
+        }
 
         var requestBody = operation.RequestBody;
         var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
         var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString() ?? string.Empty;
 
         code.AppendLine(requestBodyJson);
+
+        GenerateIntelliJTest(settings, code);
+
         return code.ToString();
+    }
+
+    private static void GenerateIntelliJTest(GeneratorSettings settings, StringBuilder code)
+    {
+        if (!settings.GenerateIntelliJTests)
+        {
+            return;
+        }
+
+        code.AppendLine();
+        code.AppendLine("""
+                        > {%
+                            client.test("Request executed successfully", function() {
+                                client.assert(response.status === 200, "Response status is not 200");
+                            });
+                        %}
+                        """);
     }
 
     private static void AppendSummary(
