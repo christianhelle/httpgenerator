@@ -73,7 +73,7 @@ public class Settings : CommandSettings
     [DefaultValue(120)]
     public int Timeout { get; set; } = 120;
 
-    [Description("Generate IntelliJ tests")]
+    [Description("Generate IntelliJ tests that assert whether the response status code is 200")]
     [CommandOption("--generate-intellij-tests")]
     public bool GenerateIntelliJTests { get; set; }
 }
