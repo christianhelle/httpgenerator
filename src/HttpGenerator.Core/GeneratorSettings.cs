@@ -48,6 +48,11 @@ public class GeneratorSettings
     /// Gets or sets the timeout (in seconds) for writing files to disk
     /// </summary>
     public int Timeout { get; set; } = 120;
+
+    /// <summary>
+    /// Gets or sets whether to generate IntelliJ tests
+    /// </summary>
+    public bool GenerateIntelliJTests { get; set; }
 }
 
 /// <summary>

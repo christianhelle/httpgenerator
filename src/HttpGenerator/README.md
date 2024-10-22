@@ -23,23 +23,22 @@ ARGUMENTS:
     [URL or input file]    URL or file path to OpenAPI Specification file
 
 OPTIONS:
-                                                                DEFAULT                                                                                                                                                                          
-    -h, --help                                                                       Prints help information                                                                                                                                     
-    -v, --version                                                                    Prints version information                                                                                                                                  
-    -o, --output <OUTPUT>                                       ./                   Output directory                                                                                                                                            
-        --no-logging                                                                 Don't log errors or collect telemetry                                                                                                                       
-        --skip-validation                                                            Skip validation of OpenAPI Specification file                                                                                                               
-        --authorization-header <HEADER>                                              Authorization header to use for all requests                                                                                                                
-        --load-authorization-header-from-environment                                 Load the authorization header from an environment variable or define it in the .http file. You can use --authorization-header-variable-name to specify the  
-                                                                                     environment variable name                                                                                                                                   
-        --authorization-header-variable-name <VARIABLE-NAME>    authorization        Name of the environment variable to load the authorization header from                                                                                      
-        --content-type <CONTENT-TYPE>                           application/json     Default Content-Type header to use for all requests                                                                                                         
-        --base-url <BASE-URL>                                                        Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL                                              
-        --output-type <OUTPUT-TYPE>                             OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a single .http file for all requests. OneFilePerTag generates one .http file per  
-                                                                                     first tag associated with each request                                                                                                                      
-        --azure-scope <SCOPE>                                                        Azure Entra ID Scope to use for retrieving Access Token for Authorization header                                                                            
-        --azure-tenant-id <TENANT-ID>                                                Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header                                                                        
-        --timeout <SECONDS>                                     120                  Timeout (in seconds) for writing files to disk                                                                                                              
+                                                                DEFAULT                                                                                                                                                                                                               
+    -h, --help                                                                       Prints help information                                                                                                                                                                          
+    -v, --version                                                                    Prints version information                                                                                                                                                                       
+    -o, --output <OUTPUT>                                       ./                   Output directory                                                                                                                                                                                 
+        --no-logging                                                                 Don't log errors or collect telemetry                                                                                                                                                            
+        --skip-validation                                                            Skip validation of OpenAPI Specification file                                                                                                                                                    
+        --authorization-header <HEADER>                                              Authorization header to use for all requests                                                                                                                                                     
+        --load-authorization-header-from-environment                                 Load the authorization header from an environment variable or define it in the .http file. You can use --authorization-header-variable-name to specify the environment variable name             
+        --authorization-header-variable-name <VARIABLE-NAME>    authorization        Name of the environment variable to load the authorization header from                                                                                                                           
+        --content-type <CONTENT-TYPE>                           application/json     Default Content-Type header to use for all requests                                                                                                                                              
+        --base-url <BASE-URL>                                                        Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL                                                                                   
+        --output-type <OUTPUT-TYPE>                             OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a single .http file for all requests. OneFilePerTag generates one .http file per first tag associated with each request
+        --azure-scope <SCOPE>                                                        Azure Entra ID Scope to use for retrieving Access Token for Authorization header                                                                                                                 
+        --azure-tenant-id <TENANT-ID>                                                Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header                                                                                                             
+        --timeout <SECONDS>                                     120                  Timeout (in seconds) for writing files to disk                                                                                                                                                   
+        --generate-intellij-tests                                                    Generate IntelliJ tests that assert whether the response status code is 200                                                                                                                      
 ```
 
 Running the following:
@@ -142,6 +141,32 @@ and the contents of `GetPetById.http` looks like this:
 
 GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
 Content-Type: {{contentType}}
+```
+
+with the `--generate-intellij-tests` option, the output looks like this:
+
+```sh
+@contentType = application/json
+
+#######################################
+### Request: GET /pet/{petId}
+### Summary: Find pet by ID
+### Description: Returns a single pet
+#######################################
+
+### Path Parameter: ID of pet to return
+@petId = 1
+
+GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
+Content-Type: {{contentType}}
+
+> {%
+    client.test("Request executed successfully", function() {
+        client.assert(
+            response.status === 200, 
+            "Response status is not 200");
+    });
+%}
 ```
 
 Here's an advanced example of generating `.http` files for a REST API hosted on Microsoft Azure that uses the Microsoft Entra ID service as an STS. For this example, I use PowerShell and Azure CLI to retrieve an access token for the user I'm currently logged in with.

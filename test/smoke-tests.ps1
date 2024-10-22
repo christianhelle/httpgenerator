@@ -126,9 +126,9 @@ function RunTests {
                     Write-Host "Testing $filename"
                     Copy-Item $filename ./openapi.$format
                     if ($version -eq "v3.1") {
-                        Generate -format $format -output $_/$version/$format -args "--skip-validation" -production $Production
+                        Generate -format $format -output $_/$version/$format -args "--skip-validation --generate-intellij-tests" -production $Production
                     } else {
-                        Generate -format $format -output $_/$version/$format -production $Production
+                        Generate -format $format -output $_/$version/$format -args "--generate-intellij-tests" -production $Production
                     }
                 }
             }
