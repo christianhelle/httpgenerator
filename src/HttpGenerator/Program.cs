@@ -64,6 +64,12 @@ internal static class Program
                         "--azure-scope",
                         "[Some Application ID URI]/.default"
                     );
+
+                configuration
+                    .AddExample(
+                        InputFilename,
+                        "--generate-intellij-tests");
+
             });
 
         return app.Run(args);
