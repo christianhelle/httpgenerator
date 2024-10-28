@@ -1,8 +1,8 @@
 # Changelog
 
-## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
+## [0.7.0-preview.14](https://github.com/christianhelle/httpgenerator/tree/0.7.0-preview.14) (2024-10-22)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0-preview.14)
 
 **Implemented enhancements:**
 
