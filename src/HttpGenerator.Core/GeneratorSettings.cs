@@ -53,6 +53,11 @@ public class GeneratorSettings
     /// Gets or sets whether to generate IntelliJ tests
     /// </summary>
     public bool GenerateIntelliJTests { get; set; }
+
+    /// <summary>
+    /// Gets or sets custom HTTP headers to add to the generated request
+    /// </summary>
+    public string[]? CustomHeaders { get; set; }
 }
 
 /// <summary>

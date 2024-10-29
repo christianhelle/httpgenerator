@@ -76,5 +76,9 @@ public class Settings : CommandSettings
     [Description("Generate IntelliJ tests that assert whether the response status code is 200")]
     [CommandOption("--generate-intellij-tests")]
     public bool GenerateIntelliJTests { get; set; }
-}
 
+    [Description("Add custom HTTP headers to the generated request")]
+    [CommandOption("--custom-header")]
+    [DefaultValue(new string[0])]
+    public string[]? CustomHeaders { get; set; }
+}
