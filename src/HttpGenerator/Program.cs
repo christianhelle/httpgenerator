@@ -70,6 +70,14 @@ internal static class Program
                         InputFilename,
                         "--generate-intellij-tests");
 
+                configuration
+                    .AddExample(
+                        InputFilename,
+                        "--custom-header",
+                        "X-Custom-Header: Value",
+                        "--custom-header",
+                        "X-Another-Header: AnotherValue");
+
             });
 
         return app.Run(args);
