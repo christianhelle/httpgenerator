@@ -27,7 +27,7 @@ public class Settings : CommandSettings
     [CommandOption("--skip-validation")]
     [DefaultValue(false)]
     public bool SkipValidation { get; set; }
-    
+
     [Description("Authorization header to use for all requests")]
     [CommandOption("--authorization-header <HEADER>")]
     public string? AuthorizationHeader { get; set; }
@@ -41,7 +41,7 @@ public class Settings : CommandSettings
     [CommandOption("--authorization-header-variable-name <VARIABLE-NAME>")]
     [DefaultValue("authorization")]
     public string AuthorizationHeaderVariableName { get; set; } = "authorization";
-    
+
     [Description("Default Content-Type header to use for all requests")]
     [CommandOption("--content-type <CONTENT-TYPE>")]
     [DefaultValue("application/json")]
@@ -50,7 +50,7 @@ public class Settings : CommandSettings
     [Description("Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL.")]
     [CommandOption("--base-url <BASE-URL>")]
     public string? BaseUrl { get; set; }
-    
+
     [Description(
         $"{nameof(OutputType.OneRequestPerFile)} generates one .http file per request. " +
         $"{nameof(OutputType.OneFile)} generates a single .http file for all requests. " +
@@ -67,7 +67,7 @@ public class Settings : CommandSettings
     [Description("Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header")]
     [CommandOption("--azure-tenant-id <TENANT-ID>")]
     public string? AzureTenantId { get; set; }
-    
+
     [Description("Timeout (in seconds) for writing files to disk")]
     [CommandOption("--timeout <SECONDS>")]
     [DefaultValue(120)]

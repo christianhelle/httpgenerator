@@ -12,7 +12,7 @@ public class GeneratorSettings
     /// Gets or sets the path to the Open API (local file or URL)
     /// </summary>
     public string OpenApiPath { get; set; } = null!;
-    
+
     /// <summary>
     /// Gets or sets the authorization header to use for all requests
     /// </summary>
@@ -28,7 +28,7 @@ public class GeneratorSettings
     /// Gets or sets the name of the environment variable to load the authorization header from
     /// </summary>
     public string AuthorizationHeaderVariableName { get; set; } = "authorization";
-    
+
     /// <summary>
     /// Gets or sets the default Content-Type header to use for all requests
     /// </summary>
@@ -40,10 +40,10 @@ public class GeneratorSettings
     public string? BaseUrl { get; set; }
 
     /// <summary>
-    /// Gets or sets the default output type for the generated .http files 
+    /// Gets or sets the default output type for the generated .http files
     /// </summary>
     public OutputType OutputType { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the timeout (in seconds) for writing files to disk
     /// </summary>
@@ -69,7 +69,7 @@ public enum OutputType
     /// Generate one .http file per request
     /// </summary>
     OneRequestPerFile,
-    
+
     /// <summary>
     /// Generate a single .http file for all requests
     /// </summary>
@@ -80,3 +80,4 @@ public enum OutputType
     /// </summary>
     OneFilePerTag,
 }
+
