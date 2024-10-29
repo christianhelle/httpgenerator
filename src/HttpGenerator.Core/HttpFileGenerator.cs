@@ -209,6 +209,14 @@ public static class HttpFileGenerator
             code.AppendLine($"Authorization: {{{{{settings.AuthorizationHeaderVariableName}}}}}");
         }
 
+        if (settings.CustomHeaders is not null)
+        {
+            foreach (var customHeader in settings.CustomHeaders)
+            {
+                code.AppendLine(customHeader);
+            }
+        }
+
         var contentType = operation.RequestBody?.Content?.Keys
             ?.FirstOrDefault(c => c.Contains(settings.ContentType));
 
