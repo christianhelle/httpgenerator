@@ -32,29 +32,38 @@ EXAMPLES:
     httpgenerator ./openapi.json --output-type onefile
     httpgenerator https://petstore.swagger.io/v2/swagger.json
     httpgenerator https://petstore3.swagger.io/api/v3/openapi.json --base-url https://petstore3.swagger.io
-    httpgenerator ./openapi.json --authorization-header Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    httpgenerator ./openapi.json --authorization-header Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9c
     httpgenerator ./openapi.json --azure-scope [Some Application ID URI]/.default
+    httpgenerator ./openapi.json --generate-intellij-tests
+    httpgenerator ./openapi.json --custom-header X-Custom-Header: Value --custom-header X-Another-Header: AnotherValue
 
 ARGUMENTS:
     [URL or input file]    URL or file path to OpenAPI Specification file
 
 OPTIONS:
-                                                                DEFAULT                                                                                                                                                                                                               
-    -h, --help                                                                       Prints help information                                                                                                                                                                          
-    -v, --version                                                                    Prints version information                                                                                                                                                                       
-    -o, --output <OUTPUT>                                       ./                   Output directory                                                                                                                                                                                 
-        --no-logging                                                                 Don't log errors or collect telemetry                                                                                                                                                            
-        --skip-validation                                                            Skip validation of OpenAPI Specification file                                                                                                                                                    
-        --authorization-header <HEADER>                                              Authorization header to use for all requests                                                                                                                                                     
-        --load-authorization-header-from-environment                                 Load the authorization header from an environment variable or define it in the .http file. You can use --authorization-header-variable-name to specify the environment variable name             
-        --authorization-header-variable-name <VARIABLE-NAME>    authorization        Name of the environment variable to load the authorization header from                                                                                                                           
-        --content-type <CONTENT-TYPE>                           application/json     Default Content-Type header to use for all requests                                                                                                                                              
-        --base-url <BASE-URL>                                                        Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL                                                                                   
-        --output-type <OUTPUT-TYPE>                             OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a single .http file for all requests. OneFilePerTag generates one .http file per first tag associated with each request
-        --azure-scope <SCOPE>                                                        Azure Entra ID Scope to use for retrieving Access Token for Authorization header                                                                                                                 
-        --azure-tenant-id <TENANT-ID>                                                Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header                                                                                                             
-        --timeout <SECONDS>                                     120                  Timeout (in seconds) for writing files to disk                                                                                                                                                   
-        --generate-intellij-tests                                                    Generate IntelliJ tests that assert whether the response status code is 200                                                                                                                      
+                                                                DEFAULT
+    -h, --help                                                                       Prints help information
+    -v, --version                                                                    Prints version information
+    -o, --output <OUTPUT>                                       ./                   Output directory
+        --no-logging                                                                 Don't log errors or collect telemetry
+        --skip-validation                                                            Skip validation of OpenAPI Specification file
+        --authorization-header <HEADER>                                              Authorization header to use for all requests
+        --load-authorization-header-from-environment                                 Load the authorization header from an environment variable or define it in the
+                                                                                     .http file. You can use --authorization-header-variable-name to specify the
+                                                                                     environment variable name
+        --authorization-header-variable-name <VARIABLE-NAME>    authorization        Name of the environment variable to load the authorization header from
+        --content-type <CONTENT-TYPE>                           application/json     Default Content-Type header to use for all requests
+        --base-url <BASE-URL>                                                        Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't
+                                                                                     explicitly specify a server URL
+        --output-type <OUTPUT-TYPE>                             OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a
+                                                                                     single .http file for all requests. OneFilePerTag generates one .http file per
+                                                                                     first tag associated with each request
+        --azure-scope <SCOPE>                                                        Azure Entra ID Scope to use for retrieving Access Token for Authorization header
+        --azure-tenant-id <TENANT-ID>                                                Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization
+                                                                                     header
+        --timeout <SECONDS>                                     120                  Timeout (in seconds) for writing files to disk
+        --generate-intellij-tests                                                    Generate IntelliJ tests that assert whether the response status code is 200
+        --custom-header                                                              Add custom HTTP headers to the generated request
 ```
 
 Running the following:
