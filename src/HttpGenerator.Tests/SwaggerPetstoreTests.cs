@@ -176,10 +176,37 @@ public class SwaggerPetstoreTests
             .BeTrue();
     }
 
+    [Theory]
+    [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneFile, "x-api-key: 12345", "x-api-key: 54321")]
+    [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneFile, "x-api-key: 12345", "x-api-key: 54321")]
+    [InlineData(Samples.PetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneFile, "x-api-key: 12345", "x-api-key: 54321")]
+    [InlineData(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneFile, "x-api-key: 12345", "x-api-key: 54321")]
+    public async Task Can_Generate_Code_With_Custom_Headers(
+        Samples version,
+        string filename,
+        OutputType outputType,
+        string customHeaderA,
+        string customHeaderB)
+    {
+        var generatedCode = await GenerateCode(
+            version, 
+            filename, 
+            outputType, 
+            customHeaderA, 
+            customHeaderB);
+
+        using var scope = new AssertionScope();
+        generatedCode.Should().NotBeNull();
+        generatedCode.Files.Should().NotBeNullOrEmpty();
+        generatedCode.Files.All(file => file.Content.Contains(customHeaderA)).Should().BeTrue();
+        generatedCode.Files.All(file => file.Content.Contains(customHeaderB)).Should().BeTrue();
+    }
+
     private static async Task<GeneratorResult> GenerateCode(
         Samples version,
         string filename,
-        OutputType outputType)
+        OutputType outputType,
+        params string[] customHeaders)
     {
         var json = EmbeddedResources.GetSwaggerPetstore(version);
         var swaggerFile = await TestFile.CreateSwaggerFile(json, filename);
@@ -190,6 +217,9 @@ public class SwaggerPetstoreTests
                 OutputType = outputType,
                 AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
                 GenerateIntelliJTests = true,
+                CustomHeaders = customHeaders.Length == 0
+                    ? null
+                    : customHeaders,
             });
     }
 }

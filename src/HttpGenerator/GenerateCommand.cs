@@ -42,6 +42,7 @@ public class GenerateCommand : AsyncCommand<Settings>
                 OutputType = settings.OutputType,
                 Timeout = settings.Timeout,
                 GenerateIntelliJTests = settings.GenerateIntelliJTests,
+                CustomHeaders = settings.CustomHeaders,
             };
 
             var result = await HttpFileGenerator.Generate(generatorSettings);
