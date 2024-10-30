@@ -2,19 +2,12 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0-preview.14...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...HEAD)
 
 **Implemented enhancements:**
 
 - Custom header for generated requests [\#148](https://github.com/christianhelle/httpgenerator/issues/148)
 - Add support for generating Custom Headers [\#149](https://github.com/christianhelle/httpgenerator/pull/149) ([christianhelle](https://github.com/christianhelle))
-
-## [0.7.0-preview.14](https://github.com/christianhelle/httpgenerator/tree/0.7.0-preview.14) (2024-10-22)
-
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0-preview.14)
-
-**Implemented enhancements:**
-
 - Add support for generating IntelliJ HTTP client tests [\#147](https://github.com/christianhelle/httpgenerator/pull/147) ([christianhelle](https://github.com/christianhelle))
 
 ## [0.6.0](https://github.com/christianhelle/httpgenerator/tree/0.6.0) (2024-10-13)
