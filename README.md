@@ -1,3 +1,12 @@
+<!--toc:start-->
+- [HTTP File Generator](#http-file-generator)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
+    - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
+- [](#)
+<!--toc:end-->
+
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
 [![Smoke Tests](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml)
 [![NuGet](https://img.shields.io/nuget/v/httpgenerator?color=blue)](https://www.nuget.org/packages/httpgenerator)
