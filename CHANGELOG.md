@@ -2,7 +2,19 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0...HEAD)
+
+**Merged pull requests:**
+
+- Update dependency FluentAssertions to 6.12.2 [\#151](https://github.com/christianhelle/httpgenerator/pull/151) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [0.7.0](https://github.com/christianhelle/httpgenerator/tree/0.7.0) (2024-10-30)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0-preview.15...0.7.0)
+
+## [0.7.0-preview.15](https://github.com/christianhelle/httpgenerator/tree/0.7.0-preview.15) (2024-10-29)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0-preview.15)
 
 **Implemented enhancements:**
 
