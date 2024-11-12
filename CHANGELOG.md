@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency System.Text.Json to v9 [\#152](https://github.com/christianhelle/httpgenerator/pull/152) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to 6.12.2 [\#151](https://github.com/christianhelle/httpgenerator/pull/151) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.7.0](https://github.com/christianhelle/httpgenerator/tree/0.7.0) (2024-10-30)
