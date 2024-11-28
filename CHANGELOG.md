@@ -13,6 +13,7 @@
 - Update dependency Microsoft.NET.Test.Sdk to 17.12.0 [\#155](https://github.com/christianhelle/httpgenerator/pull/155) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency System.Text.Json to v9 [\#152](https://github.com/christianhelle/httpgenerator/pull/152) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to 6.12.2 [\#151](https://github.com/christianhelle/httpgenerator/pull/151) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.Extensions.Azure to 1.9.0 [\#150](https://github.com/christianhelle/httpgenerator/pull/150) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [0.7.0](https://github.com/christianhelle/httpgenerator/tree/0.7.0) (2024-10-30)
 
