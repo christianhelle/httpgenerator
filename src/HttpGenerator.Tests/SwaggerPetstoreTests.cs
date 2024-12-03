@@ -202,6 +202,54 @@ public class SwaggerPetstoreTests
         generatedCode.Files.All(file => file.Content.Contains(customHeaderB)).Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    public async Task Ignores_Host_When_BaseUrl_Specified(
+        Samples version,
+        string filename,
+        OutputType outputType)
+    {
+        var json = EmbeddedResources.GetSwaggerPetstore(version);
+        var swaggerFile = await TestFile.CreateSwaggerFile(json, filename);
+        var generatedCode = await HttpFileGenerator.Generate(
+            new GeneratorSettings
+            {
+                OpenApiPath = swaggerFile,
+                OutputType = outputType,
+                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+                BaseUrl = "https://api.example.com",
+            });
+
+        using var scope = new AssertionScope();
+        generatedCode.Should().NotBeNull();
+        generatedCode.Files.Select(c=>c.Content).Should().NotContain(c => c.Contains("https://petstore.swagger.io"));
+        generatedCode.Files.Select(c=>c.Content).Should().Contain(c => c.Contains("https://api.example.com"));
+    }
+
+    [Theory]
+    [InlineData(Samples.PetstoreJsonV2, "SwaggerPetstore.json", OutputType.OneFile)]
+    [InlineData(Samples.PetstoreYamlV2, "SwaggerPetstore.yaml", OutputType.OneFile)]
+    public async Task Uses_Host_When_BaseUrl_Not_Specified(
+        Samples version,
+        string filename,
+        OutputType outputType)
+    {
+        var json = EmbeddedResources.GetSwaggerPetstore(version);
+        var swaggerFile = await TestFile.CreateSwaggerFile(json, filename);
+        var generatedCode = await HttpFileGenerator.Generate(
+            new GeneratorSettings
+            {
+                OpenApiPath = swaggerFile,
+                OutputType = outputType,
+                AuthorizationHeader = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9",
+            });
+
+        using var scope = new AssertionScope();
+        generatedCode.Should().NotBeNull();
+        generatedCode.Files.Select(c=>c.Content).Should().Contain(c => c.Contains("https://petstore.swagger.io"));
+    }
+
     private static async Task<GeneratorResult> GenerateCode(
         Samples version,
         string filename,
