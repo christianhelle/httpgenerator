@@ -126,9 +126,9 @@ function RunTests {
                     Write-Host "Testing $filename"
                     Copy-Item $filename ./openapi.$format
                     if ($version -eq "v3.1") {
-                        Generate -format $format -output $_/$version/$format -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234""" -production $Production
+                        Generate -format $format -output $_/$version/$format -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/" -production $Production
                     } else {
-                        Generate -format $format -output $_/$version/$format -args "--generate-intellij-tests --custom-header ""X-Custom-Header: 1234""" -production $Production
+                        Generate -format $format -output $_/$version/$format -args "--generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/" -production $Production
                     }
                 }
             }
