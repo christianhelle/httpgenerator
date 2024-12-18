@@ -10,6 +10,7 @@
 
 **Merged pull requests:**
 
+- Update dependency xunit.runner.visualstudio to v3 [\#159](https://github.com/christianhelle/httpgenerator/pull/159) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to v7 [\#157](https://github.com/christianhelle/httpgenerator/pull/157) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.NET.Test.Sdk to 17.12.0 [\#155](https://github.com/christianhelle/httpgenerator/pull/155) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency System.Text.Json to v9 [\#152](https://github.com/christianhelle/httpgenerator/pull/152) ([renovate[bot]](https://github.com/apps/renovate))
