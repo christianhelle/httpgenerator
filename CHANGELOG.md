@@ -10,12 +10,14 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.OpenApi.OData to 1.7.0 [\#164](https://github.com/christianhelle/httpgenerator/pull/164) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency coverlet.collector to 6.0.3 [\#162](https://github.com/christianhelle/httpgenerator/pull/162) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.6.9 [\#161](https://github.com/christianhelle/httpgenerator/pull/161) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.23 [\#160](https://github.com/christianhelle/httpgenerator/pull/160) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to v3 [\#159](https://github.com/christianhelle/httpgenerator/pull/159) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to v7 [\#157](https://github.com/christianhelle/httpgenerator/pull/157) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.NET.Test.Sdk to 17.12.0 [\#155](https://github.com/christianhelle/httpgenerator/pull/155) ([renovate[bot]](https://github.com/apps/renovate))
+- Update codecov/codecov-action action to v5 [\#154](https://github.com/christianhelle/httpgenerator/pull/154) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency System.Text.Json to v9 [\#152](https://github.com/christianhelle/httpgenerator/pull/152) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to 6.12.2 [\#151](https://github.com/christianhelle/httpgenerator/pull/151) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to 1.9.0 [\#150](https://github.com/christianhelle/httpgenerator/pull/150) ([renovate[bot]](https://github.com/apps/renovate))
