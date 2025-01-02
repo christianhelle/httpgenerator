@@ -11,6 +11,7 @@
 **Merged pull requests:**
 
 - Update dependency Microsoft.OpenApi.OData to 1.7.0 [\#164](https://github.com/christianhelle/httpgenerator/pull/164) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Atc.Test to 1.1.9 [\#163](https://github.com/christianhelle/httpgenerator/pull/163) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency coverlet.collector to 6.0.3 [\#162](https://github.com/christianhelle/httpgenerator/pull/162) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.6.9 [\#161](https://github.com/christianhelle/httpgenerator/pull/161) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.23 [\#160](https://github.com/christianhelle/httpgenerator/pull/160) ([renovate[bot]](https://github.com/apps/renovate))
