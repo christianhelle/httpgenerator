@@ -6,6 +6,8 @@
 
 **Implemented enhancements:**
 
+- Replacing of the current base url [\#158](https://github.com/christianhelle/httpgenerator/issues/158)
+- Use --base-url even if server URL is defined [\#165](https://github.com/christianhelle/httpgenerator/pull/165) ([christianhelle](https://github.com/christianhelle))
 - NSwag v14.2.0 [\#156](https://github.com/christianhelle/httpgenerator/pull/156) ([renovate[bot]](https://github.com/apps/renovate))
 
 **Merged pull requests:**
