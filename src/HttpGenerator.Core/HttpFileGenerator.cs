@@ -14,7 +14,18 @@ public static class HttpFileGenerator
         var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
         generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator();
 
-        var baseUrl = settings.BaseUrl + document.Servers?.FirstOrDefault()?.Url;
+        var serverUrl = document.Servers?.FirstOrDefault()?.Url ?? string.Empty;
+        var baseUrl = settings.BaseUrl ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(baseUrl))
+        {
+            baseUrl = serverUrl;
+        }
+        else
+        {
+            if (!Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute))
+                baseUrl += serverUrl;
+        }
 
         if (settings.BaseUrl is not null &&
             settings.BaseUrl!.StartsWith("{{") &&
@@ -23,10 +34,24 @@ public static class HttpFileGenerator
             // Load the base URL from an environment variable
             return settings.OutputType switch
             {
-                OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-                OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
-                OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-                _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType), $"Unknown output type: {settings.OutputType}")
+                OutputType.OneRequestPerFile => GenerateMultipleFiles(
+                    settings,
+                    document,
+                    baseUrl,
+                    generator.BaseSettings.OperationNameGenerator),
+                OutputType.OneFile => GenerateSingleFile(
+                    settings,
+                    document,
+                    generator.BaseSettings.OperationNameGenerator,
+                    baseUrl),
+                OutputType.OneFilePerTag => GenerateFilePerTag(
+                    settings,
+                    document,
+                    baseUrl,
+                    generator.BaseSettings.OperationNameGenerator),
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(settings.OutputType),
+                    $"Unknown output type: {settings.OutputType}")
             };
         }
 
@@ -40,10 +65,24 @@ public static class HttpFileGenerator
 
         return settings.OutputType switch
         {
-            OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-            OutputType.OneFile => GenerateSingleFile(settings, document, generator.BaseSettings.OperationNameGenerator, baseUrl),
-            OutputType.OneFilePerTag => GenerateFilePerTag(settings, document, baseUrl, generator.BaseSettings.OperationNameGenerator),
-            _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType), $"Unknown output type: {settings.OutputType}")
+            OutputType.OneRequestPerFile => GenerateMultipleFiles(
+                settings,
+                document,
+                baseUrl,
+                generator.BaseSettings.OperationNameGenerator),
+            OutputType.OneFile => GenerateSingleFile(
+                settings,
+                document,
+                generator.BaseSettings.OperationNameGenerator,
+                baseUrl),
+            OutputType.OneFilePerTag => GenerateFilePerTag(
+                settings,
+                document,
+                baseUrl,
+                generator.BaseSettings.OperationNameGenerator),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(settings.OutputType),
+                $"Unknown output type: {settings.OutputType}")
         };
     }
 
@@ -140,10 +179,10 @@ public static class HttpFileGenerator
 
                 var operation = operations.Value;
                 var verb = operations.Key.CapitalizeFirstCharacter();
-                
-                contents[tag].AppendLine(
-                    GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
-                
+
+                contents[tag]
+                    .AppendLine(
+                        GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
             }
         }
 
@@ -246,15 +285,16 @@ public static class HttpFileGenerator
         }
 
         code.AppendLine();
-        code.AppendLine("""
-                        > {%
-                            client.test("Request executed successfully", function() {
-                                client.assert(
-                                    response.status === 200, 
-                                    "Response status is not 200");
-                            });
-                        %}
-                        """);
+        code.AppendLine(
+            """
+            > {%
+                client.test("Request executed successfully", function() {
+                    client.assert(
+                        response.status === 200, 
+                        "Response status is not 200");
+                });
+            %}
+            """);
     }
 
     private static void AppendSummary(
@@ -294,7 +334,9 @@ public static class HttpFileGenerator
             if (operation.Description!.Contains(Environment.NewLine))
             {
                 code.AppendLine(
-                    description + Environment.NewLine + descriptionPrefix +
+                    description +
+                    Environment.NewLine +
+                    descriptionPrefix +
                     operation.Description.Replace(
                         Environment.NewLine,
                         $"{Environment.NewLine}{descriptionPrefix}"));
@@ -302,7 +344,9 @@ public static class HttpFileGenerator
             else if (operation.Description!.Contains("\n"))
             {
                 code.AppendLine(
-                    description + Environment.NewLine + descriptionPrefix +
+                    description +
+                    Environment.NewLine +
+                    descriptionPrefix +
                     operation.Description.Replace(
                         "\n",
                         $"{Environment.NewLine}{descriptionPrefix}"));
