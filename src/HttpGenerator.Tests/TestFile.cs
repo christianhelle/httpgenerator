@@ -1,5 +1,8 @@
-﻿namespace HttpGenerator.Tests;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace HttpGenerator.Tests;
+
+[ExcludeFromCodeCoverage]
 public static class TestFile
 {
     public static async Task<string> CreateSwaggerFile(string contents, string filename)
