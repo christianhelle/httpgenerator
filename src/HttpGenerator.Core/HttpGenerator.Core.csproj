@@ -17,7 +17,7 @@
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.2.0" />
     <PackageReference Include="NSwag.Core.Yaml" Version="14.2.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.9.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.1" />
   </ItemGroup>
 
 </Project>
