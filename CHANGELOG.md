@@ -12,6 +12,7 @@
 
 **Merged pull requests:**
 
+- Update dependency System.Text.Json to 9.0.1 [\#167](https://github.com/christianhelle/httpgenerator/pull/167) ([renovate[bot]](https://github.com/apps/renovate))
 - Update xunit-dotnet monorepo [\#166](https://github.com/christianhelle/httpgenerator/pull/166) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.0 [\#164](https://github.com/christianhelle/httpgenerator/pull/164) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Atc.Test to 1.1.9 [\#163](https://github.com/christianhelle/httpgenerator/pull/163) ([renovate[bot]](https://github.com/apps/renovate))
