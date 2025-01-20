@@ -12,6 +12,7 @@
 
 **Merged pull requests:**
 
+- Update dependency coverlet.collector to 6.0.4 [\#172](https://github.com/christianhelle/httpgenerator/pull/172) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.1 [\#169](https://github.com/christianhelle/httpgenerator/pull/169) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency System.Text.Json to 9.0.1 [\#167](https://github.com/christianhelle/httpgenerator/pull/167) ([renovate[bot]](https://github.com/apps/renovate))
 - Update xunit-dotnet monorepo [\#166](https://github.com/christianhelle/httpgenerator/pull/166) ([renovate[bot]](https://github.com/apps/renovate))
