@@ -1,12 +1,3 @@
-<!--toc:start-->
-- [HTTP File Generator](#http-file-generator)
-  - [Installation](#installation)
-  - [Usage](#usage)
-    - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
-    - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
-- [](#)
-<!--toc:end-->
-
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
 [![Smoke Tests](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml)
 [![NuGet](https://img.shields.io/nuget/v/httpgenerator?color=blue)](https://www.nuget.org/packages/httpgenerator)
@@ -18,6 +9,13 @@
 Generate .http files from OpenAPI specifications
 
 `.http` files were made popular by the Visual Studio Code extension [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client), which then was adopted by JetBrains IDE's, and later on [Visual Studio 2022](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.RestClient)
+
+<!--toc:start-->
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
+  - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
+<!--toc:end-->
 
 ## Installation
 
