@@ -13,6 +13,7 @@
 
 **Merged pull requests:**
 
+- Update nswag monorepo to 14.3.0 [\#186](https://github.com/christianhelle/httpgenerator/pull/186) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.24 [\#185](https://github.com/christianhelle/httpgenerator/pull/185) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.5 [\#184](https://github.com/christianhelle/httpgenerator/pull/184) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency FluentAssertions to 7.2.0 [\#181](https://github.com/christianhelle/httpgenerator/pull/181) ([renovate[bot]](https://github.com/apps/renovate))
