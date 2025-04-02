@@ -13,6 +13,8 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.OpenApi.OData to 1.7.5 [\#184](https://github.com/christianhelle/httpgenerator/pull/184) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency FluentAssertions to 7.2.0 [\#181](https://github.com/christianhelle/httpgenerator/pull/181) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.ApplicationInsights.WindowsServer to 2.23.0 [\#180](https://github.com/christianhelle/httpgenerator/pull/180) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.4 [\#174](https://github.com/christianhelle/httpgenerator/pull/174) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.3 [\#173](https://github.com/christianhelle/httpgenerator/pull/173) ([renovate[bot]](https://github.com/apps/renovate))
