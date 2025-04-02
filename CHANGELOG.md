@@ -7,11 +7,13 @@
 **Implemented enhancements:**
 
 - Replacing of the current base url [\#158](https://github.com/christianhelle/httpgenerator/issues/158)
+- Fix Builds [\#183](https://github.com/christianhelle/httpgenerator/pull/183) ([christianhelle](https://github.com/christianhelle))
 - Use --base-url even if server URL is defined [\#165](https://github.com/christianhelle/httpgenerator/pull/165) ([christianhelle](https://github.com/christianhelle))
 - NSwag v14.2.0 [\#156](https://github.com/christianhelle/httpgenerator/pull/156) ([renovate[bot]](https://github.com/apps/renovate))
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.ApplicationInsights.WindowsServer to 2.23.0 [\#180](https://github.com/christianhelle/httpgenerator/pull/180) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.4 [\#174](https://github.com/christianhelle/httpgenerator/pull/174) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.OData to 1.7.3 [\#173](https://github.com/christianhelle/httpgenerator/pull/173) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency coverlet.collector to 6.0.4 [\#172](https://github.com/christianhelle/httpgenerator/pull/172) ([renovate[bot]](https://github.com/apps/renovate))
