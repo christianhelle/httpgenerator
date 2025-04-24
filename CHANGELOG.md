@@ -7,12 +7,14 @@
 **Implemented enhancements:**
 
 - Replacing of the current base url [\#158](https://github.com/christianhelle/httpgenerator/issues/158)
+- feat:Default baseUrl to use for all requests [\#191](https://github.com/christianhelle/httpgenerator/pull/191) ([MrXhh](https://github.com/MrXhh))
 - Fix Builds [\#183](https://github.com/christianhelle/httpgenerator/pull/183) ([christianhelle](https://github.com/christianhelle))
 - Use --base-url even if server URL is defined [\#165](https://github.com/christianhelle/httpgenerator/pull/165) ([christianhelle](https://github.com/christianhelle))
 - NSwag v14.2.0 [\#156](https://github.com/christianhelle/httpgenerator/pull/156) ([renovate[bot]](https://github.com/apps/renovate))
 
 **Merged pull requests:**
 
+- Update dependency windows to v2025 [\#190](https://github.com/christianhelle/httpgenerator/pull/190) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Spectre.Console.Cli to 0.50.0 [\#189](https://github.com/christianhelle/httpgenerator/pull/189) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency System.Text.Json to 9.0.4 [\#188](https://github.com/christianhelle/httpgenerator/pull/188) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Exceptionless to 6.1.0 [\#187](https://github.com/christianhelle/httpgenerator/pull/187) ([renovate[bot]](https://github.com/apps/renovate))
