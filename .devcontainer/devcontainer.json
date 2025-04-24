@@ -1,0 +1,7 @@
+{
+	"name": "C# (.NET)",
+	"image": "mcr.microsoft.com/devcontainers/dotnet",
+	"features": {
+		"ghcr.io/devcontainers/features/powershell:1": {}
+	}
+}
