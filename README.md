@@ -4,7 +4,7 @@
   - [Usage](#usage)
     - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
     - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
-- [](#)
+#
 <!--toc:end-->
 
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
