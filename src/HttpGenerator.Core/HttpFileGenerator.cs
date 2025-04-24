@@ -93,7 +93,7 @@ public static class HttpFileGenerator
         string baseUrl)
     {
         var code = new StringBuilder();
-        WriteFileHeaders(settings, code);
+        WriteFileHeaders(settings, code, baseUrl);
 
         foreach (var kv in document.Paths)
         {
@@ -105,7 +105,6 @@ public static class HttpFileGenerator
                         kv,
                         operationNameGenerator,
                         settings,
-                        baseUrl,
                         operations.Key.CapitalizeFirstCharacter(),
                         operations.Value));
             }
@@ -115,8 +114,9 @@ public static class HttpFileGenerator
             new[] { new HttpFile("Requests.http", code.ToString()) });
     }
 
-    private static void WriteFileHeaders(GeneratorSettings settings, StringBuilder code)
+    private static void WriteFileHeaders(GeneratorSettings settings, StringBuilder code, string baseUrl)
     {
+        code.AppendLine($"@baseUrl = {baseUrl}");
         code.AppendLine($"@contentType = {settings.ContentType}");
 
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) &&
@@ -134,7 +134,7 @@ public static class HttpFileGenerator
         string baseUrl,
         IOperationNameGenerator operationNameGenerator)
     {
-        var files = new List<HttpFile>();
+        var files = new List<HttpFile>(document.Paths.Count);
         foreach (var kv in document.Paths)
         {
             foreach (var operations in kv.Value)
@@ -145,9 +145,9 @@ public static class HttpFileGenerator
                 var filename = $"{name.CapitalizeFirstCharacter()}.http";
 
                 var code = new StringBuilder();
-                WriteFileHeaders(settings, code);
+                WriteFileHeaders(settings, code, baseUrl);
                 code.AppendLine(
-                    GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
+                    GenerateRequest(document, kv, operationNameGenerator, settings, verb, operation));
 
                 files.Add(new HttpFile(filename, code.ToString()));
             }
@@ -174,7 +174,7 @@ public static class HttpFileGenerator
                 if (!contents.ContainsKey(tag))
                 {
                     contents[tag] = new StringBuilder();
-                    WriteFileHeaders(settings, contents[tag]);
+                    WriteFileHeaders(settings, contents[tag], baseUrl);
                 }
 
                 var operation = operations.Value;
@@ -182,7 +182,7 @@ public static class HttpFileGenerator
 
                 contents[tag]
                     .AppendLine(
-                        GenerateRequest(document, kv, operationNameGenerator, settings, baseUrl, verb, operation));
+                        GenerateRequest(document, kv, operationNameGenerator, settings, verb, operation));
             }
         }
 
@@ -197,7 +197,6 @@ public static class HttpFileGenerator
         KeyValuePair<string, OpenApiPathItem> operationPath,
         IOperationNameGenerator operationNameGenerator,
         GeneratorSettings settings,
-        string baseUrl,
         string verb,
         OpenApiOperation operation)
     {
@@ -239,7 +238,7 @@ public static class HttpFileGenerator
             }
         }
 
-        code.AppendLine($"{verb.ToUpperInvariant()} {baseUrl}{url}");
+        code.AppendLine($"{verb.ToUpperInvariant()} {{{{baseUrl}}}}{url}");
         code.AppendLine("Content-Type: {{contentType}}");
 
         if (!string.IsNullOrWhiteSpace(settings.AuthorizationHeader) ||
