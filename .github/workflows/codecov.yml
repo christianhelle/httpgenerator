@@ -20,7 +20,7 @@ on:
       - '*'
 
 env:
-  VERSION: 0.7.0.${{ github.run_number }}
+  VERSION: 1.0.0.${{ github.run_number }}
   CODECOV_TOKEN: 62284a15-ac3f-48bb-81c5-1204e3a8b66c
 
 jobs:
