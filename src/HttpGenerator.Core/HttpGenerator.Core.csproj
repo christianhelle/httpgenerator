@@ -14,8 +14,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.3.0" />
-    <PackageReference Include="NSwag.Core.Yaml" Version="14.3.0" />
+    <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="14.4.0" />
+    <PackageReference Include="NSwag.Core.Yaml" Version="14.4.0" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.11.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.4" />
   </ItemGroup>
