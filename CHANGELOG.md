@@ -2,11 +2,20 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.0...HEAD)
+
+**Merged pull requests:**
+
+- Update nswag monorepo to 14.4.0 [\#193](https://github.com/christianhelle/httpgenerator/pull/193) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [1.0.0](https://github.com/christianhelle/httpgenerator/tree/1.0.0) (2025-04-26)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0...1.0.0)
 
 **Implemented enhancements:**
 
 - Replacing of the current base url [\#158](https://github.com/christianhelle/httpgenerator/issues/158)
+- Dev Container [\#192](https://github.com/christianhelle/httpgenerator/pull/192) ([christianhelle](https://github.com/christianhelle))
 - feat:Default baseUrl to use for all requests [\#191](https://github.com/christianhelle/httpgenerator/pull/191) ([MrXhh](https://github.com/MrXhh))
 - Fix Builds [\#183](https://github.com/christianhelle/httpgenerator/pull/183) ([christianhelle](https://github.com/christianhelle))
 - Use --base-url even if server URL is defined [\#165](https://github.com/christianhelle/httpgenerator/pull/165) ([christianhelle](https://github.com/christianhelle))
@@ -49,11 +58,7 @@
 
 ## [0.7.0](https://github.com/christianhelle/httpgenerator/tree/0.7.0) (2024-10-30)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0-preview.15...0.7.0)
-
-## [0.7.0-preview.15](https://github.com/christianhelle/httpgenerator/tree/0.7.0-preview.15) (2024-10-29)
-
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0-preview.15)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0)
 
 **Implemented enhancements:**
 
