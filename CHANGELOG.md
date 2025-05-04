@@ -7,6 +7,7 @@
 **Merged pull requests:**
 
 - Update nswag monorepo to 14.4.0 [\#193](https://github.com/christianhelle/httpgenerator/pull/193) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency xunit.runner.visualstudio to 3.1.0 [\#176](https://github.com/christianhelle/httpgenerator/pull/176) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [1.0.0](https://github.com/christianhelle/httpgenerator/tree/1.0.0) (2025-04-26)
 
