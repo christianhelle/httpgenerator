@@ -401,3 +401,5 @@ test/GeneratedCode
 test/openapi.json
 test/openapi.yaml
 *.http
+src/VSCode/out
+src/VSCode/*.vsix
