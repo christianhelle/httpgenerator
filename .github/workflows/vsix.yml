@@ -11,6 +11,9 @@ on:
     branches:
       - '*'
   pull_request:
+    paths-ignore:
+      - '.github/workflows/vscode.yml'
+      - 'src/VSCode/**'
     branches:
       - '*'
 
