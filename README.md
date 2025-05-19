@@ -4,6 +4,7 @@
   - [Usage](#usage)
     - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
     - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
+    - [Visual Studio Code Extension](#visual-studio-code-extension)
 <!--toc:end-->
 #
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
@@ -274,6 +275,22 @@ By default, the **Output folder** is pre-filled with the path of the currently a
 Once the .http files are generated you can easily open and inspect them
 
 ![.http file](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_http_file.png?raw=true)
+
+### Visual Studio Code Extension
+
+The HTTP File Generator is also available as a Visual Studio Code extension. The extension allows you to generate HTTP files from OpenAPI specifications directly from VS Code.
+
+#### Usage
+
+1. Right-click on an OpenAPI specification file (JSON or YAML) in Explorer
+2. Select **HTTP File Generator** > **Generate single HTTP file** or **Generate multiple HTTP files (one request per file)**
+
+The commands are also available in the Command Palette (Ctrl+Shift+P / Cmd+Shift+P).
+
+#### Requirements
+
+- [.NET SDK](https://dotnet.microsoft.com/download) needs to be installed
+- The extension will automatically install the `httpgenerator` .NET Tool if not already installed
 
 #
 
