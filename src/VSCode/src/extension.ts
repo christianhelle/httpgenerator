@@ -129,9 +129,32 @@ export function activate(context: vscode.ExtensionContext) {
             await executeHttpGenerator(fileUri.fsPath, 'OneRequestPerFile');
         }
     );
+    
+    // Register context menu commands (these will call the main commands)
+    let generateSingleHttpFileMenuCommand = vscode.commands.registerCommand(
+        'http-file-generator.generateSingleHttpFileMenu',
+        async (fileUri: vscode.Uri) => {
+            // Context menu always has a file URI
+            if (fileUri) {
+                await executeHttpGenerator(fileUri.fsPath, 'OneFile');
+            }
+        }
+    );
+    
+    let generateMultipleHttpFilesMenuCommand = vscode.commands.registerCommand(
+        'http-file-generator.generateMultipleHttpFilesMenu',
+        async (fileUri: vscode.Uri) => {
+            // Context menu always has a file URI
+            if (fileUri) {
+                await executeHttpGenerator(fileUri.fsPath, 'OneRequestPerFile');
+            }
+        }
+    );
 
     context.subscriptions.push(generateSingleHttpFileCommand);
     context.subscriptions.push(generateMultipleHttpFilesCommand);
+    context.subscriptions.push(generateSingleHttpFileMenuCommand);
+    context.subscriptions.push(generateMultipleHttpFilesMenuCommand);
 }
 
 export function deactivate() {}

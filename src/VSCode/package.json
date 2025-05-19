@@ -16,17 +16,27 @@
   ],
   "activationEvents": [
     "onCommand:http-file-generator.generateSingleHttpFile",
-    "onCommand:http-file-generator.generateMultipleHttpFiles"
+    "onCommand:http-file-generator.generateMultipleHttpFiles",
+    "onCommand:http-file-generator.generateSingleHttpFileMenu",
+    "onCommand:http-file-generator.generateMultipleHttpFilesMenu"
   ],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "http-file-generator.generateSingleHttpFile",
-        "title": "Generate single HTTP file"
+        "title": "HTTP File Generator: Generate single HTTP file"
       },
       {
         "command": "http-file-generator.generateMultipleHttpFiles",
+        "title": "HTTP File Generator: Generate multiple HTTP files (one request per file)"
+      },
+      {
+        "command": "http-file-generator.generateSingleHttpFileMenu",
+        "title": "Generate single HTTP file"
+      },
+      {
+        "command": "http-file-generator.generateMultipleHttpFilesMenu",
         "title": "Generate multiple HTTP files (one request per file)"
       }
     ],
@@ -39,12 +49,22 @@
       ],
       "http-file-generator.menu": [
         {
-          "command": "http-file-generator.generateSingleHttpFile",
+          "command": "http-file-generator.generateSingleHttpFileMenu",
           "group": "http-file-generator"
         },
         {
-          "command": "http-file-generator.generateMultipleHttpFiles",
+          "command": "http-file-generator.generateMultipleHttpFilesMenu",
           "group": "http-file-generator"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "http-file-generator.generateSingleHttpFileMenu",
+          "when": "false" 
+        },
+        {
+          "command": "http-file-generator.generateMultipleHttpFilesMenu",
+          "when": "false"
         }
       ]
     },
