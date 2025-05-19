@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { execSync, exec } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -20,13 +20,14 @@ const MESSAGES = {
     GENERATING: 'Generating HTTP files...',
     GENERATE_ERROR: 'Error generating HTTP files',
     GENERATE_FAILED: 'Failed to generate HTTP files',
-    GENERATE_SUCCESS: 'HTTP files generated successfully in'
+    GENERATE_SUCCESS: 'HTTP files generated successfully in',
+    PATH_OUTSIDE_WORKSPACE: 'Path must be within the workspace boundaries'
 };
 
 const COMMANDS = {
     TOOL_LIST: 'dotnet tool list -g',
     TOOL_INSTALL: 'dotnet tool install --global httpgenerator',
-    GENERATE: 'httpgenerator "{0}" --output "{1}" --output-type {2}'
+    GENERATE_CMD: 'httpgenerator'
 };
 
 const FILE_EXTENSIONS = ['.json', '.yaml', '.yml'];
@@ -80,15 +81,33 @@ async function installTool(): Promise<boolean> {
                 cancellable: false
             }, async () => {
                 return new Promise<void>((resolve, reject) => {
-                    exec(COMMANDS.TOOL_INSTALL, (error) => {
-                        if (error) {
-                            const errorMessage = `${MESSAGES.INSTALL_FAILED}: ${error.message}`;
+                    // Use spawn instead of exec for better security
+                    const args = COMMANDS.TOOL_INSTALL.split(' ');
+                    const cmd = args.shift() || 'dotnet';
+                    
+                    const process = spawn(cmd, args);
+                    
+                    let errorOutput = '';
+                    process.stderr.on('data', (data: Buffer) => {
+                        errorOutput += data.toString();
+                    });
+                    
+                    process.on('close', (code: number | null) => {
+                        if (code !== 0) {
+                            const errorMessage = `${MESSAGES.INSTALL_FAILED}: ${errorOutput || 'Process exited with code ' + code}`;
                             vscode.window.showErrorMessage(errorMessage);
                             reject(new Error(errorMessage));
                             return;
                         }
+                        
                         vscode.window.showInformationMessage(MESSAGES.INSTALL_SUCCESS);
                         resolve();
+                    });
+                    
+                    process.on('error', (error: Error) => {
+                        const errorMessage = `${MESSAGES.INSTALL_FAILED}: ${error.message}`;
+                        vscode.window.showErrorMessage(errorMessage);
+                        reject(new Error(errorMessage));
                     });
                 });
             });
@@ -117,6 +136,28 @@ async function findOpenApiFiles(): Promise<vscode.Uri[]> {
 }
 
 /**
+ * Validates that a path is within the workspace boundaries to prevent path traversal
+ * @param inputPath Path to validate
+ * @returns true if the path is within the workspace, false otherwise
+ */
+function isPathWithinWorkspace(inputPath: string): boolean {
+    // Get all workspace folders
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        return false;
+    }
+    
+    // Normalize the input path to resolve any '..' or '.' segments
+    const normalizedPath = path.normalize(inputPath);
+    
+    // Check if the normalized path is within any workspace folder
+    return workspaceFolders.some((folder: vscode.WorkspaceFolder) => {
+        const workspacePath = folder.uri.fsPath;
+        return normalizedPath.startsWith(workspacePath);
+    });
+}
+
+/**
  * Handles file selection logic when no file is directly selected
  * @returns Promise resolving to selected file path or undefined if canceled
  */
@@ -128,8 +169,16 @@ async function handleFileSelection(): Promise<string | undefined> {
         return undefined;
     }
     
+    // Filter files to ensure they're within workspace boundaries
+    const safeFiles = openApiFiles.filter(file => isPathWithinWorkspace(file.fsPath));
+    
+    if (safeFiles.length === 0) {
+        vscode.window.showErrorMessage(MESSAGES.NO_OPENAPI_FILES);
+        return undefined;
+    }
+    
     const selectedFile = await vscode.window.showQuickPick(
-        openApiFiles.map(file => file.fsPath), 
+        safeFiles.map(file => file.fsPath), 
         { placeHolder: MESSAGES.FILE_PICKER_PLACEHOLDER }
     );
     
@@ -146,12 +195,16 @@ async function handleFileSelection(): Promise<string | undefined> {
  * @returns true if the file has a supported extension, false otherwise
  */
 function isValidOpenApiFile(filePath: string): boolean {
-    if (!fs.statSync(filePath).isFile()) {
+    try {
+        if (!fs.statSync(filePath).isFile()) {
+            return false;
+        }
+        
+        const ext = path.extname(filePath).toLowerCase();
+        return FILE_EXTENSIONS.includes(ext);
+    } catch {
         return false;
     }
-    
-    const ext = path.extname(filePath).toLowerCase();
-    return FILE_EXTENSIONS.includes(ext);
 }
 
 /**
@@ -172,6 +225,12 @@ async function generateHttpFile(outputType: string): Promise<void> {
     } else {
         filePath = fileUri.fsPath;
         
+        // Validate path is within workspace boundaries
+        if (!isPathWithinWorkspace(filePath)) {
+            vscode.window.showErrorMessage(MESSAGES.PATH_OUTSIDE_WORKSPACE);
+            return;
+        }
+        
         if (!isValidOpenApiFile(filePath)) {
             vscode.window.showErrorMessage(MESSAGES.UNSUPPORTED_FILE);
             return;
@@ -187,6 +246,12 @@ async function generateHttpFile(outputType: string): Promise<void> {
  * @param outputType Type of output to generate
  */
 async function runGenerator(filePath: string, outputType: string): Promise<void> {
+    // Validate paths to prevent path traversal
+    if (!isPathWithinWorkspace(filePath)) {
+        vscode.window.showErrorMessage(MESSAGES.PATH_OUTSIDE_WORKSPACE);
+        return;
+    }
+
     // Check if tool is installed
     if (!(await checkToolInstalled())) {
         const installed = await installTool();
@@ -209,9 +274,23 @@ async function runGenerator(filePath: string, outputType: string): Promise<void>
         return; // User cancelled
     }
     
+    // Validate output directory path to prevent path traversal
+    if (!isPathWithinWorkspace(outputDir)) {
+        vscode.window.showErrorMessage(MESSAGES.PATH_OUTSIDE_WORKSPACE);
+        return;
+    }
+    
     // Ensure directory exists
-    if (!fs.existsSync(outputDir)) {
-        fs.mkdirSync(outputDir, { recursive: true });
+    try {
+        if (!fs.existsSync(outputDir)) {
+            fs.mkdirSync(outputDir, { recursive: true });
+        }
+    } catch (error) {
+        const errorMessage = error instanceof Error 
+            ? `${MESSAGES.GENERATE_ERROR}: ${error.message}`
+            : `${MESSAGES.GENERATE_ERROR}: ${String(error)}`;
+        vscode.window.showErrorMessage(errorMessage);
+        return;
     }
     
     try {
@@ -221,15 +300,24 @@ async function runGenerator(filePath: string, outputType: string): Promise<void>
             cancellable: false
         }, async () => {
             return new Promise<void>((resolve, reject) => {
-                // Format command string with parameters
-                const command = COMMANDS.GENERATE
-                    .replace('{0}', filePath)
-                    .replace('{1}', outputDir)
-                    .replace('{2}', outputType);
+                // Use spawn instead of exec for better security
+                // Pass arguments as an array instead of a command string
+                const args = [
+                    filePath,
+                    '--output', outputDir,
+                    '--output-type', outputType
+                ];
                 
-                exec(command, (error) => {
-                    if (error) {
-                        const errorMessage = `${MESSAGES.GENERATE_ERROR}: ${error.message}`;
+                const process = spawn(COMMANDS.GENERATE_CMD, args);
+                
+                let errorOutput = '';
+                process.stderr.on('data', (data: Buffer) => {
+                    errorOutput += data.toString();
+                });
+                
+                process.on('close', (code: number | null) => {
+                    if (code !== 0) {
+                        const errorMessage = `${MESSAGES.GENERATE_ERROR}: ${errorOutput || 'Process exited with code ' + code}`;
                         vscode.window.showErrorMessage(errorMessage);
                         reject(new Error(errorMessage));
                         return;
@@ -237,6 +325,12 @@ async function runGenerator(filePath: string, outputType: string): Promise<void>
                     
                     vscode.window.showInformationMessage(`${MESSAGES.GENERATE_SUCCESS} ${outputDir}`);
                     resolve();
+                });
+                
+                process.on('error', (error: Error) => {
+                    const errorMessage = `${MESSAGES.GENERATE_ERROR}: ${error.message}`;
+                    vscode.window.showErrorMessage(errorMessage);
+                    reject(new Error(errorMessage));
                 });
             });
         });
