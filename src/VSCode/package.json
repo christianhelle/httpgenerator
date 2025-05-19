@@ -3,7 +3,7 @@
   "displayName": "HTTP File Generator",
   "description": "Generate .http files from OpenAPI specifications",
   "version": "0.1.0",
-  "publisher": "christianhelle",
+  "publisher": "ChristianResmaHelle",
   "repository": {
     "type": "git",
     "url": "https://github.com/christianhelle/httpgenerator"
