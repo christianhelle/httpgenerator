@@ -5,6 +5,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 ## Features
 
 - Right-click on OpenAPI specification files (.json, .yaml, .yml) in the Explorer
+- Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
 - Automatically installs the required .NET Tool if not present
@@ -16,12 +17,17 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Usage
 
-1. Right-click on an OpenAPI specification file (.json, .yaml, or .yml) in the VS Code Explorer
-2. Select "HTTP File Generator" from the context menu
-3. Choose either:
-   - "Generate single HTTP file" 
+1. You can use HTTP File Generator in two ways:
+   - Right-click on an OpenAPI specification file (.json, .yaml, or .yml) in the VS Code Explorer and select "HTTP File Generator" from the context menu
+   - Open the Command Palette (Ctrl+Shift+P or Cmd+Shift+P) and search for "HTTP File Generator"
+
+2. Choose either:
+   - "Generate single HTTP file"
    - "Generate multiple HTTP files (one request per file)"
-4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it
+
+3. If running from the Command Palette, you'll be prompted to select an OpenAPI file from your workspace.
+
+4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
 
 The generated HTTP files will be created in the same directory as the specification file.
 

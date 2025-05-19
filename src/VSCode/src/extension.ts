@@ -76,13 +76,38 @@ async function executeHttpGenerator(filePath: string, outputType: string): Promi
 export function activate(context: vscode.ExtensionContext) {
     console.log('HTTP File Generator extension is now active!');
 
+    // Helper function to prompt for file selection
+    async function promptForOpenApiFile(): Promise<vscode.Uri | undefined> {
+        const openApiFiles = await vscode.workspace.findFiles('**/*.{json,yaml,yml}');
+        
+        if (openApiFiles.length === 0) {
+            vscode.window.showErrorMessage('No OpenAPI specification files (.json, .yaml, or .yml) found in the workspace.');
+            return undefined;
+        }
+        
+        const fileItems = openApiFiles.map(file => ({
+            label: path.basename(file.fsPath),
+            description: vscode.workspace.asRelativePath(file),
+            uri: file
+        }));
+        
+        const selectedFile = await vscode.window.showQuickPick(fileItems, {
+            placeHolder: 'Select an OpenAPI specification file'
+        });
+        
+        return selectedFile?.uri;
+    }
+
     // Register command to generate a single HTTP file
     let generateSingleHttpFileCommand = vscode.commands.registerCommand(
         'http-file-generator.generateSingleHttpFile', 
-        async (fileUri: vscode.Uri) => {
+        async (fileUri?: vscode.Uri) => {
             if (!fileUri) {
-                vscode.window.showErrorMessage('Please right-click on an OpenAPI specification file (.json, .yaml, or .yml).');
-                return;
+                // No file provided, prompt user to select one
+                fileUri = await promptForOpenApiFile();
+                if (!fileUri) {
+                    return; // User cancelled or no files found
+                }
             }
             
             await executeHttpGenerator(fileUri.fsPath, 'OneFile');
@@ -92,10 +117,13 @@ export function activate(context: vscode.ExtensionContext) {
     // Register command to generate multiple HTTP files
     let generateMultipleHttpFilesCommand = vscode.commands.registerCommand(
         'http-file-generator.generateMultipleHttpFiles', 
-        async (fileUri: vscode.Uri) => {
+        async (fileUri?: vscode.Uri) => {
             if (!fileUri) {
-                vscode.window.showErrorMessage('Please right-click on an OpenAPI specification file (.json, .yaml, or .yml).');
-                return;
+                // No file provided, prompt user to select one
+                fileUri = await promptForOpenApiFile();
+                if (!fileUri) {
+                    return; // User cancelled or no files found
+                }
             }
             
             await executeHttpGenerator(fileUri.fsPath, 'OneRequestPerFile');
