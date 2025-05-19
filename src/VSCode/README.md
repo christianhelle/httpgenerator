@@ -12,7 +12,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Requirements
 
-- [.NET 6.0 SDK](https://dotnet.microsoft.com/download/dotnet/6.0) or later
+- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
 
 ## Usage
