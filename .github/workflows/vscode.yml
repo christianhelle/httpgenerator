@@ -1,0 +1,48 @@
+name: VS Code
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/VSCode/**'
+      - '.github/workflows/vscode-extension.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/VSCode/**'
+      - '.github/workflows/vscode-extension.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          
+      - name: Install dependencies
+        run: |
+          cd src/VSCode
+          npm install
+          
+      - name: Compile extension
+        run: |
+          cd src/VSCode
+          npm run compile
+          
+      - name: Package extension
+        run: |
+          cd src/VSCode
+          npm install -g vsce
+          vsce package
+          
+      - name: Upload VSIX as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: VSCode Extension
+          path: src/VSCode/*.vsix
