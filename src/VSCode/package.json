@@ -4,6 +4,10 @@
   "description": "Generate HTTP files from OpenAPI specifications",
   "version": "0.1.0",
   "publisher": "ChristianResmaHelle",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/christianhelle/httpgenerator"
+  },
   "engines": {
     "vscode": "^1.75.0"
   },
