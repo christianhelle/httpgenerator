@@ -21,7 +21,8 @@ const MESSAGES = {
     GENERATE_ERROR: 'Error generating HTTP files',
     GENERATE_FAILED: 'Failed to generate HTTP files',
     GENERATE_SUCCESS: 'HTTP files generated successfully in',
-    PATH_OUTSIDE_WORKSPACE: 'Path must be within the workspace boundaries'
+    PATH_OUTSIDE_WORKSPACE: 'Path must be within the workspace boundaries',
+    PROCESS_ERROR: 'Process execution error'
 };
 
 const COMMANDS = {
@@ -51,6 +52,59 @@ export function deactivate(): void {
 }
 
 /**
+ * Interface for process execution options
+ */
+interface ProcessExecutionOptions {
+    command: string;
+    args: string[];
+    progressTitle: string;
+    errorPrefix: string;
+    successMessage?: string;
+}
+
+/**
+ * Execute a process with progress indication
+ * @param options Options for process execution
+ * @returns Promise resolving when the process completes successfully
+ */
+async function executeProcessWithProgress(options: ProcessExecutionOptions): Promise<void> {
+    return vscode.window.withProgress({
+        location: vscode.ProgressLocation.Notification,
+        title: options.progressTitle,
+        cancellable: false
+    }, async () => {
+        return new Promise<void>((resolve, reject) => {
+            const process = spawn(options.command, options.args);
+            
+            let errorOutput = '';
+            process.stderr.on('data', (data: Buffer) => {
+                errorOutput += data.toString();
+            });
+            
+            process.on('close', (code: number | null) => {
+                if (code !== 0) {
+                    const errorMessage = `${options.errorPrefix}: ${errorOutput || 'Process exited with code ' + code}`;
+                    vscode.window.showErrorMessage(errorMessage);
+                    reject(new Error(errorMessage));
+                    return;
+                }
+                
+                if (options.successMessage) {
+                    vscode.window.showInformationMessage(options.successMessage);
+                }
+                resolve();
+            });
+            
+            process.on('error', (error: Error) => {
+                const errorMessage = `${options.errorPrefix}: ${error.message}`;
+                vscode.window.showErrorMessage(errorMessage);
+                reject(new Error(errorMessage));
+            });
+        });
+    });
+}
+
+/**
  * Checks if the httpgenerator tool is installed
  * @returns Promise resolving to true if tool is installed, false otherwise
  */
@@ -75,42 +129,18 @@ async function installTool(): Promise<boolean> {
         );
 
         if (response === 'Yes') {
-            await vscode.window.withProgress({
-                location: vscode.ProgressLocation.Notification,
-                title: MESSAGES.INSTALLING_TOOL,
-                cancellable: false
-            }, async () => {
-                return new Promise<void>((resolve, reject) => {
-                    // Use spawn instead of exec for better security
-                    const args = COMMANDS.TOOL_INSTALL.split(' ');
-                    const cmd = args.shift() || 'dotnet';
-                    
-                    const process = spawn(cmd, args);
-                    
-                    let errorOutput = '';
-                    process.stderr.on('data', (data: Buffer) => {
-                        errorOutput += data.toString();
-                    });
-                    
-                    process.on('close', (code: number | null) => {
-                        if (code !== 0) {
-                            const errorMessage = `${MESSAGES.INSTALL_FAILED}: ${errorOutput || 'Process exited with code ' + code}`;
-                            vscode.window.showErrorMessage(errorMessage);
-                            reject(new Error(errorMessage));
-                            return;
-                        }
-                        
-                        vscode.window.showInformationMessage(MESSAGES.INSTALL_SUCCESS);
-                        resolve();
-                    });
-                    
-                    process.on('error', (error: Error) => {
-                        const errorMessage = `${MESSAGES.INSTALL_FAILED}: ${error.message}`;
-                        vscode.window.showErrorMessage(errorMessage);
-                        reject(new Error(errorMessage));
-                    });
-                });
+            // Use spawn instead of exec for better security
+            const args = COMMANDS.TOOL_INSTALL.split(' ');
+            const cmd = args.shift() || 'dotnet';
+            
+            await executeProcessWithProgress({
+                command: cmd,
+                args: args,
+                progressTitle: MESSAGES.INSTALLING_TOOL,
+                errorPrefix: MESSAGES.INSTALL_FAILED,
+                successMessage: MESSAGES.INSTALL_SUCCESS
             });
+            
             return true;
         }
         return false;
@@ -294,45 +324,18 @@ async function runGenerator(filePath: string, outputType: string): Promise<void>
     }
     
     try {
-        await vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: MESSAGES.GENERATING,
-            cancellable: false
-        }, async () => {
-            return new Promise<void>((resolve, reject) => {
-                // Use spawn instead of exec for better security
-                // Pass arguments as an array instead of a command string
-                const args = [
-                    filePath,
-                    '--output', outputDir,
-                    '--output-type', outputType
-                ];
-                
-                const process = spawn(COMMANDS.GENERATE_CMD, args);
-                
-                let errorOutput = '';
-                process.stderr.on('data', (data: Buffer) => {
-                    errorOutput += data.toString();
-                });
-                
-                process.on('close', (code: number | null) => {
-                    if (code !== 0) {
-                        const errorMessage = `${MESSAGES.GENERATE_ERROR}: ${errorOutput || 'Process exited with code ' + code}`;
-                        vscode.window.showErrorMessage(errorMessage);
-                        reject(new Error(errorMessage));
-                        return;
-                    }
-                    
-                    vscode.window.showInformationMessage(`${MESSAGES.GENERATE_SUCCESS} ${outputDir}`);
-                    resolve();
-                });
-                
-                process.on('error', (error: Error) => {
-                    const errorMessage = `${MESSAGES.GENERATE_ERROR}: ${error.message}`;
-                    vscode.window.showErrorMessage(errorMessage);
-                    reject(new Error(errorMessage));
-                });
-            });
+        const args = [
+            filePath,
+            '--output', outputDir,
+            '--output-type', outputType
+        ];
+        
+        await executeProcessWithProgress({
+            command: COMMANDS.GENERATE_CMD,
+            args: args,
+            progressTitle: MESSAGES.GENERATING,
+            errorPrefix: MESSAGES.GENERATE_ERROR,
+            successMessage: `${MESSAGES.GENERATE_SUCCESS} ${outputDir}`
         });
     } catch (error) {
         const errorMessage = error instanceof Error 
