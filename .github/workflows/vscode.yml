@@ -36,7 +36,7 @@ jobs:
           vsce package
           
       - name: Upload VSIX as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: VSCode Extension
           path: src/VSCode/*.vsix
