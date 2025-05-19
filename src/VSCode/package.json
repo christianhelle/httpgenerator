@@ -1,0 +1,74 @@
+{
+  "name": "http-file-generator",
+  "displayName": "HTTP File Generator",
+  "description": "Generate .http files from OpenAPI specifications",
+  "version": "0.1.0",
+  "publisher": "christianhelle",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/christianhelle/httpgenerator"
+  },
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:http-file-generator.generateSingleHttpFile",
+    "onCommand:http-file-generator.generateMultipleHttpFiles"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "http-file-generator.generateSingleHttpFile",
+        "title": "Generate single HTTP file"
+      },
+      {
+        "command": "http-file-generator.generateMultipleHttpFiles",
+        "title": "Generate multiple HTTP files (one request per file)"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "submenu": "http-file-generator.menu",
+          "when": "resourceExtname == '.json' || resourceExtname == '.yaml' || resourceExtname == '.yml'"
+        }
+      ],
+      "http-file-generator.menu": [
+        {
+          "command": "http-file-generator.generateSingleHttpFile",
+          "group": "http-file-generator"
+        },
+        {
+          "command": "http-file-generator.generateMultipleHttpFiles",
+          "group": "http-file-generator"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "http-file-generator.menu",
+        "label": "HTTP File Generator"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile",
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/node": "^16.18.34",
+    "@types/vscode": "^1.50.0",
+    "typescript": "^4.9.5",
+    "vsce": "^2.15.0"
+  }
+}
