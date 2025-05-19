@@ -1,0 +1,60 @@
+name: VS Code Extension
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'src/VSCode/**'
+      - '.github/workflows/vscode.yml'
+    branches:
+      - 'main'
+  pull_request:
+    paths:
+      - 'src/VSCode/**'
+      - '.github/workflows/vscode.yml'
+
+env:
+  VERSION: 0.1.${{ github.run_number }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Update version in package.json
+      run: |
+        npm version ${{ env.VERSION }} --no-git-tag-version
+      working-directory: src/VSCode
+    
+    - name: Install dependencies
+      run: npm install
+      working-directory: src/VSCode
+    
+    - name: Lint
+      run: npm run lint
+      working-directory: src/VSCode
+    
+    - name: Compile
+      run: npm run compile
+      working-directory: src/VSCode
+    
+    - name: Package extension
+      run: npx vsce package --no-dependencies
+      working-directory: src/VSCode
+    
+    - name: Rename VSIX file
+      run: |
+        mv src/VSCode/http-file-generator-${{ env.VERSION }}.vsix http-file-generator-vscode-${{ env.VERSION }}.vsix
+    
+    - name: Upload VSIX artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: VSCodeExtension
+        path: '*.vsix'

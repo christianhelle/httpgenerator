@@ -1,0 +1,78 @@
+{
+  "name": "http-file-generator",
+  "displayName": "HTTP File Generator for VS Code",
+  "description": "Generate HTTP files from OpenAPI specifications",
+  "version": "0.1.0",
+  "publisher": "ChristianResmaHelle",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "http-file-generator.generateSingleFile",
+        "title": "HTTP File Generator: Generate single HTTP file"
+      },
+      {
+        "command": "http-file-generator.generateMultipleFiles",
+        "title": "HTTP File Generator: Generate multiple HTTP files (one request per file)"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceExtname =~ /\\.(json|yaml|yml)$/i",
+          "submenu": "http-file-generator.submenu",
+          "group": "navigation"
+        }
+      ],
+      "http-file-generator.submenu": [
+        {
+          "command": "http-file-generator.generateSingleFile",
+          "group": "1_generate"
+        },
+        {
+          "command": "http-file-generator.generateMultipleFiles",
+          "group": "1_generate"
+        }
+      ]
+    },
+    "submenus": [
+      {
+        "id": "http-file-generator.submenu",
+        "label": "HTTP File Generator"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.75.0",
+    "@typescript-eslint/eslint-plugin": "^5.56.0",
+    "@typescript-eslint/parser": "^5.56.0",
+    "@vscode/test-electron": "^2.3.0",
+    "eslint": "^8.36.0",
+    "glob": "^8.1.0",
+    "mocha": "^10.2.0",
+    "typescript": "^5.0.2"
+  },
+  "dependencies": {
+    "child_process": "^1.0.2"
+  }
+}
