@@ -6,6 +6,7 @@
 
 **Merged pull requests:**
 
+- Update dependency Microsoft.NET.Test.Sdk to 17.14.0 [\#197](https://github.com/christianhelle/httpgenerator/pull/197) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to 14.4.0 [\#193](https://github.com/christianhelle/httpgenerator/pull/193) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.0 [\#176](https://github.com/christianhelle/httpgenerator/pull/176) ([renovate[bot]](https://github.com/apps/renovate))
 
@@ -59,7 +60,11 @@
 
 ## [0.7.0](https://github.com/christianhelle/httpgenerator/tree/0.7.0) (2024-10-30)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.7.0-preview.15...0.7.0)
+
+## [0.7.0-preview.15](https://github.com/christianhelle/httpgenerator/tree/0.7.0-preview.15) (2024-10-29)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/0.6.0...0.7.0-preview.15)
 
 **Implemented enhancements:**
 
