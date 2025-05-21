@@ -35,17 +35,19 @@
         {
           "when": "resourceExtname =~ /\\.(json|yaml|yml)$/i",
           "submenu": "http-file-generator.submenu",
-          "group": "navigation"
+          "group": "z_commands"
         }
       ],
       "http-file-generator.submenu": [
         {
           "command": "http-file-generator.generateSingleFile",
-          "group": "1_generate"
+          "group": "1_generate",
+          "title": "Generate single HTTP file"
         },
         {
           "command": "http-file-generator.generateMultipleFiles",
-          "group": "1_generate"
+          "group": "1_generate",
+          "title": "Generate multiple HTTP files (one request per file)"
         }
       ]
     },
