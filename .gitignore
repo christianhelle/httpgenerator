@@ -401,3 +401,7 @@ test/GeneratedCode
 test/openapi.json
 test/openapi.yaml
 *.http
+
+# VS Code Extension build artifacts
+src/VSCode/out/
+*.vsix
