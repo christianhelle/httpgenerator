@@ -39,9 +39,9 @@ jobs:
           npm run compile
           
       - name: Package extension
+        working-directory: src/VSCode
         run: |
-          cd src/VSCode
-          npm install -g vsce
+          npm install -g @vscode/vsce
           vsce package
           
       - name: Upload VSIX as artifact
