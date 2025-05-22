@@ -29,7 +29,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
 
-The generated HTTP files will be created in the same directory as the specification file.
+5. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
 
 ## About HTTP Files
 
