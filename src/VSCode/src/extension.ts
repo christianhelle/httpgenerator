@@ -15,16 +15,17 @@ async function isHttpGeneratorInstalled(): Promise<boolean> {
 }
 
 /**
- * Get the version of the installed httpgenerator tool
+ * Get the version of the installed httpgenerator tool by checking global .NET tools
  */
 async function getInstalledHttpGeneratorVersion(): Promise<string | undefined> {
     return new Promise((resolve) => {
-        child_process.exec('httpgenerator --version', (error, stdout) => {
+        child_process.exec('dotnet tool list -g', (error, stdout) => {
             if (error) {
                 resolve(undefined);
             } else {
-                // Try to extract version number from output
-                const match = stdout.match(/(\d+\.\d+\.\d+)/);
+                // Look for httpgenerator in the installed tools list
+                const toolRegex = /httpgenerator\s+(\d+\.\d+\.\d+)/;
+                const match = stdout.match(toolRegex);
                 resolve(match ? match[1] : undefined);
             }
         });
