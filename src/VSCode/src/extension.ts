@@ -4,17 +4,6 @@ import * as child_process from 'child_process';
 import * as fs from 'fs';
 
 /**
- * Check if the .NET tool httpgenerator is installed
- */
-async function isHttpGeneratorInstalled(): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-        child_process.exec('httpgenerator --version', (error) => {
-            resolve(!error);
-        });
-    });
-}
-
-/**
  * Get the version of the installed httpgenerator tool by checking global .NET tools
  */
 async function getInstalledHttpGeneratorVersion(): Promise<string | undefined> {
