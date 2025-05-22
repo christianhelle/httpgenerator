@@ -6,7 +6,7 @@ Set-Location -Path $PSScriptRoot
 ./build.ps1
 
 # Start VS Code with the extension
-code --install-extension http-file-generator-*.vsix --force
+code --install-extension http-file-generator-0.1.0.vsix --force
 
 # Open the test folder that contains OpenAPI specs
 code $PSScriptRoot/../../test
