@@ -1,6 +1,6 @@
 {
   "name": "http-file-generator",
-  "displayName": "HTTP File Generator",
+  "displayName": "HTTP File Generator for VS Code",
   "description": "Generate .http files from OpenAPI specifications",
   "version": "0.1.0",
   "publisher": "ChristianResmaHelle",
