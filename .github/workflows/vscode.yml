@@ -1,0 +1,51 @@
+name: VS Code
+
+on:
+  push:
+    paths:
+      - 'src/VSCode/**'
+      - '.github/workflows/vscode.yml'
+  workflow_dispatch:
+
+env:
+  VERSION: 1.0.${{ github.run_number }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+        
+      - name: Update Version
+        run: |
+          cd src/VSCode
+          # Use sed to replace the version in package.json
+          sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ env.VERSION }}"/' package.json
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        working-directory: src/VSCode
+        run: |
+          npm install
+          
+      - name: Compile extension
+        working-directory: src/VSCode
+        run: |
+          npm run compile
+          
+      - name: Package extension
+        working-directory: src/VSCode
+        run: |
+          npm install -g @vscode/vsce
+          vsce package
+          
+      - name: Upload VSIX as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VSCode Extension
+          path: src/VSCode/*.vsix
