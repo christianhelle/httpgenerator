@@ -67,8 +67,8 @@ async function installHttpGenerator(forceReinstall = false): Promise<boolean> {
         if (!installedVersion) {
             needsInstall = true;
         } else if (debug || extensionVersion === '0.1.0') {
-            // In debug or 0.1.0, always install latest
-            needsInstall = true;
+            // In debug or 0.1.0, don't update if already installed
+            needsInstall = false;
         } else if (installedVersion !== extensionVersion) {
             needsInstall = true;
         }
