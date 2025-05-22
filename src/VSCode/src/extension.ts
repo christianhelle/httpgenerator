@@ -22,7 +22,8 @@ const MESSAGES = {
     GENERATE_FAILED: 'Failed to generate HTTP files',
     GENERATE_SUCCESS: 'HTTP files generated successfully in',
     PATH_OUTSIDE_WORKSPACE: 'Path must be within the workspace boundaries',
-    PROCESS_ERROR: 'Process execution error'
+    PROCESS_ERROR: 'Process execution error',
+    DIRECTORY_CREATE_ERROR: 'Could not create output directory'
 };
 
 const COMMANDS = {
@@ -36,6 +37,105 @@ const OUTPUT_TYPES = {
     ONE_FILE: 'OneFile',
     ONE_REQUEST_PER_FILE: 'OneRequestPerFile'
 };
+
+/**
+ * Interface for error handling options
+ */
+interface ErrorHandlingOptions {
+    errorPrefix: string;
+    error: unknown;
+    returnValue?: any;
+}
+
+/**
+ * Utility for handling errors consistently
+ * @param options Options for error handling
+ * @returns The provided return value or undefined
+ */
+function handleError<T>(options: ErrorHandlingOptions): T | undefined {
+    const errorMessage = options.error instanceof Error 
+        ? `${options.errorPrefix}: ${options.error.message}`
+        : `${options.errorPrefix}: ${String(options.error)}`;
+    vscode.window.showErrorMessage(errorMessage);
+    return options.returnValue;
+}
+
+/**
+ * Interface for validation results
+ */
+interface ValidationResult {
+    isValid: boolean;
+    errorMessage?: string;
+}
+
+/**
+ * Validates that a path is within the workspace boundaries to prevent path traversal
+ * @param inputPath Path to validate
+ * @returns Validation result object
+ */
+function validatePath(inputPath: string): ValidationResult {
+    // Get all workspace folders
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) {
+        return { isValid: false, errorMessage: MESSAGES.PATH_OUTSIDE_WORKSPACE };
+    }
+    
+    // Normalize the input path to resolve any '..' or '.' segments
+    const normalizedPath = path.normalize(inputPath);
+    
+    // Check if the normalized path is within any workspace folder
+    const isWithinWorkspace = workspaceFolders.some((folder: vscode.WorkspaceFolder) => {
+        const workspacePath = folder.uri.fsPath;
+        return normalizedPath.startsWith(workspacePath);
+    });
+
+    return { 
+        isValid: isWithinWorkspace,
+        errorMessage: isWithinWorkspace ? undefined : MESSAGES.PATH_OUTSIDE_WORKSPACE
+    };
+}
+
+/**
+ * Validates if a file is a supported OpenAPI file type
+ * @param filePath Path to the file
+ * @returns Validation result object
+ */
+function validateFileType(filePath: string): ValidationResult {
+    try {
+        if (!fs.statSync(filePath).isFile()) {
+            return { isValid: false, errorMessage: MESSAGES.UNSUPPORTED_FILE };
+        }
+        
+        const ext = path.extname(filePath).toLowerCase();
+        const isValid = FILE_EXTENSIONS.includes(ext);
+        
+        return { 
+            isValid: isValid,
+            errorMessage: isValid ? undefined : MESSAGES.UNSUPPORTED_FILE
+        };
+    } catch {
+        return { isValid: false, errorMessage: MESSAGES.UNSUPPORTED_FILE };
+    }
+}
+
+/**
+ * Ensures that an output directory exists
+ * @param dirPath Path to the directory
+ * @returns Validation result object
+ */
+function ensureOutputDirectory(dirPath: string): ValidationResult {
+    try {
+        if (!fs.existsSync(dirPath)) {
+            fs.mkdirSync(dirPath, { recursive: true });
+        }
+        return { isValid: true };
+    } catch (error) {
+        return { 
+            isValid: false,
+            errorMessage: `${MESSAGES.DIRECTORY_CREATE_ERROR}: ${error instanceof Error ? error.message : String(error)}` 
+        };
+    }
+}
 
 export function activate(context: vscode.ExtensionContext): void {
     console.log(MESSAGES.EXTENSION_ACTIVE);
@@ -145,11 +245,11 @@ async function installTool(): Promise<boolean> {
         }
         return false;
     } catch (error) {
-        const errorMessage = error instanceof Error 
-            ? `${MESSAGES.INSTALL_ERROR}: ${error.message}`
-            : `${MESSAGES.INSTALL_ERROR}: ${String(error)}`;
-        vscode.window.showErrorMessage(errorMessage);
-        return false;
+        return handleError({ 
+            errorPrefix: MESSAGES.INSTALL_ERROR, 
+            error: error,
+            returnValue: false
+        }) ?? false;
     }
 }
 
@@ -166,28 +266,6 @@ async function findOpenApiFiles(): Promise<vscode.Uri[]> {
 }
 
 /**
- * Validates that a path is within the workspace boundaries to prevent path traversal
- * @param inputPath Path to validate
- * @returns true if the path is within the workspace, false otherwise
- */
-function isPathWithinWorkspace(inputPath: string): boolean {
-    // Get all workspace folders
-    const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders || workspaceFolders.length === 0) {
-        return false;
-    }
-    
-    // Normalize the input path to resolve any '..' or '.' segments
-    const normalizedPath = path.normalize(inputPath);
-    
-    // Check if the normalized path is within any workspace folder
-    return workspaceFolders.some((folder: vscode.WorkspaceFolder) => {
-        const workspacePath = folder.uri.fsPath;
-        return normalizedPath.startsWith(workspacePath);
-    });
-}
-
-/**
  * Handles file selection logic when no file is directly selected
  * @returns Promise resolving to selected file path or undefined if canceled
  */
@@ -200,41 +278,17 @@ async function handleFileSelection(): Promise<string | undefined> {
     }
     
     // Filter files to ensure they're within workspace boundaries
-    const safeFiles = openApiFiles.filter(file => isPathWithinWorkspace(file.fsPath));
+    const safeFiles = openApiFiles.filter(file => validatePath(file.fsPath).isValid);
     
     if (safeFiles.length === 0) {
         vscode.window.showErrorMessage(MESSAGES.NO_OPENAPI_FILES);
         return undefined;
     }
     
-    const selectedFile = await vscode.window.showQuickPick(
+    return vscode.window.showQuickPick(
         safeFiles.map(file => file.fsPath), 
         { placeHolder: MESSAGES.FILE_PICKER_PLACEHOLDER }
     );
-    
-    if (!selectedFile) {
-        return undefined;
-    }
-    
-    return selectedFile;
-}
-
-/**
- * Validates if a file is a supported OpenAPI file type
- * @param filePath Path to the file
- * @returns true if the file has a supported extension, false otherwise
- */
-function isValidOpenApiFile(filePath: string): boolean {
-    try {
-        if (!fs.statSync(filePath).isFile()) {
-            return false;
-        }
-        
-        const ext = path.extname(filePath).toLowerCase();
-        return FILE_EXTENSIONS.includes(ext);
-    } catch {
-        return false;
-    }
 }
 
 /**
@@ -256,13 +310,15 @@ async function generateHttpFile(outputType: string): Promise<void> {
         filePath = fileUri.fsPath;
         
         // Validate path is within workspace boundaries
-        if (!isPathWithinWorkspace(filePath)) {
-            vscode.window.showErrorMessage(MESSAGES.PATH_OUTSIDE_WORKSPACE);
+        const pathValidation = validatePath(filePath);
+        if (!pathValidation.isValid) {
+            vscode.window.showErrorMessage(pathValidation.errorMessage!);
             return;
         }
         
-        if (!isValidOpenApiFile(filePath)) {
-            vscode.window.showErrorMessage(MESSAGES.UNSUPPORTED_FILE);
+        const fileTypeValidation = validateFileType(filePath);
+        if (!fileTypeValidation.isValid) {
+            vscode.window.showErrorMessage(fileTypeValidation.errorMessage!);
             return;
         }
     }
@@ -277,8 +333,9 @@ async function generateHttpFile(outputType: string): Promise<void> {
  */
 async function runGenerator(filePath: string, outputType: string): Promise<void> {
     // Validate paths to prevent path traversal
-    if (!isPathWithinWorkspace(filePath)) {
-        vscode.window.showErrorMessage(MESSAGES.PATH_OUTSIDE_WORKSPACE);
+    const pathValidation = validatePath(filePath);
+    if (!pathValidation.isValid) {
+        vscode.window.showErrorMessage(pathValidation.errorMessage!);
         return;
     }
 
@@ -305,21 +362,16 @@ async function runGenerator(filePath: string, outputType: string): Promise<void>
     }
     
     // Validate output directory path to prevent path traversal
-    if (!isPathWithinWorkspace(outputDir)) {
-        vscode.window.showErrorMessage(MESSAGES.PATH_OUTSIDE_WORKSPACE);
+    const outputPathValidation = validatePath(outputDir);
+    if (!outputPathValidation.isValid) {
+        vscode.window.showErrorMessage(outputPathValidation.errorMessage!);
         return;
     }
     
     // Ensure directory exists
-    try {
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
-    } catch (error) {
-        const errorMessage = error instanceof Error 
-            ? `${MESSAGES.GENERATE_ERROR}: ${error.message}`
-            : `${MESSAGES.GENERATE_ERROR}: ${String(error)}`;
-        vscode.window.showErrorMessage(errorMessage);
+    const dirValidation = ensureOutputDirectory(outputDir);
+    if (!dirValidation.isValid) {
+        vscode.window.showErrorMessage(dirValidation.errorMessage!);
         return;
     }
     
@@ -338,10 +390,10 @@ async function runGenerator(filePath: string, outputType: string): Promise<void>
             successMessage: `${MESSAGES.GENERATE_SUCCESS} ${outputDir}`
         });
     } catch (error) {
-        const errorMessage = error instanceof Error 
-            ? `${MESSAGES.GENERATE_FAILED}: ${error.message}`
-            : `${MESSAGES.GENERATE_FAILED}: ${String(error)}`;
-        vscode.window.showErrorMessage(errorMessage);
+        handleError({ 
+            errorPrefix: MESSAGES.GENERATE_FAILED, 
+            error: error 
+        });
     }
 }
 

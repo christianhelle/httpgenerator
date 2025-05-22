@@ -23,11 +23,13 @@
     "commands": [
       {
         "command": "http-file-generator.generateSingleFile",
-        "title": "HTTP File Generator: Generate single HTTP file"
+        "title": "HTTP File Generator: Generate single HTTP file",
+        "shortTitle": "Generate single HTTP file"
       },
       {
         "command": "http-file-generator.generateMultipleFiles",
-        "title": "HTTP File Generator: Generate multiple HTTP files (one request per file)"
+        "title": "HTTP File Generator: Generate multiple HTTP files (one request per file)",
+        "shortTitle": "Generate multiple HTTP files (one request per file)"
       }
     ],
     "menus": {
@@ -41,13 +43,11 @@
       "http-file-generator.submenu": [
         {
           "command": "http-file-generator.generateSingleFile",
-          "group": "1_generate",
-          "title": "Generate single HTTP file"
+          "group": "1_generate"
         },
         {
           "command": "http-file-generator.generateMultipleFiles",
-          "group": "1_generate",
-          "title": "Generate multiple HTTP files (one request per file)"
+          "group": "1_generate"
         }
       ]
     },
