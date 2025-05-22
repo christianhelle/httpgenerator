@@ -55,6 +55,30 @@ function isDebugMode(): boolean {
  * Install or update the httpgenerator .NET tool to match the extension version
  */
 async function installHttpGenerator(forceReinstall = false): Promise<boolean> {
+    // Check if installation is actually needed (unless forceReinstall is true)
+    if (!forceReinstall) {
+        const extensionVersion = getExtensionVersion();
+        const debug = isDebugMode();
+        const installedVersion = await getInstalledHttpGeneratorVersion();
+        
+        // Determine if installation is needed
+        let needsInstall = false;
+        if (!installedVersion) {
+            needsInstall = true;
+        } else if (debug || extensionVersion === '0.1.0') {
+            // In debug or 0.1.0, always install latest
+            needsInstall = true;
+        } else if (installedVersion !== extensionVersion) {
+            needsInstall = true;
+        }
+        
+        if (!needsInstall) {
+            // No installation needed
+            return true;
+        }
+    }
+    
+    // Only show prompt if installation is actually needed
     const installOption = 'Install';
     const cancelOption = 'Cancel';
 
@@ -80,7 +104,7 @@ async function installHttpGenerator(forceReinstall = false): Promise<boolean> {
         // Always try to uninstall first to ensure correct version
         const terminal = vscode.window.createTerminal('Install HttpGenerator');
         terminal.show();
-        terminal.sendText('dotnet tool uninstall --global httpgenerator || true');
+        terminal.sendText('dotnet tool uninstall --global httpgenerator');
         terminal.sendText(installCmd);
         // Wait for the installation to complete
         await new Promise(resolve => setTimeout(resolve, 7000));
@@ -100,27 +124,11 @@ async function installHttpGenerator(forceReinstall = false): Promise<boolean> {
  * Execute the httpgenerator tool
  */
 async function executeHttpGenerator(filePath: string, outputType: string): Promise<void> {
-    const extensionVersion = getExtensionVersion();
-    const debug = isDebugMode();
-    let installedVersion = await getInstalledHttpGeneratorVersion();
-
-    // Always re-install to ensure version match
-    let needsInstall = false;
-    if (!installedVersion) {
-        needsInstall = true;
-    } else if (debug || extensionVersion === '0.1.0') {
-        // In debug or 0.1.0, always install latest
-        needsInstall = true;
-    } else if (installedVersion !== extensionVersion) {
-        needsInstall = true;
-    }
-
-    if (needsInstall) {
-        const installed = await installHttpGenerator(true);
-        if (!installed) {
-            vscode.window.showErrorMessage('The httpgenerator tool is required but was not installed.');
-            return;
-        }
+    // Attempt installation if needed, this will only prompt if actually necessary
+    const installed = await installHttpGenerator();
+    if (!installed) {
+        vscode.window.showErrorMessage('The httpgenerator tool is required but was not installed.');
+        return;
     }
 
     // Get the folder where the file is located to use as output directory
