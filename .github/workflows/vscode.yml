@@ -29,13 +29,13 @@ jobs:
           node-version: '22'
           
       - name: Install dependencies
+        working-directory: src/VSCode
         run: |
-          cd src/VSCode
           npm install
           
       - name: Compile extension
+        working-directory: src/VSCode
         run: |
-          cd src/VSCode
           npm run compile
           
       - name: Package extension
