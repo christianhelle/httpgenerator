@@ -132,15 +132,26 @@ async function executeHttpGenerator(filePath: string, outputType: string): Promi
         return;
     }
 
-    // Get the folder where the file is located to use as output directory
-    const workspaceFolder = path.dirname(filePath);
+    // Create default output folder suggestion (HttpFiles subfolder)
+    const inputFileDir = path.dirname(filePath);
+    const defaultOutputFolder = path.join(inputFileDir, 'HttpFiles');
 
-    // Create a terminal to execute the command
+    // Prompt for output folder with default suggestion
+    const outputFolder = await vscode.window.showInputBox({
+        prompt: 'Select output folder',
+        value: defaultOutputFolder,
+        valueSelection: undefined
+    });
+    
+    // User cancelled the operation
+    if (!outputFolder) {
+        return;
+    }    // Create a terminal to execute the command
     const terminal = vscode.window.createTerminal('HTTP File Generator');
     terminal.show();
 
     // Execute the httpgenerator command
-    const command = `httpgenerator "${filePath}" --output "${workspaceFolder}" --output-type ${outputType}`;
+    const command = `httpgenerator "${filePath}" --output "${outputFolder}" --output-type ${outputType}`;
     terminal.sendText(command);
 }
 
