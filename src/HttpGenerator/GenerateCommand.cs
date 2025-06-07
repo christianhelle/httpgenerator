@@ -20,11 +20,7 @@ public class GenerateCommand : AsyncCommand<Settings>
         try
         {
             var stopwatch = Stopwatch.StartNew();
-            AnsiConsole.MarkupLine($"[green]HTTP File Generator v{GetType().Assembly.GetName().Version!}[/]");
-            AnsiConsole.MarkupLine(
-                settings.NoLogging
-                    ? "[green]Support key: Unavailable when logging is disabled[/]"
-                    : $"[green]Support key: {SupportInformation.GetSupportKey()}[/]");
+            DisplayHeader(settings);
 
             if (!settings.SkipValidation)
                 await ValidateOpenApiSpec(settings);
@@ -44,12 +40,11 @@ public class GenerateCommand : AsyncCommand<Settings>
                 GenerateIntelliJTests = settings.GenerateIntelliJTests,
                 CustomHeaders = settings.CustomHeaders,
             };
-
             var result = await HttpFileGenerator.Generate(generatorSettings);
             await Analytics.LogFeatureUsage(settings);
             await WriteFiles(settings, result);
 
-            AnsiConsole.MarkupLine($"[green]Duration: {stopwatch.Elapsed}{Crlf}[/]");
+            DisplaySuccess(stopwatch.Elapsed);
             return 0;
         }
         catch (OpenApiUnsupportedSpecVersionException exception)
@@ -91,21 +86,24 @@ public class GenerateCommand : AsyncCommand<Settings>
     [ExcludeFromCodeCoverage]
     private static async Task WriteFiles(Settings settings, GeneratorResult result)
     {
-        AnsiConsole.MarkupLine($"[green]Writing {result.Files.Count} file(s)[/]");
+        DisplayFileWritingHeader(result.Files.Count);
 
         if (!string.IsNullOrWhiteSpace(settings.OutputFolder) && !Directory.Exists(settings.OutputFolder))
             Directory.CreateDirectory(settings.OutputFolder);
-            
+
         var timeout = Task.Delay(TimeSpan.FromSeconds(settings.Timeout));
         var writeFiles = Task.WhenAll(
-            result.Files.Select(
-                file => File.WriteAllTextAsync(
-                    Path.Combine(settings.OutputFolder, file.Filename),
-                    file.Content)));
+            result.Files.Select(file => File.WriteAllTextAsync(
+                Path.Combine(settings.OutputFolder, file.Filename),
+                file.Content)));
 
         if (timeout == await Task.WhenAny(timeout, writeFiles))
         {
-            AnsiConsole.MarkupLine($"[red]Operation timed out :([/]");
+            AnsiConsole.MarkupLine($"{Crlf}[red]❌ Operation timed out[/]");
+        }
+        else
+        {
+            DisplayFilesWritten(result.Files, settings.OutputFolder);
         }
     }
 
@@ -120,7 +118,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 
         try
         {
-            AnsiConsole.MarkupLine($"[green]Acquiring authorization header from Azure Entra ID[/]{Crlf}");
+            AnsiConsole.MarkupLine($"[cyan]🔐 Acquiring authorization header from Azure Entra ID...[/]");
             using var listener = AzureEventSourceListener.CreateConsoleLogger();
             var token = await AzureEntraID
                 .TryGetAccessTokenAsync(
@@ -131,7 +129,7 @@ public class GenerateCommand : AsyncCommand<Settings>
             if (!string.IsNullOrWhiteSpace(token))
             {
                 settings.AuthorizationHeader = $"Bearer {token}";
-                AnsiConsole.MarkupLine($"{Crlf}[green]Successfully acquired access token[/]{Crlf}");
+                AnsiConsole.MarkupLine($"[green]✅ Successfully acquired access token[/]{Crlf}");
             }
         }
         catch (Exception exception)
@@ -142,11 +140,12 @@ public class GenerateCommand : AsyncCommand<Settings>
 
     private static async Task ValidateOpenApiSpec(Settings settings)
     {
+        AnsiConsole.MarkupLine("[cyan]🔍 Validating OpenAPI specification...[/]");
         var validationResult = await OpenApiValidator.Validate(settings.OpenApiPath!);
         WriteValidationResults(validationResult);
         validationResult.ThrowIfInvalid();
 
-        AnsiConsole.MarkupLine($"[green]{Crlf}OpenAPI statistics:{Crlf}{validationResult.Statistics}{Crlf}[/]");
+        DisplayOpenApiStatistics(validationResult.Statistics);
     }
 
     [ExcludeFromCodeCoverage]
@@ -188,8 +187,98 @@ public class GenerateCommand : AsyncCommand<Settings>
             };
 
             Console.WriteLine($"{label}:{Crlf}{error}{Crlf}");
-
             Console.ForegroundColor = originalColor;
         }
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void DisplayHeader(Settings settings)
+    {
+        var version = typeof(GenerateCommand).Assembly.GetName().Version!;
+
+        // Create a panel with the application header
+        var panel = new Panel(new Markup($"[bold blue]🚀 HTTP File Generator[/] [dim]v{version}[/]"))
+        {
+            Border = BoxBorder.Rounded,
+            BorderStyle = new Style(Color.Blue),
+            Padding = new Padding(1, 0, 1, 0)
+        };
+
+        AnsiConsole.Write(panel);
+
+        // Support key information
+        var supportKey = settings.NoLogging
+            ? "[yellow]⚠️  Unavailable when logging is disabled[/]"
+            : $"[green]🔑 {SupportInformation.GetSupportKey()}[/]";
+
+        AnsiConsole.MarkupLine($"Support key: {supportKey}");
+        AnsiConsole.WriteLine();
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void DisplayOpenApiStatistics(OpenApiStats statistics)
+    {
+        AnsiConsole.MarkupLine("[green]✅ OpenAPI specification validated successfully[/]");
+
+        var table = new Table()
+        {
+            Border = TableBorder.Rounded,
+            BorderStyle = new Style(Color.Green)
+        };
+
+        table.AddColumn(new TableColumn("[bold]📊 OpenAPI Statistics[/]").LeftAligned());
+        table.AddColumn(new TableColumn("[bold]Count[/]").LeftAligned());
+
+        table.AddRow("📝 Path Items", $"[cyan]{statistics.PathItemCount}[/]");
+        table.AddRow("⚡ Operations", $"[cyan]{statistics.OperationCount}[/]");
+        table.AddRow("📝 Parameters", $"[cyan]{statistics.ParameterCount}[/]");
+        table.AddRow("📤 Request Bodies", $"[cyan]{statistics.RequestBodyCount}[/]");
+        table.AddRow("📥 Responses", $"[cyan]{statistics.ResponseCount}[/]");
+        table.AddRow("🔗 Links", $"[cyan]{statistics.LinkCount}[/]");
+        table.AddRow("📞 Callbacks", $"[cyan]{statistics.CallbackCount}[/]");
+        table.AddRow("📋 Schemas", $"[cyan]{statistics.SchemaCount}[/]");
+
+        AnsiConsole.Write(table);
+        AnsiConsole.WriteLine();
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void DisplayFileWritingHeader(int fileCount)
+    {
+        var rule = new Rule($"[yellow]📁 Writing {fileCount} file(s)[/]")
+        {
+            Style = Style.Parse("yellow"),
+            Justification = Justify.Left
+        };
+        AnsiConsole.Write(rule);
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void DisplayFilesWritten(IReadOnlyCollection<HttpFile> files, string outputFolder)
+    {
+        AnsiConsole.MarkupLine("[green]✅ Files written successfully:[/]");
+
+        foreach (var file in files)
+        {
+            var fullPath = Path.Combine(outputFolder, file.Filename);
+            AnsiConsole.MarkupLine($"   [dim]📄[/] [link]{fullPath}[/]");
+        }
+
+        AnsiConsole.WriteLine();
+    }
+
+    [ExcludeFromCodeCoverage]
+    private static void DisplaySuccess(TimeSpan duration)
+    {
+        var successPanel = new Panel(new Markup($"[bold green]🎉 Generation completed successfully![/]"))
+        {
+            Border = BoxBorder.Rounded,
+            BorderStyle = new Style(Color.Green),
+            Padding = new Padding(1, 0, 1, 0)
+        };
+
+        AnsiConsole.Write(successPanel);
+        AnsiConsole.MarkupLine($"[dim]⏱️  Duration: {duration:mm\\:ss\\.fff}[/]");
+        AnsiConsole.WriteLine();
     }
 }
