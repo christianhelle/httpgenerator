@@ -18,6 +18,8 @@ internal static class Program
             };
         }
 
+        System.Console.OutputEncoding = System.Text.Encoding.UTF8;
+
         var app = new CommandApp<GenerateCommand>();
         app.Configure(
             configuration =>
