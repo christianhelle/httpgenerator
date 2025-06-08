@@ -4,8 +4,25 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.0...HEAD)
 
+**Implemented enhancements:**
+
+- Visual Studio Code Extension [\#195](https://github.com/christianhelle/httpgenerator/issues/195)
+- Fancy CLI output using Spectre Console [\#209](https://github.com/christianhelle/httpgenerator/pull/209) ([christianhelle](https://github.com/christianhelle))
+- Visual Studio Code Extension [\#198](https://github.com/christianhelle/httpgenerator/pull/198) ([christianhelle](https://github.com/christianhelle))
+
+**Closed issues:**
+
+- VSIX build is failing [\#210](https://github.com/christianhelle/httpgenerator/issues/210)
+
 **Merged pull requests:**
 
+- Fix VSIX build workflows by switching from dotnet restore to msbuild restore [\#211](https://github.com/christianhelle/httpgenerator/pull/211) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Create comprehensive contribution guidelines document [\#206](https://github.com/christianhelle/httpgenerator/pull/206) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Update dependency @types/node to v22.15.23 [\#203](https://github.com/christianhelle/httpgenerator/pull/203) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.15.22 [\#202](https://github.com/christianhelle/httpgenerator/pull/202) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency typescript to v5 [\#201](https://github.com/christianhelle/httpgenerator/pull/201) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency node to v22 [\#200](https://github.com/christianhelle/httpgenerator/pull/200) ([renovate[bot]](https://github.com/apps/renovate))
+- Update actions/setup-node action to v4 [\#199](https://github.com/christianhelle/httpgenerator/pull/199) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.NET.Test.Sdk to 17.14.0 [\#197](https://github.com/christianhelle/httpgenerator/pull/197) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to 14.4.0 [\#193](https://github.com/christianhelle/httpgenerator/pull/193) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.0 [\#176](https://github.com/christianhelle/httpgenerator/pull/176) ([renovate[bot]](https://github.com/apps/renovate))
