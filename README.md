@@ -82,23 +82,7 @@ httpgenerator https://petstore.swagger.io/v2/swagger.json
 
 Outputs the following:
 
-```
-HTTP File Generator v0.1.5
-Support key: mbmbqvd
-
-OpenAPI statistics:
- - Path Items: 14
- - Operations: 20
- - Parameters: 14
- - Request Bodies: 9
- - Responses: 20
- - Links: 0
- - Callbacks: 0
- - Schemas: 67
-
-Files: 20
-Duration: 00:00:02.3089450
-```
+![CLI Output](https://github.com/christianhelle/httpgenerator/raw/main/images/httpgenerator-output.png)
 
 Which will produce the following files:
 
