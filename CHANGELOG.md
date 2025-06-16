@@ -16,8 +16,11 @@
 
 **Merged pull requests:**
 
+- Update dependency @types/node to v22.15.32 [\#214](https://github.com/christianhelle/httpgenerator/pull/214) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.Extensions.Azure to 1.12.0 [\#213](https://github.com/christianhelle/httpgenerator/pull/213) ([renovate[bot]](https://github.com/apps/renovate))
 - Fix VSIX build workflows by switching from dotnet restore to msbuild restore [\#211](https://github.com/christianhelle/httpgenerator/pull/211) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Create comprehensive contribution guidelines document [\#206](https://github.com/christianhelle/httpgenerator/pull/206) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Update dependency @types/node to v22.15.31 [\#204](https://github.com/christianhelle/httpgenerator/pull/204) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.15.23 [\#203](https://github.com/christianhelle/httpgenerator/pull/203) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.15.22 [\#202](https://github.com/christianhelle/httpgenerator/pull/202) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency typescript to v5 [\#201](https://github.com/christianhelle/httpgenerator/pull/201) ([renovate[bot]](https://github.com/apps/renovate))
