@@ -27,6 +27,7 @@
 - Update dependency node to v22 [\#200](https://github.com/christianhelle/httpgenerator/pull/200) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/setup-node action to v4 [\#199](https://github.com/christianhelle/httpgenerator/pull/199) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.NET.Test.Sdk to 17.14.0 [\#197](https://github.com/christianhelle/httpgenerator/pull/197) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency System.Text.Json to 9.0.6 [\#194](https://github.com/christianhelle/httpgenerator/pull/194) ([renovate[bot]](https://github.com/apps/renovate))
 - Update nswag monorepo to 14.4.0 [\#193](https://github.com/christianhelle/httpgenerator/pull/193) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.0 [\#176](https://github.com/christianhelle/httpgenerator/pull/176) ([renovate[bot]](https://github.com/apps/renovate))
 
