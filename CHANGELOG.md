@@ -18,7 +18,10 @@
 
 - Update dependency @types/node to v22.15.32 [\#214](https://github.com/christianhelle/httpgenerator/pull/214) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to 1.12.0 [\#213](https://github.com/christianhelle/httpgenerator/pull/213) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/vscode to v1.101.0 [\#212](https://github.com/christianhelle/httpgenerator/pull/212) ([renovate[bot]](https://github.com/apps/renovate))
 - Fix VSIX build workflows by switching from dotnet restore to msbuild restore [\#211](https://github.com/christianhelle/httpgenerator/pull/211) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Update dependency xunit.runner.visualstudio to 3.1.1 [\#208](https://github.com/christianhelle/httpgenerator/pull/208) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.NET.Test.Sdk to 17.14.1 [\#207](https://github.com/christianhelle/httpgenerator/pull/207) ([renovate[bot]](https://github.com/apps/renovate))
 - Create comprehensive contribution guidelines document [\#206](https://github.com/christianhelle/httpgenerator/pull/206) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Update dependency @types/node to v22.15.31 [\#204](https://github.com/christianhelle/httpgenerator/pull/204) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.15.23 [\#203](https://github.com/christianhelle/httpgenerator/pull/203) ([renovate[bot]](https://github.com/apps/renovate))
