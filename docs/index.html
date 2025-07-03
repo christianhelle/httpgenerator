@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTTP File Generator - Generate .http files from OpenAPI specifications</title>
+    <meta name="description" content="Generate .http files from OpenAPI specifications. Compatible with REST Client, JetBrains IDEs, and Visual Studio 2022.">
+    <link rel="icon" type="image/png" href="../images/icon.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <img src="../images/icon.png" alt="HTTP File Generator" class="logo-icon">
+                    <span class="logo-text">HTTP File Generator</span>
+                </div>
+                <nav class="nav">
+                    <a href="#installation" class="nav-link">Installation</a>
+                    <a href="#usage" class="nav-link">Usage</a>
+                    <a href="#extension" class="nav-link">VS Extension</a>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="hero">
+                <div class="badges">
+                    <a href="https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml" class="badge">
+                        <img src="https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg" alt="Build Status">
+                    </a>
+                    <a href="https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml" class="badge">
+                        <img src="https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg" alt="Smoke Tests">
+                    </a>
+                    <a href="https://www.nuget.org/packages/httpgenerator" class="badge">
+                        <img src="https://img.shields.io/nuget/v/httpgenerator?color=blue" alt="NuGet">
+                    </a>
+                    <a href="https://sonarcloud.io/summary/new_code?id=christianhelle_httpgenerator" class="badge">
+                        <img src="https://sonarcloud.io/api/project_badges/measure?project=christianhelle_httpgenerator&metric=alert_status" alt="Quality Gate Status">
+                    </a>
+                    <a href="https://codecov.io/gh/christianhelle/httpgenerator" class="badge">
+                        <img src="https://codecov.io/gh/christianhelle/httpgenerator/graph/badge.svg?token=YeSFnn0bH6" alt="Code Coverage">
+                    </a>
+                </div>
+                <h1 class="hero-title">HTTP File Generator</h1>
+                <p class="hero-subtitle">Generate .http files from OpenAPI specifications</p>
+                <p class="hero-description">
+                    <code>.http</code> files were made popular by the Visual Studio Code extension 
+                    <a href="https://marketplace.visualstudio.com/items?itemName=humao.rest-client">REST Client</a>, 
+                    which then was adopted by JetBrains IDE's, and later on 
+                    <a href="https://marketplace.visualstudio.com/items?itemName=MadsKristensen.RestClient">Visual Studio 2022</a>
+                </p>
+            </section>
+
+            <!-- Installation Section -->
+            <section id="installation" class="section">
+                <h2 class="section-title">Installation</h2>
+                <p>This tool is distributed as a .NET Tool on NuGet.org</p>
+                <p>To install, simply use the following command:</p>
+                <div class="code-block">
+                    <pre><code>dotnet tool install --global httpgenerator</code></pre>
+                </div>
+            </section>
+
+            <!-- Usage Section -->
+            <section id="usage" class="section">
+                <h2 class="section-title">Usage</h2>
+                <div class="code-block">
+                    <pre><code>USAGE:
+    httpgenerator [URL or input file] [OPTIONS]
+
+EXAMPLES:
+    httpgenerator ./openapi.json
+    httpgenerator ./openapi.json --output ./
+    httpgenerator ./openapi.json --output-type onefile
+    httpgenerator https://petstore.swagger.io/v2/swagger.json
+    httpgenerator https://petstore3.swagger.io/api/v3/openapi.json --base-url https://petstore3.swagger.io
+    httpgenerator ./openapi.json --authorization-header Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9c
+    httpgenerator ./openapi.json --azure-scope [Some Application ID URI]/.default
+    httpgenerator ./openapi.json --generate-intellij-tests
+    httpgenerator ./openapi.json --custom-header X-Custom-Header: Value --custom-header X-Another-Header: AnotherValue
+
+ARGUMENTS:
+    [URL or input file]    URL or file path to OpenAPI Specification file
+
+OPTIONS:
+                                                                DEFAULT
+    -h, --help                                                                       Prints help information
+    -v, --version                                                                    Prints version information
+    -o, --output &lt;o&gt;                                       ./                   Output directory
+        --no-logging                                                                 Don't log errors or collect telemetry
+        --skip-validation                                                            Skip validation of OpenAPI Specification file
+        --authorization-header &lt;HEADER&gt;                                              Authorization header to use for all requests
+        --load-authorization-header-from-environment                                 Load the authorization header from an environment variable or define it in the
+                                                                                     .http file. You can use --authorization-header-variable-name to specify the
+                                                                                     environment variable name
+        --authorization-header-variable-name &lt;VARIABLE-NAME&gt;    authorization        Name of the environment variable to load the authorization header from
+        --content-type &lt;CONTENT-TYPE&gt;                           application/json     Default Content-Type header to use for all requests
+        --base-url &lt;BASE-URL&gt;                                                        Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't
+                                                                                     explicitly specify a server URL
+        --output-type &lt;OUTPUT-TYPE&gt;                             OneRequestPerFile    OneRequestPerFile generates one .http file per request. OneFile generates a
+                                                                                     single .http file for all requests. OneFilePerTag generates one .http file per
+                                                                                     first tag associated with each request
+        --azure-scope &lt;SCOPE&gt;                                                        Azure Entra ID Scope to use for retrieving Access Token for Authorization header
+        --azure-tenant-id &lt;TENANT-ID&gt;                                                Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization
+                                                                                     header
+        --timeout &lt;SECONDS&gt;                                     120                  Timeout (in seconds) for writing files to disk
+        --generate-intellij-tests                                                    Generate IntelliJ tests that assert whether the response status code is 200
+        --custom-header                                                              Add custom HTTP headers to the generated request</code></pre>
+                </div>
+
+                <h3>Example Output</h3>
+                <p>Running the following command:</p>
+                <div class="code-block">
+                    <pre><code>httpgenerator https://petstore.swagger.io/v2/swagger.json</code></pre>
+                </div>
+                
+                <p>Outputs the following:</p>
+                <div class="image-container">
+                    <img src="../images/httpgenerator-output.png" alt="CLI Output" class="screenshot">
+                </div>
+
+                <p>Which will produce the following files:</p>
+                <div class="code-block">
+                    <pre><code>-rw-r--r-- 1 christian 197121  593 Dec 10 10:44 DeleteOrder.http        
+-rw-r--r-- 1 christian 197121  231 Dec 10 10:44 DeletePet.http
+-rw-r--r-- 1 christian 197121  358 Dec 10 10:44 DeleteUser.http
+-rw-r--r-- 1 christian 197121  432 Dec 10 10:44 GetFindPetsByStatus.http
+-rw-r--r-- 1 christian 197121  504 Dec 10 10:44 GetFindPetsByTags.http  
+-rw-r--r-- 1 christian 197121  371 Dec 10 10:44 GetInventory.http       
+-rw-r--r-- 1 christian 197121  247 Dec 10 10:44 GetLoginUser.http       
+-rw-r--r-- 1 christian 197121  291 Dec 10 10:44 GetLogoutUser.http      
+-rw-r--r-- 1 christian 197121  540 Dec 10 10:44 GetOrderById.http
+-rw-r--r-- 1 christian 197121  275 Dec 10 10:44 GetPetById.http
+-rw-r--r-- 1 christian 197121  245 Dec 10 10:44 GetUserByName.http
+-rw-r--r-- 1 christian 197121  513 Dec 10 10:44 PostAddPet.http
+-rw-r--r-- 1 christian 197121  521 Dec 10 10:44 PostCreateUser.http
+-rw-r--r-- 1 christian 197121  610 Dec 10 10:44 PostCreateUsersWithListInput.http
+-rw-r--r-- 1 christian 197121  464 Dec 10 10:44 PostPlaceOrder.http
+-rw-r--r-- 1 christian 197121  299 Dec 10 10:44 PostUpdatePetWithForm.http
+-rw-r--r-- 1 christian 197121  274 Dec 10 10:44 PostUploadFile.http
+-rw-r--r-- 1 christian 197121  513 Dec 10 10:44 PutUpdatePet.http
+-rw-r--r-- 1 christian 197121  541 Dec 10 10:44 PutUpdateUser.http</code></pre>
+                </div>
+
+                <h3>Generated File Examples</h3>
+                <p>In this example, the contents of <code>PostAddPet.http</code> looks like this:</p>
+                <div class="code-block">
+                    <pre><code>@contentType = application/json
+
+#############################################
+### Request: POST /pet
+### Summary: Add a new pet to the store
+### Description: Add a new pet to the store
+#############################################
+
+POST https://petstore3.swagger.io/api/v3/pet
+Content-Type: {{contentType}}
+
+{
+  "id": 0,
+  "name": "name",
+  "category": {
+    "id": 0,
+    "name": "name"
+  },
+  "photoUrls": [
+    ""
+  ],
+  "tags": [
+    {
+      "id": 0,
+      "name": "name"
+    }
+  ],
+  "status": "available"
+}</code></pre>
+                </div>
+
+                <p>and the contents of <code>GetPetById.http</code> looks like this:</p>
+                <div class="code-block">
+                    <pre><code>@contentType = application/json
+
+#######################################
+### Request: GET /pet/{petId}
+### Summary: Find pet by ID
+### Description: Returns a single pet
+#######################################
+
+### Path Parameter: ID of pet to return
+@petId = 0
+
+GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
+Content-Type: {{contentType}}</code></pre>
+                </div>
+
+                <h3>Azure Integration</h3>
+                <p>Here's an advanced example of generating <code>.http</code> files for a REST API hosted on Microsoft Azure that uses the Microsoft Entra ID service as an STS. For this example, I use PowerShell and Azure CLI to retrieve an access token for the user I'm currently logged in with.</p>
+                <div class="code-block">
+                    <pre><code>az account get-access-token --scope [Some Application ID URI]/.default `
+| ConvertFrom-Json `
+| %{
+    httpgenerator `
+        https://api.example.com/swagger/v1/swagger.json `
+        --authorization-header ("Bearer " + $_.accessToken) `
+        --base-url https://api.example.com `
+        --output ./HttpFiles 
+}</code></pre>
+                </div>
+
+                <p>You can also use the <code>--azure-scope</code> and <code>azure-tenant-id</code> arguments internally use <code>DefaultAzureCredentials</code> from the <code>Microsoft.Extensions.Azure</code> NuGet package to retrieve an access token for the specified <code>scope</code>.</p>
+                <div class="code-block">
+                    <pre><code>httpgenerator `
+  https://api.example.com/swagger/v1/swagger.json `
+  --azure-scope [Some Application ID URI]/.default `
+  --base-url https://api.example.com `
+  --output ./HttpFiles</code></pre>
+                </div>
+            </section>
+
+            <!-- Error Logging Section -->
+            <section class="section">
+                <h2 class="section-title">Error Logging, Telemetry, and Privacy</h2>
+                <p>This tool collects errors and tracks features usages to service called <a href="https://exceptionless.com/">Exceptionless</a></p>
+                <p>By default, error logging and telemetry collection is enabled but it is possible to <strong>opt-out</strong> by using the <code>--no-logging</code> CLI argument.</p>
+                <p>User tracking is done anonymously using the <strong>Support key</strong> shown when running the tool and a generated anonymous identity based on a secure hash algorithm of username@host.</p>
+                
+                <div class="code-block">
+                    <pre><code>HTTP File Generator v0.1.5
+Support key: mbmbqvd</code></pre>
+                </div>
+
+                <p>The support key is just the first 7 characters of the generated anonymous identity</p>
+                
+                <div class="image-grid">
+                    <div class="image-container">
+                        <img src="../images/exceptionless-overview.png" alt="Exceptionless Overview" class="screenshot">
+                    </div>
+                    <div class="image-container">
+                        <img src="../images/exceptionless-exception.png" alt="Exceptionless Exception" class="screenshot">
+                    </div>
+                </div>
+
+                <p>The <code>--authorization-header</code> value is <strong><code>[REDACTED]</code></strong> and the same goes for all personal identifiable information like the IP address, machine name, and file system folders</p>
+                
+                <div class="image-container">
+                    <img src="../images/exceptionless-environment.png" alt="Exceptionless Environment" class="screenshot">
+                </div>
+
+                <p>It's important to know that no <strong>support key</strong> will be generated if you opt-out from telemetry collection and that the Exceptionless SDK will be completely disabled.</p>
+            </section>
+
+            <!-- Visual Studio Extension Section -->
+            <section id="extension" class="section">
+                <h2 class="section-title">Visual Studio 2022 Extension</h2>
+                <p>This tool is also available as a <a href="https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.HttpGenerator">Visual Studio 2022 extension</a></p>
+                
+                <p>From the <strong>Tools</strong> menu select <strong>Generate .http files</strong></p>
+                <div class="image-container">
+                    <img src="../images/vsix_tools.png" alt="Tools menu" class="screenshot">
+                </div>
+
+                <p>This opens the main dialog which has similar input fields as the CLI tool</p>
+                <div class="image-container">
+                    <img src="../images/vsix_httpgenerator_dialog.png" alt="Main dialog" class="screenshot">
+                </div>
+
+                <p>You can acquire an Azure Entra ID access token by clicking on the <code>...</code> button beside the <strong>Authorization Headers</strong> input field</p>
+                <div class="image-container">
+                    <img src="../images/vsix_azure_entra_id.png" alt="Acquire Azure Entra ID access token" class="screenshot">
+                </div>
+
+                <p>By default, the <strong>Output folder</strong> is pre-filled with the path of the currently active C# Project in the Solution Explorer, suffixed with <strong>\HttpFiles</strong></p>
+                <div class="image-container">
+                    <img src="../images/vsix_solution_explorer.png" alt="Solution explorer" class="screenshot">
+                </div>
+
+                <p>Once the .http files are generated you can easily open and inspect them</p>
+                <div class="image-container">
+                    <img src="../images/vsix_http_file.png" alt=".http file" class="screenshot">
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <p>For tips and tricks on software development, check out <a href="https://christianhelle.com">my blog</a></p>
+                <p>If you find this useful and feel a bit generous then feel free to <a href="https://www.buymeacoffee.com/christianhelle">buy me a coffee ☕</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
