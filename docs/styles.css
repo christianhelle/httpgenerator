@@ -286,12 +286,13 @@ body {
 }
 
 .code-block code {
-  color: #e6e6e6;
-  background: transparent;
-  padding: 0;
-  border: none;
-  border-radius: 0;
-  box-shadow: none;
+  color: #e6e6e6 !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-size: inherit !important;
 }
 
 /* Dark theme adjustments for terminal */
@@ -311,7 +312,12 @@ body {
 }
 
 [data-theme="dark"] .code-block code {
-  color: #f0f6fc;
+  color: #f0f6fc !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 /* Images */
@@ -365,8 +371,16 @@ a:hover {
   text-decoration: underline;
 }
 
-/* Inline code */
-code {
+/* Inline code - but not in code blocks */
+p code,
+h1 code,
+h2 code,
+h3 code,
+h4 code,
+h5 code,
+h6 code,
+li code,
+.hero-description code {
   background-color: #2a2a2a;
   color: #e6e6e6;
   padding: 0.2rem 0.4rem;
@@ -378,7 +392,14 @@ code {
 }
 
 /* Dark theme inline code */
-[data-theme="dark"] code {
+[data-theme="dark"] p code,
+[data-theme="dark"] h1 code,
+[data-theme="dark"] h2 code,
+[data-theme="dark"] h3 code,
+[data-theme="dark"] h4 code,
+[data-theme="dark"] h5 code,
+[data-theme="dark"] h6 code,
+[data-theme="dark"] li code {
   background-color: #21262d;
   color: #f0f6fc;
   border: 1px solid #30363d;
