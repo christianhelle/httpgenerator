@@ -12,10 +12,18 @@
 
 **Closed issues:**
 
+- Create Static Documentation Website from README [\#218](https://github.com/christianhelle/httpgenerator/issues/218)
 - VSIX build is failing [\#210](https://github.com/christianhelle/httpgenerator/issues/210)
 
 **Merged pull requests:**
 
+- Update dependency xunit.runner.visualstudio to 3.1.3 [\#225](https://github.com/christianhelle/httpgenerator/pull/225) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/vscode to v1.102.0 [\#223](https://github.com/christianhelle/httpgenerator/pull/223) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.16.3 [\#222](https://github.com/christianhelle/httpgenerator/pull/222) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.16.2 [\#220](https://github.com/christianhelle/httpgenerator/pull/220) ([renovate[bot]](https://github.com/apps/renovate))
+- Create Static Documentation Website from README [\#219](https://github.com/christianhelle/httpgenerator/pull/219) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- Update dependency @types/node to v22.16.0 [\#216](https://github.com/christianhelle/httpgenerator/pull/216) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.15.34 [\#215](https://github.com/christianhelle/httpgenerator/pull/215) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.15.32 [\#214](https://github.com/christianhelle/httpgenerator/pull/214) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.Extensions.Azure to 1.12.0 [\#213](https://github.com/christianhelle/httpgenerator/pull/213) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/vscode to v1.101.0 [\#212](https://github.com/christianhelle/httpgenerator/pull/212) ([renovate[bot]](https://github.com/apps/renovate))
