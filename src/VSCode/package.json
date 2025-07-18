@@ -86,7 +86,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@types/glob": "^8.1.0",
+    "@types/glob": "^9.0.0",
     "@types/node": "^22.0.0",
     "@types/vscode": "^1.50.0",
     "typescript": "^5.0.0",
