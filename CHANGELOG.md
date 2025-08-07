@@ -17,6 +17,9 @@
 
 **Merged pull requests:**
 
+- Update nswag monorepo to 14.5.0 [\#230](https://github.com/christianhelle/httpgenerator/pull/230) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.16.5 [\#227](https://github.com/christianhelle/httpgenerator/pull/227) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.16.4 [\#226](https://github.com/christianhelle/httpgenerator/pull/226) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.3 [\#225](https://github.com/christianhelle/httpgenerator/pull/225) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/vscode to v1.102.0 [\#223](https://github.com/christianhelle/httpgenerator/pull/223) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.16.3 [\#222](https://github.com/christianhelle/httpgenerator/pull/222) ([renovate[bot]](https://github.com/apps/renovate))
@@ -247,10 +250,6 @@
 - Reference Token from environment file [\#51](https://github.com/christianhelle/httpgenerator/issues/51)
 - Add support for loading authorization header from environment variable [\#57](https://github.com/christianhelle/httpgenerator/pull/57) ([christianhelle](https://github.com/christianhelle))
 - Prefix route variables with operation name when generating single file [\#56](https://github.com/christianhelle/httpgenerator/pull/56) ([christianhelle](https://github.com/christianhelle))
-
-**Fixed bugs:**
-
-- Multiple variable definition  [\#52](https://github.com/christianhelle/httpgenerator/issues/52)
 
 **Merged pull requests:**
 
