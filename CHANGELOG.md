@@ -12,17 +12,23 @@
 
 **Closed issues:**
 
+- Setup CoPilot Instructions [\#231](https://github.com/christianhelle/httpgenerator/issues/231)
 - Create Static Documentation Website from README [\#218](https://github.com/christianhelle/httpgenerator/issues/218)
 - VSIX build is failing [\#210](https://github.com/christianhelle/httpgenerator/issues/210)
 
 **Merged pull requests:**
 
+- Update actions/checkout action to v5 [\#233](https://github.com/christianhelle/httpgenerator/pull/233) ([renovate[bot]](https://github.com/apps/renovate))
+- Create comprehensive GitHub Copilot instructions for httpgenerator development [\#232](https://github.com/christianhelle/httpgenerator/pull/232) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Update nswag monorepo to 14.5.0 [\#230](https://github.com/christianhelle/httpgenerator/pull/230) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency typescript to v5.9.2 [\#229](https://github.com/christianhelle/httpgenerator/pull/229) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.17.1 [\#228](https://github.com/christianhelle/httpgenerator/pull/228) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.16.5 [\#227](https://github.com/christianhelle/httpgenerator/pull/227) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.16.4 [\#226](https://github.com/christianhelle/httpgenerator/pull/226) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.3 [\#225](https://github.com/christianhelle/httpgenerator/pull/225) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/vscode to v1.102.0 [\#223](https://github.com/christianhelle/httpgenerator/pull/223) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.16.3 [\#222](https://github.com/christianhelle/httpgenerator/pull/222) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency System.Text.Json to 9.0.8 [\#221](https://github.com/christianhelle/httpgenerator/pull/221) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.16.2 [\#220](https://github.com/christianhelle/httpgenerator/pull/220) ([renovate[bot]](https://github.com/apps/renovate))
 - Create Static Documentation Website from README [\#219](https://github.com/christianhelle/httpgenerator/pull/219) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Update dependency @types/node to v22.16.0 [\#216](https://github.com/christianhelle/httpgenerator/pull/216) ([renovate[bot]](https://github.com/apps/renovate))
