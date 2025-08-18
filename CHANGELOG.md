@@ -18,6 +18,8 @@
 
 **Merged pull requests:**
 
+- Update dependency xunit.runner.visualstudio to 3.1.4 [\#236](https://github.com/christianhelle/httpgenerator/pull/236) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/node to v22.17.2 [\#234](https://github.com/christianhelle/httpgenerator/pull/234) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/checkout action to v5 [\#233](https://github.com/christianhelle/httpgenerator/pull/233) ([renovate[bot]](https://github.com/apps/renovate))
 - Create comprehensive GitHub Copilot instructions for httpgenerator development [\#232](https://github.com/christianhelle/httpgenerator/pull/232) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Update nswag monorepo to 14.5.0 [\#230](https://github.com/christianhelle/httpgenerator/pull/230) ([renovate[bot]](https://github.com/apps/renovate))
