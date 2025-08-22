@@ -38,7 +38,7 @@ jobs:
           mkdir docs/images
           cp images/* docs/images/
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: 'docs'
       - name: Deploy to GitHub Pages
