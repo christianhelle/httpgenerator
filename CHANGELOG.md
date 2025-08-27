@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - Visual Studio Code Extension [\#195](https://github.com/christianhelle/httpgenerator/issues/195)
+- Revert NSwag back to v14.4.0 [\#240](https://github.com/christianhelle/httpgenerator/pull/240) ([christianhelle](https://github.com/christianhelle))
 - Fancy CLI output using Spectre Console [\#209](https://github.com/christianhelle/httpgenerator/pull/209) ([christianhelle](https://github.com/christianhelle))
 - Visual Studio Code Extension [\#198](https://github.com/christianhelle/httpgenerator/pull/198) ([christianhelle](https://github.com/christianhelle))
 
@@ -19,6 +20,7 @@
 **Merged pull requests:**
 
 - Update dependency xunit.runner.visualstudio to 3.1.4 [\#236](https://github.com/christianhelle/httpgenerator/pull/236) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency @types/vscode to v1.103.0 [\#235](https://github.com/christianhelle/httpgenerator/pull/235) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.17.2 [\#234](https://github.com/christianhelle/httpgenerator/pull/234) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/checkout action to v5 [\#233](https://github.com/christianhelle/httpgenerator/pull/233) ([renovate[bot]](https://github.com/apps/renovate))
 - Create comprehensive GitHub Copilot instructions for httpgenerator development [\#232](https://github.com/christianhelle/httpgenerator/pull/232) ([Copilot](https://github.com/apps/copilot-swe-agent))
