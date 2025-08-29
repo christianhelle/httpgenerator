@@ -19,6 +19,8 @@
 
 **Merged pull requests:**
 
+- Update dependency @types/node to v22.18.0 [\#239](https://github.com/christianhelle/httpgenerator/pull/239) ([renovate[bot]](https://github.com/apps/renovate))
+- Update dependency Microsoft.OpenApi.Readers to 1.6.25 [\#237](https://github.com/christianhelle/httpgenerator/pull/237) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.4 [\#236](https://github.com/christianhelle/httpgenerator/pull/236) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/vscode to v1.103.0 [\#235](https://github.com/christianhelle/httpgenerator/pull/235) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.17.2 [\#234](https://github.com/christianhelle/httpgenerator/pull/234) ([renovate[bot]](https://github.com/apps/renovate))
