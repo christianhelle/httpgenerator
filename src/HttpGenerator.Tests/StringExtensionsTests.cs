@@ -53,9 +53,10 @@ public class StringExtensionsTests
     [Fact]
     public void PrefixLineBreaks_ShouldAddPrefix()
     {
-        var input = "line1\nline2\nline3";
-        var expected = "line1\n### line2\n### line3";
+        var isUnix = Environment.OSVersion.Platform == PlatformID.MacOSX || Environment.OSVersion.Platform == PlatformID.Unix;
+        var input = isUnix ? "line1\r\nline2\r\nline3" : "line1\nline2\nline3";
+        var expected = $"line1{Environment.NewLine}### line2{Environment.NewLine}### line3";
         var result = input.PrefixLineBreaks();
-        Assert.Equal(expected, result?.Replace("\r", ""));
+        Assert.Equal(expected, result);
     }
 }
