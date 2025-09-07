@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - Visual Studio Code Extension [\#195](https://github.com/christianhelle/httpgenerator/issues/195)
+- Improve code coverage [\#242](https://github.com/christianhelle/httpgenerator/pull/242) ([christianhelle](https://github.com/christianhelle))
 - Revert NSwag back to v14.4.0 [\#240](https://github.com/christianhelle/httpgenerator/pull/240) ([christianhelle](https://github.com/christianhelle))
 - Fancy CLI output using Spectre Console [\#209](https://github.com/christianhelle/httpgenerator/pull/209) ([christianhelle](https://github.com/christianhelle))
 - Visual Studio Code Extension [\#198](https://github.com/christianhelle/httpgenerator/pull/198) ([christianhelle](https://github.com/christianhelle))
@@ -20,6 +21,7 @@
 **Merged pull requests:**
 
 - Update dependency @types/node to v22.18.0 [\#239](https://github.com/christianhelle/httpgenerator/pull/239) ([renovate[bot]](https://github.com/apps/renovate))
+- Update actions/upload-pages-artifact action to v4 [\#238](https://github.com/christianhelle/httpgenerator/pull/238) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.25 [\#237](https://github.com/christianhelle/httpgenerator/pull/237) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency xunit.runner.visualstudio to 3.1.4 [\#236](https://github.com/christianhelle/httpgenerator/pull/236) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/vscode to v1.103.0 [\#235](https://github.com/christianhelle/httpgenerator/pull/235) ([renovate[bot]](https://github.com/apps/renovate))
