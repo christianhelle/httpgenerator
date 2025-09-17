@@ -10,17 +10,11 @@ internal static class Program
 
     private static int Main(string[] args)
     {
-        if (args.Length == 0)
-        {
-            args = new[]
-            {
-                "--help"
-            };
-        }
+        if (args.Length == 0) args = ["--help"];
 
-        System.Console.OutputEncoding = System.Text.Encoding.UTF8;
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
 
-        var app = new CommandApp<GenerateCommand>();
+        CommandApp<GenerateCommand> app = new();
         app.Configure(
             configuration =>
             {

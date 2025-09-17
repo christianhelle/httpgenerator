@@ -22,8 +22,7 @@ public class GenerateCommand : AsyncCommand<Settings>
             var stopwatch = Stopwatch.StartNew();
             DisplayHeader(settings);
 
-            if (!settings.SkipValidation)
-                await ValidateOpenApiSpec(settings);
+            if (!settings.SkipValidation) await ValidateOpenApiSpec(settings);
 
             await AcquireAzureEntraIdToken(settings);
 
@@ -39,8 +38,9 @@ public class GenerateCommand : AsyncCommand<Settings>
                 Timeout = settings.Timeout,
                 GenerateIntelliJTests = settings.GenerateIntelliJTests,
                 CustomHeaders = settings.CustomHeaders,
+                SkipHeaders = settings.SkipHeaders,
             };
-            var result = await HttpFileGenerator.Generate(generatorSettings);
+            GeneratorResult result = await HttpFileGenerator.Generate(generatorSettings);
             await Analytics.LogFeatureUsage(settings);
             await WriteFiles(settings, result);
 

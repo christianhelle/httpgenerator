@@ -46,7 +46,7 @@ public class Settings : CommandSettings
     [CommandOption("--content-type <CONTENT-TYPE>")]
     [DefaultValue("application/json")]
     public string ContentType { get; set; } = "application/json";
-    
+
     [Description("Default Base URL to use for all requests. Use this if the OpenAPI spec doesn't explicitly specify a server URL.")]
     [CommandOption("--base-url <BASE-URL>")]
     public string? BaseUrl { get; set; }
@@ -59,11 +59,11 @@ public class Settings : CommandSettings
     [DefaultValue(OutputType.OneRequestPerFile)]
     [AllowedValues(nameof(OutputType.OneRequestPerFile), nameof(OutputType.OneFile))]
     public OutputType OutputType { get; set; } = OutputType.OneRequestPerFile;
-    
+
     [Description("Azure Entra ID Scope to use for retrieving Access Token for Authorization header")]
     [CommandOption("--azure-scope <SCOPE>")]
     public string? AzureScope { get; set; }
-    
+
     [Description("Azure Entra ID Tenant ID to use for retrieving Access Token for Authorization header")]
     [CommandOption("--azure-tenant-id <TENANT-ID>")]
     public string? AzureTenantId { get; set; }
@@ -81,4 +81,8 @@ public class Settings : CommandSettings
     [CommandOption("--custom-header")]
     [DefaultValue(new string[0])]
     public string[]? CustomHeaders { get; set; }
+
+    [Description("Don't generate header parameters in the files")]
+    [CommandOption("--skip-headers")]
+    public bool SkipHeaders { get; set; }
 }
