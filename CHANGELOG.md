@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - Visual Studio Code Extension [\#195](https://github.com/christianhelle/httpgenerator/issues/195)
+- Add skip header option [\#253](https://github.com/christianhelle/httpgenerator/pull/253) ([PolarTango](https://github.com/PolarTango))
 - Improve code coverage [\#242](https://github.com/christianhelle/httpgenerator/pull/242) ([christianhelle](https://github.com/christianhelle))
 - Revert NSwag back to v14.4.0 [\#240](https://github.com/christianhelle/httpgenerator/pull/240) ([christianhelle](https://github.com/christianhelle))
 - Fancy CLI output using Spectre Console [\#209](https://github.com/christianhelle/httpgenerator/pull/209) ([christianhelle](https://github.com/christianhelle))
