@@ -116,6 +116,10 @@ public static class HttpFileGenerator
 
     private static void WriteFileHeaders(GeneratorSettings settings, StringBuilder code, string baseUrl)
     {
+        if (settings.SkipHeaders)
+        {
+            return;
+        }
         code.AppendLine($"@baseUrl = {baseUrl}");
         code.AppendLine($"@contentType = {settings.ContentType}");
 

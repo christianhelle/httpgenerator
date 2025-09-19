@@ -48,6 +48,7 @@ OPTIONS:
         --timeout <SECONDS>                                     120                  Timeout (in seconds) for writing files to disk
         --generate-intellij-tests                                                    Generate IntelliJ tests that assert whether the response status code is 200
         --custom-header                                                              Add custom HTTP headers to the generated request
+        --skip-headers                                                               Don't generate header parameters in the files
 ```
 
 Running the following:
@@ -63,14 +64,14 @@ Outputs the following:
 Which will produce the following files:
 
 ```sh
--rw-r--r-- 1 christian 197121  593 Dec 10 10:44 DeleteOrder.http        
+-rw-r--r-- 1 christian 197121  593 Dec 10 10:44 DeleteOrder.http
 -rw-r--r-- 1 christian 197121  231 Dec 10 10:44 DeletePet.http
 -rw-r--r-- 1 christian 197121  358 Dec 10 10:44 DeleteUser.http
 -rw-r--r-- 1 christian 197121  432 Dec 10 10:44 GetFindPetsByStatus.http
--rw-r--r-- 1 christian 197121  504 Dec 10 10:44 GetFindPetsByTags.http  
--rw-r--r-- 1 christian 197121  371 Dec 10 10:44 GetInventory.http       
--rw-r--r-- 1 christian 197121  247 Dec 10 10:44 GetLoginUser.http       
--rw-r--r-- 1 christian 197121  291 Dec 10 10:44 GetLogoutUser.http      
+-rw-r--r-- 1 christian 197121  504 Dec 10 10:44 GetFindPetsByTags.http
+-rw-r--r-- 1 christian 197121  371 Dec 10 10:44 GetInventory.http
+-rw-r--r-- 1 christian 197121  247 Dec 10 10:44 GetLoginUser.http
+-rw-r--r-- 1 christian 197121  291 Dec 10 10:44 GetLogoutUser.http
 -rw-r--r-- 1 christian 197121  540 Dec 10 10:44 GetOrderById.http
 -rw-r--r-- 1 christian 197121  275 Dec 10 10:44 GetPetById.http
 -rw-r--r-- 1 christian 197121  245 Dec 10 10:44 GetUserByName.http
@@ -156,7 +157,7 @@ Content-Type: {{contentType}}
 > {%
     client.test("Request executed successfully", function() {
         client.assert(
-            response.status === 200, 
+            response.status === 200,
             "Response status is not 200");
     });
 %}
@@ -172,7 +173,7 @@ az account get-access-token --scope [Some Application ID URI]/.default `
         https://api.example.com/swagger/v1/swagger.json `
         --authorization-header ("Bearer " + $_.accessToken) `
         --base-url https://api.example.com `
-        --output ./HttpFiles 
+        --output ./HttpFiles
 }
 ```
 
@@ -183,7 +184,7 @@ httpgenerator `
   https://api.example.com/swagger/v1/swagger.json `
   --azure-scope [Some Application ID URI]/.default `
   --base-url https://api.example.com `
-  --output ./HttpFiles 
+  --output ./HttpFiles
 ```
 
 #

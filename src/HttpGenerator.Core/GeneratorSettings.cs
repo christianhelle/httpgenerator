@@ -58,6 +58,11 @@ public class GeneratorSettings
     /// Gets or sets custom HTTP headers to add to the generated request
     /// </summary>
     public string[]? CustomHeaders { get; set; }
+
+    /// <summary>
+    /// Gets or sets whether to skip generating header parameters
+    /// </summary>
+    public bool SkipHeaders { get; set; }
 }
 
 /// <summary>

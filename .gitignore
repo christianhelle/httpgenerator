@@ -403,3 +403,7 @@ test/openapi.yaml
 *.http
 src/VSCode/out
 src/VSCode/*.vsix
+
+# nvim 
+.ignore
+
