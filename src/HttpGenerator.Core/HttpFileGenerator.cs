@@ -91,29 +91,32 @@ public static class HttpFileGenerator
         var code = new StringBuilder();
         WriteFileHeaders(settings, code, baseUrl);
 
-        foreach (var kv in document.Paths)
+        if (document.Paths != null)
         {
-            var pathItem = kv.Value;
-            var operations = new Dictionary<string, OpenApiOperation>();
-            
-            if (pathItem.Operations != null)
+            foreach (var kv in document.Paths)
             {
-                foreach (var operation in pathItem.Operations)
+                var pathItem = kv.Value;
+                var operations = new Dictionary<string, OpenApiOperation>();
+                
+                if (pathItem.Operations != null)
                 {
-                    operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                    foreach (var operation in pathItem.Operations)
+                    {
+                        operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                    }
                 }
-            }
-            
-            foreach (var operations_kv in operations)
-            {
-                code.AppendLine(
-                    GenerateRequest(
-                        document,
-                        kv,
-                        operationNameGenerator,
-                        settings,
-                        operations_kv.Key.CapitalizeFirstCharacter(),
-                        operations_kv.Value));
+                
+                foreach (var operations_kv in operations)
+                {
+                    code.AppendLine(
+                        GenerateRequest(
+                            document,
+                            kv,
+                            operationNameGenerator,
+                            settings,
+                            operations_kv.Key.CapitalizeFirstCharacter(),
+                            operations_kv.Value));
+                }
             }
         }
 
@@ -145,7 +148,15 @@ public static class HttpFileGenerator
         string baseUrl,
         IOperationNameGenerator operationNameGenerator)
     {
-        var files = new List<HttpFile>(document.Paths.Count);
+        var files = new List<HttpFile>();
+        
+        if (document.Paths == null || document.Paths.Count == 0)
+        {
+            // No paths to generate files for
+            return new GeneratorResult(files);
+        }
+        
+        files.Capacity = document.Paths.Count;
         foreach (var kv in document.Paths)
         {
             var pathItem = kv.Value;
@@ -187,35 +198,38 @@ public static class HttpFileGenerator
         const string defaultTag = "Default";
         var contents = new Dictionary<string, StringBuilder>();
 
-        foreach (var kv in document.Paths)
+        if (document.Paths != null)
         {
-            var pathItem = kv.Value;
-            var operations = new Dictionary<string, OpenApiOperation>();
-            
-            if (pathItem.Operations != null)
+            foreach (var kv in document.Paths)
             {
-                foreach (var operation in pathItem.Operations)
+                var pathItem = kv.Value;
+                var operations = new Dictionary<string, OpenApiOperation>();
+                
+                if (pathItem.Operations != null)
                 {
-                    operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                    foreach (var operation in pathItem.Operations)
+                    {
+                        operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                    }
                 }
-            }
-            
-            foreach (var operations_kv in operations)
-            {
-                var tag = operations_kv.Value.Tags?.FirstOrDefault()?.Name ?? defaultTag;
-
-                if (!contents.ContainsKey(tag))
+                
+                foreach (var operations_kv in operations)
                 {
-                    contents[tag] = new StringBuilder();
-                    WriteFileHeaders(settings, contents[tag], baseUrl);
+                    var tag = operations_kv.Value.Tags?.FirstOrDefault()?.Name ?? defaultTag;
+
+                    if (!contents.ContainsKey(tag))
+                    {
+                        contents[tag] = new StringBuilder();
+                        WriteFileHeaders(settings, contents[tag], baseUrl);
+                    }
+
+                    var operation = operations_kv.Value;
+                    var verb = operations_kv.Key.CapitalizeFirstCharacter();
+
+                    contents[tag]
+                        .AppendLine(
+                            GenerateRequest(document, kv, operationNameGenerator, settings, verb, operation));
                 }
-
-                var operation = operations_kv.Value;
-                var verb = operations_kv.Key.CapitalizeFirstCharacter();
-
-                contents[tag]
-                    .AppendLine(
-                        GenerateRequest(document, kv, operationNameGenerator, settings, verb, operation));
             }
         }
 
