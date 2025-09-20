@@ -55,8 +55,7 @@ public class GenerateCommand : AsyncCommand<Settings>
                 $"Consider using the --skip-validation argument.{Crlf}" +
                 $"In some cases, the features that are specific to the " +
                 $"unsupported versions of OpenAPI specifications aren't really used.{Crlf}" +
-                $"This tool uses NSwag libraries to parse the OpenAPI document and " +
-                $"Microsoft.OpenApi libraries for validation.{Crlf}{Crlf}[/]");
+                $"This tool uses Microsoft.OpenApi libraries for parsing and validation.{Crlf}{Crlf}[/]");
             return exception.HResult;
         }
         catch (Exception exception)
