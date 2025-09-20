@@ -1,8 +1,5 @@
 ﻿using System.Text;
-using NJsonSchema;
-using NSwag;
-using NSwag.CodeGeneration.CSharp;
-using NSwag.CodeGeneration.OperationNameGenerators;
+using Microsoft.OpenApi.Models;
 
 namespace HttpGenerator.Core;
 
@@ -11,8 +8,7 @@ public static class HttpFileGenerator
     public static async Task<GeneratorResult> Generate(GeneratorSettings settings)
     {
         var document = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
-        var generator = new CSharpClientGenerator(document, new CSharpClientGeneratorSettings());
-        generator.BaseSettings.OperationNameGenerator = new OperationNameGenerator();
+        var operationNameGenerator = new OperationNameGenerator();
 
         var serverUrl = document.Servers?.FirstOrDefault()?.Url ?? string.Empty;
         var baseUrl = settings.BaseUrl ?? string.Empty;
@@ -38,17 +34,17 @@ public static class HttpFileGenerator
                     settings,
                     document,
                     baseUrl,
-                    generator.BaseSettings.OperationNameGenerator),
+                    operationNameGenerator),
                 OutputType.OneFile => GenerateSingleFile(
                     settings,
                     document,
-                    generator.BaseSettings.OperationNameGenerator,
+                    operationNameGenerator,
                     baseUrl),
                 OutputType.OneFilePerTag => GenerateFilePerTag(
                     settings,
                     document,
                     baseUrl,
-                    generator.BaseSettings.OperationNameGenerator),
+                    operationNameGenerator),
                 _ => throw new ArgumentOutOfRangeException(
                     nameof(settings.OutputType),
                     $"Unknown output type: {settings.OutputType}")
@@ -69,17 +65,17 @@ public static class HttpFileGenerator
                 settings,
                 document,
                 baseUrl,
-                generator.BaseSettings.OperationNameGenerator),
+                operationNameGenerator),
             OutputType.OneFile => GenerateSingleFile(
                 settings,
                 document,
-                generator.BaseSettings.OperationNameGenerator,
+                operationNameGenerator,
                 baseUrl),
             OutputType.OneFilePerTag => GenerateFilePerTag(
                 settings,
                 document,
                 baseUrl,
-                generator.BaseSettings.OperationNameGenerator),
+                operationNameGenerator),
             _ => throw new ArgumentOutOfRangeException(
                 nameof(settings.OutputType),
                 $"Unknown output type: {settings.OutputType}")
@@ -97,7 +93,18 @@ public static class HttpFileGenerator
 
         foreach (var kv in document.Paths)
         {
-            foreach (var operations in kv.Value)
+            var pathItem = kv.Value;
+            var operations = new Dictionary<string, OpenApiOperation>();
+            
+            if (pathItem.Operations != null)
+            {
+                foreach (var operation in pathItem.Operations)
+                {
+                    operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                }
+            }
+            
+            foreach (var operations_kv in operations)
             {
                 code.AppendLine(
                     GenerateRequest(
@@ -105,8 +112,8 @@ public static class HttpFileGenerator
                         kv,
                         operationNameGenerator,
                         settings,
-                        operations.Key.CapitalizeFirstCharacter(),
-                        operations.Value));
+                        operations_kv.Key.CapitalizeFirstCharacter(),
+                        operations_kv.Value));
             }
         }
 
@@ -141,10 +148,21 @@ public static class HttpFileGenerator
         var files = new List<HttpFile>(document.Paths.Count);
         foreach (var kv in document.Paths)
         {
-            foreach (var operations in kv.Value)
+            var pathItem = kv.Value;
+            var operations = new Dictionary<string, OpenApiOperation>();
+            
+            if (pathItem.Operations != null)
             {
-                var operation = operations.Value;
-                var verb = operations.Key.CapitalizeFirstCharacter();
+                foreach (var operation in pathItem.Operations)
+                {
+                    operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                }
+            }
+            
+            foreach (var operations_kv in operations)
+            {
+                var operation = operations_kv.Value;
+                var verb = operations_kv.Key.CapitalizeFirstCharacter();
                 var name = operationNameGenerator.GetOperationName(document, kv.Key, verb, operation);
                 var filename = $"{name.CapitalizeFirstCharacter()}.http";
 
@@ -171,9 +189,20 @@ public static class HttpFileGenerator
 
         foreach (var kv in document.Paths)
         {
-            foreach (var operations in kv.Value)
+            var pathItem = kv.Value;
+            var operations = new Dictionary<string, OpenApiOperation>();
+            
+            if (pathItem.Operations != null)
             {
-                var tag = operations.Value.Tags.FirstOrDefault() ?? defaultTag;
+                foreach (var operation in pathItem.Operations)
+                {
+                    operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                }
+            }
+            
+            foreach (var operations_kv in operations)
+            {
+                var tag = operations_kv.Value.Tags?.FirstOrDefault()?.Name ?? defaultTag;
 
                 if (!contents.ContainsKey(tag))
                 {
@@ -181,8 +210,8 @@ public static class HttpFileGenerator
                     WriteFileHeaders(settings, contents[tag], baseUrl);
                 }
 
-                var operation = operations.Value;
-                var verb = operations.Key.CapitalizeFirstCharacter();
+                var operation = operations_kv.Value;
+                var verb = operations_kv.Key.CapitalizeFirstCharacter();
 
                 contents[tag]
                     .AppendLine(
@@ -270,8 +299,8 @@ public static class HttpFileGenerator
         }
 
         var requestBody = operation.RequestBody;
-        var requestBodySchema = requestBody.Content[contentType].Schema.ActualSchema;
-        var requestBodyJson = requestBodySchema?.ToSampleJson()?.ToString() ?? string.Empty;
+        var requestBodySchema = requestBody.Content[contentType].Schema;
+        var requestBodyJson = GenerateSampleJson(requestBodySchema) ?? string.Empty;
 
         code.AppendLine(requestBodyJson);
 
@@ -379,7 +408,7 @@ public static class HttpFileGenerator
     {
         var parameters = operation
             .Parameters
-            .Where(c => c.Kind is OpenApiParameterKind.Path or OpenApiParameterKind.Query)
+            .Where(c => c.In == ParameterLocation.Path || c.In == ParameterLocation.Query)
             .ToArray();
 
         var parameterNameMap = new Dictionary<string, string>();
@@ -395,10 +424,12 @@ public static class HttpFileGenerator
                 parameter);
             parameterNameMap[parameter.Name] = parameterName;
 
+            var defaultValue = GetParameterDefaultValue(parameter);
+            
             code.AppendLine(
                 $"""
-                 ### {parameter.Kind} Parameter: {parameter.Description?.PrefixLineBreaks() ?? parameterName}
-                 @{parameterName} = {(parameter.ActualSchema.Type == JsonObjectType.Integer ? 0 : "str")}
+                 ### {parameter.In} Parameter: {parameter.Description?.PrefixLineBreaks() ?? parameterName}
+                 @{parameterName} = {defaultValue}
 
                  """);
         }
@@ -426,5 +457,39 @@ public static class HttpFileGenerator
             operation);
 
         return $"{name}_{parameter.Name}";
+    }
+
+    private static string GetParameterDefaultValue(OpenApiParameter parameter)
+    {
+        // Get the schema from the parameter
+        var schema = parameter.Schema;
+        if (schema?.Type != null)
+        {
+            return schema.Type.ToLowerInvariant() switch
+            {
+                "integer" => "0",
+                "number" => "0",
+                "boolean" => "true",
+                _ => "str"
+            };
+        }
+        return "str";
+    }
+
+    private static string? GenerateSampleJson(OpenApiSchema? schema)
+    {
+        if (schema == null) return null;
+
+        // Very basic JSON sample generation
+        return schema.Type?.ToLowerInvariant() switch
+        {
+            "object" => "{\n  \"property\": \"value\"\n}",
+            "array" => "[\n  \"item1\",\n  \"item2\"\n]",
+            "string" => "\"example\"",
+            "integer" => "0",
+            "number" => "0",
+            "boolean" => "true",
+            _ => "{}"
+        };
     }
 }

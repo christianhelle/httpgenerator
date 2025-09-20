@@ -1,24 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using NSwag;
-using NSwag.CodeGeneration.OperationNameGenerators;
+using Microsoft.OpenApi.Models;
 
 namespace HttpGenerator.Core;
 
+internal interface IOperationNameGenerator
+{
+    string GetOperationName(
+        OpenApiDocument document,
+        string path,
+        string httpMethod,
+        OpenApiOperation operation);
+}
+
 internal class OperationNameGenerator : IOperationNameGenerator
 {
-    private readonly IOperationNameGenerator defaultGenerator =
-        new MultipleClientsFromOperationIdOperationNameGenerator();
-
-    [ExcludeFromCodeCoverage]
-    public bool SupportsMultipleClients => throw new NotImplementedException();
-
-    [ExcludeFromCodeCoverage]
-    public string GetClientName(OpenApiDocument document, string path, string httpMethod, OpenApiOperation operation)
-    {
-        return defaultGenerator.GetClientName(document, path, httpMethod, operation);
-    }
-
     public string GetOperationName(
         OpenApiDocument document,
         string path,
@@ -27,8 +23,16 @@ internal class OperationNameGenerator : IOperationNameGenerator
     {
         try
         {
-            return defaultGenerator
-                .GetOperationName(document, path, httpMethod, operation)
+            // Try to use operationId first if available
+            var operationName = operation.OperationId;
+            
+            if (string.IsNullOrWhiteSpace(operationName))
+            {
+                // Fallback to generating from path and method
+                operationName = $"{httpMethod}_{path}";
+            }
+            
+            return operationName
                 .CapitalizeFirstCharacter()
                 .ConvertKebabCaseToPascalCase()
                 .ConvertRouteToCamelCase()

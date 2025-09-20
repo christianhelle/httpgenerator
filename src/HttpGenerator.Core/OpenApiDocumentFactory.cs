@@ -1,5 +1,6 @@
 ﻿using System.Net;
-using NSwag;
+using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Readers;
 
 namespace HttpGenerator.Core;
 
@@ -14,33 +15,21 @@ public static class OpenApiDocumentFactory
     /// <returns>A new instance of the <see cref="OpenApiDocument"/> class.</returns>
     public static async Task<OpenApiDocument> CreateAsync(string openApiPath)
     {
-        OpenApiDocument document;
         if (IsHttp(openApiPath))
         {
             var content = await GetHttpContent(openApiPath);
-
-            if (IsYaml(openApiPath))
-            {
-                document = await OpenApiYamlDocument.FromYamlAsync(content);
-            }
-            else
-            {
-                document = await OpenApiDocument.FromJsonAsync(content);
-            }
+            using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
+            var reader = new OpenApiStreamReader();
+            var result = await reader.ReadAsync(stream, CancellationToken.None);
+            return result.OpenApiDocument;
         }
         else 
         {
-            if (IsYaml(openApiPath))
-            {
-                document = await OpenApiYamlDocument.FromFileAsync(openApiPath);
-            }
-            else
-            {
-                document = await OpenApiDocument.FromFileAsync(openApiPath);
-            }
+            using var stream = File.OpenRead(openApiPath);
+            var reader = new OpenApiStreamReader();
+            var result = await reader.ReadAsync(stream, CancellationToken.None);
+            return result.OpenApiDocument;
         }
-
-        return document;
     }
 
     /// <summary>
