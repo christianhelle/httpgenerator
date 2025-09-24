@@ -102,7 +102,8 @@ public static class HttpFileGenerator
                 {
                     foreach (var operation in pathItem.Operations)
                     {
-                        operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+                        var operationKeyString = operation.Key.ToString().ToLowerInvariant();
+                        operations[operationKeyString] = operation.Value;
                     }
                 }
                 
