@@ -15,12 +15,14 @@
 
 **Closed issues:**
 
+- Migrate from using NSwag to Microsoft.OpenApi [\#254](https://github.com/christianhelle/httpgenerator/issues/254)
 - Setup CoPilot Instructions [\#231](https://github.com/christianhelle/httpgenerator/issues/231)
 - Create Static Documentation Website from README [\#218](https://github.com/christianhelle/httpgenerator/issues/218)
 - VSIX build is failing [\#210](https://github.com/christianhelle/httpgenerator/issues/210)
 
 **Merged pull requests:**
 
+- Migrate from NSwag to Microsoft.OpenApi libraries with enhanced OpenAPI 3.1 support [\#255](https://github.com/christianhelle/httpgenerator/pull/255) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Update dependency @types/node to v22.18.0 [\#239](https://github.com/christianhelle/httpgenerator/pull/239) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/upload-pages-artifact action to v4 [\#238](https://github.com/christianhelle/httpgenerator/pull/238) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.25 [\#237](https://github.com/christianhelle/httpgenerator/pull/237) ([renovate[bot]](https://github.com/apps/renovate))
