@@ -22,6 +22,7 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency microsoft.extensions.azure to 1.13.0 [\#259](https://github.com/christianhelle/httpgenerator/pull/259) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update openapi-dotnet monorepo to 1.6.27 [\#258](https://github.com/christianhelle/httpgenerator/pull/258) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency xunit.runner.visualstudio to 3.1.5 [\#257](https://github.com/christianhelle/httpgenerator/pull/257) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency typescript to v5.9.3 [\#256](https://github.com/christianhelle/httpgenerator/pull/256) ([renovate[bot]](https://github.com/apps/renovate))
