@@ -22,7 +22,13 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency xunit.runner.visualstudio to 3.1.5 [\#257](https://github.com/christianhelle/httpgenerator/pull/257) ([renovate[bot]](https://github.com/apps/renovate))
 - Migrate from NSwag to Microsoft.OpenApi libraries with enhanced OpenAPI 3.1 support [\#255](https://github.com/christianhelle/httpgenerator/pull/255) ([Copilot](https://github.com/apps/copilot-swe-agent))
+- chore\(deps\): update dependency @types/vscode to v1.104.0 [\#252](https://github.com/christianhelle/httpgenerator/pull/252) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/setup-node action to v5 [\#248](https://github.com/christianhelle/httpgenerator/pull/248) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/setup-dotnet action to v5 [\#247](https://github.com/christianhelle/httpgenerator/pull/247) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/github-script action to v8 [\#246](https://github.com/christianhelle/httpgenerator/pull/246) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/node to v22.18.8 [\#243](https://github.com/christianhelle/httpgenerator/pull/243) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency @types/node to v22.18.0 [\#239](https://github.com/christianhelle/httpgenerator/pull/239) ([renovate[bot]](https://github.com/apps/renovate))
 - Update actions/upload-pages-artifact action to v4 [\#238](https://github.com/christianhelle/httpgenerator/pull/238) ([renovate[bot]](https://github.com/apps/renovate))
 - Update dependency Microsoft.OpenApi.Readers to 1.6.25 [\#237](https://github.com/christianhelle/httpgenerator/pull/237) ([renovate[bot]](https://github.com/apps/renovate))
