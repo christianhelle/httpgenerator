@@ -28,6 +28,7 @@
 - chore\(deps\): update dependency typescript to v5.9.3 [\#256](https://github.com/christianhelle/httpgenerator/pull/256) ([renovate[bot]](https://github.com/apps/renovate))
 - Migrate from NSwag to Microsoft.OpenApi libraries with enhanced OpenAPI 3.1 support [\#255](https://github.com/christianhelle/httpgenerator/pull/255) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - chore\(deps\): update dependency @types/vscode to v1.104.0 [\#252](https://github.com/christianhelle/httpgenerator/pull/252) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency system.text.json to 9.0.9 [\#251](https://github.com/christianhelle/httpgenerator/pull/251) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/setup-node action to v5 [\#248](https://github.com/christianhelle/httpgenerator/pull/248) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/setup-dotnet action to v5 [\#247](https://github.com/christianhelle/httpgenerator/pull/247) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/github-script action to v8 [\#246](https://github.com/christianhelle/httpgenerator/pull/246) ([renovate[bot]](https://github.com/apps/renovate))
