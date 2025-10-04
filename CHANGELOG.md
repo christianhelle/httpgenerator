@@ -22,7 +22,9 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update openapi-dotnet monorepo to 1.6.27 [\#258](https://github.com/christianhelle/httpgenerator/pull/258) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency xunit.runner.visualstudio to 3.1.5 [\#257](https://github.com/christianhelle/httpgenerator/pull/257) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency typescript to v5.9.3 [\#256](https://github.com/christianhelle/httpgenerator/pull/256) ([renovate[bot]](https://github.com/apps/renovate))
 - Migrate from NSwag to Microsoft.OpenApi libraries with enhanced OpenAPI 3.1 support [\#255](https://github.com/christianhelle/httpgenerator/pull/255) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - chore\(deps\): update dependency @types/vscode to v1.104.0 [\#252](https://github.com/christianhelle/httpgenerator/pull/252) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/setup-node action to v5 [\#248](https://github.com/christianhelle/httpgenerator/pull/248) ([renovate[bot]](https://github.com/apps/renovate))
