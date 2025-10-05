@@ -14,7 +14,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.OpenApi" Version="1.6.27" />
+    <PackageReference Include="Microsoft.OpenApi" Version="2.3.3" />
     <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.27" />
     <PackageReference Include="Microsoft.Extensions.Azure" Version="1.13.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
