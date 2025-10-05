@@ -22,6 +22,7 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency microsoft.net.test.sdk to v18 [\#263](https://github.com/christianhelle/httpgenerator/pull/263) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency spectre.console.cli to 0.51.1 [\#261](https://github.com/christianhelle/httpgenerator/pull/261) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.extensions.azure to 1.13.0 [\#259](https://github.com/christianhelle/httpgenerator/pull/259) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update openapi-dotnet monorepo to 1.6.27 [\#258](https://github.com/christianhelle/httpgenerator/pull/258) ([renovate[bot]](https://github.com/apps/renovate))
