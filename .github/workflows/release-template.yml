@@ -10,6 +10,9 @@ on:
 env:
   NUGET_REPO_URL: "https://api.nuget.org/v3/index.json"
 
+permissions:
+  id-token: write
+
 jobs:
   CLI:
     name: 🚚 Prepare new release
@@ -18,7 +21,7 @@ jobs:
       - uses: actions/checkout@v5
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
       - name: Sets environment variables - branch-name
         uses: nelonoel/branch-name@v1.0.1
       - name: Sets environment variables - Nerdbank.GitVersioning
@@ -37,8 +40,13 @@ jobs:
           path: |
             **/*.nupkg
             README.md
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: christian.helle
       - name: Push packages to NuGet
-        run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.NUGET_KEY }} --source ${{ env.NUGET_REPO_URL }} --no-symbols
+        run: dotnet nuget push **/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source ${{ env.NUGET_REPO_URL }} --no-symbols
       - name: Create tag
         uses: actions/github-script@v8
         with:
