@@ -4,42 +4,42 @@ on:
   workflow_dispatch:
   push:
     paths-ignore:
-      - '**/*'
-      - '!.github/workflows/build.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - "**/*"
+      - "!.github/workflows/build.yml"
+      - "!src/**/*.csproj"
+      - "!src/**/*.cs"
     branches:
-      - '*'
+      - "*"
   pull_request:
     paths-ignore:
-      - '**/*'
-      - '!.github/workflows/build.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - "**/*"
+      - "!.github/workflows/build.yml"
+      - "!src/**/*.csproj"
+      - "!src/**/*.cs"
     branches:
-      - '*'
+      - "*"
 
 env:
-  VERSION: 1.0.0.${{ github.run_number }}
+  VERSION: 1.0.1.${{ github.run_number }}
 
 jobs:
   build:
     name: 👌 Verify build
     runs-on: ubuntu-latest
-    steps:    
-    - name: 🛒 Checkout repository
-      uses: actions/checkout@v5
-    - uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '8.0.x'
-    - name: 🛠️ Build
-      run: dotnet build -c Release HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
-    - name: 🧪 Test
-      run: dotnet test HttpGenerator.sln -c Release    
-    - name: 🗳️ Upload
-      uses: actions/upload-artifact@v4
-      with:
-        name: Packages
-        path: |
-          **/*.nupkg
-          README.md
+    steps:
+      - name: 🛒 Checkout repository
+        uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+      - name: 🛠️ Build
+        run: dotnet build -c Release HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+      - name: 🧪 Test
+        run: dotnet test HttpGenerator.sln -c Release
+      - name: 🗳️ Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: Packages
+          path: |
+            **/*.nupkg
+            README.md
