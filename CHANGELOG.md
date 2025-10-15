@@ -2,7 +2,22 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.0...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.1-preview.17...HEAD)
+
+**Merged pull requests:**
+
+- chore\(deps\): update dependency system.text.json to 9.0.10 [\#272](https://github.com/christianhelle/httpgenerator/pull/272) ([renovate[bot]](https://github.com/apps/renovate))
+- Fix Code Coverage workflow [\#271](https://github.com/christianhelle/httpgenerator/pull/271) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update actions/setup-node action to v6 [\#270](https://github.com/christianhelle/httpgenerator/pull/270) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency spectre.console.cli to 0.52.0 [\#269](https://github.com/christianhelle/httpgenerator/pull/269) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/vscode to v1.105.0 [\#268](https://github.com/christianhelle/httpgenerator/pull/268) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/node to v22.18.10 [\#267](https://github.com/christianhelle/httpgenerator/pull/267) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency ruby to v3.4.7 - autoclosed [\#266](https://github.com/christianhelle/httpgenerator/pull/266) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update openapi-dotnet monorepo to 1.6.28 [\#265](https://github.com/christianhelle/httpgenerator/pull/265) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [1.0.1-preview.17](https://github.com/christianhelle/httpgenerator/tree/1.0.1-preview.17) (2025-10-08)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.0...1.0.1-preview.17)
 
 **Implemented enhancements:**
 
