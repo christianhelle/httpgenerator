@@ -52,7 +52,7 @@ jobs:
       uses: codecov/codecov-action@v5
       with:
         directory: src
-        file: coverage.xml
+        files: '**/coverage.cobertura.xml'
         flags: unittests
         fail_ci_if_error: true
         verbose: true
