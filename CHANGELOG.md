@@ -14,6 +14,7 @@
 - chore\(deps\): update dependency @types/node to v22.18.10 [\#267](https://github.com/christianhelle/httpgenerator/pull/267) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency ruby to v3.4.7 - autoclosed [\#266](https://github.com/christianhelle/httpgenerator/pull/266) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update openapi-dotnet monorepo to 1.6.28 [\#265](https://github.com/christianhelle/httpgenerator/pull/265) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency community.visualstudio.toolkit.16 to 16.0.545 [\#182](https://github.com/christianhelle/httpgenerator/pull/182) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [1.0.1-preview.17](https://github.com/christianhelle/httpgenerator/tree/1.0.1-preview.17) (2025-10-08)
 
