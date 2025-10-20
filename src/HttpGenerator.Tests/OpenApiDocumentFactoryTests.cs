@@ -28,4 +28,97 @@ public class OpenApiDocumentFactoryTests
             .Should()
             .NotBeNull();
     }
+
+    [Fact]
+    public async Task Create_With_Int64_Overflow_Should_Not_Throw()
+    {
+        const string openApiSpec = @"{
+  ""openapi"": ""3.0.0"",
+  ""info"": {
+    ""title"": ""Int64 Test API"",
+    ""version"": ""1.0.0""
+  },
+  ""paths"": {
+    ""/test"": {
+      ""post"": {
+        ""requestBody"": {
+          ""content"": {
+            ""application/json"": {
+              ""schema"": {
+                ""type"": ""object"",
+                ""properties"": {
+                  ""identifier"": {
+                    ""type"": ""integer"",
+                    ""format"": ""int64"",
+                    ""minimum"": -9223372036854775808,
+                    ""maximum"": 9223372036854775807
+                  }
+                }
+              }
+            }
+          }
+        },
+        ""responses"": {
+          ""200"": {
+            ""description"": ""Success""
+          }
+        }
+      }
+    }
+  }
+}";
+        var testFile = await TestFile.CreateSwaggerFile(openApiSpec, "int64-test.json");
+        var document = await OpenApiDocumentFactory.CreateAsync(testFile);
+
+        document.Should().NotBeNull();
+        document.Paths.Should().ContainKey("/test");
+    }
+
+    [Fact]
+    public async Task Create_With_Int64_Below_Int32_MinValue_Should_Not_Throw()
+    {
+        // Arrange
+        const string openApiSpec = @"{
+  ""openapi"": ""3.0.0"",
+  ""info"": {
+    ""title"": ""Int64 Test API"",
+    ""version"": ""1.0.0""
+  },
+  ""paths"": {
+    ""/test"": {
+      ""post"": {
+        ""requestBody"": {
+          ""content"": {
+            ""application/json"": {
+              ""schema"": {
+                ""type"": ""object"",
+                ""properties"": {
+                  ""identifier"": {
+                    ""type"": ""integer"",
+                    ""format"": ""int64"",
+                    ""minimum"": -2147483649
+                  }
+                }
+              }
+            }
+          }
+        },
+        ""responses"": {
+          ""200"": {
+            ""description"": ""Success""
+          }
+        }
+      }
+    }
+  }
+}";
+        var testFile = await TestFile.CreateSwaggerFile(openApiSpec, "int64-test2.json");
+
+        // Act
+        var document = await OpenApiDocumentFactory.CreateAsync(testFile);
+
+        // Assert
+        document.Should().NotBeNull();
+        document.Paths.Should().ContainKey("/test");
+    }
 }
