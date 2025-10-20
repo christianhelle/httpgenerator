@@ -250,6 +250,37 @@ public class SwaggerPetstoreTests
         generatedCode.Files.Select(c=>c.Content).Should().Contain(c => c.Contains("https://petstore.swagger.io"));
     }
 
+    [Theory]
+    [InlineData("int64-overflow-test.json", OutputType.OneRequestPerFile)]
+    [InlineData("int64-overflow-yaml-test.yaml", OutputType.OneRequestPerFile)]
+    [InlineData("int64-overflow-test.json", OutputType.OneFile)]
+    [InlineData("int64-overflow-yaml-test.yaml", OutputType.OneFile)]
+    public async Task Can_Generate_Code_For_Int64_With_Overflow_Values(
+        string filename,
+        OutputType outputType)
+    {
+        var testFilePath = Path.Combine(
+            Path.GetDirectoryName(typeof(SwaggerPetstoreTests).Assembly.Location)!,
+            "..", "..", "..", "..", "..", "test", "OpenAPI", "v3.0", filename);
+
+        var generatedCode = await HttpFileGenerator.Generate(
+            new GeneratorSettings
+            {
+                OpenApiPath = testFilePath,
+                OutputType = outputType,
+                GenerateIntelliJTests = true,
+            });
+
+        using var scope = new AssertionScope();
+        generatedCode.Should().NotBeNull();
+        generatedCode.Files.Should().NotBeNullOrEmpty();
+        generatedCode.Files.Should().HaveCountGreaterThan(0);
+        generatedCode.Files
+            .All(file => !string.IsNullOrWhiteSpace(file.Content))
+            .Should()
+            .BeTrue();
+    }
+
     private static async Task<GeneratorResult> GenerateCode(
         Samples version,
         string filename,

@@ -1,0 +1,40 @@
+openapi: 3.0.0
+info:
+  title: Int64 Overflow Test API
+  version: 1.0.0
+  description: API to test int64 properties with minimum values lower than int32 min
+servers:
+  - url: https://api.example.com
+paths:
+  /test:
+    post:
+      summary: Test endpoint with int64 property
+      operationId: testInt64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WritableL2VPNRequest'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  result:
+                    type: string
+components:
+  schemas:
+    WritableL2VPNRequest:
+      type: object
+      description: Adds support for custom fields and tags.
+      properties:
+        identifier:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true

@@ -1,0 +1,76 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Int64 Overflow Test API",
+    "version": "1.0.0",
+    "description": "API to test int64 properties with minimum values lower than int32 min"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com"
+    }
+  ],
+  "paths": {
+    "/test": {
+      "post": {
+        "summary": "Test endpoint with int64 property",
+        "operationId": "testInt64",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "TestRequest": {
+        "type": "object",
+        "properties": {
+          "identifier": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": -9223372036854775808,
+            "maximum": 9223372036854775807,
+            "nullable": true,
+            "description": "Int64 with full range minimum value"
+          },
+          "largeNegative": {
+            "type": "integer",
+            "format": "int64",
+            "minimum": -2147483649,
+            "maximum": 9223372036854775807,
+            "nullable": true,
+            "description": "Int64 with minimum one less than int32 min"
+          }
+        }
+      },
+      "TestResponse": {
+        "type": "object",
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
