@@ -9,6 +9,7 @@ public class OpenApiDocumentFactoryTests
     [Theory]
     [InlineData("https://developers.intellihr.io/docs/v1/swagger.json")] // GZIP encoded
     [InlineData("http://raw.githubusercontent.com/christianhelle/httpgenerator/main/test/OpenAPI/v3.0/petstore.json")]
+    [InlineData("https://demo.netbox.dev/api/schema")]
     public async Task Create_From_Uri_Returns_NotNull(string url)
     {
         (await OpenApiDocumentFactory.CreateAsync(url))
