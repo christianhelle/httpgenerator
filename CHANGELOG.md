@@ -4,8 +4,17 @@
 
 [Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.1-preview.17...HEAD)
 
+**Implemented enhancements:**
+
+- Verify NetBox REST API [\#274](https://github.com/christianhelle/httpgenerator/pull/274) ([christianhelle](https://github.com/christianhelle))
+
+**Fixed bugs:**
+
+- Crash and error on int64 properties with minimum limits lower than int32 lowest value [\#36](https://github.com/christianhelle/httpgenerator/issues/36)
+
 **Merged pull requests:**
 
+- chore\(deps\): update dependency @types/node to v22.18.11 [\#273](https://github.com/christianhelle/httpgenerator/pull/273) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency system.text.json to 9.0.10 [\#272](https://github.com/christianhelle/httpgenerator/pull/272) ([renovate[bot]](https://github.com/apps/renovate))
 - Fix Code Coverage workflow [\#271](https://github.com/christianhelle/httpgenerator/pull/271) ([christianhelle](https://github.com/christianhelle))
 - chore\(deps\): update actions/setup-node action to v6 [\#270](https://github.com/christianhelle/httpgenerator/pull/270) ([renovate[bot]](https://github.com/apps/renovate))
