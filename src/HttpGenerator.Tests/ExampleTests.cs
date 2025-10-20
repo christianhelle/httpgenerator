@@ -7,6 +7,7 @@ namespace HttpGenerator.Tests;
 public class ExampleTests
 {
     [Theory]
+    [Trait("Category", "Integration")]
     [InlineData("https://demo.netbox.dev/api/schema", OutputType.OneFile)]
     [InlineData("https://demo.netbox.dev/api/schema", OutputType.OneFilePerTag)]
     [InlineData("https://demo.netbox.dev/api/schema", OutputType.OneRequestPerFile)]
