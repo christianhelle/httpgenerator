@@ -37,7 +37,7 @@ jobs:
       - name: 🧪 Test
         run: dotnet test HttpGenerator.sln -c Release
       - name: 🗳️ Upload
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Packages
           path: |
