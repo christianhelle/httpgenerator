@@ -15,7 +15,13 @@
 **Merged pull requests:**
 
 - chore\(deps\): update actions/checkout action to v6 [\#286](https://github.com/christianhelle/httpgenerator/pull/286) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency microsoft.extensions.azure to 1.13.1 [\#285](https://github.com/christianhelle/httpgenerator/pull/285) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/vscode to v1.106.1 [\#284](https://github.com/christianhelle/httpgenerator/pull/284) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/node to v24.10.1 [\#283](https://github.com/christianhelle/httpgenerator/pull/283) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update openapi-dotnet monorepo to v3 \(major\) [\#282](https://github.com/christianhelle/httpgenerator/pull/282) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency microsoft.net.test.sdk to 18.0.1 [\#279](https://github.com/christianhelle/httpgenerator/pull/279) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency node to v24 [\#278](https://github.com/christianhelle/httpgenerator/pull/278) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency spectre.console.cli to 0.53.0 [\#277](https://github.com/christianhelle/httpgenerator/pull/277) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/upload-artifact action to v5 [\#276](https://github.com/christianhelle/httpgenerator/pull/276) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/node to v22.18.11 [\#273](https://github.com/christianhelle/httpgenerator/pull/273) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency system.text.json to 9.0.10 [\#272](https://github.com/christianhelle/httpgenerator/pull/272) ([renovate[bot]](https://github.com/apps/renovate))
