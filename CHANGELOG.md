@@ -14,6 +14,7 @@
 
 **Merged pull requests:**
 
+- Revert breaking OpenAPI v3.x upgrades and fix Spectre.Console.Cli signature [\#287](https://github.com/christianhelle/httpgenerator/pull/287) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - chore\(deps\): update actions/checkout action to v6 [\#286](https://github.com/christianhelle/httpgenerator/pull/286) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.extensions.azure to 1.13.1 [\#285](https://github.com/christianhelle/httpgenerator/pull/285) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/vscode to v1.106.1 [\#284](https://github.com/christianhelle/httpgenerator/pull/284) ([renovate[bot]](https://github.com/apps/renovate))
