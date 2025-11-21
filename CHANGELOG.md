@@ -14,6 +14,9 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update actions/checkout action to v6 [\#286](https://github.com/christianhelle/httpgenerator/pull/286) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency node to v24 [\#278](https://github.com/christianhelle/httpgenerator/pull/278) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/upload-artifact action to v5 [\#276](https://github.com/christianhelle/httpgenerator/pull/276) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/node to v22.18.11 [\#273](https://github.com/christianhelle/httpgenerator/pull/273) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency system.text.json to 9.0.10 [\#272](https://github.com/christianhelle/httpgenerator/pull/272) ([renovate[bot]](https://github.com/apps/renovate))
 - Fix Code Coverage workflow [\#271](https://github.com/christianhelle/httpgenerator/pull/271) ([christianhelle](https://github.com/christianhelle))
