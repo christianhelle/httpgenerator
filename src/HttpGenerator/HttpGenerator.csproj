@@ -17,7 +17,7 @@
         <PackageReference Include="Microsoft.ApplicationInsights.WindowsServer" Version="2.23.0" />
         <PackageReference Include="Microsoft.OpenApi.OData" Version="3.0.0" />
         <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.28" />
-        <PackageReference Include="Spectre.Console.Cli" Version="0.52.0" />
+        <PackageReference Include="Spectre.Console.Cli" Version="0.53.0" />
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     </ItemGroup>
 
