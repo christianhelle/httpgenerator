@@ -81,7 +81,8 @@ public static class OpenApiDocumentFactory
     /// <returns>True if the path is an HTTP URL, otherwise false.</returns>
     private static bool IsHttp(string path)
     {
-        return path.StartsWith("http://") || path.StartsWith("https://");
+        return path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+               path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -91,6 +92,7 @@ public static class OpenApiDocumentFactory
     /// <returns>True if the path is a YAML file, otherwise false.</returns>
     private static bool IsYaml(string path)
     {
-        return path.EndsWith("yaml") || path.EndsWith("yml");
+        return path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
+               path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
     }
 }
