@@ -26,6 +26,8 @@ public class StringExtensionsTests
     [Theory]
     [InlineData("string", "String")]
     [InlineData("anotherString", "AnotherString")]
+    [InlineData("a", "A")]
+    [InlineData("", "")]
     public void CapitalizeFirstCharacter_ShouldCapitalize(string input, string expected)
     {
         var result = input.CapitalizeFirstCharacter();
