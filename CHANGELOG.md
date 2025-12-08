@@ -14,6 +14,7 @@
 
 **Merged pull requests:**
 
+- Fix string handling edge cases and case-insensitive URL/file detection [\#290](https://github.com/christianhelle/httpgenerator/pull/290) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Revert breaking OpenAPI v3.x upgrades and fix Spectre.Console.Cli signature [\#287](https://github.com/christianhelle/httpgenerator/pull/287) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - chore\(deps\): update actions/checkout action to v6 [\#286](https://github.com/christianhelle/httpgenerator/pull/286) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.extensions.azure to 1.13.1 [\#285](https://github.com/christianhelle/httpgenerator/pull/285) ([renovate[bot]](https://github.com/apps/renovate))
@@ -240,7 +241,7 @@
 **Implemented enhancements:**
 
 - Generate one file per tag [\#97](https://github.com/christianhelle/httpgenerator/issues/97)
-- Generate file per tag [\#98](https://github.com/christianhelle/httpgenerator/pull/98) ([ikopytko](https://github.com/ikopytko))
+- Generate file per tag [\#98](https://github.com/christianhelle/httpgenerator/pull/98) ([handlemind](https://github.com/handlemind))
 - Handle multi-line operation descriptions [\#96](https://github.com/christianhelle/httpgenerator/pull/96) ([christianhelle](https://github.com/christianhelle))
 - Introduce --timeout option [\#95](https://github.com/christianhelle/httpgenerator/pull/95) ([christianhelle](https://github.com/christianhelle))
 
