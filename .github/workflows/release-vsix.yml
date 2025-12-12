@@ -40,7 +40,7 @@ jobs:
       run: |
         mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix.vsix
     - name: Publish artifacts
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: Visual Studio Extension
         path: |
