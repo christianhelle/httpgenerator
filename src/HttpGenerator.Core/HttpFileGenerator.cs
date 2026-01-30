@@ -261,29 +261,30 @@ public static class HttpFileGenerator
             code);
 
         var url = operationPath.Key.Replace("{", "{{").Replace("}", "}}");
-        if (url.Contains("{") || url.Contains("}"))
+        
+        // Handle path parameters - replace placeholders in the URL
+        foreach (var parameterName in parameterNameMap)
         {
-            foreach (var parameterName in parameterNameMap)
-            {
-                url = url.Replace($"{{{{{parameterName.Key}}}}}", $"{{{{{parameterName.Value}}}}}");
-            }
+            url = url.Replace($"{{{{{parameterName.Key}}}}}", $"{{{{{parameterName.Value}}}}}");
         }
-        else
+        
+        // Handle query parameters - append to URL
+        var queryParameters = operation
+            .Parameters
+            .Where(c => c.In == ParameterLocation.Query)
+            .ToArray();
+        
+        if (queryParameters.Length > 0)
         {
-            if (parameterNameMap.Count > 0)
+            url += "?";
+            foreach (var queryParam in queryParameters)
             {
-                url += "?";
+                var variableName = parameterNameMap.TryGetValue(queryParam.Name, out var mappedName) 
+                    ? mappedName 
+                    : queryParam.Name;
+                url += $"{queryParam.Name}={{{{{variableName}}}}}&";
             }
-
-            foreach (var parameterName in parameterNameMap)
-            {
-                url += $"{parameterName.Key}={{{{{parameterName.Value}}}}}&";
-            }
-
-            if (parameterNameMap.Count > 0)
-            {
-                url = url.Remove(url.Length - 1);
-            }
+            url = url.Remove(url.Length - 1); // Remove trailing &
         }
 
         code.AppendLine($"{verb.ToUpperInvariant()} {{{{baseUrl}}}}{url}");
