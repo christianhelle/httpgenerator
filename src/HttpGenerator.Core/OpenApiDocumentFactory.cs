@@ -66,12 +66,12 @@ public static class OpenApiDocumentFactory
     /// <returns>The content of the HTTP request.</returns>
     private static async Task<string> GetHttpContent(string openApiPath)
     {
-        using var httpMessageHandler = new HttpClientHandler
+        var httpMessageHandler = new HttpClientHandler
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
         };
-        using var http = new HttpClient(httpMessageHandler, disposeHandler: false);
+        using var http = new HttpClient(httpMessageHandler, disposeHandler: true);
         var content = await http.GetStringAsync(openApiPath);
         return content;
     }
