@@ -16,6 +16,7 @@
 
 - chore\(deps\): update dependency coverlet.collector to v8 [\#303](https://github.com/christianhelle/httpgenerator/pull/303) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.net.test.sdk to 18.3.0 [\#302](https://github.com/christianhelle/httpgenerator/pull/302) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency community.visualstudio.toolkit.16 to 16.0.549 [\#299](https://github.com/christianhelle/httpgenerator/pull/299) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency ruby to v4 [\#296](https://github.com/christianhelle/httpgenerator/pull/296) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/upload-artifact action to v7 [\#294](https://github.com/christianhelle/httpgenerator/pull/294) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/vscode to v1.110.0 [\#293](https://github.com/christianhelle/httpgenerator/pull/293) ([renovate[bot]](https://github.com/apps/renovate))
