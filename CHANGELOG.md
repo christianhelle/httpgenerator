@@ -14,8 +14,11 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency microsoft.net.test.sdk to 18.3.0 [\#302](https://github.com/christianhelle/httpgenerator/pull/302) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency ruby to v4 [\#296](https://github.com/christianhelle/httpgenerator/pull/296) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/upload-artifact action to v7 [\#294](https://github.com/christianhelle/httpgenerator/pull/294) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/vscode to v1.110.0 [\#293](https://github.com/christianhelle/httpgenerator/pull/293) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/node to v24.12.0 [\#292](https://github.com/christianhelle/httpgenerator/pull/292) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/node to v24.10.2 [\#291](https://github.com/christianhelle/httpgenerator/pull/291) ([renovate[bot]](https://github.com/apps/renovate))
 - Fix string handling edge cases and case-insensitive URL/file detection [\#290](https://github.com/christianhelle/httpgenerator/pull/290) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Revert breaking OpenAPI v3.x upgrades and fix Spectre.Console.Cli signature [\#287](https://github.com/christianhelle/httpgenerator/pull/287) ([Copilot](https://github.com/apps/copilot-swe-agent))
