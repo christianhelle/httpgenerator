@@ -66,10 +66,12 @@ public static class OpenApiDocumentFactory
     /// <returns>The content of the HTTP request.</returns>
     private static async Task<string> GetHttpContent(string openApiPath)
     {
-        var httpMessageHandler = new HttpClientHandler();
-        httpMessageHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-        httpMessageHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-        using var http = new HttpClient(httpMessageHandler);
+        var httpMessageHandler = new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+        using var http = new HttpClient(httpMessageHandler, disposeHandler: true);
         var content = await http.GetStringAsync(openApiPath);
         return content;
     }
@@ -83,16 +85,5 @@ public static class OpenApiDocumentFactory
     {
         return path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
                path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// Determines whether the specified path is a YAML file.
-    /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns>True if the path is a YAML file, otherwise false.</returns>
-    private static bool IsYaml(string path)
-    {
-        return path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
-               path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -57,7 +57,7 @@ public class Settings : CommandSettings
         $"{nameof(OutputType.OneFilePerTag)} generates one .http file per first tag associated with each request.")]
     [CommandOption("--output-type <OUTPUT-TYPE>")]
     [DefaultValue(OutputType.OneRequestPerFile)]
-    [AllowedValues(nameof(OutputType.OneRequestPerFile), nameof(OutputType.OneFile))]
+    [AllowedValues(nameof(OutputType.OneRequestPerFile), nameof(OutputType.OneFile), nameof(OutputType.OneFilePerTag))]
     public OutputType OutputType { get; set; } = OutputType.OneRequestPerFile;
 
     [Description("Azure Entra ID Scope to use for retrieving Access Token for Authorization header")]
