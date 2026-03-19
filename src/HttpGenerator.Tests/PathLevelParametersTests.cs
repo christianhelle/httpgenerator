@@ -43,7 +43,8 @@ public class PathLevelParametersTests
         var content = result.Files.First().Content;
         // Operation-level query parameter should get a variable definition
         content.Should().Contain("@GetListIssues_state");
-        content.Should().Contain("GET {{baseUrl}}/repos/{{owner}}/{{repo}}/issues");
+        // In OneFile mode, parameter names are prefixed with operation name to avoid collisions
+        content.Should().Contain("GET {{baseUrl}}/repos/{{GetListIssues_owner}}/{{GetListIssues_repo}}/issues");
     }
 
     [Fact]
@@ -56,9 +57,10 @@ public class PathLevelParametersTests
         result.Files.Should().ContainSingle();
         
         var content = result.Files.First().Content;
-        content.Should().Contain("{{owner}}");
-        content.Should().Contain("{{repo}}");
-        content.Should().Match("*/repos/{{owner}}/{{repo}}/issues*");
+        // In OneFile mode, parameter names are prefixed with operation name to avoid collisions
+        content.Should().Contain("{{GetListIssues_owner}}");
+        content.Should().Contain("{{GetListIssues_repo}}");
+        content.Should().Match("*/repos/{{GetListIssues_owner}}/{{GetListIssues_repo}}/issues*");
     }
 
     [Fact]
@@ -86,8 +88,8 @@ public class PathLevelParametersTests
         
         var content = result.Files.First().Content;
         
-        // The POST operation should use path-level parameters directly in URL
-        content.Should().Match("*POST*{{baseUrl}}/repos/{{owner}}/{{repo}}/issues*");
+        // In OneFile mode, parameter names are prefixed with operation name to avoid collisions
+        content.Should().Match("*POST*{{baseUrl}}/repos/{{PostCreateIssue_owner}}/{{PostCreateIssue_repo}}/issues*");
     }
 
     [Fact]
@@ -141,10 +143,10 @@ public class PathLevelParametersTests
         var content = result.Files.First().Content;
         
         // The GET /repos/{owner}/{repo}/issues has:
-        // - owner, repo from path level (used directly in URL)
+        // - owner, repo from path level (in OneFile mode, prefixed with operation name)
         // - state from operation level (gets variable definition)
-        content.Should().Contain("{{owner}}");
-        content.Should().Contain("{{repo}}");
+        content.Should().Contain("{{GetListIssues_owner}}");
+        content.Should().Contain("{{GetListIssues_repo}}");
         content.Should().Contain("@GetListIssues_state");
     }
 
