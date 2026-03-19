@@ -1,0 +1,147 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Path-Level Parameters Test API",
+    "description": "API for testing path-level parameter handling (issue #312)",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.github.com"
+    }
+  ],
+  "paths": {
+    "/repos/{owner}/{repo}/issues": {
+      "parameters": [
+        {
+          "name": "owner",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "The account owner of the repository"
+        },
+        {
+          "name": "repo",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "The name of the repository"
+        }
+      ],
+      "get": {
+        "summary": "List repository issues",
+        "description": "Lists issues in a repository. Path params from path item level should be included.",
+        "operationId": "listIssues",
+        "parameters": [
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["open", "closed", "all"],
+              "default": "open"
+            },
+            "description": "Indicates the state of the issues to return"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create an issue",
+        "description": "Creates an issue. Should inherit path-level params even with no operation params.",
+        "operationId": "createIssue",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                },
+                "required": ["title"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{username}": {
+      "parameters": [
+        {
+          "name": "username",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          },
+          "description": "The username"
+        }
+      ],
+      "get": {
+        "summary": "Get a user",
+        "description": "Gets a user by username. Tests path-level param with operation that overrides it.",
+        "operationId": "getUser",
+        "parameters": [
+          {
+            "name": "username",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Override of path-level username param"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
