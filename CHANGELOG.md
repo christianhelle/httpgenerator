@@ -21,6 +21,7 @@
 **Merged pull requests:**
 
 - fix: deduplicate filenames in OneRequestPerFile mode [\#325](https://github.com/christianhelle/httpgenerator/pull/325) ([christianhelle](https://github.com/christianhelle))
+- test: regression tests for query parameter URL generation \(\#315\) [\#324](https://github.com/christianhelle/httpgenerator/pull/324) ([christianhelle](https://github.com/christianhelle))
 - test: fix PathLevelParametersTests assertions for OneFile mode [\#323](https://github.com/christianhelle/httpgenerator/pull/323) ([christianhelle](https://github.com/christianhelle))
 - fix: generate meaningful JSON samples for allOf/oneOf/anyOf schemas [\#322](https://github.com/christianhelle/httpgenerator/pull/322) ([christianhelle](https://github.com/christianhelle))
 - test: regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
