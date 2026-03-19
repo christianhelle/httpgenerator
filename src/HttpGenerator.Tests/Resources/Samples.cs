@@ -14,4 +14,5 @@ public enum Samples
     PetstoreJsonV3WithMultlineDescriptions,
     NullParametersJsonV3,
     PathLevelParametersJsonV3,
+    QueryParametersJsonV3,
 }

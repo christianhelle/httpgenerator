@@ -29,6 +29,30 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 
 ## Learnings
 
+### PR #322: Enhanced JSON sample generation for allOf/oneOf/anyOf schemas (issue #313)
+**Date:** 2025-01-17
+
+**Problem:** `GenerateSampleJson()` only handled schemas with explicit `type` fields, returning a useless `{}` for schemas using `allOf`, `oneOf`, or `anyOf` composition keywords. Complex APIs like GitHub's (35,493 schemas) heavily use these composition patterns.
+
+**Solution:** Enhanced `GenerateSampleJson()` in `HttpFileGenerator.cs` to:
+1. Recursively delegate to first non-null sub-schema for `allOf`, `oneOf`, `anyOf`
+2. Generate property-aware JSON samples when `schema.Properties` is populated
+3. Added `GetPropertySampleValue()` helper for type-appropriate property values
+4. Limit properties to 3 for readability
+
+**Pattern learned:** OpenAPI composition keywords (`allOf`, `oneOf`, `anyOf`) are common in complex APIs and need recursive handling. When a schema has `.Properties` populated, generate JSON with actual property names instead of generic placeholders. Always check composition keywords before falling back to basic type-based generation.
+
+**Example output:** Instead of `{"property": "value"}`, now generates:
+```json
+{
+  "id": 0,
+  "name": "example",
+  "category": {"property": "value"}
+}
+```
+
+**Testing:** All 180 passing tests remain green (4 pre-existing PathLevelParametersTests failures unrelated to JSON generation). Validated with petstore.json showing property-aware samples.
+
 ### PR #319: Fixed query parameter dropping bug (issue #315)
 **Date:** 2025-01-17
 

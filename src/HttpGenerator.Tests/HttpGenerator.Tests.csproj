@@ -39,6 +39,7 @@
     <EmbeddedResource Include="Resources\V3\SwaggerPetstoreWithMultlineDescriptions.yaml" />
     <EmbeddedResource Include="Resources\V3\NullParameters.json" />
     <EmbeddedResource Include="Resources\V3\PathLevelParameters.json" />
+    <EmbeddedResource Include="Resources\V3\QueryParameters.json" />
     <EmbeddedResource Include="Resources\V31\non-oauth-scopes.json" />
     <EmbeddedResource Include="Resources\V31\non-oauth-scopes.yaml" />
     <EmbeddedResource Include="Resources\V31\webhook-example.json" />

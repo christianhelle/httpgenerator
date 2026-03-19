@@ -31,3 +31,13 @@ Created regression tests for issue #312 (path-level parameter merging) in PR #32
 - **Test coverage:** 13 tests covering all output types, parameter inheritance, override behavior, and mixed parameter sources
 - **PR:** https://github.com/christianhelle/httpgenerator/pull/320
 
+### Operation-Qualified Variable Names in OneFile Mode (2025-03-19)
+
+Fixed 4 failing tests in `PathLevelParametersTests.cs` that had incorrect expectations for `OneFile` output mode:
+- **Root cause:** In `OneFile` and `OneFilePerTag` modes, `GetParameterName()` in `HttpFileGenerator.cs` prefixes variable names with the operation name (e.g., `{{GetListIssues_owner}}`, `{{PostCreateIssue_repo}}`) to avoid collisions when multiple requests in the same file share parameter names.
+- **This is INTENTIONAL behavior, not a bug** — required to prevent variable name conflicts across different operations in the same .http file
+- **OneRequestPerFile mode:** Uses unqualified names (`{{owner}}`, `{{repo}}`) since each request is in its own file with no collision risk
+- **Fixed tests:** Updated assertions in 4 tests to expect operation-qualified names in OneFile mode
+- **Test results:** All 13 PathLevelParametersTests pass, full suite: 184 tests pass
+- **PR:** https://github.com/christianhelle/httpgenerator/pull/323
+
