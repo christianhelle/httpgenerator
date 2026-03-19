@@ -16,6 +16,7 @@
 
 **Merged pull requests:**
 
+- test: regression tests for null operation.Parameters \(\#310, \#311\) [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
 - fix: null-guard operation.Parameters and parameter entries [\#316](https://github.com/christianhelle/httpgenerator/pull/316) ([christianhelle](https://github.com/christianhelle))
 - Setup Squad [\#307](https://github.com/christianhelle/httpgenerator/pull/307) ([christianhelle](https://github.com/christianhelle))
 - chore\(deps\): update dependency coverlet.collector to v8 [\#303](https://github.com/christianhelle/httpgenerator/pull/303) ([renovate[bot]](https://github.com/apps/renovate))
