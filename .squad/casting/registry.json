@@ -1,0 +1,52 @@
+{
+  "agents": [
+    {
+      "persistent_name": "Ripley",
+      "universe": "aliens",
+      "role": "Lead",
+      "created_at": "2026-03-19T09:28:56Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Hicks",
+      "universe": "aliens",
+      "role": "Core Dev",
+      "created_at": "2026-03-19T09:28:56Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Bishop",
+      "universe": "aliens",
+      "role": "Tester",
+      "created_at": "2026-03-19T09:28:56Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Hudson",
+      "universe": "aliens",
+      "role": "DevRel/Docs",
+      "created_at": "2026-03-19T09:28:56Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Scribe",
+      "universe": "exempt",
+      "role": "Scribe",
+      "created_at": "2026-03-19T09:28:56Z",
+      "legacy_named": false,
+      "status": "active"
+    },
+    {
+      "persistent_name": "Ralph",
+      "universe": "exempt",
+      "role": "Work Monitor",
+      "created_at": "2026-03-19T09:28:56Z",
+      "legacy_named": false,
+      "status": "active"
+    }
+  ]
+}

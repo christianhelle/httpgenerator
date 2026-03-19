@@ -1,0 +1,6 @@
+{
+  "allowlist": ["aliens"],
+  "default_size": 6,
+  "overflow_strategy": "diegetic_expansion",
+  "notes": "One universe per assignment. Never mix. Scribe and Ralph are exempt."
+}
