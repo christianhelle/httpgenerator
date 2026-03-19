@@ -1,0 +1,86 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Null Parameters Test API",
+    "description": "API for testing null parameter handling",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com"
+    }
+  ],
+  "paths": {
+    "/no-parameters": {
+      "get": {
+        "summary": "Operation with no parameters field",
+        "description": "This operation has no parameters field to test null Parameters collection",
+        "operationId": "getNoParameters",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/with-parameters": {
+      "get": {
+        "summary": "Operation with valid parameters",
+        "description": "This operation has valid parameters to verify normal case still works",
+        "operationId": "getWithParameters",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "The ID parameter"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Status filter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
