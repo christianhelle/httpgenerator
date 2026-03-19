@@ -261,29 +261,33 @@ public static class HttpFileGenerator
             code);
 
         var url = operationPath.Key.Replace("{", "{{").Replace("}", "}}");
-        if (url.Contains("{") || url.Contains("}"))
+        
+        // Separate path parameters (in URL template) from query parameters
+        var pathParams = new List<KeyValuePair<string, string>>();
+        var queryParams = new List<KeyValuePair<string, string>>();
+        
+        foreach (var param in parameterNameMap)
         {
-            foreach (var parameterName in parameterNameMap)
+            if (operationPath.Key.Contains($"{{{param.Key}}}"))
             {
-                url = url.Replace($"{{{{{parameterName.Key}}}}}", $"{{{{{parameterName.Value}}}}}");
+                pathParams.Add(param);
+            }
+            else
+            {
+                queryParams.Add(param);
             }
         }
-        else
+        
+        // Replace path parameter placeholders in URL
+        foreach (var pathParam in pathParams)
         {
-            if (parameterNameMap.Count > 0)
-            {
-                url += "?";
-            }
-
-            foreach (var parameterName in parameterNameMap)
-            {
-                url += $"{parameterName.Key}={{{{{parameterName.Value}}}}}&";
-            }
-
-            if (parameterNameMap.Count > 0)
-            {
-                url = url.Remove(url.Length - 1);
-            }
+            url = url.Replace($"{{{{{pathParam.Key}}}}}", $"{{{{{pathParam.Value}}}}}");
+        }
+        
+        // Append query parameters as query string
+        if (queryParams.Count > 0)
+        {
+            url += "?" + string.Join("&", queryParams.Select(p => $"{p.Key}={{{{{p.Value}}}}}"));
         }
 
         code.AppendLine($"{verb.ToUpperInvariant()} {{{{baseUrl}}}}{url}");
