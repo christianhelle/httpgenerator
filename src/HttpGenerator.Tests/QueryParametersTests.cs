@@ -7,51 +7,97 @@ namespace HttpGenerator.Tests;
 
 public class QueryParametersTests
 {
+    [Fact]
+    public async Task Generate_Should_Include_Query_Parameters_For_Query_Only_Operation_OneRequestPerFile()
+    {
+        // In OneRequestPerFile mode, variable names are unqualified (just the param name)
+        var result = await GenerateCode(OutputType.OneRequestPerFile);
+
+        using var scope = new AssertionScope();
+        result.Should().NotBeNull();
+        result.Files.Should().NotBeNullOrEmpty();
+
+        var searchContent = GetContentContaining(result, "/search");
+        searchContent.Should().Contain("GET {{baseUrl}}/search?q={{q}}&page={{page}}");
+    }
+
     [Theory]
-    [InlineData(OutputType.OneRequestPerFile)]
     [InlineData(OutputType.OneFile)]
     [InlineData(OutputType.OneFilePerTag)]
-    public async Task Generate_Should_Include_Query_Parameters_For_Query_Only_Operation(OutputType outputType)
+    public async Task Generate_Should_Include_Query_Parameters_For_Query_Only_Operation_MultiFile(OutputType outputType)
     {
+        // In OneFile/OneFilePerTag modes, variable names are operation-qualified to avoid collisions
         var result = await GenerateCode(outputType);
 
         using var scope = new AssertionScope();
         result.Should().NotBeNull();
         result.Files.Should().NotBeNullOrEmpty();
-        
+
         var searchContent = GetContentContaining(result, "/search");
         searchContent.Should().Contain("GET {{baseUrl}}/search?q={{GetSearch_q}}&page={{GetSearch_page}}");
     }
 
-    [Theory]
-    [InlineData(OutputType.OneRequestPerFile)]
-    [InlineData(OutputType.OneFile)]
-    [InlineData(OutputType.OneFilePerTag)]
-    public async Task Generate_Should_Include_Path_Parameters_For_Path_Only_Operation(OutputType outputType)
+    [Fact]
+    public async Task Generate_Should_Include_Path_Parameters_For_Path_Only_Operation_OneRequestPerFile()
     {
-        var result = await GenerateCode(outputType);
+        // In OneRequestPerFile mode, variable names are unqualified (just the param name)
+        var result = await GenerateCode(OutputType.OneRequestPerFile);
 
         using var scope = new AssertionScope();
         result.Should().NotBeNull();
         result.Files.Should().NotBeNullOrEmpty();
-        
+
         var userContent = GetContentContaining(result, "/users");
         userContent.Should().Contain("GET {{baseUrl}}/users/{{userId}}");
         userContent.Should().NotContain("?");
     }
 
     [Theory]
-    [InlineData(OutputType.OneRequestPerFile)]
     [InlineData(OutputType.OneFile)]
     [InlineData(OutputType.OneFilePerTag)]
-    public async Task Generate_Should_Include_Both_Path_And_Query_Parameters(OutputType outputType)
+    public async Task Generate_Should_Include_Path_Parameters_For_Path_Only_Operation_MultiFile(OutputType outputType)
     {
+        // In OneFile/OneFilePerTag modes, variable names are operation-qualified to avoid collisions
         var result = await GenerateCode(outputType);
 
         using var scope = new AssertionScope();
         result.Should().NotBeNull();
         result.Files.Should().NotBeNullOrEmpty();
-        
+
+        var userContent = GetContentContaining(result, "/users");
+        // Verify the /users path uses the correct operation-qualified variable
+        userContent.Should().Contain("GET {{baseUrl}}/users/{{GetUserById_userId}}");
+        // Note: NotContain("?") is intentionally omitted for multi-file modes because the fixture has no
+        // tags, so OneFilePerTag produces a single "Default.http" containing ALL operations (including
+        // /repos which has query params). Only OneRequestPerFile guarantees isolated per-operation files.
+    }
+
+    [Fact]
+    public async Task Generate_Should_Include_Both_Path_And_Query_Parameters_OneRequestPerFile()
+    {
+        // In OneRequestPerFile mode, variable names are unqualified (just the param name)
+        var result = await GenerateCode(OutputType.OneRequestPerFile);
+
+        using var scope = new AssertionScope();
+        result.Should().NotBeNull();
+        result.Files.Should().NotBeNullOrEmpty();
+
+        var repoContent = GetContentContaining(result, "/repos");
+        repoContent.Should().Contain("GET {{baseUrl}}/repos/{{owner}}/{{repo}}/issues?state={{state}}&per_page={{per_page}}");
+    }
+
+    [Theory]
+    [InlineData(OutputType.OneFile)]
+    [InlineData(OutputType.OneFilePerTag)]
+    public async Task Generate_Should_Include_Both_Path_And_Query_Parameters_MultiFile(OutputType outputType)
+    {
+        // In OneFile/OneFilePerTag modes, variable names are operation-qualified to avoid collisions
+        var result = await GenerateCode(outputType);
+
+        using var scope = new AssertionScope();
+        result.Should().NotBeNull();
+        result.Files.Should().NotBeNullOrEmpty();
+
         var repoContent = GetContentContaining(result, "/repos");
         repoContent.Should().Contain("GET {{baseUrl}}/repos/{{GetRepoIssues_owner}}/{{GetRepoIssues_repo}}/issues?state={{GetRepoIssues_state}}&per_page={{GetRepoIssues_per_page}}");
     }
