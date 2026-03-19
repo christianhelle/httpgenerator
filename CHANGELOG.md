@@ -18,6 +18,7 @@
 
 **Merged pull requests:**
 
+- test: regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
 - fix: correctly append query parameters to URL [\#319](https://github.com/christianhelle/httpgenerator/pull/319) ([christianhelle](https://github.com/christianhelle))
 - fix: merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
 - test: regression tests for null operation.Parameters \(\#310, \#311\) [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
