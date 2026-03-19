@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- GenerateSampleJson produces empty JSON for allOf/oneOf/anyOf composed schemas [\#313](https://github.com/christianhelle/httpgenerator/issues/313)
 - Verify NetBox REST API [\#274](https://github.com/christianhelle/httpgenerator/pull/274) ([christianhelle](https://github.com/christianhelle))
 
 **Fixed bugs:**
@@ -19,6 +20,7 @@
 **Merged pull requests:**
 
 - test: fix PathLevelParametersTests assertions for OneFile mode [\#323](https://github.com/christianhelle/httpgenerator/pull/323) ([christianhelle](https://github.com/christianhelle))
+- fix: generate meaningful JSON samples for allOf/oneOf/anyOf schemas [\#322](https://github.com/christianhelle/httpgenerator/pull/322) ([christianhelle](https://github.com/christianhelle))
 - test: regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
 - fix: correctly append query parameters to URL [\#319](https://github.com/christianhelle/httpgenerator/pull/319) ([christianhelle](https://github.com/christianhelle))
 - fix: merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
