@@ -157,6 +157,7 @@ public static class HttpFileGenerator
             return new GeneratorResult(files);
         }
         
+        var seenFilenames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         files.Capacity = document.Paths.Count;
         foreach (var kv in document.Paths)
         {
@@ -176,7 +177,7 @@ public static class HttpFileGenerator
                 var operation = operations_kv.Value;
                 var verb = operations_kv.Key.CapitalizeFirstCharacter();
                 var name = operationNameGenerator.GetOperationName(document, kv.Key, verb, operation);
-                var filename = $"{name.CapitalizeFirstCharacter()}.http";
+                var filename = GetUniqueFilename($"{name.CapitalizeFirstCharacter()}.http", seenFilenames);
 
                 var code = new StringBuilder();
                 WriteFileHeaders(settings, code, baseUrl);
@@ -466,6 +467,22 @@ public static class HttpFileGenerator
 
         code.AppendLine();
         return parameterNameMap;
+    }
+
+    private static string GetUniqueFilename(string filename, HashSet<string> seen)
+    {
+        if (seen.Add(filename))
+            return filename;
+
+        var name = Path.GetFileNameWithoutExtension(filename);
+        var ext = Path.GetExtension(filename);
+        var counter = 2;
+        string candidate;
+        do
+        {
+            candidate = $"{name}_{counter++}{ext}";
+        } while (!seen.Add(candidate));
+        return candidate;
     }
 
     private static string GetParameterName(
