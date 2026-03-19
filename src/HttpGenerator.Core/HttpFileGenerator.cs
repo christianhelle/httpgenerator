@@ -421,8 +421,20 @@ public static class HttpFileGenerator
         IOperationNameGenerator operationNameGenerator,
         StringBuilder code)
     {
-        var parameters = (operation.Parameters ?? Enumerable.Empty<OpenApiParameter>())
-            .Where(c => c is not null && (c.In == ParameterLocation.Path || c.In == ParameterLocation.Query))
+        // Merge path-level parameters with operation-level parameters.
+        // Operation-level parameters override path-level ones with the same name+in.
+        var pathLevelParams = operationPath.Value.Parameters
+            ?? Enumerable.Empty<OpenApiParameter>();
+
+        var operationParams = operation.Parameters
+            ?? Enumerable.Empty<OpenApiParameter>();
+
+        var parameters = pathLevelParams
+            .Where(p => p is not null)
+            .Concat(operationParams.Where(p => p is not null))
+            .GroupBy(p => (p.Name, p.In))
+            .Select(g => g.Last()) // operation-level wins (it's appended last)
+            .Where(p => p.In == ParameterLocation.Path || p.In == ParameterLocation.Query)
             .ToArray();
 
         var parameterNameMap = new Dictionary<string, string>();
