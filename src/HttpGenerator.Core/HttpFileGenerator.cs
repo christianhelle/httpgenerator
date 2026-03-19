@@ -510,7 +510,26 @@ public static class HttpFileGenerator
     {
         if (schema == null) return null;
 
-        // Very basic JSON sample generation
+        // Handle composition keywords (allOf, oneOf, anyOf)
+        if (schema.AllOf?.Count > 0)
+            return GenerateSampleJson(schema.AllOf.FirstOrDefault(s => s != null));
+
+        if (schema.OneOf?.Count > 0)
+            return GenerateSampleJson(schema.OneOf.FirstOrDefault(s => s != null));
+
+        if (schema.AnyOf?.Count > 0)
+            return GenerateSampleJson(schema.AnyOf.FirstOrDefault(s => s != null));
+
+        // Handle object with properties - generate property-aware samples
+        if (schema.Properties?.Count > 0)
+        {
+            var props = schema.Properties
+                .Take(3) // limit for readability
+                .Select(p => $"  \"{p.Key}\": {GetPropertySampleValue(p.Value)}");
+            return "{\n" + string.Join(",\n", props) + "\n}";
+        }
+
+        // Basic type-based JSON sample generation
         return schema.Type?.ToLowerInvariant() switch
         {
             "object" => "{\n  \"property\": \"value\"\n}",
@@ -520,6 +539,32 @@ public static class HttpFileGenerator
             "number" => "0",
             "boolean" => "true",
             _ => "{}"
+        };
+    }
+
+    private static string GetPropertySampleValue(OpenApiSchema schema)
+    {
+        if (schema == null) return "\"value\"";
+
+        // Recursively handle nested composition
+        if (schema.AllOf?.Count > 0)
+            return GetPropertySampleValue(schema.AllOf.FirstOrDefault(s => s != null) ?? schema);
+
+        if (schema.OneOf?.Count > 0)
+            return GetPropertySampleValue(schema.OneOf.FirstOrDefault(s => s != null) ?? schema);
+
+        if (schema.AnyOf?.Count > 0)
+            return GetPropertySampleValue(schema.AnyOf.FirstOrDefault(s => s != null) ?? schema);
+
+        return schema.Type?.ToLowerInvariant() switch
+        {
+            "string" => "\"example\"",
+            "integer" => "0",
+            "number" => "0.0",
+            "boolean" => "true",
+            "array" => "[\"item\"]",
+            "object" => "{\"property\": \"value\"}",
+            _ => "\"value\""
         };
     }
 }
