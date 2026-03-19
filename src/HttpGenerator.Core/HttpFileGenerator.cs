@@ -421,9 +421,8 @@ public static class HttpFileGenerator
         IOperationNameGenerator operationNameGenerator,
         StringBuilder code)
     {
-        var parameters = operation
-            .Parameters
-            .Where(c => c.In == ParameterLocation.Path || c.In == ParameterLocation.Query)
+        var parameters = (operation.Parameters ?? Enumerable.Empty<OpenApiParameter>())
+            .Where(c => c is not null && (c.In == ParameterLocation.Path || c.In == ParameterLocation.Query))
             .ToArray();
 
         var parameterNameMap = new Dictionary<string, string>();
