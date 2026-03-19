@@ -20,3 +20,14 @@
 - `make test` fails due to directory name collision — use `make -B test`
 
 ## Learnings
+
+### Test Fixture Format for Path-Level Parameters (2025-01-17)
+
+Created regression tests for issue #312 (path-level parameter merging) in PR #320:
+- **Test file:** `src/HttpGenerator.Tests/PathLevelParametersTests.cs`
+- **Fixture:** `src/HttpGenerator.Tests/Resources/V3/PathLevelParameters.json`
+- **Pattern:** Use GitHub API-style paths (`/repos/{owner}/{repo}/issues`) to test path-level params
+- **Key insight:** Path-level parameters (defined in `OpenApiPathItem.parameters`) are correctly merged into operation URLs as template variables (`{{owner}}`), but do NOT get variable definitions (@owner = str). Only operation-level query/header params get variable definitions.
+- **Test coverage:** 13 tests covering all output types, parameter inheritance, override behavior, and mixed parameter sources
+- **PR:** https://github.com/christianhelle/httpgenerator/pull/320
+

@@ -105,6 +105,16 @@ public static class EmbeddedResources
         }
     }
 
+    public static string PathLevelParametersJsonV3
+    {
+        get
+        {
+            using var stream = GetStream("V3.PathLevelParameters.json");
+            using var reader = new StreamReader(stream);
+            return reader.ReadToEnd();
+        }
+    }
+
     public static string GetSwaggerPetstore(Samples version)
     {
         return version switch
@@ -119,6 +129,7 @@ public static class EmbeddedResources
             Samples.PetstoreJsonV3WithMultlineDescriptions => GetStringFromEmbeddedResource("V3.SwaggerPetstoreWithMultlineDescriptions.json"),
             Samples.PetstoreYamlV3WithMultlineDescriptions => GetStringFromEmbeddedResource("V3.SwaggerPetstoreWithMultlineDescriptions.yaml"),
             Samples.NullParametersJsonV3 => NullParametersJsonV3,
+            Samples.PathLevelParametersJsonV3 => PathLevelParametersJsonV3,
             _ => SwaggerPetstoreJsonV3
         };
     }
