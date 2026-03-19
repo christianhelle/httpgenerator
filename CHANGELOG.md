@@ -7,6 +7,13 @@
 **Implemented enhancements:**
 
 - GenerateSampleJson produces empty JSON for allOf/oneOf/anyOf composed schemas [\#313](https://github.com/christianhelle/httpgenerator/issues/313)
+- Deduplicate filenames in OneRequestPerFile mode [\#325](https://github.com/christianhelle/httpgenerator/pull/325) ([christianhelle](https://github.com/christianhelle))
+- Regression tests for query parameter URL generation [\#324](https://github.com/christianhelle/httpgenerator/pull/324) ([christianhelle](https://github.com/christianhelle))
+- Fix failing PathLevelParametersTests assertions for OneFile mode [\#323](https://github.com/christianhelle/httpgenerator/pull/323) ([christianhelle](https://github.com/christianhelle))
+- Generate meaningful JSON samples for allOf/oneOf/anyOf schemas [\#322](https://github.com/christianhelle/httpgenerator/pull/322) ([christianhelle](https://github.com/christianhelle))
+- Correctly append query parameters to URL [\#319](https://github.com/christianhelle/httpgenerator/pull/319) ([christianhelle](https://github.com/christianhelle))
+- Merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
+- Null-guard operation.Parameters and parameter entries [\#316](https://github.com/christianhelle/httpgenerator/pull/316) ([christianhelle](https://github.com/christianhelle))
 - Verify NetBox REST API [\#274](https://github.com/christianhelle/httpgenerator/pull/274) ([christianhelle](https://github.com/christianhelle))
 
 **Fixed bugs:**
@@ -20,19 +27,18 @@
 
 **Merged pull requests:**
 
-- fix: deduplicate filenames in OneRequestPerFile mode [\#325](https://github.com/christianhelle/httpgenerator/pull/325) ([christianhelle](https://github.com/christianhelle))
-- test: regression tests for query parameter URL generation \(\#315\) [\#324](https://github.com/christianhelle/httpgenerator/pull/324) ([christianhelle](https://github.com/christianhelle))
-- test: fix PathLevelParametersTests assertions for OneFile mode [\#323](https://github.com/christianhelle/httpgenerator/pull/323) ([christianhelle](https://github.com/christianhelle))
-- fix: generate meaningful JSON samples for allOf/oneOf/anyOf schemas [\#322](https://github.com/christianhelle/httpgenerator/pull/322) ([christianhelle](https://github.com/christianhelle))
-- test: regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
-- fix: correctly append query parameters to URL [\#319](https://github.com/christianhelle/httpgenerator/pull/319) ([christianhelle](https://github.com/christianhelle))
-- fix: merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
-- test: regression tests for null operation.Parameters \(\#310, \#311\) [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
-- fix: null-guard operation.Parameters and parameter entries [\#316](https://github.com/christianhelle/httpgenerator/pull/316) ([christianhelle](https://github.com/christianhelle))
+- Regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
+- Regression tests for null operation.Parameters [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update actions/github-script action to v8 [\#309](https://github.com/christianhelle/httpgenerator/pull/309) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/checkout action to v6 [\#308](https://github.com/christianhelle/httpgenerator/pull/308) ([renovate[bot]](https://github.com/apps/renovate))
 - Setup Squad [\#307](https://github.com/christianhelle/httpgenerator/pull/307) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update dependency coverlet.collector to 8.0.1 [\#306](https://github.com/christianhelle/httpgenerator/pull/306) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency ruby to v4.0.2 [\#305](https://github.com/christianhelle/httpgenerator/pull/305) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update ghcr.io/devcontainers/features/powershell docker tag to v2 [\#304](https://github.com/christianhelle/httpgenerator/pull/304) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency coverlet.collector to v8 [\#303](https://github.com/christianhelle/httpgenerator/pull/303) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.net.test.sdk to 18.3.0 [\#302](https://github.com/christianhelle/httpgenerator/pull/302) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency community.visualstudio.toolkit.16 to 16.0.549 [\#299](https://github.com/christianhelle/httpgenerator/pull/299) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency system.text.json to 10.0.5 [\#297](https://github.com/christianhelle/httpgenerator/pull/297) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency ruby to v4 [\#296](https://github.com/christianhelle/httpgenerator/pull/296) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update actions/upload-artifact action to v7 [\#294](https://github.com/christianhelle/httpgenerator/pull/294) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/vscode to v1.110.0 [\#293](https://github.com/christianhelle/httpgenerator/pull/293) ([renovate[bot]](https://github.com/apps/renovate))
