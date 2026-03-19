@@ -28,3 +28,19 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 - Custom headers passed via `--custom-header` flag
 
 ## Learnings
+
+### PR #319: Fixed query parameter dropping bug (issue #315)
+**Date:** 2025-01-17
+
+**Problem:** Query parameters were silently dropped when an operation had both path and query parameters. The URL construction logic checked `url.Contains("{")` AFTER escaping `{` to `{{`, so the condition was always true for paths with parameters, making the query string append branch unreachable.
+
+**Solution:** Modified `GenerateRequest()` in `HttpFileGenerator.cs` to:
+1. Separate path params (those in the URL template) from query params (those not in URL template)
+2. Replace path parameter placeholders first: `{{owner}}` → `{{ownerVarName}}`
+3. Always append query params as query string: `?key={{varName}}&key2={{varName2}}`
+
+**Pattern learned:** When building URLs from OpenAPI operations, distinguish between path parameters (appear in URL template as `{param}`) and query parameters (must be appended as `?key=value`). Check parameter location against the original URL template BEFORE escaping braces.
+
+**Testing:** All 171 unit tests pass. Validated with petstore.json showing correct output for mixed param types:
+- Query only: `GET {{baseUrl}}/user/login?username={{username}}&password={{password}}`
+- Path + query: `POST {{baseUrl}}/pet/{{petId}}?name={{name}}&status={{status}}`
