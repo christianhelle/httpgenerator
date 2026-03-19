@@ -10,6 +10,7 @@
 
 **Fixed bugs:**
 
+- Query parameters incorrectly appended for operations with both path and query params [\#315](https://github.com/christianhelle/httpgenerator/issues/315)
 - Path-level parameters not merged into operation parameters [\#312](https://github.com/christianhelle/httpgenerator/issues/312)
 - NullReferenceException when Parameters list contains null entries \(unresolved $ef\) [\#311](https://github.com/christianhelle/httpgenerator/issues/311)
 - NullReferenceException when operation.Parameters is null \(GitHub API crash\) [\#310](https://github.com/christianhelle/httpgenerator/issues/310)
@@ -17,6 +18,7 @@
 
 **Merged pull requests:**
 
+- fix: correctly append query parameters to URL [\#319](https://github.com/christianhelle/httpgenerator/pull/319) ([christianhelle](https://github.com/christianhelle))
 - fix: merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
 - test: regression tests for null operation.Parameters \(\#310, \#311\) [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
 - fix: null-guard operation.Parameters and parameter entries [\#316](https://github.com/christianhelle/httpgenerator/pull/316) ([christianhelle](https://github.com/christianhelle))
