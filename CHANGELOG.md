@@ -10,12 +10,14 @@
 
 **Fixed bugs:**
 
+- Path-level parameters not merged into operation parameters [\#312](https://github.com/christianhelle/httpgenerator/issues/312)
 - NullReferenceException when Parameters list contains null entries \(unresolved $ef\) [\#311](https://github.com/christianhelle/httpgenerator/issues/311)
 - NullReferenceException when operation.Parameters is null \(GitHub API crash\) [\#310](https://github.com/christianhelle/httpgenerator/issues/310)
 - Crash and error on int64 properties with minimum limits lower than int32 lowest value [\#36](https://github.com/christianhelle/httpgenerator/issues/36)
 
 **Merged pull requests:**
 
+- fix: merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
 - test: regression tests for null operation.Parameters \(\#310, \#311\) [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
 - fix: null-guard operation.Parameters and parameter entries [\#316](https://github.com/christianhelle/httpgenerator/pull/316) ([christianhelle](https://github.com/christianhelle))
 - Setup Squad [\#307](https://github.com/christianhelle/httpgenerator/pull/307) ([christianhelle](https://github.com/christianhelle))
