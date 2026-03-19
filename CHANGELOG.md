@@ -12,6 +12,7 @@
 **Fixed bugs:**
 
 - Query parameters incorrectly appended for operations with both path and query params [\#315](https://github.com/christianhelle/httpgenerator/issues/315)
+- Duplicate filename collisions in OneRequestPerFile mode for large API specs [\#314](https://github.com/christianhelle/httpgenerator/issues/314)
 - Path-level parameters not merged into operation parameters [\#312](https://github.com/christianhelle/httpgenerator/issues/312)
 - NullReferenceException when Parameters list contains null entries \(unresolved $ef\) [\#311](https://github.com/christianhelle/httpgenerator/issues/311)
 - NullReferenceException when operation.Parameters is null \(GitHub API crash\) [\#310](https://github.com/christianhelle/httpgenerator/issues/310)
@@ -19,6 +20,7 @@
 
 **Merged pull requests:**
 
+- fix: deduplicate filenames in OneRequestPerFile mode [\#325](https://github.com/christianhelle/httpgenerator/pull/325) ([christianhelle](https://github.com/christianhelle))
 - test: fix PathLevelParametersTests assertions for OneFile mode [\#323](https://github.com/christianhelle/httpgenerator/pull/323) ([christianhelle](https://github.com/christianhelle))
 - fix: generate meaningful JSON samples for allOf/oneOf/anyOf schemas [\#322](https://github.com/christianhelle/httpgenerator/pull/322) ([christianhelle](https://github.com/christianhelle))
 - test: regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
