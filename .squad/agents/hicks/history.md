@@ -29,6 +29,19 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 
 ## Learnings
 
+### PR TBD: Microsoft.SourceLink.GitHub metadata refresh (issue #328)
+**Date:** 2026-03-20
+
+**Problem:** `Microsoft.SourceLink.GitHub` was pinned to `8.0.0` in both the CLI and core library projects and needed a safe refresh as part of the staged dependency plan.
+
+**Solution:** Updated the direct package references in:
+- `src\HttpGenerator\HttpGenerator.csproj`
+- `src\HttpGenerator.Core\HttpGenerator.Core.csproj`
+
+**Pattern learned:** `Microsoft.SourceLink.GitHub` is a metadata-only dependency in this repo, so safe refreshes stay tightly scoped to the project files and can be validated with the standard solution pipeline (`restore`, Release `build`, Release `test`) plus the local `petstore.json` CLI generation check.
+
+**Testing:** `dotnet restore HttpGenerator.sln`, `dotnet build HttpGenerator.sln --configuration Release`, `dotnet test HttpGenerator.sln --configuration Release`, and a local petstore generation run all passed. The petstore validation still produced 19 `.http` files.
+
 ### PR #322: Enhanced JSON sample generation for allOf/oneOf/anyOf schemas (issue #313)
 **Date:** 2025-01-17
 
