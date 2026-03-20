@@ -45,7 +45,7 @@ public class GenerateCommandTests
         settings.OpenApiPath = await TestFile.CreateSwaggerFile(json, filename);
         settings.NoLogging = true;
 
-        (await sut.ExecuteAsync(context, settings))
+        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -70,7 +70,7 @@ public class GenerateCommandTests
         settings.NoLogging = true;
         settings.SkipValidation = true;
 
-        (await sut.ExecuteAsync(context, settings))
+        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -97,7 +97,7 @@ public class GenerateCommandTests
         settings.NoLogging = true;
         settings.SkipValidation = false;
 
-        (await sut.ExecuteAsync(context, settings))
+        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
             .Should()
             .NotBe(0);
     }
@@ -120,7 +120,7 @@ public class GenerateCommandTests
         settings.OpenApiPath = url;
         settings.NoLogging = true;
 
-        (await sut.ExecuteAsync(context, settings))
+        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -136,7 +136,7 @@ public class GenerateCommandTests
         settings.OpenApiPath = url;
         settings.NoLogging = true;
 
-        (await sut.ExecuteAsync(context, settings))
+        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
             .Should()
             .NotBe(0);
     }
