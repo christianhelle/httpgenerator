@@ -83,7 +83,7 @@ public class GenerateCommandTests
     [Inline("V31.non-oauth-scopes.yaml")]
     [Inline("V31.webhook-example.json")]
     [Inline("V31.webhook-example.yaml")]
-    public async Task Should_Fail_Validating_V31_Spec(
+    public async Task Should_Succeed_Validating_V31_Spec(
         string manifestResourceStreamName,
         GenerateCommand sut,
         CommandContext context,
