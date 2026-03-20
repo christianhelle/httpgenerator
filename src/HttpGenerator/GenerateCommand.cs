@@ -167,6 +167,7 @@ public class GenerateCommand : AsyncCommand<Settings>
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private static void TryWriteLine(
         object error,
         string color,
