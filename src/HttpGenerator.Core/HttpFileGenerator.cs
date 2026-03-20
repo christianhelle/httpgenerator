@@ -243,7 +243,7 @@ public static class HttpFileGenerator
 
     private static string GenerateRequest(
         OpenApiDocument document,
-        KeyValuePair<string, OpenApiPathItem> operationPath,
+        KeyValuePair<string, IOpenApiPathItem> operationPath,
         IOperationNameGenerator operationNameGenerator,
         GeneratorSettings settings,
         string verb,
@@ -351,7 +351,7 @@ public static class HttpFileGenerator
 
     private static void AppendSummary(
         string verb,
-        KeyValuePair<string, OpenApiPathItem> kv,
+        KeyValuePair<string, IOpenApiPathItem> kv,
         OpenApiOperation operation,
         StringBuilder code)
     {
@@ -419,7 +419,7 @@ public static class HttpFileGenerator
 
     private static Dictionary<string, string> AppendParameters(
         OpenApiDocument document,
-        KeyValuePair<string, OpenApiPathItem> operationPath,
+        KeyValuePair<string, IOpenApiPathItem> operationPath,
         GeneratorSettings settings,
         OpenApiOperation operation,
         string verb,
@@ -429,10 +429,10 @@ public static class HttpFileGenerator
         // Merge path-level parameters with operation-level parameters.
         // Operation-level parameters override path-level ones with the same name+in.
         var pathLevelParams = operationPath.Value.Parameters
-            ?? Enumerable.Empty<OpenApiParameter>();
+            ?? Enumerable.Empty<IOpenApiParameter>();
 
         var operationParams = operation.Parameters
-            ?? Enumerable.Empty<OpenApiParameter>();
+            ?? Enumerable.Empty<IOpenApiParameter>();
 
         var parameters = pathLevelParams
             .Where(p => p is not null)
@@ -453,7 +453,7 @@ public static class HttpFileGenerator
                 verb,
                 operationPath.Key,
                 parameter);
-            parameterNameMap[parameter.Name] = parameterName;
+            parameterNameMap[parameter.Name ?? parameter.ToString()] = parameterName;
 
             var defaultValue = GetParameterDefaultValue(parameter);
             
@@ -492,10 +492,10 @@ public static class HttpFileGenerator
         IOperationNameGenerator operationNameGenerator,
         string verb,
         string operationPathKey,
-        OpenApiParameter parameter)
+        IOpenApiParameter parameter)
     {
         if (settings.OutputType == OutputType.OneRequestPerFile)
-            return parameter.Name;
+            return parameter.Name ?? parameter.ToString();
 
         var name = operationNameGenerator.GetOperationName(
             document,
@@ -506,13 +506,13 @@ public static class HttpFileGenerator
         return $"{name}_{parameter.Name}";
     }
 
-    private static string GetParameterDefaultValue(OpenApiParameter parameter)
+    private static string GetParameterDefaultValue(IOpenApiParameter parameter)
     {
         // Get the schema from the parameter
         var schema = parameter.Schema;
         if (schema?.Type != null)
         {
-            return schema.Type.ToLowerInvariant() switch
+            return schema.Type.ToString().ToLowerInvariant() switch
             {
                 "integer" => "0",
                 "number" => "0",
@@ -523,7 +523,7 @@ public static class HttpFileGenerator
         return "str";
     }
 
-    private static string? GenerateSampleJson(OpenApiSchema? schema)
+    private static string? GenerateSampleJson(IOpenApiSchema? schema)
     {
         if (schema == null) return null;
 
@@ -547,7 +547,7 @@ public static class HttpFileGenerator
         }
 
         // Basic type-based JSON sample generation
-        return schema.Type?.ToLowerInvariant() switch
+        return schema.Type?.ToString().ToLowerInvariant() switch
         {
             "object" => "{\n  \"property\": \"value\"\n}",
             "array" => "[\n  \"item1\",\n  \"item2\"\n]",
@@ -559,7 +559,7 @@ public static class HttpFileGenerator
         };
     }
 
-    private static string GetPropertySampleValue(OpenApiSchema schema)
+    private static string GetPropertySampleValue(IOpenApiSchema? schema)
     {
         if (schema == null) return "\"value\"";
 
@@ -573,7 +573,7 @@ public static class HttpFileGenerator
         if (schema.AnyOf?.Count > 0)
             return GetPropertySampleValue(schema.AnyOf.FirstOrDefault(s => s != null) ?? schema);
 
-        return schema.Type?.ToLowerInvariant() switch
+        return schema.Type?.ToString().ToLowerInvariant() switch
         {
             "string" => "\"example\"",
             "integer" => "0",
