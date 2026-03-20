@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 
 namespace HttpGenerator.Tests;
 
@@ -33,4 +33,38 @@ public class PrivacyHelperTests
             .Should()
             .Be("--authorization-header [REDACTED]");
     }
+
+    [Fact]
+    public void RedactText_Should_Return_Empty_For_Empty_Input()
+    {
+        PrivacyHelper
+            .RedactAuthorizationHeaders(string.Empty)
+            .Should()
+            .Be(string.Empty);
+    }
+
+    [Theory]
+    [InlineData("--base-url https://api.example.com")]
+    [InlineData("--output ./output")]
+    [InlineData("some random text")]
+    public void RedactText_Should_Pass_Through_Non_Authorization_Text(string input)
+    {
+        PrivacyHelper
+            .RedactAuthorizationHeaders(input)
+            .Should()
+            .Be(input);
+    }
+
+    [Fact]
+    public void RedactText_Should_Redact_Multiple_Authorization_Headers()
+    {
+        var input = "--authorization-header Bearer token1 --authorization-header Basic token2";
+        var result = PrivacyHelper.RedactAuthorizationHeaders(input);
+        
+        result.Should().Contain("[REDACTED]");
+        result.Should().NotContain("token1");
+        result.Should().NotContain("token2");
+    }
+
+    
 }

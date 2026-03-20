@@ -74,4 +74,24 @@ public class OpenApiValidatorTests
             .Should()
             .NotThrow();
     }
+
+    [Theory]
+    [InlineData(Samples.PetstoreJsonV3, "SwaggerPetstore.json")]
+    public async Task IsValid_Should_Return_True_When_No_Errors(Samples version, string filename)
+    {
+        var json = EmbeddedResources.GetSwaggerPetstore(version);
+        var swaggerFile = await TestFile.CreateSwaggerFile(json, filename);
+        var result = await OpenApiValidator.Validate(swaggerFile);
+        
+        result.IsValid.Should().BeTrue();
+        result.Diagnostics.Errors.Should().BeEmpty();
+    }
+
+    [Theory, AutoNSubstituteData]
+    public void IsValid_Should_Return_False_When_Errors_Present(OpenApiValidationResult sut)
+    {
+        // The AutoNSubstitute fixture will create a result with errors
+        sut.IsValid.Should().BeFalse();
+        sut.Diagnostics.Errors.Should().NotBeEmpty();
+    }
 }
