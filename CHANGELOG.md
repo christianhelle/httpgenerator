@@ -14,6 +14,7 @@
 - Correctly append query parameters to URL [\#319](https://github.com/christianhelle/httpgenerator/pull/319) ([christianhelle](https://github.com/christianhelle))
 - Merge path-level parameters into operation parameters [\#318](https://github.com/christianhelle/httpgenerator/pull/318) ([christianhelle](https://github.com/christianhelle))
 - Null-guard operation.Parameters and parameter entries [\#316](https://github.com/christianhelle/httpgenerator/pull/316) ([christianhelle](https://github.com/christianhelle))
+- Fix string handling edge cases and case-insensitive URL/file detection [\#290](https://github.com/christianhelle/httpgenerator/pull/290) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Verify NetBox REST API [\#274](https://github.com/christianhelle/httpgenerator/pull/274) ([christianhelle](https://github.com/christianhelle))
 
 **Fixed bugs:**
@@ -27,6 +28,7 @@
 
 **Merged pull requests:**
 
+- chore: upgrade Microsoft.SourceLink.GitHub [\#337](https://github.com/christianhelle/httpgenerator/pull/337) ([christianhelle](https://github.com/christianhelle))
 - Regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
 - Regression tests for null operation.Parameters [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
 - chore\(deps\): update actions/github-script action to v8 [\#309](https://github.com/christianhelle/httpgenerator/pull/309) ([renovate[bot]](https://github.com/apps/renovate))
@@ -44,7 +46,6 @@
 - chore\(deps\): update dependency @types/vscode to v1.110.0 [\#293](https://github.com/christianhelle/httpgenerator/pull/293) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/node to v24.12.0 [\#292](https://github.com/christianhelle/httpgenerator/pull/292) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/node to v24.10.2 [\#291](https://github.com/christianhelle/httpgenerator/pull/291) ([renovate[bot]](https://github.com/apps/renovate))
-- Fix string handling edge cases and case-insensitive URL/file detection [\#290](https://github.com/christianhelle/httpgenerator/pull/290) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Revert breaking OpenAPI v3.x upgrades and fix Spectre.Console.Cli signature [\#287](https://github.com/christianhelle/httpgenerator/pull/287) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - chore\(deps\): update actions/checkout action to v6 [\#286](https://github.com/christianhelle/httpgenerator/pull/286) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.extensions.azure to 1.13.1 [\#285](https://github.com/christianhelle/httpgenerator/pull/285) ([renovate[bot]](https://github.com/apps/renovate))
