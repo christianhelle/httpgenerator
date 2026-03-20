@@ -27,7 +27,50 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 - Variables: `@baseUrl`, `@contentType` defined at top of generated files
 - Custom headers passed via `--custom-header` flag
 
-## Learnings
+## Learnings Summary
+
+### Early Work (2025-01-17)
+**PR #319, #322, #323 batch:** Fixed query parameter dropping bug (path vs query param distinction), enhanced JSON sample generation for OpenAPI composition keywords (allOf/oneOf/anyOf), and aligned test assertions for OneFile mode operation-qualified variable names. Pattern learned: Distinguish path params from query params; recursive handling for composition keywords; parameter name qualification in multi-request files.
+
+### NuGet Audit & OpenAPI v3 Migration Planning (2026-03-20)
+**Task:** Comprehensive dependency surface audit (13 packages, 4 project files), breaking-change analysis from Microsoft.OpenApi v1→v3 migration, and safe update chunking strategy.
+
+**Key findings:**
+- 5 safe update chunks: metadata (SourceLink), CLI patch (Spectre), test-only (Atc.Test), VSIX SDK, and breaking OpenAPI migration
+- OpenAPI v3 breaking changes: Namespace collapse (Models→OpenApi), reader factory pattern (StreamReader→LoadAsync), visitor interface change, async serialization, collection null-safety
+- High-risk code paths: OpenApiDocumentFactory, OpenApiValidator, OpenApiStats, GenerateCommand, HttpFileGenerator, OperationNameGenerator, test expectations
+- VSIX validation deferred to Visual Studio environment
+
+---
+
+## Learnings — Recent
+
+### Second Implementation Batch: Issues #329, #330, #331 Kickoff (2026-03-20)
+
+#### Issue #329 (deps-003): Spectre.Console.Cli 0.53.0 → 0.53.1
+- **Branch:** `feature/deps-003-spectre-cli-rescue`
+- **PR #338:** Single-line version bump in `src/HttpGenerator/HttpGenerator.csproj`
+- **Validation:** Release build ✅, CLI --help ✅, petstore generation (19 files) ✅
+- **Pattern:** Patch version bumps of CLI frameworks follow fast-track review: diff scope check + build + CLI smoke tests. Ripley's review gating continues efficient execution tempo.
+- **Status:** ✅ COMPLETED, merged by Ripley
+
+#### Issue #330 (deps-004): Atc.Test 1.1.18 → 2.0.17
+- **Competing Approaches:**
+  - **PR #339 (Bishop retry):** Compatibility shim (ExcludeAssets="all" + 52-line re-implementation) to keep xUnit 2
+  - **PR #340 (Hicks rescue):** Minimal xUnit v3 migration (OutputType=Exe, 5 CancellationToken additions, 8 Assert→FluentAssertions conversions)
+- **Decision:** PR #340 selected (8× smaller, no maintenance debt, uses Atc.Test as designed)
+- **Override:** Team decision "xUnit stays on legacy family (defer v3)" superseded because Atc.Test 2.x has hard transitive dependency on xUnit v3. Minimal migration is cleaner than compatibility shim.
+- **Pattern:** When modern test infrastructure pulls forward a major framework version, minimal forward migration wins over shims
+- **Status:** ✅ COMPLETED, PR #340 merged; PR #339 closed as superseded
+
+#### Issue #331 (deps-005): OpenAPI Reader Pipeline Migration [IN PROGRESS]
+- **Branch:** `feature/deps-005-openapi-reader-pipeline`
+- **Scope:** Critical OpenAPI v3 migration requiring factory pattern refactoring, property name updates, namespace moves, async serialization
+- **High-Risk Paths:** OpenApiDocumentFactory.cs (entry), OpenApiValidator.cs (validation), HttpFileGenerator.cs (generation), GenerateCommand.cs (CLI)
+- **Status:** 🔄 IN PROGRESS — kickoff complete, implementation underway
+
+---
+
 
 ### PR TBD: Microsoft.SourceLink.GitHub metadata refresh (issue #328)
 **Date:** 2026-03-20
@@ -92,3 +135,172 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 **Pattern learned:** For legacy VSIX projects in this repo, validate package-only refreshes by running `dotnet restore src\VSIX.sln` and then comparing `dotnet build src\VSIX.sln --configuration Release --no-restore` on both the updated branch and a clean `origin/main` baseline worktree. If the build fails with the same missing Visual Studio type/reference errors in both places, treat it as a headless-environment blocker instead of a regression from the package bump.
 
 **Testing:** `dotnet restore src\VSIX.sln` succeeded after the update. `dotnet build src\VSIX.sln --configuration Release --no-restore` still failed in this CLI/MSBuild environment with 18 missing Visual Studio reference/type errors, and the same 18 errors reproduced unchanged from a detached `origin/main` baseline worktree.
+### NuGet dependency audit and OpenAPI v3 migration map
+**Date:** 2026-03-20
+
+**Task:** Audit the repo's NuGet dependency surface, excluding FluentAssertions, with special attention to Microsoft.OpenApi / Readers / OData upgrades and likely breakages.
+
+**Outcome:**
+- Main solution baseline is healthy: `dotnet restore`, `dotnet build --configuration Release`, and `dotnet test --configuration Release` all passed for `HttpGenerator.sln` (204 tests), and `dotnet list package --vulnerable` reported no known vulnerabilities in the main solution.
+- `HttpGenerator.sln` only covers `HttpGenerator`, `HttpGenerator.Core`, and `HttpGenerator.Tests`; the VSIX ships from `src\VSIX.sln` and needs separate validation.
+- The safe direct package bumps are `Microsoft.SourceLink.GitHub` `8.0.0 -> 10.0.201`, `Spectre.Console.Cli` `0.53.0 -> 0.53.1`, and `Atc.Test` `1.1.18 -> 2.0.17` (test-only).
+- The high-risk track is the OpenAPI stack: `Microsoft.OpenApi` `1.6.28 -> 3.4.0`, `Microsoft.OpenApi.OData` `1.7.5 -> 3.2.0`, and replacing `Microsoft.OpenApi.Readers` `1.6.28` with `Microsoft.OpenApi.YamlReader` `3.4.0`.
+
+**Key migration findings:**
+1. `Microsoft.OpenApi.Models` / `Microsoft.OpenApi.Services` collapse into the root `Microsoft.OpenApi` namespace, while reader-specific types move to `Microsoft.OpenApi.Reader`.
+2. `OpenApiStreamReader` is replaced by `OpenApiDocument.LoadAsync(...)`, which returns `ReadResult`; code must switch from `result.OpenApiDocument` / `result.OpenApiDiagnostic` to `result.Document` / `result.Diagnostic`.
+3. `OpenApiVisitorBase` overrides become interface-based (`IOpenApiParameter`, `IOpenApiSchema`, `IOpenApiPathItem`, `IOpenApiRequestBody`, `IOpenApiLink`, `IOpenApiCallback`, `IOpenApiReferenceHolder`, `IDictionary<string, IOpenApiHeader>`).
+4. `OpenApiPathItem.Operations` is keyed by `System.Net.Http.HttpMethod` in v3, so any code assuming the older enum-based surface needs review.
+5. OpenAPI.NET v3.4.0 successfully parses the local OpenAPI 3.1 webhook sample without downgrade hacks, so `OpenApiDocumentFactory.cs`'s 3.1 downgrade path and `GenerateCommandTests.cs`'s current "v3.1 fails validation" assumptions should be revisited.
+
+**Files most likely to change for the OpenAPI migration:**
+- `src\HttpGenerator.Core\OpenApiDocumentFactory.cs` — reader replacement and removal of 3.1 downgrade hack.
+- `src\HttpGenerator\Validation\OpenApiValidator.cs` — new load API, new `ReadResult` property names, reader namespace move.
+- `src\HttpGenerator\Validation\OpenApiStats.cs` — visitor override signatures switch to `IOpenApi*`.
+- `src\HttpGenerator\Validation\OpenApiValidationResult.cs` — `OpenApiDiagnostic` namespace move.
+- `src\HttpGenerator\GenerateCommand.cs` — catch `Microsoft.OpenApi.OpenApiUnsupportedSpecVersionException` from the new namespace and revisit `--skip-validation` messaging.
+- `src\HttpGenerator.Core\HttpFileGenerator.cs` and `src\HttpGenerator.Core\OperationNameGenerator.cs` — namespace updates plus extra null-guards because v3 no longer auto-initializes some collections.
+- `src\HttpGenerator.Tests\OpenApiDocumentFactoryTests.cs`, `src\HttpGenerator.Tests\OpenApiValidatorTests.cs`, `src\HttpGenerator.Tests\GenerateCommandTests.cs` — expectation changes around v3.1 parsing/validation behavior.
+
+**VSIX constraint learned:** `dotnet list package` against `src\HttpGenerator.VSIX\HttpGenerator.VSIX.csproj` fails in this environment because the old-style project imports `Microsoft.VsSDK.targets`; VSIX package audits/builds need a real Visual Studio/MSBuild environment. Keep VSIX SDK updates on the 17.x line until they are validated there.
+
+### Dependency Refresh Planning: NuGet Audit & OpenAPI v3 Migration Risk Mapping (2026-03-20)
+
+**Task:** Audit the repo's NuGet dependency surface (excluding FluentAssertions), identify breaking changes from Microsoft.OpenApi / Readers / OData upgrades, and produce code-change risk guidance.
+
+**Outcome:**
+- Ran full baseline validation: `dotnet restore HttpGenerator.sln`, Release build, Release tests (204/204 green), `dotnet list package --vulnerable` (no known vulns)
+- Audited direct packages across 4 project files: `HttpGenerator.csproj`, `HttpGenerator.Core.csproj`, `HttpGenerator.Tests.csproj`, `HttpGenerator.VSIX.csproj`
+- Categorized 13 outdated packages into 5 safe update chunks:
+  1. **Chunk 1 — Safe metadata:** `Microsoft.SourceLink.GitHub` `8.0.0 -> 10.0.201` (no code usage)
+  2. **Chunk 2 — Safe CLI patch:** `Spectre.Console.Cli` `0.53.0 -> 0.53.1` (patch release)
+  3. **Chunk 3 — Test-only package:** `Atc.Test` `1.1.18 -> 2.0.17` (isolated to tests, medium risk)
+  4. **Chunk 4 — VSIX SDK refresh:** `Microsoft.VisualStudio.SDK`, `Microsoft.VSSDK.BuildTools` on 17.x line (separate validation)
+  5. **Chunk 5 — Breaking OpenAPI migration:** `Microsoft.OpenApi` `1.6.28 -> 3.4.0`, replace `Microsoft.OpenApi.Readers` with `Microsoft.OpenApi.YamlReader`, `Microsoft.OpenApi.OData` `1.7.5 -> 3.2.0` (high-risk, dedicated PR stream)
+
+**OpenAPI v3 Breaking-Change Analysis (from refitter#907, oasreader#148):**
+- **Namespace moves:** `Microsoft.OpenApi.Models` / `Microsoft.OpenApi.Services` → root `Microsoft.OpenApi`; reader types → `Microsoft.OpenApi.Reader`
+- **Reader API change:** `OpenApiStreamReader` → `OpenApiDocument.LoadAsync(...)`; returns `ReadResult` with new properties (`ReadResult.Document` instead of `ReadResult.OpenApiDocument`)
+- **Visitor pattern change:** `OpenApiVisitorBase` overrides → interface-based (`IOpenApiParameter`, `IOpenApiSchema`, `IOpenApiPathItem`, `IOpenApiRequestBody`, `IOpenApiLink`, `IOpenApiCallback`, `IOpenApiReferenceHolder`)
+- **Serialization:** sync → async (`SerializeAsYamlAsync()`)
+- **Null-safety:** v3 does not auto-initialize collections (HttpFileGenerator, OperationNameGenerator need extra guards)
+- **OpenAPI.NET v3.4.0 benefit:** Successfully parses local OpenAPI 3.1 webhook sample without downgrade hacks; current 3.1 workarounds in OpenApiDocumentFactory and GenerateCommandTests may become unnecessary
+
+**High-Risk Code Paths Identified:**
+- `src\HttpGenerator.Core\OpenApiDocumentFactory.cs` — reader replacement, 3.1 downgrade hack removal
+- `src\HttpGenerator\Validation\OpenApiValidator.cs` — new load API, ReadResult property names, reader namespace
+- `src\HttpGenerator\Validation\OpenApiStats.cs` — visitor override signature changes to IOpenApi*
+- `src\HttpGenerator\Validation\OpenApiValidationResult.cs` — OpenApiDiagnostic namespace move
+- `src\HttpGenerator\GenerateCommand.cs` — exception namespace move from OpenApiValidationException to new location, v3.1 messaging
+- `src\HttpGenerator.Core\HttpFileGenerator.cs` — namespace updates, null-guard additions for collections
+- `src\HttpGenerator.Core\OperationNameGenerator.cs` — null guards for component collections
+- Test fixtures: `OpenApiDocumentFactoryTests`, `OpenApiValidatorTests`, `GenerateCommandTests` — expectation reassessment
+
+**Status:** Audit complete and ready for integration into dependency-refresh execution plan. VSIX validation deferred to Visual Studio/MSBuild environment.
+
+**Decision Document:** `.squad/decisions/inbox/hicks-nuget-audit.md`
+
+---
+
+### First Implementation Batch: Issue #328 Implementation (2026-03-20)
+
+**Task:** Execute `deps-002` — Microsoft.SourceLink.GitHub upgrade from 8.0.0 to 10.0.201 and open PR #337.
+
+**Outcome:**
+- ✅ Branch `feature/deps-002-sourcelink` created: single commit, two .csproj PackageReference updates
+- ✅ PR #337 opened with clean diff scope (metadata-only package, PrivateAssets="All" preserved)
+- ✅ Validation performed locally:
+  - `dotnet restore` succeeded
+  - `dotnet build --configuration Release` succeeded
+  - `dotnet test --configuration Release` — 204/204 passed
+  - CLI spot check: `petstore.json` → 19 .http files (expected)
+- ✅ PR #337 approved by Ripley, merged with regular merge commit
+- ✅ Issue #328 auto-closed by merge
+
+**Pattern Learned:** Metadata-only packages follow a minimal validation path: restore/build/test + optional CLI generation spot check. Ripley's fast-track review gate worked efficiently. Coordination between implementation and review gating is smooth.
+
+**Status:** Hicks ready for next implementation (deps-003 or OpenAPI migration stream). First completed dependency-refresh item demonstrates execution tempo is good.
+
+**Orchestration Log:** `.squad/orchestration-log/20260320T143102Z-hicks-deps002.md`
+
+---
+
+### Second Implementation Batch: Issue #329 Implementation (2026-03-20)
+
+**Task:** Execute `deps-003` — Spectre.Console.Cli upgrade from 0.53.0 to 0.53.1 and open PR #338.
+
+**Outcome:**
+- ✅ Branch `feature/deps-003-spectre-cli-rescue` created: single commit, one-line version bump in `src/HttpGenerator/HttpGenerator.csproj`
+- ✅ PR #338 opened with minimal diff scope
+- ✅ Validation performed:
+  - Release build: ✅ Succeeded
+  - CLI `--help`: ✅ All options render correctly (Spectre.Console.Cli surface intact)
+  - CLI generation: ✅ petstore.json → 19 .http files (rich output tables and panels working)
+- ✅ PR #338 approved by Ripley, merged with regular merge commit
+- ✅ Issue #329 auto-closed by merge
+
+**Pattern Learned:** Patch version bumps of CLI framework dependencies follow the same fast-track review path as metadata-only packages. CLI smoke tests (--help, generation) are sufficient validation for framework patches. Ripley's review gate continues to work efficiently.
+
+**Status:** Completed deps-003. Available for next implementation (OpenAPI reader pipeline migration, deps-005, is critical path).
+
+**Orchestration Log:** `.squad/orchestration-log/20260320T150843Z-hicks-deps329.md`
+
+---
+
+### Second Implementation Batch: Issue #330 Rescue — Atc.Test xUnit v3 Minimal Migration (2026-03-20)
+
+**Task:** Execute `deps-004` — Atc.Test upgrade from 1.1.18 to 2.0.17 with minimal xUnit v3 migration (rescue approach after Bishop's initial attempt).
+
+**Outcome:**
+- ✅ Branch `feature/deps-004-atc-test-rescue` created: single commit, 21 additions/17 deletions
+- ✅ Minimal xUnit v3 alignment strategy:
+  - Upgraded `xunit` from 2.9.3 to `xunit.v3 3.1.0`
+  - Added `OutputType=Exe` to test project
+  - Updated 5 async test methods with `CancellationToken` parameter
+  - Converted 8 `Assert.Equal` calls to FluentAssertions equivalents
+  - No test logic or structure changes
+- ✅ Validation: 204/204 tests green, Release build succeeded
+- ✅ PR #340 opened, approved by Ripley, merged with regular merge commit
+- ✅ Issue #330 auto-closed by merge
+
+**Decision Override Rationale:** Atc.Test 2.x has hard dependency on xUnit v3 (AutoFixture.Xunit3, xunit.v3.extensibility.core). The team's earlier decision "xUnit stays on legacy family (v3 migration deferred)" is superseded because:
+1. Staying on xUnit 2 requires a 52-line compatibility shim that defeats using Atc.Test 2.x benefits
+2. The xUnit v3 migration here is minimal (5 lines, 8 conversions) and maintainable
+3. Future test work should target xUnit v3 patterns (e.g., TestContext.Current.CancellationToken)
+
+**Pattern Learned:** When a modern test package (Atc.Test 2.x) has hard transitive dependency on a major version (xUnit v3), deferring the migration creates maintenance debt. Minimal migration is safer and cleaner than compatibility shims.
+
+**Status:** Completed deps-004 with xUnit v3 migration. Available for critical OpenAPI reader pipeline migration (deps-005).
+
+**Orchestration Log:** `.squad/orchestration-log/20260320T150843Z-bishop-deps330-rescue.md`
+
+---
+
+### Second Implementation Batch: Issue #331 Kickoff — OpenAPI Reader Pipeline Migration (2026-03-20)
+
+**Task:** Start `deps-005` — Migrate OpenAPI reader pipeline to Microsoft.OpenApi v3 (CRITICAL PATH).
+
+**Status:** 🔄 **IN PROGRESS** — Branch created: `feature/deps-005-openapi-reader-pipeline`
+
+**Scope:** This is the highest-risk migration in the refresh plan. Will require refactoring:
+- **OpenApiDocumentFactory.cs:** OpenApiStreamReader → OpenApiDocument.LoadAsync() (factory pattern change)
+- **OpenApiValidator.cs:** ReadResult property names (ReadResult.OpenApiDocument → ReadResult.Document)
+- **HttpFileGenerator.cs:** Namespace updates (Microsoft.OpenApi.Models → Microsoft.OpenApi), null-safety guards for collections
+- **GenerateCommand.cs:** Exception namespace moves, v3.1 validation behavior changes
+- Serialization: Sync → Async (SerializeAsYamlAsync)
+
+**High-Risk Code Paths:**
+- `OpenApiDocumentFactory.cs` (parsing entry point)
+- `OpenApiValidator.cs` (validation logic)
+- `HttpFileGenerator.cs` (core generation)
+- `GenerateCommand.cs` (CLI integration)
+
+**Next Steps:**
+1. Migrate factory pattern to OpenApiDocument.LoadAsync()
+2. Update property references throughout
+3. Add null-safety guards for collection initialization
+4. Test with v3.0 and v3.1 specs
+5. Open PR when ready for Ripley review
+
+**Orchestration Log:** `.squad/orchestration-log/20260320T150843Z-hicks-deps331-kickoff.md`
+
