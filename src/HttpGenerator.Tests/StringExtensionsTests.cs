@@ -1,3 +1,4 @@
+using FluentAssertions;
 using HttpGenerator.Core;
 
 namespace HttpGenerator.Tests;
@@ -11,7 +12,7 @@ public class StringExtensionsTests
     public void ConvertKebabCaseToPascalCase_ShouldConvert(string input, string expected)
     {
         var result = input.ConvertKebabCaseToPascalCase();
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
     }
 
     [Theory]
@@ -20,7 +21,7 @@ public class StringExtensionsTests
     public void ConvertRouteToCamelCase_ShouldConvert(string input, string expected)
     {
         var result = input.ConvertRouteToCamelCase();
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
     }
 
     [Theory]
@@ -31,7 +32,7 @@ public class StringExtensionsTests
     public void CapitalizeFirstCharacter_ShouldCapitalize(string input, string expected)
     {
         var result = input.CapitalizeFirstCharacter();
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
     }
 
     [Theory]
@@ -40,7 +41,7 @@ public class StringExtensionsTests
     public void ConvertSpacesToPascalCase_ShouldConvert(string input, string expected)
     {
         var result = input.ConvertSpacesToPascalCase();
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
     }
 
     [Theory]
@@ -49,7 +50,7 @@ public class StringExtensionsTests
     public void Prefix_ShouldAddPrefix(string input, string prefix, string expected)
     {
         var result = input.Prefix(prefix);
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
     }
 
     [Fact]
@@ -59,6 +60,6 @@ public class StringExtensionsTests
         var input = isUnix ? "line1\r\nline2\r\nline3" : "line1\nline2\nline3";
         var expected = $"line1{Environment.NewLine}### line2{Environment.NewLine}### line3";
         var result = input.PrefixLineBreaks();
-        Assert.Equal(expected, result);
+        result.Should().Be(expected);
     }
 }
