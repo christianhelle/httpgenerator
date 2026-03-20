@@ -164,3 +164,7 @@ Generated .http files should contain:
 ### Performance Issues
 - **Slow builds**: First build after clone takes ~75 seconds for restore, subsequent builds are faster
 - **Slow tests**: Smoke tests take 4.5 minutes - this is normal, never cancel
+
+## Git Commit Policy
+
+**Never add `Co-authored-by` trailers to git commits.** Commits in this repository should not include any co-author attribution lines.

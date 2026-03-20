@@ -27,3 +27,7 @@ Preferred: claude-sonnet-4.5
 - Smoke tests take ~4.5 minutes — never cancel mid-run
 - Use `dotnet test HttpGenerator.sln --configuration Release` for unit tests
 - Test OpenAPI fixtures at `test/OpenAPI/v2.0/`, `test/OpenAPI/v3.0/`, `test/OpenAPI/v3.1/`
+
+
+## Git Commit Policy
+Never add `Co-authored-by` trailers to commits. Do not include any co-author attribution lines in commit messages.

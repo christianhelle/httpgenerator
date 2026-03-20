@@ -25,4 +25,4 @@ Preferred: claude-haiku-4.5 (always — never bump Scribe)
 
 ## Commit Convention
 - Stage and commit `.squad/` after every session: `git add .squad/ && git commit -m "chore: squad session log"`
-- Always append trailer: `Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>`
+- **Never add `Co-authored-by` trailers** — do not include any co-author attribution lines in commit messages.

@@ -27,3 +27,7 @@ Preferred: claude-sonnet-4.5
 - OpenAPI parsing in `src/HttpGenerator.Core/OpenApiDocumentFactory.cs`
 - OpenAPI v3.1 requires `--skip-validation` flag
 - Always validate changes by running: `dotnet run --project src/HttpGenerator/HttpGenerator.csproj -- test/OpenAPI/v3.0/petstore.json --output /tmp/test --no-logging`
+
+
+## Git Commit Policy
+Never add `Co-authored-by` trailers to commits. Do not include any co-author attribution lines in commit messages.
