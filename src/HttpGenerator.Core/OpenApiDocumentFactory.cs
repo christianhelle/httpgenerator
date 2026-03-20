@@ -1,6 +1,8 @@
 ﻿using System.Net;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+using System.Security;
+using System.Text;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace HttpGenerator.Core;
 
@@ -15,84 +17,125 @@ public static class OpenApiDocumentFactory
     /// <returns>A new instance of the <see cref="OpenApiDocument"/> class.</returns>
     public static async Task<OpenApiDocument> CreateAsync(string openApiPath)
     {
+        using var httpClient = CreateHttpClient();
+        var content = await GetOpenApiContent(openApiPath, httpClient);
+        var settings = CreateReaderSettings(openApiPath);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+        var result = await OpenApiDocument.LoadAsync(
+            stream,
+            GetFormat(openApiPath, content),
+            settings,
+            CancellationToken.None);
+
+        return result.Document ?? throw CreateOpenApiLoadException(openApiPath, result.Diagnostic);
+    }
+
+    private static OpenApiReaderSettings CreateReaderSettings(string openApiPath)
+    {
+        var settings = new OpenApiReaderSettings
+        {
+            BaseUrl = GetBaseUrl(openApiPath),
+        };
+
+        settings.AddYamlReader();
+        return settings;
+    }
+
+    private static async Task<string> GetOpenApiContent(
+        string openApiPath,
+        HttpClient httpClient)
+    {
         if (IsHttp(openApiPath))
         {
-            var content = await GetHttpContent(openApiPath);
-            return await ParseOpenApiContent(content);
+            try
+            {
+                return await httpClient.GetStringAsync(openApiPath);
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new InvalidOperationException($"Could not download the file at {openApiPath}", ex);
+            }
         }
-        else 
-        {
-            var content = File.ReadAllText(openApiPath);
-            return await ParseOpenApiContent(content);
-        }
-    }
 
-    private static async Task<OpenApiDocument> ParseOpenApiContent(string content)
-    {
-        // Try to parse with Microsoft.OpenApi first
         try
         {
-            using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
+            return File.ReadAllText(openApiPath);
         }
-        catch (Exception ex) when (ex.Message.Contains("3.1.0") || ex.Message.Contains("not supported"))
+        catch (Exception ex) when (ex is FileNotFoundException ||
+                                   ex is PathTooLongException ||
+                                   ex is DirectoryNotFoundException ||
+                                   ex is IOException ||
+                                   ex is UnauthorizedAccessException ||
+                                   ex is SecurityException ||
+                                   ex is NotSupportedException)
         {
-            // If OpenAPI 3.1 is detected, try to downgrade to 3.0 for parsing
-            var downgradedContent = DowngradeOpenApi31To30(content);
-            using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(downgradedContent));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
+            throw new InvalidOperationException($"Could not open the file at {openApiPath}", ex);
         }
     }
 
-    private static string DowngradeOpenApi31To30(string content)
+    private static HttpClient CreateHttpClient()
     {
-        // Simple downgrade strategy: replace 3.1.0 with 3.0.3 and remove unsupported 3.1 features
-        return content
-            .Replace("\"openapi\": \"3.1.0\"", "\"openapi\": \"3.0.3\"")
-            .Replace("openapi: 3.1.0", "openapi: 3.0.3")
-            .Replace("openapi: \"3.1.0\"", "openapi: \"3.0.3\"")
-            // Remove webhooks section which is 3.1 specific
-            .Replace("\"webhooks\":", "\"x-webhooks\":")
-            .Replace("webhooks:", "x-webhooks:");
+        var httpClientHandler = new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true,
+            SslProtocols = System.Security.Authentication.SslProtocols.Tls12,
+        };
+
+        return new HttpClient(httpClientHandler);
     }
 
-    /// <summary>
-    /// Gets the content of the URI as a string and decompresses it if necessary. 
-    /// </summary>
-    /// <returns>The content of the HTTP request.</returns>
-    private static async Task<string> GetHttpContent(string openApiPath)
+    private static Uri GetBaseUrl(string openApiPath)
     {
-        var httpMessageHandler = new HttpClientHandler();
-        httpMessageHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-        httpMessageHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-        using var http = new HttpClient(httpMessageHandler);
-        var content = await http.GetStringAsync(openApiPath);
-        return content;
+        if (IsHttp(openApiPath))
+            return new Uri(openApiPath);
+
+        var directoryName = new FileInfo(openApiPath).DirectoryName;
+        if (directoryName is null)
+            throw new InvalidOperationException($"Could not determine the base path for {openApiPath}");
+
+        return new Uri(directoryName + Path.DirectorySeparatorChar, UriKind.Absolute);
     }
 
-    /// <summary>
-    /// Determines whether the specified path is an HTTP URL.
-    /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns>True if the path is an HTTP URL, otherwise false.</returns>
+    private static string GetFormat(
+        string openApiPath,
+        string content)
+    {
+        if (openApiPath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+            return "json";
+
+        if (openApiPath.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) ||
+            openApiPath.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
+        {
+            return "yaml";
+        }
+
+        var firstNonWhitespaceCharacter = content.FirstOrDefault(c => !char.IsWhiteSpace(c));
+        return firstNonWhitespaceCharacter is '{' or '['
+            ? "json"
+            : "yaml";
+    }
+
+    private static InvalidOperationException CreateOpenApiLoadException(
+        string openApiPath,
+        OpenApiDiagnostic? diagnostic)
+    {
+        if (diagnostic is not null && diagnostic.Errors.Count > 0)
+        {
+            var errors = string.Join(
+                Environment.NewLine,
+                diagnostic.Errors.Select(error => error.ToString()));
+
+            return new InvalidOperationException(
+                $"Could not parse the file at {openApiPath}{Environment.NewLine}{errors}");
+        }
+
+        return new InvalidOperationException($"Could not parse the file at {openApiPath}");
+    }
+
     private static bool IsHttp(string path)
     {
-        return path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || 
+        return path.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
-    }
-
-    /// <summary>
-    /// Determines whether the specified path is a YAML file.
-    /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns>True if the path is a YAML file, otherwise false.</returns>
-    private static bool IsYaml(string path)
-    {
-        return path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
-               path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
     }
 }
