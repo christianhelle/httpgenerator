@@ -443,8 +443,10 @@ public static class HttpFileGenerator
             .ToArray();
 
         var parameterNameMap = new Dictionary<string, string>();
+        var parameterIndex = 0;
         foreach (var parameter in parameters)
         {
+            var parameterKey = parameter.Name ?? $"_unnamed_{parameterIndex}";
             var parameterName = GetParameterName(
                 settings,
                 document,
@@ -453,7 +455,8 @@ public static class HttpFileGenerator
                 verb,
                 operationPath.Key,
                 parameter);
-            parameterNameMap[parameter.Name ?? parameter.ToString()] = parameterName;
+            parameterNameMap[parameterKey] = parameterName;
+            parameterIndex++;
 
             var defaultValue = GetParameterDefaultValue(parameter);
             
@@ -495,7 +498,7 @@ public static class HttpFileGenerator
         IOpenApiParameter parameter)
     {
         if (settings.OutputType == OutputType.OneRequestPerFile)
-            return parameter.Name ?? parameter.ToString();
+            return parameter.Name ?? "param";
 
         var name = operationNameGenerator.GetOperationName(
             document,
@@ -508,17 +511,14 @@ public static class HttpFileGenerator
 
     private static string GetParameterDefaultValue(IOpenApiParameter parameter)
     {
-        // Get the schema from the parameter
         var schema = parameter.Schema;
         if (schema?.Type != null)
         {
-            return schema.Type.ToString().ToLowerInvariant() switch
-            {
-                "integer" => "0",
-                "number" => "0",
-                "boolean" => "true",
-                _ => "str"
-            };
+            var type = schema.Type.Value;
+            if (type.HasFlag(JsonSchemaType.Integer)) return "0";
+            if (type.HasFlag(JsonSchemaType.Number)) return "0";
+            if (type.HasFlag(JsonSchemaType.Boolean)) return "true";
+            return "str";
         }
         return "str";
     }
@@ -547,16 +547,15 @@ public static class HttpFileGenerator
         }
 
         // Basic type-based JSON sample generation
-        return schema.Type?.ToString().ToLowerInvariant() switch
-        {
-            "object" => "{\n  \"property\": \"value\"\n}",
-            "array" => "[\n  \"item1\",\n  \"item2\"\n]",
-            "string" => "\"example\"",
-            "integer" => "0",
-            "number" => "0",
-            "boolean" => "true",
-            _ => "{}"
-        };
+        if (schema.Type == null) return "{}";
+        var genType = schema.Type.Value;
+        if (genType.HasFlag(JsonSchemaType.Object)) return "{\n  \"property\": \"value\"\n}";
+        if (genType.HasFlag(JsonSchemaType.Array)) return "[\n  \"item1\",\n  \"item2\"\n]";
+        if (genType.HasFlag(JsonSchemaType.String)) return "\"example\"";
+        if (genType.HasFlag(JsonSchemaType.Integer)) return "0";
+        if (genType.HasFlag(JsonSchemaType.Number)) return "0";
+        if (genType.HasFlag(JsonSchemaType.Boolean)) return "true";
+        return "{}";
     }
 
     private static string GetPropertySampleValue(IOpenApiSchema? schema)
@@ -573,15 +572,14 @@ public static class HttpFileGenerator
         if (schema.AnyOf?.Count > 0)
             return GetPropertySampleValue(schema.AnyOf.FirstOrDefault(s => s != null) ?? schema);
 
-        return schema.Type?.ToString().ToLowerInvariant() switch
-        {
-            "string" => "\"example\"",
-            "integer" => "0",
-            "number" => "0.0",
-            "boolean" => "true",
-            "array" => "[\"item\"]",
-            "object" => "{\"property\": \"value\"}",
-            _ => "\"value\""
-        };
+        if (schema.Type == null) return "\"value\"";
+        var propType = schema.Type.Value;
+        if (propType.HasFlag(JsonSchemaType.String)) return "\"example\"";
+        if (propType.HasFlag(JsonSchemaType.Integer)) return "0";
+        if (propType.HasFlag(JsonSchemaType.Number)) return "0.0";
+        if (propType.HasFlag(JsonSchemaType.Boolean)) return "true";
+        if (propType.HasFlag(JsonSchemaType.Array)) return "[\"item\"]";
+        if (propType.HasFlag(JsonSchemaType.Object)) return "{\"property\": \"value\"}";
+        return "\"value\"";
     }
 }
