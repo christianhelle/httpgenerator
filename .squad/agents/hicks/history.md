@@ -29,6 +29,18 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 
 ## Learnings
 
+### Issue #329: Spectre.Console.Cli patch refresh
+**Date:** 2026-03-20
+
+**Problem:** `Spectre.Console.Cli` in `src\HttpGenerator\HttpGenerator.csproj` was pinned to `0.53.0` and needed the planned patch refresh to `0.53.1`.
+
+**Solution:** Updated the direct package reference in:
+- `src\HttpGenerator\HttpGenerator.csproj`
+
+**Pattern learned:** For CLI framework patch updates in this repo, keep the change scoped to the CLI project file and validate both the standard solution pipeline and the CLI surface area. The key smoke check is `dotnet run --project src\HttpGenerator\HttpGenerator.csproj -- --help`, with the local `petstore.json` generation run as a regression guard to confirm the generator still emits 19 `.http` files.
+
+**Testing:** `dotnet restore HttpGenerator.sln`, `dotnet build HttpGenerator.sln --configuration Release`, `dotnet test HttpGenerator.sln --configuration Release`, `dotnet run --project src\HttpGenerator\HttpGenerator.csproj -- --help`, and a local petstore generation run all passed. The petstore validation still produced 19 `.http` files.
+
 ### PR TBD: Microsoft.SourceLink.GitHub metadata refresh (issue #328)
 **Date:** 2026-03-20
 
