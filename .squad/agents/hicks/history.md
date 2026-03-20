@@ -78,6 +78,17 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 
 **Pattern learned:** When building URLs from OpenAPI operations, distinguish between path parameters (appear in URL template as `{param}`) and query parameters (must be appended as `?key=value`). Check parameter location against the original URL template BEFORE escaping braces.
 
-**Testing:** All 171 unit tests pass. Validated with petstore.json showing correct output for mixed param types:
+**Testing:** All 171 unit tests pass. Validated with petstore.json showing correct output for mixed param types:        
 - Query only: `GET {{baseUrl}}/user/login?username={{username}}&password={{password}}`
 - Path + query: `POST {{baseUrl}}/pet/{{petId}}?name={{name}}&status={{status}}`
+
+### PR TBD: VSIX SDK package refresh (issue #335 / deps-009)
+**Date:** 2026-03-20
+
+**Problem:** `src\HttpGenerator.VSIX\HttpGenerator.VSIX.csproj` still pinned `Microsoft.VisualStudio.SDK` to `17.0.32112.339` and `Microsoft.VSSDK.BuildTools` to `17.11.435`, so the VSIX dependency track lagged the planned 17.x refresh.
+
+**Solution:** Updated only the two VSIX `<PackageReference>` entries to `Microsoft.VisualStudio.SDK` `17.14.40265` and `Microsoft.VSSDK.BuildTools` `17.14.2120`.
+
+**Pattern learned:** For legacy VSIX projects in this repo, validate package-only refreshes by running `dotnet restore src\VSIX.sln` and then comparing `dotnet build src\VSIX.sln --configuration Release --no-restore` on both the updated branch and a clean `origin/main` baseline worktree. If the build fails with the same missing Visual Studio type/reference errors in both places, treat it as a headless-environment blocker instead of a regression from the package bump.
+
+**Testing:** `dotnet restore src\VSIX.sln` succeeded after the update. `dotnet build src\VSIX.sln --configuration Release --no-restore` still failed in this CLI/MSBuild environment with 18 missing Visual Studio reference/type errors, and the same 18 errors reproduced unchanged from a detached `origin/main` baseline worktree.
