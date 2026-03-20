@@ -2,6 +2,8 @@ using Atc.Test;
 using FluentAssertions;
 using HttpGenerator.Tests.Resources;
 using HttpGenerator.Validation;
+using Microsoft.OpenApi;
+using HttpOpenApiValidator = HttpGenerator.Validation.OpenApiValidator;
 
 namespace HttpGenerator.Tests;
 
@@ -25,7 +27,7 @@ public class OpenApiValidatorTests
     {
         var json = EmbeddedResources.GetSwaggerPetstore(sample);
         var swaggerFile = await TestFile.CreateSwaggerFile(json, filename);
-        var result = await OpenApiValidator.Validate(swaggerFile);
+        var result = await HttpOpenApiValidator.Validate(swaggerFile);
         result.IsValid.Should().BeTrue();
     }
 
@@ -36,7 +38,7 @@ public class OpenApiValidatorTests
     [InlineData(HttpUrlPrefix + "petstore.yaml")]
     public async Task Should_Return_True_For_Remote_Files(string url)
     {
-        var result = await OpenApiValidator.Validate(url);
+        var result = await HttpOpenApiValidator.Validate(url);
         result.IsValid.Should().BeTrue();
     }
 
@@ -44,18 +46,33 @@ public class OpenApiValidatorTests
     [InlineData(HttpUrlPrefix)]
     public Task Should_Throw_For_Bad_Url(string url)
     {
-        return new Func<Task>(()=> OpenApiValidator.Validate(url))
+        return new Func<Task>(()=> HttpOpenApiValidator.Validate(url))
             .Should()
             .ThrowExactlyAsync<InvalidOperationException>();
     }
 
+    [Theory]
+    [InlineData("V31.non-oauth-scopes.json")]
+    [InlineData("V31.non-oauth-scopes.yaml")]
+    [InlineData("V31.webhook-example.json")]
+    [InlineData("V31.webhook-example.yaml")]
+    public async Task Should_Throw_For_V31_Specs(string manifestResourceStreamName)
+    {
+        var json = EmbeddedResources.GetStringFromEmbeddedResource(manifestResourceStreamName);
+        var swaggerFile = await TestFile.CreateSwaggerFile(json, manifestResourceStreamName);
+
+        await new Func<Task>(() => HttpOpenApiValidator.Validate(swaggerFile))
+            .Should()
+            .ThrowExactlyAsync<OpenApiUnsupportedSpecVersionException>();
+    }
+
     [Theory, AutoNSubstituteData]
-    public async Task Should_Throw_Exception(string json)
+    public async Task Should_Return_Invalid_Result_For_Invalid_OpenApi(string json)
     {
         var swaggerFile = await TestFile.CreateSwaggerFile(json, $"{Guid.NewGuid():N}.json");
-        await new Func<Task>(() => OpenApiValidator.Validate(swaggerFile))
-            .Should()
-            .ThrowAsync<Exception>();
+        var result = await HttpOpenApiValidator.Validate(swaggerFile);
+        result.IsValid.Should().BeFalse();
+        result.Diagnostics.Errors.Should().NotBeEmpty();
     }
 
     [Theory, AutoNSubstituteData]

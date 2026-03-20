@@ -29,4 +29,20 @@ public class OpenApiDocumentFactoryTests
             .Should()
             .NotBeNull();
     }
+
+    [Theory]
+    [InlineData("V31.non-oauth-scopes.json")]
+    [InlineData("V31.non-oauth-scopes.yaml")]
+    [InlineData("V31.webhook-example.json")]
+    [InlineData("V31.webhook-example.yaml")]
+    public async Task Create_From_File_Returns_NotNull_For_V31_Specs(string manifestResourceStreamName)
+    {
+        var swaggerFile = await TestFile.CreateSwaggerFile(
+            EmbeddedResources.GetStringFromEmbeddedResource(manifestResourceStreamName),
+            manifestResourceStreamName);
+
+        (await OpenApiDocumentFactory.CreateAsync(swaggerFile))
+            .Should()
+            .NotBeNull();
+    }
 }
