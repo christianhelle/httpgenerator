@@ -81,3 +81,23 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 **Testing:** All 171 unit tests pass. Validated with petstore.json showing correct output for mixed param types:
 - Query only: `GET {{baseUrl}}/user/login?username={{username}}&password={{password}}`
 - Path + query: `POST {{baseUrl}}/pet/{{petId}}?name={{name}}&status={{status}}`
+
+### Issue #331 / deps-005: OpenAPI reader pipeline migration
+**Date:** 2026-03-20
+
+**Problem:** The repo still depended on `Microsoft.OpenApi.Readers` 1.x and an OpenAPI 3.1 downgrade hack. Moving to `Microsoft.OpenApi` 3.4.0 required the new `LoadAsync(...)` pipeline, explicit YAML reader registration, root-namespace types, and stricter interface/null handling while keeping the repo's current `--skip-validation` behavior intact.
+
+**Solution:** Updated the direct OpenAPI package references in `src\HttpGenerator\HttpGenerator.csproj` and `src\HttpGenerator.Core\HttpGenerator.Core.csproj`, removed the unused CLI-only `Microsoft.OpenApi.OData` reference after a repo-wide search found no code usage, and migrated:
+- `src\HttpGenerator.Core\OpenApiDocumentFactory.cs`
+- `src\HttpGenerator\Validation\OpenApiValidator.cs`
+- `src\HttpGenerator\Validation\OpenApiValidationResult.cs`
+- `src\HttpGenerator\Validation\OpenApiStats.cs`
+- `src\HttpGenerator.Core\HttpFileGenerator.cs`
+- `src\HttpGenerator.Core\OperationNameGenerator.cs`
+- `src\HttpGenerator\GenerateCommand.cs`
+
+The new reader path now uses `OpenApiDocument.LoadAsync(...)`, `ReadResult.Document`, and `ReadResult.Diagnostic`, adds `readerSettings.AddYamlReader()` before YAML parsing, detects `json` vs `yaml` explicitly for stream-based loads, and keeps validation rejecting OpenAPI 3.1 so `--skip-validation` remains the documented opt-in path for generation.
+
+**Pattern learned:** In OpenAPI.NET 3.4, the stream overload of `OpenApiDocument.LoadAsync(...)` needs an explicit format string and YAML support is not active until `OpenApiReaderSettings.AddYamlReader()` is called. For this repo, downloading bytes yourself and then using the stream overload is safer than relying on the `OpenApiReaderSettings.HttpClient` property during the migration. The OpenAPI v3 object model also shifts several hot paths to `IOpenApi*` interfaces and `JsonSchemaType`, so generation code needs light interface/nullability adaptation even when behavior should stay the same.
+
+**Testing:** `dotnet restore HttpGenerator.sln`, `dotnet build HttpGenerator.sln --configuration Release`, targeted `OpenApiDocumentFactoryTests` + `OpenApiValidatorTests` (19/19 passed), parameter regression tests (42/42 passed), `SwaggerPetstoreTests` (56/56 passed), `dotnet test HttpGenerator.sln --configuration Release --no-build --filter "FullyQualifiedName!~GenerateCommandTests"` (161/161 passed), OpenAPI 3.1 GenerateCommand validation subsets passed, and local plus remote petstore CLI generation both produced 19 `.http` files. The aggregate `GenerateCommandTests` full filter still hangs in this environment, so broader GenerateCommand coverage should be revisited in deps-007/deps-008.
