@@ -25,3 +25,7 @@ Preferred: claude-haiku-4.5
 - CHANGELOG.md follows Keep a Changelog format
 - README.md contains CLI usage, installation instructions, and output examples
 - Generated `.http` file examples belong in the README
+
+
+## Git Commit Policy
+Never add `Co-authored-by` trailers to commits. Do not include any co-author attribution lines in commit messages.

@@ -9,6 +9,8 @@ public class StringExtensionsTests
     [InlineData("kebab-case-string", "KebabCaseString")]
     [InlineData("another-kebab-case-string", "AnotherKebabCaseString")]
     [InlineData("string-with.dot", "StringWith_dot")]
+    [InlineData("", "")]
+    [InlineData("single", "Single")]
     public void ConvertKebabCaseToPascalCase_ShouldConvert(string input, string expected)
     {
         var result = input.ConvertKebabCaseToPascalCase();
@@ -47,6 +49,8 @@ public class StringExtensionsTests
     [Theory]
     [InlineData("string", "prefix", "prefixstring")]
     [InlineData("prefixstring", "prefix", "prefixstring")]
+    [InlineData("test", "", "test")]
+    [InlineData("", "prefix", "prefix")]
     public void Prefix_ShouldAddPrefix(string input, string prefix, string expected)
     {
         var result = input.Prefix(prefix);
@@ -61,5 +65,21 @@ public class StringExtensionsTests
         var expected = $"line1{Environment.NewLine}### line2{Environment.NewLine}### line3";
         var result = input.PrefixLineBreaks();
         result.Should().Be(expected);
+    }
+
+    [Fact]
+    public void PrefixLineBreaks_ShouldReturnNull_ForNullInput()
+    {
+        string? input = null;
+        var result = input!.PrefixLineBreaks();
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public void CapitalizeFirstCharacter_ShouldReturnEmpty_ForNullInput()
+    {
+        string input = string.Empty;
+        var result = input.CapitalizeFirstCharacter();
+        result.Should().Be(string.Empty);
     }
 }

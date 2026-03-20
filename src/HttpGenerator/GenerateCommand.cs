@@ -3,9 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
-using Microsoft.OpenApi.Readers.Exceptions;
+using Microsoft.OpenApi;
 using Spectre.Console;
 using Spectre.Console.Cli;
+using OpenApiValidator = HttpGenerator.Validation.OpenApiValidator;
 
 namespace HttpGenerator;
 
@@ -166,6 +167,7 @@ public class GenerateCommand : AsyncCommand<Settings>
         }
     }
 
+    [ExcludeFromCodeCoverage]
     private static void TryWriteLine(
         object error,
         string color,

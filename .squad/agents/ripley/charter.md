@@ -26,3 +26,7 @@ Preferred: auto (architecture proposals → claude-opus-4.6 · premium; triage/p
 - Ripley may reject work from any agent and trigger lockout
 - If Ripley rejects Hicks' work → a different agent (or newly spawned specialist) revises
 - Ripley's approval is required before any significant feature is considered done
+
+
+## Git Commit Policy
+Never add `Co-authored-by` trailers to commits. Do not include any co-author attribution lines in commit messages.

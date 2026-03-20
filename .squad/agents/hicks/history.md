@@ -304,3 +304,44 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 
 **Orchestration Log:** `.squad/orchestration-log/20260320T150843Z-hicks-deps331-kickoff.md`
 
+
+
+## Code Coverage Audit - 2026-03-20
+
+### Changes Made
+- Removed dead GetStream method from OpenApiValidator.cs (lines 22-61) - method was unreachable after migration to OpenApiMultiFileReader.Read
+- Added [ExcludeFromCodeCoverage] to TryWriteLine in GenerateCommand.cs - console fallback logic in catch block is not testable
+
+### Files Already Properly Excluded
+- Program.cs - entry point already marked
+- RedactedEnvironmentInfoPlugin.cs - telemetry plugin already marked
+- SupportKeyInitializer.cs - kept testable, Bishop has test coverage
+
+### Key Decision
+Prioritized removing dead code over marking it excluded. The GetStream method was completely unreachable after the OpenAPI parsing refactor to use OpenApiMultiFileReader.Read.
+
+---
+
+### Session: 2026-03-20 Code Coverage Improvement — Completion (2026-03-20)
+
+**Task:** Execute code coverage audit and clean up untestable code infrastructure.
+
+**Outcome:** ✅ **COMPLETED** — Dead code removed, appropriate coverage exclusions applied, build green.
+
+**Execution Summary:**
+- Removed `GetStream` method (41 lines, completely unreachable) from `src/HttpGenerator/Validation/OpenApiValidator.cs` — was made dead by OpenApiMultiFileReader.Read migration
+- Added `[ExcludeFromCodeCoverage]` to `TryWriteLine` method in `src/HttpGenerator/GenerateCommand.cs` — catch block with Console.WriteLine fallback is infrastructure code difficult to unit test
+- Validated: Release build green, no regressions
+
+**Coverage Audit Decisions:**
+1. **Remove over exclude:** Unreachable code deleted rather than marked; cleaner codebase
+2. **Exclude infrastructure:** Console fallbacks, entry points, telemetry plugins appropriately excluded
+3. **Keep testable:** SupportKeyInitializer left uncovered but Bishop validated it with NSubstitute mocks
+
+**Commits:** 2 commits
+- `3f14302` — "chore: remove dead GetStream method from OpenApiValidator"
+- `4082f2b` — "chore: exclude TryWriteLine console fallback from code coverage"
+
+**Impact:** More accurate code coverage metrics focusing on testable business logic; cleaner codebase; no dead code debt.
+
+**Orchestration Reference:** `.squad/log/2026-03-20-coverage-improvement-complete.md`

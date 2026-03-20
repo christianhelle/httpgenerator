@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace HttpGenerator.Core;
 
@@ -24,7 +23,7 @@ internal class OperationNameGenerator : IOperationNameGenerator
         try
         {
             // Try to use operationId first if available
-            var operationName = operation.OperationId;
+            var operationName = operation.OperationId ?? string.Empty;
             
             if (string.IsNullOrWhiteSpace(operationName))
             {

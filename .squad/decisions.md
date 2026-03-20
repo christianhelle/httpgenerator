@@ -89,6 +89,49 @@
 **Key Principle:** Reviewer rejection triggers author lockout. Next revision of rejected work must come from different team member to prevent author fixup loops and maintain review discipline.
 **Reference:** `.squad/decisions/inbox/ripley-cleanup-pr-343-344.md`
 
+### 2026-03-20: Code Coverage Exclusion Audit (Hicks)
+**By:** Hicks (Core Dev)
+**What:** Conducted audit of production source files to add `[ExcludeFromCodeCoverage]` to genuinely untestable code and remove dead code.
+**Key Actions:**
+- Removed `GetStream` method (41 lines, completely unreachable) from `src/HttpGenerator/Validation/OpenApiValidator.cs` (commit `3f14302`)
+- Added `[ExcludeFromCodeCoverage]` to `TryWriteLine` catch block in `src/HttpGenerator/GenerateCommand.cs` (console fallback logic difficult to unit test; commit `4082f2b`)
+**Outcome:** Build green. Cleaner codebase with accurate coverage metrics focusing on testable logic.
+
+### 2026-03-20: Comprehensive Code Coverage Improvement (Bishop)
+**By:** Bishop (Tester)
+**What:** Added 42 new unit tests (204 → 246 tests, +20.6%) across 5 new/enhanced test files and improved smoke tests with additional parameter combinations.
+**New Test Files:**
+- `OpenApiStatsTests.cs` — 9 tests covering OpenApiStats visitor pattern, counter validation, ToString() formatting
+- `HttpFileGeneratorEdgeCasesTests.cs` — 14 tests covering BaseUrl env templates, SkipHeaders, auth headers, unique filename generation, custom content types, empty specs
+- `GeneratedContentTests.cs` — 8 tests covering sample JSON generation, query parameters, defaults, custom headers, IntelliJ tests
+- Enhanced `PrivacyHelperTests.cs` — 5 tests for empty input, non-auth text, multiple headers
+- Enhanced `SupportKeyInitializerTests.cs` — test for non-ISupportProperties telemetry
+- Enhanced `StringExtensionsTests.cs` — 5 tests for empty/null edge cases
+- Enhanced `OpenApiValidatorTests.cs` — 2 tests for IsValid property branches
+
+**Smoke Test Additions:** 5 new parameter combination scenarios (authorization headers, skip-headers, custom content-type, base-url env templates)
+**Commits:** 5 commits; all 246 tests pass in Release configuration
+**Rationale:** Maximize code coverage by targeting untestable code removal (Hicks) and comprehensive edge-case testing (Bishop).
+**Impact:** Build green, smoke tests complete successfully, foundation for downstreamregressions.
+
+### 2026-03-20: PR #342 Closure (Spectre.Console.Cli Duplicate)
+**By:** Ripley (Lead)
+**What:** Closed duplicate PR #342 (same Spectre.Console.Cli 0.53.1 upgrade as PR #338 which already merged)
+**Rationale:** PR #338 was already merged with the identical dependency upgrade; PR #342 became redundant
+**Outcome:** PR #342 closed; issue #329 resolved by PR #338
+
+### 2026-03-20: PR #346 Closure (Stale Documentation PR)
+**By:** Ripley (Lead)
+**What:** Closed documentation-only PR #346 capturing post-merge learnings from PR #340 (Atc.Test upgrade)
+**Rationale:** PR #340 already merged the complete Atc.Test 2.0.17 upgrade with xUnit v3 alignment; documentation is nice-to-have but redundant post-implementation
+**Outcome:** PR #346 closed; no functional impact. Atc.Test upgrade complete via PR #340.
+
+### 2026-03-20: User Directive — No Co-Author Trailers
+**By:** Christian Helle (via Copilot CLI)
+**What:** Never add Co-authored-by trailers to git commits in this repository
+**Why:** User preference and instruction for commit message format
+**Impact:** Squad commit convention updated to exclude Co-authored-by lines
+
 ## Governance
 
 - All meaningful changes require team consensus
