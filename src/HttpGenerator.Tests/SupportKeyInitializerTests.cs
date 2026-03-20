@@ -1,4 +1,4 @@
-
+using FluentAssertions;
 using HttpGenerator;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
@@ -22,7 +22,7 @@ public class SupportKeyInitializerTests
         initializer.Initialize(telemetry);
 
         // Assert
-        Assert.True(properties.ContainsKey("support-key"));
-        Assert.Equal(SupportInformation.GetSupportKey(), properties["support-key"]);
+        properties.Should().ContainKey("support-key");
+        properties["support-key"].Should().Be(SupportInformation.GetSupportKey());
     }
 }
