@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
-using Microsoft.OpenApi.Readers.Exceptions;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -47,7 +46,7 @@ public class GenerateCommand : AsyncCommand<Settings>
             DisplaySuccess(stopwatch.Elapsed);
             return 0;
         }
-        catch (OpenApiUnsupportedSpecVersionException exception)
+        catch (Microsoft.OpenApi.OpenApiUnsupportedSpecVersionException exception)
         {
             AnsiConsole.MarkupLine($"{Crlf}[red]Error:{Crlf}{exception.Message}[/]");
             AnsiConsole.MarkupLine(

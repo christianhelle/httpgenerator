@@ -1,6 +1,6 @@
-﻿using System.Net;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+using System.Net;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace HttpGenerator.Core;
 
@@ -18,33 +18,41 @@ public static class OpenApiDocumentFactory
         if (IsHttp(openApiPath))
         {
             var content = await GetHttpContent(openApiPath);
-            return await ParseOpenApiContent(content);
+            return await ParseOpenApiContent(openApiPath, content);
         }
-        else 
+        else
         {
             var content = File.ReadAllText(openApiPath);
-            return await ParseOpenApiContent(content);
+            return await ParseOpenApiContent(openApiPath, content);
         }
     }
 
-    private static async Task<OpenApiDocument> ParseOpenApiContent(string content)
+    private static async Task<OpenApiDocument> ParseOpenApiContent(string openApiPath, string content)
     {
         // Try to parse with Microsoft.OpenApi first
         try
         {
             using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
+            var format = GetOpenApiFormat(openApiPath, content);
+            var result = await OpenApiDocument.LoadAsync(
+                stream,
+                format,
+                new OpenApiReaderSettings(),
+                CancellationToken.None);
+            return result.Document ?? throw new InvalidOperationException("OpenAPI document could not be parsed.");
         }
-        catch (Exception ex) when (ex.Message.Contains("3.1.0") || ex.Message.Contains("not supported"))
+        catch (OpenApiUnsupportedSpecVersionException)
         {
             // If OpenAPI 3.1 is detected, try to downgrade to 3.0 for parsing
             var downgradedContent = DowngradeOpenApi31To30(content);
             using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(downgradedContent));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
+            var format = GetOpenApiFormat(openApiPath, downgradedContent);
+            var result = await OpenApiDocument.LoadAsync(
+                stream,
+                format,
+                new OpenApiReaderSettings(),
+                CancellationToken.None);
+            return result.Document ?? throw new InvalidOperationException("OpenAPI document could not be parsed.");
         }
     }
 
@@ -94,5 +102,22 @@ public static class OpenApiDocumentFactory
     {
         return path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
                path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string GetOpenApiFormat(string openApiPath, string content)
+    {
+        if (IsYaml(openApiPath))
+        {
+            return OpenApiConstants.Yaml;
+        }
+
+        var trimmed = content.TrimStart();
+        if (trimmed.StartsWith("openapi:", StringComparison.OrdinalIgnoreCase) ||
+            trimmed.StartsWith("swagger:", StringComparison.OrdinalIgnoreCase))
+        {
+            return OpenApiConstants.Yaml;
+        }
+
+        return OpenApiConstants.Json;
     }
 }
