@@ -26,8 +26,14 @@
 - NullReferenceException when operation.Parameters is null \(GitHub API crash\) [\#310](https://github.com/christianhelle/httpgenerator/issues/310)
 - Crash and error on int64 properties with minimum limits lower than int32 lowest value [\#36](https://github.com/christianhelle/httpgenerator/issues/36)
 
+**Closed issues:**
+
+- \[deps-003\] Upgrade Spectre.Console.Cli [\#329](https://github.com/christianhelle/httpgenerator/issues/329)
+- \[deps-002\] Upgrade Microsoft.SourceLink.GitHub [\#328](https://github.com/christianhelle/httpgenerator/issues/328)
+
 **Merged pull requests:**
 
+- Bump Spectre.Console.Cli to 0.53.1 [\#338](https://github.com/christianhelle/httpgenerator/pull/338) ([christianhelle](https://github.com/christianhelle))
 - chore: upgrade Microsoft.SourceLink.GitHub [\#337](https://github.com/christianhelle/httpgenerator/pull/337) ([christianhelle](https://github.com/christianhelle))
 - Regression tests for path-level parameter merging [\#320](https://github.com/christianhelle/httpgenerator/pull/320) ([christianhelle](https://github.com/christianhelle))
 - Regression tests for null operation.Parameters [\#317](https://github.com/christianhelle/httpgenerator/pull/317) ([christianhelle](https://github.com/christianhelle))
