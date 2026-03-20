@@ -41,3 +41,10 @@ Fixed 4 failing tests in `PathLevelParametersTests.cs` that had incorrect expect
 - **Test results:** All 13 PathLevelParametersTests pass, full suite: 184 tests pass
 - **PR:** https://github.com/christianhelle/httpgenerator/pull/323
 
+### Atc.Test v2 upgrade with pinned FluentAssertions (2026-03-20)
+
+- `Atc.Test` `2.0.17` keeps working in `src/HttpGenerator.Tests/HttpGenerator.Tests.csproj` while the repo pins `FluentAssertions` at `7.2.0`, but the test project must suppress `NU1605` because upstream now asks for `FluentAssertions >= 7.2.1`.
+- The package is now xUnit v3-only, so `src/HttpGenerator.Tests/HttpGenerator.Tests.csproj` must reference `xunit.v3`; current `origin/main` already carries the matching project settings for that move.
+- `src/HttpGenerator.Tests/GenerateCommandTests.cs` must pass `TestContext.Current.CancellationToken` into `GenerateCommand.ExecuteAsync(...)` to satisfy xUnit analyzer rule `xUnit1051`.
+- Validation signal for the refreshed stack stays `204/204` green via `dotnet restore HttpGenerator.sln`, `dotnet build HttpGenerator.sln --configuration Release`, and `dotnet test HttpGenerator.sln --configuration Release`.
+
