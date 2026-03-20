@@ -9,8 +9,7 @@ public static class OpenApiValidator
 {
     public static async Task<OpenApiValidationResult> Validate(string openApiPath)
     {
-        var result = await ParseOpenApi(openApiPath);
-
+        var result = await OpenApiMultiFileReader.Read(openApiPath);
         var statsVisitor = new OpenApiStats();
         var walker = new OpenApiWalker(statsVisitor);
         walker.Walk(result.OpenApiDocument);
@@ -59,28 +58,5 @@ public static class OpenApiValidator
         {
             throw new InvalidOperationException($"Could not open the file at {input}", ex);
         }
-    }
-
-    private static async Task<ReadResult> ParseOpenApi(string openApiFile)
-    {
-        Uri baseUrl;
-        if (openApiFile.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-        {
-            baseUrl = new Uri(openApiFile);
-        }
-        else
-        {
-            var directoryName = new FileInfo(openApiFile).DirectoryName;
-            baseUrl = new Uri($"file://{directoryName}{Path.DirectorySeparatorChar}");
-        }
-        
-        var openApiReaderSettings = new OpenApiReaderSettings
-        {
-            BaseUrl = baseUrl
-        };
-
-        await using var stream = await GetStream(openApiFile, CancellationToken.None);
-        var reader = new OpenApiStreamReader(openApiReaderSettings);
-        return await reader.ReadAsync(stream, CancellationToken.None);
     }
 }
