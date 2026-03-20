@@ -41,3 +41,12 @@ Fixed 4 failing tests in `PathLevelParametersTests.cs` that had incorrect expect
 - **Test results:** All 13 PathLevelParametersTests pass, full suite: 184 tests pass
 - **PR:** https://github.com/christianhelle/httpgenerator/pull/323
 
+### Atc.Test 2.0.17 Upgrade Requires xUnit 2 Compatibility Shim (2026-03-20)
+
+Retried issue #330 on branch `feature/deps-004-atc-test-retry` and found that `Atc.Test` 2.0.17 now brings `AutoFixture.Xunit3` / `xunit.v3.extensibility.core`, which conflicts with this repo's current xUnit 2.9.3 test stack.
+- **Test project file:** `src/HttpGenerator.Tests/HttpGenerator.Tests.csproj`
+- **Compatibility shim:** `src/HttpGenerator.Tests/AtcTestCompatibility.cs`
+- **Key pattern:** Keep `Atc.Test` updated and `FluentAssertions` pinned at `7.2.0`, suppress `NU1605`, add explicit `AutoFixture.AutoNSubstitute` + `AutoFixture.Xunit2` references, and provide local `Atc.Test.AutoNSubstituteDataAttribute` / `InlineAutoNSubstituteDataAttribute` implementations to preserve the current theory helpers without migrating the whole suite to xUnit 3.
+- **Validation:** `dotnet restore HttpGenerator.sln`, `dotnet build HttpGenerator.sln --configuration Release`, and `dotnet test HttpGenerator.sln --configuration Release` all passed with **204/204** tests green.
+- **PR:** https://github.com/christianhelle/httpgenerator/pull/339
+
