@@ -1,6 +1,8 @@
-﻿using System.Net;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+using System.Linq;
+using System.Net;
+using System.Text;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace HttpGenerator.Core;
 
@@ -15,63 +17,40 @@ public static class OpenApiDocumentFactory
     /// <returns>A new instance of the <see cref="OpenApiDocument"/> class.</returns>
     public static async Task<OpenApiDocument> CreateAsync(string openApiPath)
     {
+        var baseUrl = GetBaseUrl(openApiPath);
+
         if (IsHttp(openApiPath))
         {
             var content = await GetHttpContent(openApiPath);
-            return await ParseOpenApiContent(content);
+            return await ParseOpenApiContent(content, GetFormat(openApiPath, content), baseUrl);
         }
-        else 
-        {
-            var content = File.ReadAllText(openApiPath);
-            return await ParseOpenApiContent(content);
-        }
+
+        var fileContent = File.ReadAllBytes(openApiPath);
+        return await ParseOpenApiContent(
+            fileContent,
+            GetFormat(openApiPath, fileContent),
+            baseUrl);
     }
 
-    private static async Task<OpenApiDocument> ParseOpenApiContent(string content)
+    private static async Task<OpenApiDocument> ParseOpenApiContent(
+        byte[] content,
+        string format,
+        Uri? baseUrl)
     {
-        // Try to parse with Microsoft.OpenApi first
-        try
+        using var stream = new MemoryStream(content);
+        var readerSettings = new OpenApiReaderSettings
         {
-            using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
-        }
-        catch (Exception ex) when (ex.Message.Contains("3.1.0") || ex.Message.Contains("not supported"))
-        {
-            // If OpenAPI 3.1 is detected, try to downgrade to 3.0 for parsing
-            var downgradedContent = DowngradeOpenApi31To30(content);
-            using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(downgradedContent));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
-        }
-    }
+            BaseUrl = baseUrl
+        };
+        readerSettings.AddYamlReader();
 
-    private static string DowngradeOpenApi31To30(string content)
-    {
-        // Simple downgrade strategy: replace 3.1.0 with 3.0.3 and remove unsupported 3.1 features
-        return content
-            .Replace("\"openapi\": \"3.1.0\"", "\"openapi\": \"3.0.3\"")
-            .Replace("openapi: 3.1.0", "openapi: 3.0.3")
-            .Replace("openapi: \"3.1.0\"", "openapi: \"3.0.3\"")
-            // Remove webhooks section which is 3.1 specific
-            .Replace("\"webhooks\":", "\"x-webhooks\":")
-            .Replace("webhooks:", "x-webhooks:");
-    }
+        var result = await OpenApiDocument.LoadAsync(
+            stream,
+            format,
+            readerSettings,
+            CancellationToken.None);
 
-    /// <summary>
-    /// Gets the content of the URI as a string and decompresses it if necessary. 
-    /// </summary>
-    /// <returns>The content of the HTTP request.</returns>
-    private static async Task<string> GetHttpContent(string openApiPath)
-    {
-        var httpMessageHandler = new HttpClientHandler();
-        httpMessageHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-        httpMessageHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
-        using var http = new HttpClient(httpMessageHandler);
-        var content = await http.GetStringAsync(openApiPath);
-        return content;
+        return result.Document ?? throw CreateDocumentLoadException(result.Diagnostic);
     }
 
     /// <summary>
@@ -85,14 +64,89 @@ public static class OpenApiDocumentFactory
                path.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Determines whether the specified path is a YAML file.
-    /// </summary>
-    /// <param name="path">The path to check.</param>
-    /// <returns>True if the path is a YAML file, otherwise false.</returns>
-    private static bool IsYaml(string path)
+    private static Uri? GetBaseUrl(string openApiPath)
     {
-        return path.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) || 
-               path.EndsWith(".yml", StringComparison.OrdinalIgnoreCase);
+        if (IsHttp(openApiPath))
+        {
+            return new Uri(openApiPath);
+        }
+
+        var directoryName = Path.GetDirectoryName(Path.GetFullPath(openApiPath));
+        if (string.IsNullOrWhiteSpace(directoryName))
+        {
+            return null;
+        }
+
+        var endsWithDirectorySeparator =
+            directoryName.EndsWith(Path.DirectorySeparatorChar.ToString(), StringComparison.Ordinal) ||
+            directoryName.EndsWith(Path.AltDirectorySeparatorChar.ToString(), StringComparison.Ordinal);
+
+        var fullDirectoryPath = endsWithDirectorySeparator
+            ? directoryName
+            : directoryName + Path.DirectorySeparatorChar;
+
+        return new Uri(fullDirectoryPath);
+    }
+
+    private static async Task<byte[]> GetHttpContent(string openApiPath)
+    {
+        using var http = CreateHttpClient();
+        return await http.GetByteArrayAsync(openApiPath);
+    }
+
+    private static string GetFormat(string openApiPath, byte[] content)
+    {
+        var extension = Path.GetExtension(openApiPath);
+        if (extension.Equals(".yaml", StringComparison.OrdinalIgnoreCase) ||
+            extension.Equals(".yml", StringComparison.OrdinalIgnoreCase))
+        {
+            return "yaml";
+        }
+
+        if (extension.Equals(".json", StringComparison.OrdinalIgnoreCase))
+        {
+            return "json";
+        }
+
+        var text = Encoding.UTF8.GetString(content);
+        var firstMeaningfulCharacter = text
+            .SkipWhile(character => char.IsWhiteSpace(character) || character == '\uFEFF')
+            .FirstOrDefault();
+
+        return firstMeaningfulCharacter is '{' or '['
+            ? "json"
+            : "yaml";
+    }
+
+    private static HttpClient CreateHttpClient()
+    {
+        var httpMessageHandler = new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+        };
+        return new HttpClient(httpMessageHandler);
+    }
+
+    private static InvalidOperationException CreateDocumentLoadException(OpenApiDiagnostic? diagnostic)
+    {
+        if (diagnostic is null)
+        {
+            return new InvalidOperationException("Could not parse the OpenAPI document.");
+        }
+
+        var messages = diagnostic.Errors
+            .Concat(diagnostic.Warnings)
+            .Select(error => error.ToString())
+            .Where(message => !string.IsNullOrWhiteSpace(message))
+            .ToArray();
+
+        if (messages.Length == 0)
+        {
+            return new InvalidOperationException("Could not parse the OpenAPI document.");
+        }
+
+        return new InvalidOperationException(
+            $"Could not parse the OpenAPI document.{Environment.NewLine}{string.Join(Environment.NewLine, messages)}");
     }
 }

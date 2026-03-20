@@ -1,6 +1,6 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace HttpGenerator.Core;
 
@@ -24,13 +24,9 @@ internal class OperationNameGenerator : IOperationNameGenerator
         try
         {
             // Try to use operationId first if available
-            var operationName = operation.OperationId;
-            
-            if (string.IsNullOrWhiteSpace(operationName))
-            {
-                // Fallback to generating from path and method
-                operationName = $"{httpMethod}_{path}";
-            }
+            var operationName = string.IsNullOrWhiteSpace(operation.OperationId)
+                ? $"{httpMethod}_{path}"
+                : operation.OperationId!;
             
             return operationName
                 .CapitalizeFirstCharacter()

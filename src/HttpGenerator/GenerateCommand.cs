@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
-using Microsoft.OpenApi.Readers.Exceptions;
+using OpenApiUnsupportedSpecVersionException = Microsoft.OpenApi.OpenApiUnsupportedSpecVersionException;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
