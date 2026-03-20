@@ -28,12 +28,14 @@
 
 **Closed issues:**
 
+- \[deps-009\] Refresh VSIX SDK packages on 17.x line [\#335](https://github.com/christianhelle/httpgenerator/issues/335)
 - \[deps-004\] Upgrade Atc.Test while keeping FluentAssertions pinned [\#330](https://github.com/christianhelle/httpgenerator/issues/330)
 - \[deps-003\] Upgrade Spectre.Console.Cli [\#329](https://github.com/christianhelle/httpgenerator/issues/329)
 - \[deps-002\] Upgrade Microsoft.SourceLink.GitHub [\#328](https://github.com/christianhelle/httpgenerator/issues/328)
 
 **Merged pull requests:**
 
+- \[deps-009\] Refresh VSIX SDK packages [\#345](https://github.com/christianhelle/httpgenerator/pull/345) ([christianhelle](https://github.com/christianhelle))
 - \[deps-004\] Upgrade Atc.Test to 2.0.17 [\#340](https://github.com/christianhelle/httpgenerator/pull/340) ([christianhelle](https://github.com/christianhelle))
 - Bump Spectre.Console.Cli to 0.53.1 [\#338](https://github.com/christianhelle/httpgenerator/pull/338) ([christianhelle](https://github.com/christianhelle))
 - chore: upgrade Microsoft.SourceLink.GitHub [\#337](https://github.com/christianhelle/httpgenerator/pull/337) ([christianhelle](https://github.com/christianhelle))
