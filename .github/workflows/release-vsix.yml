@@ -4,51 +4,50 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - 'release'
+      - "release"
 
 env:
-  VERSION: 1.0.0
-  NUGET_REPO_URL: 'https://api.nuget.org/v3/index.json'
+  VERSION: 1.1.0
+  NUGET_REPO_URL: "https://api.nuget.org/v3/index.json"
 
 jobs:
-
   VSIX:
-    runs-on: windows-2025
+    runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v6
-    - name: Sets environment variables - branch-name
-      uses: nelonoel/branch-name@v1.0.1
-    - name: Sets environment variables - Nerdbank.GitVersioning
-      uses: dotnet/nbgv@master
-      with:
-        setAllVars: true
-    - name: Update Version
-      run: |
-        ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
-        ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
-      working-directory: src
-      shell: pwsh
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v2
-    - name: Restore
-      run: msbuild VSIX.sln -t:Restore
-      working-directory: src
-    - name: Build
-      run: msbuild VSIX.sln /property:Configuration=Release /p:DeployExtension=false
-      working-directory: src
-    - name: Move build output
-      run: |
-        mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix.vsix
-    - name: Publish artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: Visual Studio Extension
-        path: |
-          *.vsix
-          docs/Marketplace*.md
-    - name: Publish VSIX Packages
-      continue-on-error: true
-      run: |
-        $VsixPublisher = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe"
-        & $VsixPublisher login -personalAccessToken ${{ secrets.MARKETPLACE_PAT }} -publisherName ChristianResmaHelle
-        & $VsixPublisher publish -payload HttpGenerator-${{ env.VERSION }}.vsix.vsix -publishManifest src/publish-manifest.json -ignoreWarnings 'VSIXValidatorWarning01,VSIXValidatorWarning02'
+      - uses: actions/checkout@v6
+      - name: Sets environment variables - branch-name
+        uses: nelonoel/branch-name@v1.0.1
+      - name: Sets environment variables - Nerdbank.GitVersioning
+        uses: dotnet/nbgv@master
+        with:
+          setAllVars: true
+      - name: Update Version
+        run: |
+          ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
+          ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
+        working-directory: src
+        shell: pwsh
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v2
+      - name: Restore
+        run: msbuild VSIX.sln -t:Restore
+        working-directory: src
+      - name: Build
+        run: msbuild VSIX.sln /property:Configuration=Release /p:DeployExtension=false
+        working-directory: src
+      - name: Move build output
+        run: |
+          mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix.vsix
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Visual Studio Extension
+          path: |
+            *.vsix
+            docs/Marketplace*.md
+      - name: Publish VSIX Packages
+        continue-on-error: true
+        run: |
+          $VsixPublisher = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe"
+          & $VsixPublisher login -personalAccessToken ${{ secrets.MARKETPLACE_PAT }} -publisherName ChristianResmaHelle
+          & $VsixPublisher publish -payload HttpGenerator-${{ env.VERSION }}.vsix.vsix -publishManifest src/publish-manifest.json -ignoreWarnings 'VSIXValidatorWarning01,VSIXValidatorWarning02'
