@@ -36,6 +36,7 @@
 **Merged pull requests:**
 
 - \[deps-009\] Refresh VSIX SDK packages [\#345](https://github.com/christianhelle/httpgenerator/pull/345) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update dependency xunit.v3 to 3.2.2 [\#341](https://github.com/christianhelle/httpgenerator/pull/341) ([renovate[bot]](https://github.com/apps/renovate))
 - \[deps-004\] Upgrade Atc.Test to 2.0.17 [\#340](https://github.com/christianhelle/httpgenerator/pull/340) ([christianhelle](https://github.com/christianhelle))
 - Bump Spectre.Console.Cli to 0.53.1 [\#338](https://github.com/christianhelle/httpgenerator/pull/338) ([christianhelle](https://github.com/christianhelle))
 - chore: upgrade Microsoft.SourceLink.GitHub [\#337](https://github.com/christianhelle/httpgenerator/pull/337) ([christianhelle](https://github.com/christianhelle))
