@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - GenerateSampleJson produces empty JSON for allOf/oneOf/anyOf composed schemas [\#313](https://github.com/christianhelle/httpgenerator/issues/313)
+- Add support for OpenAPI v3.1 [\#349](https://github.com/christianhelle/httpgenerator/pull/349) ([christianhelle](https://github.com/christianhelle))
 - Deduplicate filenames in OneRequestPerFile mode [\#325](https://github.com/christianhelle/httpgenerator/pull/325) ([christianhelle](https://github.com/christianhelle))
 - Regression tests for query parameter URL generation [\#324](https://github.com/christianhelle/httpgenerator/pull/324) ([christianhelle](https://github.com/christianhelle))
 - Fix failing PathLevelParametersTests assertions for OneFile mode [\#323](https://github.com/christianhelle/httpgenerator/pull/323) ([christianhelle](https://github.com/christianhelle))
@@ -29,6 +30,9 @@
 **Closed issues:**
 
 - \[deps-009\] Refresh VSIX SDK packages on 17.x line [\#335](https://github.com/christianhelle/httpgenerator/issues/335)
+- \[deps-007\] Reconcile generator and CLI after OpenAPI migration [\#333](https://github.com/christianhelle/httpgenerator/issues/333)
+- \[deps-006\] Migrate validator visitor/statistics to OpenAPI v3 [\#332](https://github.com/christianhelle/httpgenerator/issues/332)
+- \[deps-005\] Migrate OpenAPI reader pipeline to v3 package set [\#331](https://github.com/christianhelle/httpgenerator/issues/331)
 - \[deps-004\] Upgrade Atc.Test while keeping FluentAssertions pinned [\#330](https://github.com/christianhelle/httpgenerator/issues/330)
 - \[deps-003\] Upgrade Spectre.Console.Cli [\#329](https://github.com/christianhelle/httpgenerator/issues/329)
 - \[deps-002\] Upgrade Microsoft.SourceLink.GitHub [\#328](https://github.com/christianhelle/httpgenerator/issues/328)
