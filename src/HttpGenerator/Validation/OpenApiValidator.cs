@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Security;
-using Microsoft.OpenApi.Readers;
-using Microsoft.OpenApi.Services;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace HttpGenerator.Validation;
 
