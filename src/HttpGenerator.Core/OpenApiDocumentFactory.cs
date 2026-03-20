@@ -1,6 +1,6 @@
 ﻿using System.Net;
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Readers;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace HttpGenerator.Core;
 
@@ -18,34 +18,83 @@ public static class OpenApiDocumentFactory
         if (IsHttp(openApiPath))
         {
             var content = await GetHttpContent(openApiPath);
-            return await ParseOpenApiContent(content);
+            return await ParseOpenApiContent(content, openApiPath);
         }
         else 
         {
             var content = File.ReadAllText(openApiPath);
-            return await ParseOpenApiContent(content);
+            return await ParseOpenApiContent(content, openApiPath);
         }
     }
 
-    private static async Task<OpenApiDocument> ParseOpenApiContent(string content)
+    private static async Task<OpenApiDocument> ParseOpenApiContent(string content, string openApiPath)
     {
         // Try to parse with Microsoft.OpenApi first
         try
         {
             using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(content));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
+            var settings = CreateReaderSettings(openApiPath);
+            var format = GetFormat(openApiPath, content);
+            var result = await OpenApiDocument.LoadAsync(
+                stream,
+                format,
+                settings,
+                CancellationToken.None);
+            return GetDocument(result, openApiPath);
         }
-        catch (Exception ex) when (ex.Message.Contains("3.1.0") || ex.Message.Contains("not supported"))
+        catch (OpenApiUnsupportedSpecVersionException ex)
+            when (ex.Message.Contains("3.1.0") || ex.Message.Contains("not supported"))
         {
             // If OpenAPI 3.1 is detected, try to downgrade to 3.0 for parsing
             var downgradedContent = DowngradeOpenApi31To30(content);
             using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(downgradedContent));
-            var reader = new OpenApiStreamReader();
-            var result = await reader.ReadAsync(stream, CancellationToken.None);
-            return result.OpenApiDocument;
+            var settings = CreateReaderSettings(openApiPath);
+            var format = GetFormat(openApiPath, downgradedContent);
+            var result = await OpenApiDocument.LoadAsync(
+                stream,
+                format,
+                settings,
+                CancellationToken.None);
+            return GetDocument(result, openApiPath);
         }
+    }
+
+    private static OpenApiDocument GetDocument(ReadResult result, string openApiPath)
+    {
+        return result.Document ?? throw new InvalidOperationException(
+            $"OpenAPI document could not be parsed from {openApiPath}.");
+    }
+
+    private static OpenApiReaderSettings CreateReaderSettings(string openApiPath)
+    {
+        var settings = new OpenApiReaderSettings
+        {
+            BaseUrl = GetBaseUrl(openApiPath)
+        };
+        settings.AddYamlReader();
+        return settings;
+    }
+
+    private static Uri GetBaseUrl(string openApiPath)
+    {
+        if (IsHttp(openApiPath))
+        {
+            return new Uri(openApiPath);
+        }
+
+        var directoryName = new FileInfo(openApiPath).DirectoryName;
+        return new Uri($"file://{directoryName}{Path.DirectorySeparatorChar}");
+    }
+
+    private static string GetFormat(string openApiPath, string content)
+    {
+        if (IsYaml(openApiPath))
+            return "yaml";
+
+        var trimmed = content.AsSpan().TrimStart();
+        return trimmed.StartsWith("{") || trimmed.StartsWith("[")
+            ? "json"
+            : "yaml";
     }
 
     private static string DowngradeOpenApi31To30(string content)
@@ -66,9 +115,10 @@ public static class OpenApiDocumentFactory
     /// <returns>The content of the HTTP request.</returns>
     private static async Task<string> GetHttpContent(string openApiPath)
     {
-        var httpMessageHandler = new HttpClientHandler();
-        httpMessageHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-        httpMessageHandler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true;
+        var httpMessageHandler = new HttpClientHandler
+        {
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+        };
         using var http = new HttpClient(httpMessageHandler);
         var content = await http.GetStringAsync(openApiPath);
         return content;

@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using Azure.Core.Diagnostics;
 using HttpGenerator.Core;
 using HttpGenerator.Validation;
-using Microsoft.OpenApi.Readers.Exceptions;
+using Microsoft.OpenApi;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -140,7 +140,7 @@ public class GenerateCommand : AsyncCommand<Settings>
     private static async Task ValidateOpenApiSpec(Settings settings)
     {
         AnsiConsole.MarkupLine("[cyan]🔍 Validating OpenAPI specification...[/]");
-        var validationResult = await OpenApiValidator.Validate(settings.OpenApiPath!);
+        var validationResult = await Validation.OpenApiValidator.Validate(settings.OpenApiPath!);
         WriteValidationResults(validationResult);
         validationResult.ThrowIfInvalid();
 

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace HttpGenerator.Core;
 
@@ -32,7 +32,7 @@ internal class OperationNameGenerator : IOperationNameGenerator
                 operationName = $"{httpMethod}_{path}";
             }
             
-            return operationName
+            return (operationName ?? string.Empty)
                 .CapitalizeFirstCharacter()
                 .ConvertKebabCaseToPascalCase()
                 .ConvertRouteToCamelCase()

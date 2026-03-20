@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Security;
-using Microsoft.OpenApi.Readers;
-using Microsoft.OpenApi.Services;
+using Microsoft.OpenApi;
+using Microsoft.OpenApi.Reader;
 
 namespace HttpGenerator.Validation;
 
@@ -13,10 +13,10 @@ public static class OpenApiValidator
 
         var statsVisitor = new OpenApiStats();
         var walker = new OpenApiWalker(statsVisitor);
-        walker.Walk(result.OpenApiDocument);
+        walker.Walk(result.Document);
 
         return new(
-            result.OpenApiDiagnostic,
+            result.Diagnostic ?? new OpenApiDiagnostic(),
             statsVisitor);
     }
 
@@ -78,9 +78,21 @@ public static class OpenApiValidator
         {
             BaseUrl = baseUrl
         };
+        openApiReaderSettings.AddYamlReader();
 
         await using var stream = await GetStream(openApiFile, CancellationToken.None);
-        var reader = new OpenApiStreamReader(openApiReaderSettings);
-        return await reader.ReadAsync(stream, CancellationToken.None);
+        var format = GetFormat(openApiFile);
+        return await OpenApiDocument.LoadAsync(stream, format, openApiReaderSettings, CancellationToken.None);
+    }
+
+    private static string GetFormat(string openApiFile)
+    {
+        if (openApiFile.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase) ||
+            openApiFile.EndsWith(".yml", StringComparison.OrdinalIgnoreCase))
+        {
+            return "yaml";
+        }
+
+        return "json";
     }
 }
