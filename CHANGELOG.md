@@ -29,16 +29,21 @@
 
 **Closed issues:**
 
+- \[deps-010\] Final regression, docs, and release closeout [\#336](https://github.com/christianhelle/httpgenerator/issues/336)
 - \[deps-009\] Refresh VSIX SDK packages on 17.x line [\#335](https://github.com/christianhelle/httpgenerator/issues/335)
+- \[deps-008\] Refresh OpenAPI regression tests and smoke coverage [\#334](https://github.com/christianhelle/httpgenerator/issues/334)
 - \[deps-007\] Reconcile generator and CLI after OpenAPI migration [\#333](https://github.com/christianhelle/httpgenerator/issues/333)
 - \[deps-006\] Migrate validator visitor/statistics to OpenAPI v3 [\#332](https://github.com/christianhelle/httpgenerator/issues/332)
 - \[deps-005\] Migrate OpenAPI reader pipeline to v3 package set [\#331](https://github.com/christianhelle/httpgenerator/issues/331)
 - \[deps-004\] Upgrade Atc.Test while keeping FluentAssertions pinned [\#330](https://github.com/christianhelle/httpgenerator/issues/330)
 - \[deps-003\] Upgrade Spectre.Console.Cli [\#329](https://github.com/christianhelle/httpgenerator/issues/329)
 - \[deps-002\] Upgrade Microsoft.SourceLink.GitHub [\#328](https://github.com/christianhelle/httpgenerator/issues/328)
+- \[deps-001\] Capture baseline and open tracking board [\#327](https://github.com/christianhelle/httpgenerator/issues/327)
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency oasreader to 3.5.0.19 [\#351](https://github.com/christianhelle/httpgenerator/pull/351) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update microsoft/setup-msbuild action to v3 [\#350](https://github.com/christianhelle/httpgenerator/pull/350) ([renovate[bot]](https://github.com/apps/renovate))
 - \[deps-009\] Refresh VSIX SDK packages [\#345](https://github.com/christianhelle/httpgenerator/pull/345) ([christianhelle](https://github.com/christianhelle))
 - chore\(deps\): update dependency xunit.v3 to 3.2.2 [\#341](https://github.com/christianhelle/httpgenerator/pull/341) ([renovate[bot]](https://github.com/apps/renovate))
 - \[deps-004\] Upgrade Atc.Test to 2.0.17 [\#340](https://github.com/christianhelle/httpgenerator/pull/340) ([christianhelle](https://github.com/christianhelle))
