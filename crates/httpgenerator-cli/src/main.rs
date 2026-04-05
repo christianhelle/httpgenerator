@@ -1,5 +1,8 @@
 use clap::FromArgMatches;
-use httpgenerator_cli::args::{CliArgs, build_command};
+use httpgenerator_cli::{
+    args::{CliArgs, build_command},
+    execute,
+};
 use std::ffi::OsString;
 
 fn main() {
@@ -9,8 +12,23 @@ fn main() {
     }
 
     let matches = build_command().get_matches_from(raw_args);
-    let _args = CliArgs::from_arg_matches(&matches)
+    let args = CliArgs::from_arg_matches(&matches)
         .expect("clap should only return matches that satisfy CliArgs");
-    eprintln!("Rust rewrite in progress: CLI execution is not implemented yet.");
-    std::process::exit(1);
+
+    match execute(args) {
+        Ok(summary) => {
+            println!(
+                "Generated {} file(s) in {}",
+                summary.files.len(),
+                summary.output_folder.display()
+            );
+            for path in summary.files {
+                println!("{}", path.display());
+            }
+        }
+        Err(error) => {
+            eprintln!("Error: {error}");
+            std::process::exit(1);
+        }
+    }
 }
