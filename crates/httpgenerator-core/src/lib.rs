@@ -1,5 +1,6 @@
 pub mod base_url;
 pub mod file_naming;
+pub mod generator;
 pub mod model;
 pub mod normalized;
 pub mod operation_name;
@@ -9,6 +10,7 @@ pub mod support_information;
 
 pub use base_url::resolve_base_url;
 pub use file_naming::unique_filename;
+pub use generator::generate_http_files;
 pub use model::{GeneratorResult, GeneratorSettings, HttpFile, OutputType};
 pub use normalized::{
     NormalizedHttpMethod, NormalizedInlineParameter, NormalizedInlineRequestBody,
