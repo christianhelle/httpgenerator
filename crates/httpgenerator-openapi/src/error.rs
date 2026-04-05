@@ -1,5 +1,6 @@
 use std::{error::Error, fmt, path::PathBuf};
 
+use httpgenerator_core::NormalizedHttpMethod;
 use reqwest::StatusCode;
 use url::Url;
 
@@ -217,3 +218,83 @@ impl fmt::Display for OpenApiDocumentLoadError {
 }
 
 impl Error for OpenApiDocumentLoadError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OpenApiNormalizationError {
+    InvalidStructure {
+        path: String,
+        context: String,
+    },
+    UnsupportedPathItemReference {
+        path: String,
+        reference: String,
+    },
+    UnsupportedParameterReference {
+        path: String,
+        method: NormalizedHttpMethod,
+        reference: String,
+    },
+    UnsupportedRequestBodyReference {
+        path: String,
+        method: NormalizedHttpMethod,
+        reference: String,
+    },
+}
+
+impl fmt::Display for OpenApiNormalizationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::InvalidStructure { path, context } => {
+                write!(
+                    f,
+                    "OpenAPI document contains an unexpected structure at '{path}' ({context})"
+                )
+            }
+            Self::UnsupportedPathItemReference { path, reference } => {
+                write!(
+                    f,
+                    "path item '{path}' uses unsupported $ref '{reference}' during normalization"
+                )
+            }
+            Self::UnsupportedParameterReference {
+                path,
+                method,
+                reference,
+            } => {
+                write!(
+                    f,
+                    "{method:?} operation '{path}' uses unsupported parameter $ref '{reference}' during normalization"
+                )
+            }
+            Self::UnsupportedRequestBodyReference {
+                path,
+                method,
+                reference,
+            } => {
+                write!(
+                    f,
+                    "{method:?} operation '{path}' uses unsupported requestBody $ref '{reference}' during normalization"
+                )
+            }
+        }
+    }
+}
+
+impl Error for OpenApiNormalizationError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OpenApiDocumentNormalizationError {
+    Load(OpenApiDocumentLoadError),
+    Normalize(OpenApiNormalizationError),
+}
+
+impl fmt::Display for OpenApiDocumentNormalizationError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Load(error) => write!(f, "{error}"),
+            Self::Normalize(error) => write!(f, "{error}"),
+        }
+    }
+}
+
+impl Error for OpenApiDocumentNormalizationError {}

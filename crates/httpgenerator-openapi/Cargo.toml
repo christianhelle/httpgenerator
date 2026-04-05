@@ -6,6 +6,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+httpgenerator-core.workspace = true
 openapiv3.workspace = true
 openapiv3_1.workspace = true
 reqwest.workspace = true
