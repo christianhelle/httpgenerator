@@ -1,15 +1,15 @@
-﻿using HttpGenerator.Core;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace HttpGenerator.VSIX;
 
 public partial class GenerateDialog : Form
 {
+    private string? azureTenantId;
+    private string azureScope = string.Empty;
+
     public GenerateDialog()
     {
         InitializeComponent();
@@ -63,36 +63,39 @@ public partial class GenerateDialog : Form
 
     private async Task GenerateFilesAsync()
     {
-        var result = await HttpFileGenerator.Generate(
-            new GeneratorSettings
+        await HttpGeneratorCli.GenerateAsync(
+            new HttpGeneratorCliOptions
             {
                 OpenApiPath = txtOpenApiFile.Text,
+                OutputFolder = txtOutputFolder.Text,
                 BaseUrl = txtBaseUrl.Text,
                 ContentType = txtContentType.Text,
                 AuthorizationHeader = txtAuthorizationHeader.Text,
+                AzureTenantId = azureTenantId,
+                AzureScope = azureScope,
                 OutputType = chkMultipleFiles.Checked
-                    ? OutputType.OneRequestPerFile
-                    : OutputType.OneFile,
+                    ? "OneRequestPerFile"
+                    : "OneFile",
             });
-
-        var output = txtOutputFolder.Text;
-        if (!Directory.Exists(output))
-            Directory.CreateDirectory(output);
-
-        var tasks = result
-            .Files
-            .Select(file => Task.Run(
-                () => File.WriteAllText(
-                    Path.Combine(output, file.Filename),
-                    file.Content)));
-
-        await Task.WhenAll(tasks);
     }
 
     private void btnAzureAccessToken_Click(object sender, EventArgs e)
     {
         using var dialog = new AzureAccessTokenDialog();
-        dialog.ShowDialog();
-        txtAuthorizationHeader.Text = $"Bearer {dialog.AccessToken}";
+        if (dialog.ShowDialog() != DialogResult.OK)
+        {
+            return;
+        }
+
+        azureTenantId = dialog.TenantId;
+        azureScope = dialog.Scope;
+        txtAuthorizationHeader.Text = string.Empty;
+
+        MessageBox.Show(
+            "Azure Entra ID settings saved. The Rust CLI will acquire an access token during generation.",
+            "Azure Entra ID",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information,
+            MessageBoxDefaultButton.Button1);
     }
 }

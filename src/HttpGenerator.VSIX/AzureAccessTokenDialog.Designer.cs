@@ -115,7 +115,7 @@
             this.Controls.Add(this.lblScope);
             this.MinimumSize = new System.Drawing.Size(420, 147);
             this.Name = "AzureAccessTokenDialog";
-            this.Text = "Azure Access Token";
+            this.Text = "Azure Entra ID";
             this.ResumeLayout(false);
             this.PerformLayout();
 
