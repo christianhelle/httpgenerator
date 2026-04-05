@@ -1,4 +1,9 @@
-use std::{error::Error, fmt};
+use std::{error::Error, fmt, path::PathBuf};
+
+use reqwest::StatusCode;
+use url::Url;
+
+use crate::{OpenApiContentFormat, OpenApiSource};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SourceClassificationError {
@@ -39,3 +44,80 @@ impl fmt::Display for ContentFormatDetectionError {
 }
 
 impl Error for ContentFormatDetectionError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RawOpenApiLoadError {
+    SourceClassification(SourceClassificationError),
+    FileRead {
+        path: PathBuf,
+        reason: String,
+    },
+    HttpRequest {
+        url: Url,
+        reason: String,
+    },
+    HttpStatus {
+        url: Url,
+        status: StatusCode,
+    },
+    HttpBodyRead {
+        url: Url,
+        reason: String,
+    },
+    FormatDetection {
+        source: OpenApiSource,
+        error: ContentFormatDetectionError,
+    },
+    Decode {
+        source: OpenApiSource,
+        format: OpenApiContentFormat,
+        reason: String,
+    },
+}
+
+impl fmt::Display for RawOpenApiLoadError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::SourceClassification(error) => {
+                write!(f, "failed to classify OpenAPI source: {error}")
+            }
+            Self::FileRead { path, reason } => {
+                write!(
+                    f,
+                    "failed to read OpenAPI file '{}': {reason}",
+                    path.display()
+                )
+            }
+            Self::HttpRequest { url, reason } => {
+                write!(f, "failed to fetch OpenAPI URL '{url}': {reason}")
+            }
+            Self::HttpStatus { url, status } => {
+                write!(f, "OpenAPI URL '{url}' returned HTTP {status}")
+            }
+            Self::HttpBodyRead { url, reason } => {
+                write!(
+                    f,
+                    "failed to read OpenAPI response body from '{url}': {reason}"
+                )
+            }
+            Self::FormatDetection { source, error } => {
+                write!(
+                    f,
+                    "failed to detect OpenAPI content format for '{source}': {error}"
+                )
+            }
+            Self::Decode {
+                source,
+                format,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "failed to decode {format} OpenAPI document from '{source}': {reason}"
+                )
+            }
+        }
+    }
+}
+
+impl Error for RawOpenApiLoadError {}

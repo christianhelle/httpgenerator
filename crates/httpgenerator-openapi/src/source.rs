@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    fmt,
+    path::{Path, PathBuf},
+};
 
 use url::Url;
 
@@ -23,6 +26,15 @@ impl OpenApiSource {
         match self {
             Self::Path(path) => OpenApiContentFormat::from_path(path),
             Self::Url(url) => OpenApiContentFormat::from_path(Path::new(url.path())),
+        }
+    }
+}
+
+impl fmt::Display for OpenApiSource {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Path(path) => write!(f, "{}", path.display()),
+            Self::Url(url) => write!(f, "{url}"),
         }
     }
 }

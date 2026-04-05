@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{fmt, path::Path};
 
 use crate::{ContentFormatDetectionError, OpenApiSource};
 
@@ -9,6 +9,13 @@ pub enum OpenApiContentFormat {
 }
 
 impl OpenApiContentFormat {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Json => "JSON",
+            Self::Yaml => "YAML",
+        }
+    }
+
     pub fn from_path(path: impl AsRef<Path>) -> Option<Self> {
         let extension = path.as_ref().extension()?.to_str()?;
 
@@ -21,6 +28,12 @@ impl OpenApiContentFormat {
             "yaml" | "yml" => Some(Self::Yaml),
             _ => None,
         }
+    }
+}
+
+impl fmt::Display for OpenApiContentFormat {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.write_str(self.as_str())
     }
 }
 
