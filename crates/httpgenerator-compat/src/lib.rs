@@ -5,8 +5,10 @@ use httpgenerator_core::OutputType;
 mod runner;
 
 pub use runner::{
-    CommandSpec, DifferentialRunPlan, DotnetOracleLaunch, DotnetOracleRunner, RustCliLaunch,
-    RustCliRunner, ScenarioOutputLayout, scenario_directory_name,
+    CommandOutput, CommandSpec, DifferentialRunError, DifferentialRunPlan, DifferentialRunResult,
+    DirectoryComparison, DirectorySnapshot, DotnetOracleLaunch, DotnetOracleRunner,
+    OutputDifference, OutputFileSnapshot, RustCliLaunch, RustCliRunner, ScenarioOutputLayout,
+    execute_differential_plan, scenario_directory_name,
 };
 
 const SMOKE_FIXTURE_NAMES: &[&str] = &[

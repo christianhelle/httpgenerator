@@ -409,30 +409,28 @@ fn generate_sample_json(schema: &NormalizedSchema) -> String {
     }
 
     if !schema.properties.is_empty() {
-        let mut content = String::new();
-        push_line(&mut content, "{");
-        let last_index = schema.properties.len().min(3).saturating_sub(1);
-        for (index, property) in schema.properties.iter().take(3).enumerate() {
-            let suffix = if index == last_index { "" } else { "," };
-            push_line(
-                &mut content,
-                &format!(
-                    "  \"{}\": {}{suffix}",
+        let properties = schema
+            .properties
+            .iter()
+            .take(3)
+            .map(|property| {
+                format!(
+                    "  \"{}\": {}",
                     property.name,
                     property_sample_value(&property.schema)
-                ),
-            );
-        }
-        content.push('}');
-        return content;
+                )
+            })
+            .collect::<Vec<_>>()
+            .join(",\n");
+        return format!("{{\n{properties}\n}}");
     }
 
     if schema.types.contains(&NormalizedSchemaType::Object) {
-        return format!("{{{nl}  \"property\": \"value\"{nl}}}", nl = newline());
+        return "{\n  \"property\": \"value\"\n}".to_string();
     }
 
     if schema.types.contains(&NormalizedSchemaType::Array) {
-        return format!("[{nl}  \"item1\",{nl}  \"item2\"{nl}]", nl = newline());
+        return "[\n  \"item1\",\n  \"item2\"\n]".to_string();
     }
 
     if schema.types.contains(&NormalizedSchemaType::String) {
