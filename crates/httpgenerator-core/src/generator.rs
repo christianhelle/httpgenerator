@@ -296,7 +296,7 @@ fn append_summary(operation: &NormalizedOperation, content: &mut String) {
         let normalized = description.replace("\r\n", "\n");
         if normalized.contains('\n') {
             push_line(content, DESCRIPTION_PREFIX);
-            for line in normalized.lines() {
+            for line in normalized.split('\n') {
                 push_line(content, &format!("###   {line}"));
             }
         } else {
@@ -722,5 +722,38 @@ mod tests {
         assert!(content.contains("X-API-Key: test123"));
         assert!(content.contains("> {%"));
         assert!(content.contains("response.status === 200"));
+    }
+
+    #[test]
+    fn preserves_trailing_blank_lines_in_multiline_descriptions() {
+        let settings = GeneratorSettings {
+            output_type: OutputType::OneFile,
+            ..GeneratorSettings::default()
+        };
+        let document = NormalizedOpenApiDocument {
+            specification_version: NormalizedSpecificationVersion::OpenApi30,
+            servers: vec![NormalizedServer {
+                url: "/api/v3".to_string(),
+            }],
+            operations: vec![NormalizedOperation {
+                path: "/pets".to_string(),
+                method: NormalizedHttpMethod::Get,
+                operation_id: Some("getPets".to_string()),
+                summary: None,
+                description: Some("First paragraph\n\nSecond paragraph\n".to_string()),
+                tags: Vec::new(),
+                parameters: Vec::new(),
+                request_body: None,
+            }],
+        };
+
+        let result = generate_http_files(&settings, &document);
+
+        assert!(result.files[0].content.contains(
+            &format!(
+                "### Description: {nl}###   First paragraph{nl}###   {nl}###   Second paragraph{nl}###   {nl}",
+                nl = newline()
+            )
+        ));
     }
 }
