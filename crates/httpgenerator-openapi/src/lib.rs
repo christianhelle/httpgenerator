@@ -1,5 +1,6 @@
 mod error;
 mod format;
+mod inspect;
 mod loader;
 mod normalize;
 mod raw;
@@ -9,10 +10,11 @@ mod version;
 
 pub use error::{
     ContentFormatDetectionError, OpenApiDocumentLoadError, OpenApiDocumentNormalizationError,
-    OpenApiNormalizationError, RawOpenApiLoadError, SourceClassificationError,
-    SpecificationVersionDetectionError, TypedOpenApiParseError,
+    OpenApiInspectionError, OpenApiNormalizationError, RawOpenApiLoadError,
+    SourceClassificationError, SpecificationVersionDetectionError, TypedOpenApiParseError,
 };
 pub use format::{OpenApiContentFormat, detect_content_format, sniff_content_format};
+pub use inspect::{OpenApiInspection, OpenApiStats, inspect_document, inspect_raw_document};
 pub use loader::{
     LoadedOpenApiDocument, load_document, load_document_from_raw, load_document_from_source,
 };

@@ -8,7 +8,9 @@ use std::{
 };
 
 use httpgenerator_core::{GeneratorSettings, HttpFile, generate_http_files};
-use httpgenerator_openapi::load_and_normalize_document;
+use httpgenerator_openapi::{
+    OpenApiInspection, OpenApiSpecificationVersion, inspect_document, load_and_normalize_document,
+};
 
 use crate::args::CliArgs;
 
@@ -18,16 +20,29 @@ pub mod args;
 pub struct ExecutionSummary {
     pub output_folder: PathBuf,
     pub files: Vec<PathBuf>,
+    pub validation: Option<OpenApiInspection>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CliError {
     MissingInput,
     AzureAuthNotImplemented,
+    InspectOpenApi(String),
     LoadOpenApi(String),
-    CreateOutputDirectory { path: PathBuf, reason: String },
-    WriteFiles { path: PathBuf, reason: String },
-    WriteTimeout { seconds: u64 },
+    UnsupportedValidationVersion {
+        version: OpenApiSpecificationVersion,
+    },
+    CreateOutputDirectory {
+        path: PathBuf,
+        reason: String,
+    },
+    WriteFiles {
+        path: PathBuf,
+        reason: String,
+    },
+    WriteTimeout {
+        seconds: u64,
+    },
     WriteChannelClosed,
 }
 
@@ -42,7 +57,12 @@ impl fmt::Display for CliError {
                 formatter,
                 "Azure Entra ID token acquisition is not implemented in the Rust CLI yet; pass --authorization-header directly for now"
             ),
+            Self::InspectOpenApi(reason) => write!(formatter, "{reason}"),
             Self::LoadOpenApi(reason) => write!(formatter, "{reason}"),
+            Self::UnsupportedValidationVersion { version } => write!(
+                formatter,
+                "{version} documents are not supported by CLI validation yet; retry with --skip-validation"
+            ),
             Self::CreateOutputDirectory { path, reason } => write!(
                 formatter,
                 "failed to create output directory '{}': {reason}",
@@ -76,6 +96,7 @@ pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
         return Err(CliError::AzureAuthNotImplemented);
     }
 
+    let validation = validate_openapi_document(&open_api_path, args.skip_validation)?;
     let document = load_and_normalize_document(&open_api_path)
         .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
     let settings = GeneratorSettings {
@@ -99,7 +120,28 @@ pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
     Ok(ExecutionSummary {
         output_folder,
         files,
+        validation,
     })
+}
+
+fn validate_openapi_document(
+    open_api_path: &str,
+    skip_validation: bool,
+) -> Result<Option<OpenApiInspection>, CliError> {
+    if skip_validation {
+        return Ok(None);
+    }
+
+    let inspection = inspect_document(open_api_path)
+        .map_err(|error| CliError::InspectOpenApi(error.to_string()))?;
+
+    if inspection.specification_version == OpenApiSpecificationVersion::OpenApi31 {
+        return Err(CliError::UnsupportedValidationVersion {
+            version: inspection.specification_version,
+        });
+    }
+
+    Ok(Some(inspection))
 }
 
 fn write_files(
@@ -191,6 +233,24 @@ mod tests {
         }
     }
 
+    fn webhook31_args(output_folder: PathBuf) -> CliArgs {
+        CliArgs {
+            open_api_path: Some(
+                PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("..")
+                    .join("..")
+                    .join("test")
+                    .join("OpenAPI")
+                    .join("v3.1")
+                    .join("webhook-example.json")
+                    .to_string_lossy()
+                    .into_owned(),
+            ),
+            output_folder: output_folder.to_string_lossy().into_owned(),
+            ..CliArgs::default()
+        }
+    }
+
     impl Default for CliArgs {
         fn default() -> Self {
             Self {
@@ -226,6 +286,12 @@ mod tests {
         assert_eq!(summary.files.len(), 19);
         assert!(
             summary
+                .validation
+                .as_ref()
+                .is_some_and(|inspection| inspection.stats.path_item_count > 0)
+        );
+        assert!(
+            summary
                 .files
                 .iter()
                 .any(|path| path.ends_with("PutUpdatePet.http"))
@@ -252,10 +318,39 @@ mod tests {
         .unwrap();
 
         assert_eq!(summary.files.len(), 1);
+        assert!(summary.validation.is_some());
         let content = fs::read_to_string(&summary.files[0]).unwrap();
         assert!(content.contains("X-API-Key: test123"));
         assert!(content.contains("> {%"));
         assert!(content.contains("### Request: PUT /pet"));
+
+        cleanup(&summary);
+    }
+
+    #[test]
+    fn execute_rejects_openapi31_without_skip_validation() {
+        let output_folder = temp_output_dir("openapi31-validation");
+        let error = execute(webhook31_args(output_folder)).unwrap_err();
+
+        assert_eq!(
+            error,
+            CliError::UnsupportedValidationVersion {
+                version: httpgenerator_openapi::OpenApiSpecificationVersion::OpenApi31,
+            }
+        );
+    }
+
+    #[test]
+    fn execute_allows_openapi31_with_skip_validation() {
+        let output_folder = temp_output_dir("openapi31-skip");
+        let summary = execute(CliArgs {
+            skip_validation: true,
+            ..webhook31_args(output_folder)
+        })
+        .unwrap();
+
+        assert!(summary.validation.is_none());
+        assert!(summary.files.is_empty());
 
         cleanup(&summary);
     }

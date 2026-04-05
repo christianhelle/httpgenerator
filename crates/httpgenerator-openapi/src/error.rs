@@ -155,6 +155,23 @@ impl fmt::Display for SpecificationVersionDetectionError {
 impl Error for SpecificationVersionDetectionError {}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OpenApiInspectionError {
+    Load(RawOpenApiLoadError),
+    VersionDetection(SpecificationVersionDetectionError),
+}
+
+impl fmt::Display for OpenApiInspectionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Load(error) => write!(f, "{error}"),
+            Self::VersionDetection(error) => write!(f, "{error}"),
+        }
+    }
+}
+
+impl Error for OpenApiInspectionError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TypedOpenApiParseError {
     VersionDetection {
         source: OpenApiSource,
