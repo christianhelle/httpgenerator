@@ -14,22 +14,22 @@ on:
         type: string
 
 jobs:
-  
   test:
-
-    name: ${{ inputs.openapi }}.${{ inputs.format }} (${{ inputs.version }}) ${{ inputs.os }}
+    name: ${{ inputs.openapi }} ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
 
     steps:
-    - name: 🛒 Checkout repository
-      uses: actions/checkout@v6
-      
-    - uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '8.0.x'
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-    - name: 🛠️ Generate code
-      run: ${{ inputs.command }} "${{ inputs.openapi }}" --no-logging
-      working-directory: test
-      shell: pwsh
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust CLI
+        run: cargo build --release -p httpgenerator-cli
+
+      - name: Generate code
+        run: ${{ inputs.command }} "${{ inputs.openapi }}" --no-logging
+        working-directory: test
+        shell: pwsh

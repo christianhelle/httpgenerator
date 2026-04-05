@@ -15,6 +15,39 @@ function ThrowOnNativeFailure {
     }
 }
 
+function Get-HttpGeneratorExecutableName {
+    if ($IsWindows) {
+        return "httpgenerator.exe"
+    }
+
+    return "httpgenerator"
+}
+
+function Get-LocalHttpGeneratorPath {
+    $executableName = Get-HttpGeneratorExecutableName
+    return Join-Path (Join-Path $PSScriptRoot "bin") $executableName
+}
+
+function PrepareLocalRustCli {
+    $executableName = Get-HttpGeneratorExecutableName
+    $binDirectory = Join-Path $PSScriptRoot "bin"
+    $sourcePath = [System.IO.Path]::GetFullPath(
+        [System.IO.Path]::Combine($PSScriptRoot, "..", "target", "release", $executableName))
+
+    if (!(Test-Path $binDirectory)) {
+        New-Item -ItemType Directory -Path $binDirectory | Out-Null
+    }
+
+    Write-Host "cargo build --release -p httpgenerator-cli"
+    $process = Start-Process "cargo" -Args "build --release -p httpgenerator-cli" -NoNewWindow -PassThru
+    $process | Wait-Process
+    if ($process.ExitCode -ne 0) {
+        throw "cargo build failed"
+    }
+
+    Copy-Item $sourcePath (Get-LocalHttpGeneratorPath) -Force
+}
+
 function Generate {
     param (
         [Parameter(Mandatory=$true)]
@@ -34,7 +67,7 @@ function Generate {
         $production = $false
     )
 
-    $app = "./bin/httpgenerator"
+    $app = Get-LocalHttpGeneratorPath
     if ($production) {
         $app = "httpgenerator"
     }
@@ -96,7 +129,7 @@ function GenerateWithSpecificArgs {
         $production = $false
     )
 
-    $app = "./bin/httpgenerator"
+    $app = Get-LocalHttpGeneratorPath
     if ($production) {
         $app = "httpgenerator"
     }
@@ -116,7 +149,7 @@ function GenerateWithSpecificArgs {
 function RunTests {
     param (
         [Parameter(Mandatory=$true)]
-        [ValidateSet("dotnet-run", "HttpGenerator")]
+        [ValidateSet("RustCli", "HttpGenerator")]
         [string]
         $Method,
         
@@ -149,10 +182,11 @@ function RunTests {
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
  
     if ($Production -eq $true) {
-        dotnet tool update -g HttpGenerator --prerelease
+        if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
+            throw "httpgenerator was not found on PATH"
+        }
     } else {
-        Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin"
-        Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
+        PrepareLocalRustCli
     }
 
     "v2.0", "v3.0", "v3.1" | ForEach-Object {
@@ -194,5 +228,5 @@ function RunTests {
     }
 }
 
-Measure-Command { RunTests -Method "dotnet-run" -Parallel $Parallel -Production $Production }
+Measure-Command { RunTests -Method "RustCli" -Parallel $Parallel -Production $Production }
 Write-Host "`r`n"

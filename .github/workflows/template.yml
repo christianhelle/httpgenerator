@@ -12,24 +12,27 @@ on:
         default: true
 
 jobs:
-  
   test:
-
     name: ${{ inputs.os }}
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
 
     steps:
-    - name: 🛒 Checkout repository
-      uses: actions/checkout@v6
+      - name: Checkout repository
+        uses: actions/checkout@v6
 
-    - uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup Rust
+        if: ${{ !inputs.production }}
+        uses: dtolnay/rust-toolchain@stable
 
-    - name: 🛠️ Run Smoke Test (Production) 
-      run: ./smoke-tests.ps1 -Production
-      working-directory: test
-      shell: pwsh
-      condition: ${{ inputs.production }}
+      - name: Run smoke tests (production)
+        if: ${{ inputs.production }}
+        run: ./smoke-tests.ps1 -Production
+        working-directory: test
+        shell: pwsh
 
+      - name: Run smoke tests (local build)
+        if: ${{ !inputs.production }}
+        run: ./smoke-tests.ps1
+        working-directory: test
+        shell: pwsh

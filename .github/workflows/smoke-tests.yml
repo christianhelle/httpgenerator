@@ -3,49 +3,53 @@ name: Smoke Tests
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - "**/*"
-      - '!src/**/*.cs'
-      - '!src/**/*.csproj'
-      - "!.github/workflows/template.yml"
-      - "!.github/workflows/template-url.yml"
-      - "!.github/workflows/smoke-tests.yml"
     branches:
       - "*"
+    paths:
+      - ".github/workflows/smoke-tests.yml"
+      - ".github/workflows/template-url.yml"
+      - ".github/workflows/template.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/**"
+      - "test/**"
   pull_request:
-    paths-ignore:
-      - "**/*"
-      - '!src/**/*.cs'
-      - '!src/**/*.csproj'
-      - "!.github/workflows/template.yml"
-      - "!.github/workflows/template-url.yml"
-      - "!.github/workflows/smoke-tests.yml"
     branches:
       - "*"
+    paths:
+      - ".github/workflows/smoke-tests.yml"
+      - ".github/workflows/template-url.yml"
+      - ".github/workflows/template.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/**"
+      - "test/**"
 
 jobs:
-  
   file:
     runs-on: ubuntu-latest
     steps:
-    - name: 🛒 Checkout repository
-      uses: actions/checkout@v6
-    - name: 🛠️ Run Smoke Test
-      run: ./smoke-tests.ps1
-      working-directory: test
-      shell: pwsh
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run smoke tests
+        run: ./smoke-tests.ps1
+        working-directory: test
+        shell: pwsh
 
   url:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        openapi_url: [
-          "https://petstore3.swagger.io/api/v3/openapi.json", 
-          "https://petstore3.swagger.io/api/v3/openapi.yaml"
-        ]
+        openapi_url:
+          - "https://petstore3.swagger.io/api/v3/openapi.json"
+          - "https://petstore3.swagger.io/api/v3/openapi.yaml"
 
     uses: ./.github/workflows/template-url.yml
     with:
       os: ${{ matrix.os }}
       openapi: ${{ matrix.openapi_url }}
-      command: 'dotnet run --project ../src/HttpGenerator/HttpGenerator.csproj'
+      command: "..\\target\\release\\httpgenerator"

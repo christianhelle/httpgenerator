@@ -3,43 +3,92 @@ name: Build
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - "**/*"
-      - "!.github/workflows/build.yml"
-      - "!src/**/*.csproj"
-      - "!src/**/*.cs"
     branches:
       - "*"
+    paths:
+      - ".github/workflows/build.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/**"
+      - "src/**/*.cs"
+      - "src/**/*.csproj"
+      - "src/HttpGenerator.VSIX/**"
+      - "src/VSCode/**"
+      - "test/**"
   pull_request:
-    paths-ignore:
-      - "**/*"
-      - "!.github/workflows/build.yml"
-      - "!src/**/*.csproj"
-      - "!src/**/*.cs"
     branches:
       - "*"
+    paths:
+      - ".github/workflows/build.yml"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/**"
+      - "src/**/*.cs"
+      - "src/**/*.csproj"
+      - "src/HttpGenerator.VSIX/**"
+      - "src/VSCode/**"
+      - "test/**"
 
 env:
   VERSION: 1.1.0.${{ github.run_number }}
 
 jobs:
-  build:
-    name: 👌 Verify build
+  cli:
+    name: Rust CLI and legacy solution
     runs-on: ubuntu-latest
     steps:
-      - name: 🛒 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v6
-      - uses: actions/setup-dotnet@v5
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
         with:
           dotnet-version: "8.0.x"
-      - name: 🛠️ Build
+
+      - name: Run Rust tests
+        run: cargo test
+
+      - name: Build legacy solution
         run: dotnet build -c Release HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
-      - name: 🧪 Test
+
+      - name: Test legacy solution
         run: dotnet test HttpGenerator.sln -c Release
-      - name: 🗳️ Upload
-        uses: actions/upload-artifact@v7
+
+  vscode:
+    name: VS Code extension
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
         with:
-          name: Packages
-          path: |
-            **/*.nupkg
-            README.md
+          node-version: "24"
+
+      - name: Install dependencies
+        working-directory: src/VSCode
+        run: npm ci
+
+      - name: Compile extension
+        working-directory: src/VSCode
+        run: npm run compile
+
+  vsix:
+    name: VSIX solution
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Restore
+        run: msbuild src\VSIX.sln -t:Restore
+
+      - name: Build
+        run: msbuild src\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
