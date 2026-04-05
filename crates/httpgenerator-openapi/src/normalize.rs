@@ -70,9 +70,9 @@ fn normalize_servers(value: &Value) -> Result<Vec<NormalizedServer>, OpenApiNorm
 }
 
 fn normalize_operations(
-    value: &Value,
+    root: &Value,
 ) -> Result<Vec<NormalizedOperation>, OpenApiNormalizationError> {
-    let Some(paths) = value.get("paths") else {
+    let Some(paths) = root.get("paths") else {
         return Ok(Vec::new());
     };
 
@@ -114,6 +114,7 @@ fn normalize_operations(
             };
 
             operations.push(normalize_operation(
+                root,
                 path,
                 method,
                 &path_parameters,
@@ -126,6 +127,7 @@ fn normalize_operations(
 }
 
 fn normalize_operation(
+    root: &Value,
     path: &str,
     method: NormalizedHttpMethod,
     path_parameters: &[&Value],
@@ -147,8 +149,8 @@ fn normalize_operation(
             .and_then(Value::as_str)
             .map(str::to_string),
         tags: normalize_tags(operation)?,
-        parameters: normalize_parameters(path, method, path_parameters, operation)?,
-        request_body: normalize_request_body(path, method, operation.get("requestBody"))?,
+        parameters: normalize_parameters(root, path, method, path_parameters, operation)?,
+        request_body: normalize_request_body(root, path, method, operation.get("requestBody"))?,
     })
 }
 
@@ -174,6 +176,7 @@ fn normalize_tags(
 }
 
 fn normalize_parameters(
+    root: &Value,
     path: &str,
     method: NormalizedHttpMethod,
     path_parameters: &[&Value],
@@ -187,7 +190,7 @@ fn normalize_parameters(
         .copied()
         .chain(operation_parameters.iter().copied())
     {
-        let normalized = normalize_parameter(path, method, parameter)?;
+        let normalized = normalize_parameter(root, path, method, parameter)?;
         let parameter_key = normalized.inline_key();
 
         if let Some(parameter_key) = parameter_key {
@@ -225,6 +228,7 @@ fn get_parameter_values<'a>(
 }
 
 fn normalize_parameter(
+    root: &Value,
     path: &str,
     method: NormalizedHttpMethod,
     value: &Value,
@@ -270,11 +274,14 @@ fn normalize_parameter(
             .get("required")
             .and_then(Value::as_bool)
             .unwrap_or(false),
-        schema: parameter.get("schema").map(normalize_schema),
+        schema: parameter
+            .get("schema")
+            .map(|schema| normalize_schema(root, schema)),
     }))
 }
 
 fn normalize_request_body(
+    root: &Value,
     path: &str,
     method: NormalizedHttpMethod,
     value: Option<&Value>,
@@ -322,7 +329,9 @@ fn normalize_request_body(
 
                     Ok(NormalizedMediaType {
                         content_type: content_type.clone(),
-                        schema: media_type.get("schema").map(normalize_schema),
+                        schema: media_type
+                            .get("schema")
+                            .map(|schema| normalize_schema(root, schema)),
                     })
                 })
                 .collect::<Result<Vec<_>, _>>()?
@@ -345,43 +354,60 @@ fn normalize_request_body(
     )))
 }
 
-fn normalize_schema(value: &Value) -> NormalizedSchema {
+fn normalize_schema(root: &Value, value: &Value) -> NormalizedSchema {
+    let mut resolution_stack = Vec::new();
+    normalize_schema_with_resolution(root, value, &mut resolution_stack)
+}
+
+fn normalize_schema_with_resolution(
+    root: &Value,
+    value: &Value,
+    resolution_stack: &mut Vec<String>,
+) -> NormalizedSchema {
     match value {
         Value::Object(schema) => {
             let reference = schema
                 .get("$ref")
                 .and_then(Value::as_str)
                 .map(str::to_string);
-            let types = normalize_schema_types(schema.get("type"));
-            let properties = schema
-                .get("properties")
-                .and_then(Value::as_object)
-                .map(|properties| {
-                    properties
-                        .iter()
-                        .map(|(name, property)| NormalizedSchemaProperty {
-                            name: name.clone(),
-                            schema: normalize_schema(property),
-                        })
-                        .collect()
-                })
+            let mut normalized = reference
+                .as_deref()
+                .and_then(|reference| resolve_internal_reference(root, reference, resolution_stack))
                 .unwrap_or_default();
-            let items = schema
-                .get("items")
-                .map(|items| Box::new(normalize_schema(items)));
-            let all_of = normalize_schema_array(schema.get("allOf"));
-            let one_of = normalize_schema_array(schema.get("oneOf"));
-            let any_of = normalize_schema_array(schema.get("anyOf"));
-
-            NormalizedSchema {
+            let overlay = NormalizedSchema {
                 reference,
-                types,
-                properties,
-                items,
-                all_of,
-                one_of,
-                any_of,
-            }
+                types: normalize_schema_types(schema.get("type")),
+                properties: schema
+                    .get("properties")
+                    .and_then(Value::as_object)
+                    .map(|properties| {
+                        properties
+                            .iter()
+                            .map(|(name, property)| NormalizedSchemaProperty {
+                                name: name.clone(),
+                                schema: normalize_schema_with_resolution(
+                                    root,
+                                    property,
+                                    resolution_stack,
+                                ),
+                            })
+                            .collect()
+                    })
+                    .unwrap_or_default(),
+                items: schema.get("items").map(|items| {
+                    Box::new(normalize_schema_with_resolution(
+                        root,
+                        items,
+                        resolution_stack,
+                    ))
+                }),
+                all_of: normalize_schema_array(root, schema.get("allOf"), resolution_stack),
+                one_of: normalize_schema_array(root, schema.get("oneOf"), resolution_stack),
+                any_of: normalize_schema_array(root, schema.get("anyOf"), resolution_stack),
+            };
+
+            merge_schema(&mut normalized, overlay);
+            normalized
         }
         Value::Bool(value) => NormalizedSchema {
             types: vec![NormalizedSchemaType::Other(format!(
@@ -393,11 +419,60 @@ fn normalize_schema(value: &Value) -> NormalizedSchema {
     }
 }
 
-fn normalize_schema_array(value: Option<&Value>) -> Vec<NormalizedSchema> {
+fn normalize_schema_array(
+    root: &Value,
+    value: Option<&Value>,
+    resolution_stack: &mut Vec<String>,
+) -> Vec<NormalizedSchema> {
     value
         .and_then(Value::as_array)
-        .map(|schemas| schemas.iter().map(normalize_schema).collect())
+        .map(|schemas| {
+            schemas
+                .iter()
+                .map(|schema| normalize_schema_with_resolution(root, schema, resolution_stack))
+                .collect()
+        })
         .unwrap_or_default()
+}
+
+fn resolve_internal_reference(
+    root: &Value,
+    reference: &str,
+    resolution_stack: &mut Vec<String>,
+) -> Option<NormalizedSchema> {
+    if !reference.starts_with("#/") || resolution_stack.iter().any(|value| value == reference) {
+        return None;
+    }
+
+    let target = root.pointer(&reference[1..])?;
+    resolution_stack.push(reference.to_string());
+    let resolved = normalize_schema_with_resolution(root, target, resolution_stack);
+    resolution_stack.pop();
+    Some(resolved)
+}
+
+fn merge_schema(base: &mut NormalizedSchema, overlay: NormalizedSchema) {
+    if overlay.reference.is_some() {
+        base.reference = overlay.reference;
+    }
+    if !overlay.types.is_empty() {
+        base.types = overlay.types;
+    }
+    if !overlay.properties.is_empty() {
+        base.properties = overlay.properties;
+    }
+    if overlay.items.is_some() {
+        base.items = overlay.items;
+    }
+    if !overlay.all_of.is_empty() {
+        base.all_of = overlay.all_of;
+    }
+    if !overlay.one_of.is_empty() {
+        base.one_of = overlay.one_of;
+    }
+    if !overlay.any_of.is_empty() {
+        base.any_of = overlay.any_of;
+    }
 }
 
 fn normalize_schema_types(value: Option<&Value>) -> Vec<NormalizedSchemaType> {
@@ -507,12 +582,30 @@ mod tests {
                     .iter()
                     .find(|content| content.content_type == "application/json")
                     .unwrap();
+                let schema = application_json.schema.as_ref().unwrap();
                 assert_eq!(
-                    application_json
-                        .schema
-                        .as_ref()
-                        .and_then(|schema| schema.reference.as_deref()),
+                    schema.reference.as_deref(),
                     Some("#/components/schemas/Pet")
+                );
+                assert_eq!(
+                    schema
+                        .properties
+                        .iter()
+                        .take(3)
+                        .map(|property| property.name.as_str())
+                        .collect::<Vec<_>>(),
+                    vec!["id", "name", "category"]
+                );
+                let category = schema
+                    .properties
+                    .iter()
+                    .find(|property| property.name == "category")
+                    .unwrap();
+                assert!(
+                    category
+                        .schema
+                        .types
+                        .contains(&httpgenerator_core::NormalizedSchemaType::Object)
                 );
             }
             NormalizedRequestBody::Reference { .. } => {
