@@ -25,7 +25,7 @@ fn temp_artifacts_root() -> PathBuf {
 }
 
 #[test]
-fn petstore_parity_matrix_matches_dotnet_oracle() {
+fn parity_matrix_matches_dotnet_oracle() {
     let repo_root = repo_root();
     let artifacts_root = temp_artifacts_root();
     let scenarios = local_smoke_scenarios(&repo_root);
@@ -44,6 +44,9 @@ fn petstore_parity_matrix_matches_dotnet_oracle() {
         "petstore-v2.0-json-one-file",
         "petstore-v2.0-json-one-file-per-tag",
         "petstore-v2.0-json-auth-header",
+        "callback-example-v3.0-json-one-file",
+        "link-example-v3.0-json-one-file",
+        "webhook-example-v3.1-json-one-request-per-file",
     ] {
         let scenario = scenarios
             .iter()
