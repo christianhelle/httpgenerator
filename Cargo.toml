@@ -1,0 +1,21 @@
+[workspace]
+members = [
+    "crates/httpgenerator-core",
+    "crates/httpgenerator-openapi",
+    "crates/httpgenerator-cli",
+    "crates/httpgenerator-compat",
+]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/christianhelle/httpgenerator"
+version = "0.1.0"
+
+[workspace.dependencies]
+clap = { version = "4.5.53", features = ["derive"] }
+httpgenerator-core = { path = "crates/httpgenerator-core" }
+regex = "1.12.2"
+serde = { version = "1.0.228", features = ["derive"] }
+url = "2.5.7"
