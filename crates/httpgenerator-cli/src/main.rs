@@ -6,7 +6,10 @@ use httpgenerator_cli::{
 };
 use httpgenerator_core::support_key;
 use httpgenerator_openapi::OpenApiStats;
-use std::ffi::OsString;
+use std::{
+    ffi::OsString,
+    time::{Duration, Instant},
+};
 
 fn main() {
     let mut raw_args: Vec<OsString> = std::env::args_os().collect();
@@ -17,10 +20,30 @@ fn main() {
     let matches = build_command().get_matches_from(raw_args);
     let args = CliArgs::from_arg_matches(&matches)
         .expect("clap should only return matches that satisfy CliArgs");
+    let should_validate = !args.skip_validation;
+    let should_attempt_azure_auth = should_attempt_azure_auth(&args);
+    let started_at = Instant::now();
     print_header(args.no_logging);
+
+    if should_validate {
+        println!("Validating OpenAPI specification...");
+    }
 
     match execute(args) {
         Ok(summary) => {
+            if let Some(validation) = &summary.validation {
+                println!(
+                    "Validated {} specification successfully",
+                    validation.specification_version
+                );
+                print_stats(&validation.stats);
+                println!();
+            }
+
+            if should_attempt_azure_auth {
+                println!("Acquiring authorization header from Azure Entra ID...");
+            }
+
             match &summary.azure_auth {
                 AzureAuthStatus::NotRequested => {}
                 AzureAuthStatus::Acquired => {
@@ -31,22 +54,14 @@ fn main() {
                 }
             }
 
-            if let Some(validation) = &summary.validation {
-                println!(
-                    "Validated {} specification successfully",
-                    validation.specification_version
-                );
-                print_stats(&validation.stats);
-            }
-
-            println!(
-                "Generated {} file(s) in {}",
-                summary.files.len(),
-                summary.output_folder.display()
-            );
-            for path in summary.files {
+            println!("Writing {} file(s)...", summary.files.len());
+            println!("Files written successfully:");
+            for path in &summary.files {
                 println!("{}", path.display());
             }
+            println!();
+            println!("Generation completed successfully!");
+            println!("Duration: {}", format_duration(started_at.elapsed()));
         }
         Err(error) => {
             if let CliError::UnsupportedValidationVersion { version } = &error {
@@ -83,6 +98,36 @@ fn support_key_line(no_logging: bool) -> String {
     }
 }
 
+fn should_attempt_azure_auth(args: &CliArgs) -> bool {
+    if args
+        .authorization_header
+        .as_deref()
+        .map(str::trim)
+        .is_some_and(|header| !header.is_empty())
+    {
+        return false;
+    }
+
+    args.azure_scope
+        .as_deref()
+        .map(str::trim)
+        .is_some_and(|scope| !scope.is_empty())
+        || args
+            .azure_tenant_id
+            .as_deref()
+            .map(str::trim)
+            .is_some_and(|tenant_id| !tenant_id.is_empty())
+}
+
+fn format_duration(duration: Duration) -> String {
+    let total_seconds = duration.as_secs();
+    let minutes = total_seconds / 60;
+    let seconds = total_seconds % 60;
+    let milliseconds = duration.subsec_millis();
+
+    format!("{minutes:02}:{seconds:02}.{milliseconds:03}")
+}
+
 fn print_stats(stats: &OpenApiStats) {
     println!("Path Items: {}", stats.path_item_count);
     println!("Operations: {}", stats.operation_count);
@@ -96,7 +141,9 @@ fn print_stats(stats: &OpenApiStats) {
 
 #[cfg(test)]
 mod tests {
-    use super::support_key_line;
+    use super::{format_duration, should_attempt_azure_auth, support_key_line};
+    use httpgenerator_cli::args::{CliArgs, OutputTypeArg};
+    use std::time::Duration;
 
     #[test]
     fn support_key_line_uses_runtime_support_key_when_logging_is_enabled() {
@@ -112,5 +159,41 @@ mod tests {
             support_key_line(true),
             "Unavailable when logging is disabled"
         );
+    }
+
+    #[test]
+    fn should_attempt_azure_auth_only_when_scope_or_tenant_is_present_without_header() {
+        let mut args = CliArgs {
+            open_api_path: None,
+            output_folder: "./".to_string(),
+            no_logging: false,
+            skip_validation: false,
+            authorization_header: None,
+            authorization_header_from_environment_variable: false,
+            authorization_header_variable_name: "authorization".to_string(),
+            content_type: "application/json".to_string(),
+            base_url: None,
+            output_type: OutputTypeArg::OneRequestPerFile,
+            azure_scope: None,
+            azure_tenant_id: None,
+            timeout: 120,
+            generate_intellij_tests: false,
+            custom_headers: Vec::new(),
+            skip_headers: false,
+        };
+
+        assert!(!should_attempt_azure_auth(&args));
+
+        args.azure_scope = Some("api://example/.default".to_string());
+        assert!(should_attempt_azure_auth(&args));
+
+        args.authorization_header = Some("Bearer token".to_string());
+        assert!(!should_attempt_azure_auth(&args));
+    }
+
+    #[test]
+    fn format_duration_matches_runtime_display_shape() {
+        assert_eq!(format_duration(Duration::from_millis(8_123)), "00:08.123");
+        assert_eq!(format_duration(Duration::from_millis(83_456)), "01:23.456");
     }
 }
