@@ -74,7 +74,17 @@
         "id": "http-file-generator.menu",
         "label": "HTTP File Generator"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "HTTP File Generator",
+      "properties": {
+        "http-file-generator.executablePath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to the Rust `httpgenerator` executable. When empty, the extension looks for a bundled binary, a workspace `target/debug` or `target/release` build output, and finally an `httpgenerator` executable on PATH."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

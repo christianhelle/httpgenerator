@@ -8,11 +8,15 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 - Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
-- Automatically installs the required .NET Tool if not present
+- Resolves the Rust `httpgenerator` executable from extension settings, a bundled binary, workspace build output, or PATH
 
 ## Requirements
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
+- A Rust `httpgenerator` executable available through one of these locations:
+  - `http-file-generator.executablePath`
+  - a bundled `bin/httpgenerator` binary inside the extension
+  - a workspace build output under `target/debug` or `target/release`
+  - `httpgenerator` on your system `PATH`
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
 
 ## Usage
@@ -27,7 +31,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 3. If running from the Command Palette, you'll be prompted to select an OpenAPI file from your workspace.
 
-4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
+4. If the extension cannot find the Rust `httpgenerator` executable, set `http-file-generator.executablePath` in VS Code settings or make `httpgenerator` available on `PATH`.
 
 5. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
 
@@ -37,7 +41,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Related Projects
 
-This extension is a VS Code wrapper around the [httpgenerator](https://github.com/christianhelle/httpgenerator) .NET Tool.
+This extension is a VS Code host for the Rust-based [httpgenerator](https://github.com/christianhelle/httpgenerator) CLI.
 
 For more information, visit the [httpgenerator GitHub repository](https://github.com/christianhelle/httpgenerator).
 
