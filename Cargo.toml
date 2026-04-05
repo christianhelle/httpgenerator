@@ -17,5 +17,8 @@ version = "0.1.0"
 clap = { version = "4.5.53", features = ["derive"] }
 httpgenerator-core = { path = "crates/httpgenerator-core" }
 regex = "1.12.2"
+reqwest = { version = "0.12.24", default-features = false, features = ["blocking", "gzip", "rustls-tls"] }
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
 url = "2.5.7"
+yaml_serde = "0.10.4"
