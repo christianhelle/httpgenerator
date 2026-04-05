@@ -9,7 +9,8 @@ use std::{
 
 use httpgenerator_core::{GeneratorSettings, HttpFile, generate_http_files};
 use httpgenerator_openapi::{
-    OpenApiInspection, OpenApiSpecificationVersion, inspect_document, load_and_normalize_document,
+    OpenApiInspection, OpenApiSpecificationVersion, inspect_document,
+    load_and_normalize_document_with_options,
 };
 
 use crate::{args::CliArgs, auth::try_get_access_token};
@@ -120,7 +121,7 @@ where
     let open_api_path = args.open_api_path.clone().ok_or(CliError::MissingInput)?;
     let validation = validate_openapi_document(&open_api_path, args.skip_validation)?;
     let (authorization_header, azure_auth) = resolve_authorization_header(&args, acquire_token);
-    let document = load_and_normalize_document(&open_api_path)
+    let document = load_and_normalize_document_with_options(&open_api_path, args.skip_validation)
         .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
     let settings = GeneratorSettings {
         open_api_path: open_api_path.clone(),
@@ -341,6 +342,24 @@ mod tests {
         }
     }
 
+    fn non_oauth31_args(output_folder: PathBuf) -> CliArgs {
+        CliArgs {
+            open_api_path: Some(
+                PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("..")
+                    .join("..")
+                    .join("test")
+                    .join("OpenAPI")
+                    .join("v3.1")
+                    .join("non-oauth-scopes.json")
+                    .to_string_lossy()
+                    .into_owned(),
+            ),
+            output_folder: output_folder.to_string_lossy().into_owned(),
+            ..CliArgs::default()
+        }
+    }
+
     fn cleanup(summary: &ExecutionSummary) {
         let _ = fs::remove_dir_all(&summary.output_folder);
     }
@@ -421,6 +440,24 @@ mod tests {
         assert!(summary.validation.is_none());
         assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
         assert!(summary.files.is_empty());
+
+        cleanup(&summary);
+    }
+
+    #[test]
+    fn execute_allows_invalid_openapi31_with_skip_validation() {
+        let output_folder = temp_output_dir("openapi31-invalid-skip");
+        let summary = execute(CliArgs {
+            skip_validation: true,
+            ..non_oauth31_args(output_folder)
+        })
+        .unwrap();
+
+        assert!(summary.validation.is_none());
+        assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
+        assert_eq!(summary.files.len(), 1);
+        let content = fs::read_to_string(&summary.files[0]).unwrap();
+        assert!(content.contains("### Request: GET /users"));
 
         cleanup(&summary);
     }

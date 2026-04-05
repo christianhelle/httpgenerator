@@ -175,7 +175,7 @@ function RunTests {
         "uspto",
         "hubspot-events",
         "hubspot-webhooks",
-#         "non-oauth-scopes",
+        "non-oauth-scopes",
         "webhook-example"
     )
 

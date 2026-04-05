@@ -16,7 +16,7 @@ pub enum LoadedOpenApiDocument {
         raw: RawOpenApiDocument,
         document: openapiv3_1::OpenApi,
     },
-    OpenApi31WebhookOnly {
+    OpenApi31Raw {
         raw: RawOpenApiDocument,
     },
 }
@@ -27,7 +27,7 @@ impl LoadedOpenApiDocument {
             Self::Swagger2 { raw }
             | Self::OpenApi30 { raw, .. }
             | Self::OpenApi31 { raw, .. }
-            | Self::OpenApi31WebhookOnly { raw } => raw,
+            | Self::OpenApi31Raw { raw } => raw,
         }
     }
 
@@ -43,7 +43,7 @@ impl LoadedOpenApiDocument {
         match self {
             Self::Swagger2 { .. } => OpenApiSpecificationVersion::Swagger2,
             Self::OpenApi30 { .. } => OpenApiSpecificationVersion::OpenApi30,
-            Self::OpenApi31 { .. } | Self::OpenApi31WebhookOnly { .. } => {
+            Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => {
                 OpenApiSpecificationVersion::OpenApi31
             }
         }
@@ -51,7 +51,7 @@ impl LoadedOpenApiDocument {
 
     pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
         match self {
-            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31WebhookOnly { .. } => {
+            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => {
                 None
             }
             Self::OpenApi30 { document, .. } => Some(document),
@@ -60,7 +60,7 @@ impl LoadedOpenApiDocument {
 
     pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
         match self {
-            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31WebhookOnly { .. } => {
+            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => {
                 None
             }
             Self::OpenApi31 { document, .. } => Some(document),
@@ -69,19 +69,40 @@ impl LoadedOpenApiDocument {
 }
 
 pub fn load_document(input: &str) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
+    load_document_with_options(input, false)
+}
+
+pub(crate) fn load_document_with_options(
+    input: &str,
+    tolerate_invalid_openapi31: bool,
+) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     let raw = load_raw_document(input).map_err(OpenApiDocumentLoadError::RawLoad)?;
-    load_document_from_raw(raw)
+    load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
 }
 
 pub fn load_document_from_source(
     source: OpenApiSource,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
+    load_document_from_source_with_options(source, false)
+}
+
+pub(crate) fn load_document_from_source_with_options(
+    source: OpenApiSource,
+    tolerate_invalid_openapi31: bool,
+) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     let raw = load_raw_document_from_source(source).map_err(OpenApiDocumentLoadError::RawLoad)?;
-    load_document_from_raw(raw)
+    load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
 }
 
 pub fn load_document_from_raw(
     raw: RawOpenApiDocument,
+) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
+    load_document_from_raw_with_options(raw, false)
+}
+
+pub(crate) fn load_document_from_raw_with_options(
+    raw: RawOpenApiDocument,
+    tolerate_invalid_openapi31: bool,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     if matches!(
         raw.specification_version(),
@@ -100,11 +121,21 @@ pub fn load_document_from_raw(
         Err(TypedOpenApiParseError::Deserialize {
             version: OpenApiSpecificationVersion::OpenApi31,
             ..
-        }) if is_webhook_only_openapi31_document(&raw) => {
-            Ok(LoadedOpenApiDocument::OpenApi31WebhookOnly { raw })
+        }) if should_fallback_to_raw_openapi31(&raw, tolerate_invalid_openapi31) => {
+            Ok(LoadedOpenApiDocument::OpenApi31Raw { raw })
         }
         Err(error) => Err(OpenApiDocumentLoadError::TypedParse(error)),
     }
+}
+
+fn should_fallback_to_raw_openapi31(
+    raw: &RawOpenApiDocument,
+    tolerate_invalid_openapi31: bool,
+) -> bool {
+    matches!(
+        raw.specification_version(),
+        Ok(OpenApiSpecificationVersion::OpenApi31)
+    ) && (is_webhook_only_openapi31_document(raw) || tolerate_invalid_openapi31)
 }
 
 fn is_webhook_only_openapi31_document(raw: &RawOpenApiDocument) -> bool {
@@ -130,7 +161,8 @@ mod tests {
     use crate::{OpenApiSource, OpenApiSpecificationVersion, decode_raw_document};
 
     use super::{
-        LoadedOpenApiDocument, load_document, load_document_from_raw, load_document_from_source,
+        LoadedOpenApiDocument, load_document, load_document_from_raw,
+        load_document_from_raw_with_options, load_document_from_source,
     };
 
     static TEST_ARTIFACT_ID: AtomicU64 = AtomicU64::new(0);
@@ -191,8 +223,26 @@ mod tests {
 
         assert!(matches!(
             loaded,
-            LoadedOpenApiDocument::OpenApi31WebhookOnly { .. }
+            LoadedOpenApiDocument::OpenApi31Raw { .. }
         ));
+        assert_eq!(
+            loaded.specification_version(),
+            OpenApiSpecificationVersion::OpenApi31
+        );
+        assert!(loaded.as_openapi31().is_none());
+    }
+
+    #[test]
+    fn tolerant_loader_accepts_invalid_openapi_thirty_one_documents() {
+        let raw = decode_raw_document(
+            OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/non-oauth-scopes.json")),
+            include_str!("../../../test/OpenAPI/v3.1/non-oauth-scopes.json"),
+        )
+        .unwrap();
+
+        let loaded = load_document_from_raw_with_options(raw, true).unwrap();
+
+        assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31Raw { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::OpenApi31

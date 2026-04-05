@@ -24,6 +24,7 @@ const SMOKE_FIXTURE_NAMES: &[&str] = &[
     "uspto",
     "hubspot-events",
     "hubspot-webhooks",
+    "non-oauth-scopes",
     "webhook-example",
 ];
 
@@ -298,6 +299,11 @@ mod tests {
         assert_eq!(
             scenario.base_url.as_deref(),
             Some("https://api.example.io/")
+        );
+        assert!(
+            scenarios
+                .iter()
+                .any(|scenario| scenario.name == "non-oauth-scopes-v3.1-json-one-file")
         );
     }
 

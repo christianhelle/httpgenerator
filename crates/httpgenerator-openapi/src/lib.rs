@@ -18,7 +18,10 @@ pub use inspect::{OpenApiInspection, OpenApiStats, inspect_document, inspect_raw
 pub use loader::{
     LoadedOpenApiDocument, load_document, load_document_from_raw, load_document_from_source,
 };
-pub use normalize::{load_and_normalize_document, normalize_loaded_document};
+pub use normalize::{
+    load_and_normalize_document, load_and_normalize_document_with_options,
+    normalize_loaded_document,
+};
 pub use raw::{
     RawOpenApiDocument, decode_raw_document, load_raw_document, load_raw_document_from_source,
 };

@@ -1,3 +1,5 @@
+use std::fs;
+
 use httpgenerator_core::{
     NormalizedHttpMethod, NormalizedInlineParameter, NormalizedInlineRequestBody,
     NormalizedMediaType, NormalizedOpenApiDocument, NormalizedOperation, NormalizedParameter,
@@ -8,13 +10,22 @@ use serde_json::{Map, Value};
 
 use crate::{
     LoadedOpenApiDocument, OpenApiDocumentNormalizationError, OpenApiNormalizationError,
-    load_document,
+    OpenApiSource,
+    loader::load_document_with_options,
 };
 
 pub fn load_and_normalize_document(
     input: &str,
 ) -> Result<NormalizedOpenApiDocument, OpenApiDocumentNormalizationError> {
-    let document = load_document(input).map_err(OpenApiDocumentNormalizationError::Load)?;
+    load_and_normalize_document_with_options(input, false)
+}
+
+pub fn load_and_normalize_document_with_options(
+    input: &str,
+    tolerate_invalid_openapi31: bool,
+) -> Result<NormalizedOpenApiDocument, OpenApiDocumentNormalizationError> {
+    let document = load_document_with_options(input, tolerate_invalid_openapi31)
+        .map_err(OpenApiDocumentNormalizationError::Load)?;
     normalize_loaded_document(&document).map_err(OpenApiDocumentNormalizationError::Normalize)
 }
 
@@ -23,7 +34,7 @@ pub fn normalize_loaded_document(
 ) -> Result<NormalizedOpenApiDocument, OpenApiNormalizationError> {
     Ok(NormalizedOpenApiDocument {
         specification_version: normalize_specification_version(document),
-        servers: normalize_servers(document.raw().value())?,
+        servers: normalize_servers(document)?,
         operations: normalize_operations(document.raw().value())?,
     })
 }
@@ -38,10 +49,13 @@ fn normalize_specification_version(
     }
 }
 
-fn normalize_servers(value: &Value) -> Result<Vec<NormalizedServer>, OpenApiNormalizationError> {
+fn normalize_servers(
+    document: &LoadedOpenApiDocument,
+) -> Result<Vec<NormalizedServer>, OpenApiNormalizationError> {
+    let value = document.raw().value();
     let Some(servers) = value.get("servers") else {
         if value.get("swagger").is_some() {
-            return normalize_swagger2_servers(value);
+            return normalize_swagger2_servers(value, document.source());
         }
 
         return Ok(Vec::new());
@@ -75,6 +89,7 @@ fn normalize_servers(value: &Value) -> Result<Vec<NormalizedServer>, OpenApiNorm
 
 fn normalize_swagger2_servers(
     value: &Value,
+    source: &OpenApiSource,
 ) -> Result<Vec<NormalizedServer>, OpenApiNormalizationError> {
     let host = value
         .get("host")
@@ -88,7 +103,10 @@ fn normalize_swagger2_servers(
     let schemes = value.get("schemes");
 
     if host.is_empty() && base_path.is_empty() {
-        return Ok(Vec::new());
+        return Ok(local_swagger2_file_server(source)
+            .into_iter()
+            .map(|url| NormalizedServer { url })
+            .collect());
     }
 
     let schemes = match schemes {
@@ -127,6 +145,23 @@ fn normalize_swagger2_servers(
             url: format!("{scheme}://{host}{base_path}"),
         })
         .collect())
+}
+
+fn local_swagger2_file_server(source: &OpenApiSource) -> Option<String> {
+    let OpenApiSource::Path(path) = source else {
+        return None;
+    };
+
+    let path = fs::canonicalize(path).unwrap_or_else(|_| path.clone());
+    let directory = path.parent()?;
+    let mut directory = directory.to_string_lossy().into_owned();
+
+    if let Some(stripped) = directory.strip_prefix(r"\\?\") {
+        directory = stripped.to_string();
+    }
+
+    directory = directory.replace('\\', "/");
+    Some(format!("file://{directory}"))
 }
 
 fn normalize_operations(
@@ -725,12 +760,15 @@ mod tests {
 
     use httpgenerator_core::{
         NormalizedHttpMethod, NormalizedParameter, NormalizedParameterLocation,
-        NormalizedRequestBody, NormalizedSpecificationVersion,
+        NormalizedRequestBody, NormalizedServer, NormalizedSpecificationVersion,
     };
 
     use crate::{OpenApiSource, decode_raw_document, load_document_from_raw};
 
-    use super::{load_and_normalize_document, normalize_loaded_document};
+    use super::{
+        load_and_normalize_document, load_and_normalize_document_with_options,
+        normalize_loaded_document,
+    };
 
     #[test]
     fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
@@ -918,6 +956,51 @@ mod tests {
     }
 
     #[test]
+    fn swagger2_local_documents_without_host_or_base_path_use_parent_directory_server() {
+        let input = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+            .join("test")
+            .join("OpenAPI")
+            .join("v2.0")
+            .join("api-with-examples.json");
+        let normalized = load_and_normalize_document(input.to_str().unwrap()).unwrap();
+        let mut expected_directory = std::fs::canonicalize(&input)
+            .unwrap()
+            .parent()
+            .unwrap()
+            .to_string_lossy()
+            .into_owned();
+
+        if let Some(stripped) = expected_directory.strip_prefix(r"\\?\") {
+            expected_directory = stripped.to_string();
+        }
+
+        expected_directory = expected_directory.replace('\\', "/");
+
+        assert_eq!(
+            normalized.servers,
+            vec![NormalizedServer {
+                url: format!("file://{expected_directory}"),
+            }]
+        );
+    }
+
+    #[test]
+    fn openapi30_local_documents_without_servers_do_not_use_parent_directory_server() {
+        let input = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("..")
+            .join("..")
+            .join("test")
+            .join("OpenAPI")
+            .join("v3.0")
+            .join("api-with-examples.json");
+        let normalized = load_and_normalize_document(input.to_str().unwrap()).unwrap();
+
+        assert!(normalized.servers.is_empty());
+    }
+
+    #[test]
     fn webhook_only_v31_documents_normalize_without_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
@@ -933,6 +1016,31 @@ mod tests {
         );
         assert!(normalized.servers.is_empty());
         assert!(normalized.operations.is_empty());
+    }
+
+    #[test]
+    fn invalid_v31_documents_normalize_when_tolerated() {
+        let normalized = load_and_normalize_document_with_options(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
+                .join("..")
+                .join("test")
+                .join("OpenAPI")
+                .join("v3.1")
+                .join("non-oauth-scopes.json")
+                .to_str()
+                .unwrap(),
+            true,
+        )
+        .unwrap();
+
+        assert_eq!(
+            normalized.specification_version,
+            NormalizedSpecificationVersion::OpenApi31
+        );
+        assert_eq!(normalized.operations.len(), 1);
+        assert_eq!(normalized.operations[0].path, "/users");
+        assert_eq!(normalized.operations[0].method, NormalizedHttpMethod::Get);
     }
 
     #[test]
