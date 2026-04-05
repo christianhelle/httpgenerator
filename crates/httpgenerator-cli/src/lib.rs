@@ -12,21 +12,29 @@ use httpgenerator_openapi::{
     OpenApiInspection, OpenApiSpecificationVersion, inspect_document, load_and_normalize_document,
 };
 
-use crate::args::CliArgs;
+use crate::{args::CliArgs, auth::try_get_access_token};
 
 pub mod args;
+mod auth;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExecutionSummary {
     pub output_folder: PathBuf,
     pub files: Vec<PathBuf>,
     pub validation: Option<OpenApiInspection>,
+    pub azure_auth: AzureAuthStatus,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum AzureAuthStatus {
+    NotRequested,
+    Acquired,
+    Failed { reason: String },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CliError {
     MissingInput,
-    AzureAuthNotImplemented,
     InspectOpenApi(String),
     LoadOpenApi(String),
     UnsupportedValidationVersion {
@@ -52,10 +60,6 @@ impl fmt::Display for CliError {
             Self::MissingInput => write!(
                 formatter,
                 "missing OpenAPI input path or URL; run with --help for usage"
-            ),
-            Self::AzureAuthNotImplemented => write!(
-                formatter,
-                "Azure Entra ID token acquisition is not implemented in the Rust CLI yet; pass --authorization-header directly for now"
             ),
             Self::InspectOpenApi(reason) => write!(formatter, "{reason}"),
             Self::LoadOpenApi(reason) => write!(formatter, "{reason}"),
@@ -88,20 +92,21 @@ impl fmt::Display for CliError {
 impl Error for CliError {}
 
 pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
+    execute_with(args, try_get_access_token)
+}
+
+fn execute_with<F>(args: CliArgs, acquire_token: F) -> Result<ExecutionSummary, CliError>
+where
+    F: Fn(Option<&str>, &str) -> Result<Option<String>, String>,
+{
     let open_api_path = args.open_api_path.clone().ok_or(CliError::MissingInput)?;
-
-    if args.authorization_header.is_none()
-        && (args.azure_scope.is_some() || args.azure_tenant_id.is_some())
-    {
-        return Err(CliError::AzureAuthNotImplemented);
-    }
-
     let validation = validate_openapi_document(&open_api_path, args.skip_validation)?;
+    let (authorization_header, azure_auth) = resolve_authorization_header(&args, acquire_token);
     let document = load_and_normalize_document(&open_api_path)
         .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
     let settings = GeneratorSettings {
         open_api_path: open_api_path.clone(),
-        authorization_header: args.authorization_header.clone(),
+        authorization_header,
         authorization_header_from_environment_variable: args
             .authorization_header_from_environment_variable,
         authorization_header_variable_name: args.authorization_header_variable_name.clone(),
@@ -121,6 +126,7 @@ pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
         output_folder,
         files,
         validation,
+        azure_auth,
     })
 }
 
@@ -142,6 +148,70 @@ fn validate_openapi_document(
     }
 
     Ok(Some(inspection))
+}
+
+fn resolve_authorization_header<F>(
+    args: &CliArgs,
+    acquire_token: F,
+) -> (Option<String>, AzureAuthStatus)
+where
+    F: Fn(Option<&str>, &str) -> Result<Option<String>, String>,
+{
+    if let Some(authorization_header) = args
+        .authorization_header
+        .as_deref()
+        .map(str::trim)
+        .filter(|header| !header.is_empty())
+    {
+        return (
+            Some(authorization_header.to_string()),
+            AzureAuthStatus::NotRequested,
+        );
+    }
+
+    let tenant_id = args
+        .azure_tenant_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|tenant_id| !tenant_id.is_empty());
+    let Some(scope) = args
+        .azure_scope
+        .as_deref()
+        .map(str::trim)
+        .filter(|scope| !scope.is_empty())
+    else {
+        return if tenant_id.is_some() {
+            (
+                None,
+                AzureAuthStatus::Failed {
+                    reason: "Azure Entra ID scope is required to acquire an authorization header."
+                        .to_string(),
+                },
+            )
+        } else {
+            (None, AzureAuthStatus::NotRequested)
+        };
+    };
+
+    match acquire_token(tenant_id, scope) {
+        Ok(Some(token)) if !token.trim().is_empty() => (
+            Some(format!("Bearer {}", token.trim())),
+            AzureAuthStatus::Acquired,
+        ),
+        Ok(Some(_)) => (
+            None,
+            AzureAuthStatus::Failed {
+                reason: "Azure Entra ID returned an empty access token.".to_string(),
+            },
+        ),
+        Ok(None) => (
+            None,
+            AzureAuthStatus::Failed {
+                reason: "Azure Entra ID did not return an access token.".to_string(),
+            },
+        ),
+        Err(reason) => (None, AzureAuthStatus::Failed { reason }),
+    }
 }
 
 fn write_files(
@@ -203,7 +273,9 @@ mod tests {
         time::{SystemTime, UNIX_EPOCH},
     };
 
-    use crate::{CliError, ExecutionSummary, args::CliArgs, execute};
+    use crate::{
+        AzureAuthStatus, CliError, ExecutionSummary, args::CliArgs, execute, execute_with,
+    };
 
     fn temp_output_dir(name: &str) -> PathBuf {
         std::env::temp_dir().join(format!(
@@ -290,6 +362,7 @@ mod tests {
                 .as_ref()
                 .is_some_and(|inspection| inspection.stats.path_item_count > 0)
         );
+        assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
         assert!(
             summary
                 .files
@@ -319,6 +392,7 @@ mod tests {
 
         assert_eq!(summary.files.len(), 1);
         assert!(summary.validation.is_some());
+        assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
         let content = fs::read_to_string(&summary.files[0]).unwrap();
         assert!(content.contains("X-API-Key: test123"));
         assert!(content.contains("> {%"));
@@ -350,21 +424,87 @@ mod tests {
         .unwrap();
 
         assert!(summary.validation.is_none());
+        assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
         assert!(summary.files.is_empty());
 
         cleanup(&summary);
     }
 
     #[test]
-    fn execute_rejects_azure_auth_until_ported() {
-        let error = execute(CliArgs {
-            open_api_path: Some("test/OpenAPI/v3.0/petstore.json".to_string()),
-            azure_scope: Some("api://example/.default".to_string()),
-            azure_tenant_id: Some("tenant-id".to_string()),
-            ..CliArgs::default()
-        })
-        .unwrap_err();
+    fn execute_uses_acquired_azure_token_as_authorization_header() {
+        let output_folder = temp_output_dir("azure-auth");
+        let summary = execute_with(
+            CliArgs {
+                azure_scope: Some("api://example/.default".to_string()),
+                azure_tenant_id: Some("tenant-id".to_string()),
+                ..petstore_args(output_folder)
+            },
+            |tenant_id, scope| {
+                assert_eq!(tenant_id, Some("tenant-id"));
+                assert_eq!(scope, "api://example/.default");
+                Ok(Some("test-token".to_string()))
+            },
+        )
+        .unwrap();
 
-        assert_eq!(error, CliError::AzureAuthNotImplemented);
+        assert_eq!(summary.azure_auth, AzureAuthStatus::Acquired);
+        let content = fs::read_to_string(&summary.files[0]).unwrap();
+        assert!(content.contains("@authorization = Bearer test-token"));
+        assert!(content.contains("Authorization: {{authorization}}"));
+
+        cleanup(&summary);
+    }
+
+    #[test]
+    fn execute_continues_when_azure_token_lookup_fails() {
+        let output_folder = temp_output_dir("azure-auth-failure");
+        let summary = execute_with(
+            CliArgs {
+                azure_scope: Some("api://example/.default".to_string()),
+                azure_tenant_id: Some("tenant-id".to_string()),
+                ..petstore_args(output_folder)
+            },
+            |tenant_id, scope| {
+                assert_eq!(tenant_id, Some("tenant-id"));
+                assert_eq!(scope, "api://example/.default");
+                Err("Azure CLI credential failed: not logged in".to_string())
+            },
+        )
+        .unwrap();
+
+        assert_eq!(
+            summary.azure_auth,
+            AzureAuthStatus::Failed {
+                reason: "Azure CLI credential failed: not logged in".to_string(),
+            }
+        );
+        let content = fs::read_to_string(&summary.files[0]).unwrap();
+        assert!(!content.contains("@authorization ="));
+        assert!(!content.contains("Authorization: {{authorization}}"));
+
+        cleanup(&summary);
+    }
+
+    #[test]
+    fn execute_continues_when_azure_scope_is_missing() {
+        let output_folder = temp_output_dir("azure-auth-missing-scope");
+        let summary = execute_with(
+            CliArgs {
+                azure_tenant_id: Some("tenant-id".to_string()),
+                ..petstore_args(output_folder)
+            },
+            |_tenant_id, _scope| panic!("token provider should not run without a scope"),
+        )
+        .unwrap();
+
+        assert_eq!(
+            summary.azure_auth,
+            AzureAuthStatus::Failed {
+                reason: "Azure Entra ID scope is required to acquire an authorization header."
+                    .to_string(),
+            }
+        );
+
+        cleanup(&summary);
     }
 }

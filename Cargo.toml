@@ -14,11 +14,14 @@ repository = "https://github.com/christianhelle/httpgenerator"
 version = "0.1.0"
 
 [workspace.dependencies]
+azure_core = "0.33.0"
+azure_identity = "0.33.0"
 clap = { version = "4.5.53", features = ["derive"] }
 httpgenerator-core = { path = "crates/httpgenerator-core" }
 httpgenerator-openapi = { path = "crates/httpgenerator-openapi" }
 openapiv3 = "2.2.0"
 openapiv3_1 = "0.1.5"
+pollster = "0.4.0"
 regex = "1.12.2"
 reqwest = { version = "0.12.24", default-features = false, features = ["blocking", "gzip", "rustls-tls"] }
 serde = { version = "1.0.228", features = ["derive"] }
