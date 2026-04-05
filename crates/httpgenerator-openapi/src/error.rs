@@ -121,3 +121,34 @@ impl fmt::Display for RawOpenApiLoadError {
 }
 
 impl Error for RawOpenApiLoadError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SpecificationVersionDetectionError {
+    MissingVersionField,
+    InvalidVersionFieldType { field: &'static str },
+    UnsupportedVersion { field: &'static str, value: String },
+}
+
+impl fmt::Display for SpecificationVersionDetectionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::MissingVersionField => {
+                write!(
+                    f,
+                    "OpenAPI document is missing a top-level 'openapi' or 'swagger' version field"
+                )
+            }
+            Self::InvalidVersionFieldType { field } => {
+                write!(f, "OpenAPI document field '{field}' must be a string")
+            }
+            Self::UnsupportedVersion { field, value } => {
+                write!(
+                    f,
+                    "unsupported OpenAPI version '{value}' in field '{field}'"
+                )
+            }
+        }
+    }
+}
+
+impl Error for SpecificationVersionDetectionError {}
