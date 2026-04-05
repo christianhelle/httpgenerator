@@ -771,6 +771,7 @@ dependencies = [
  "httpgenerator-core",
  "httpgenerator-openapi",
  "pollster",
+ "serde_json",
 ]
 
 [[package]]

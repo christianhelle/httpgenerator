@@ -16,6 +16,9 @@ use crate::{args::CliArgs, auth::try_get_access_token};
 
 pub mod args;
 mod auth;
+pub mod telemetry;
+
+pub use telemetry::{NoopTelemetrySink, TelemetryRecorder};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExecutionSummary {
@@ -90,6 +93,21 @@ impl fmt::Display for CliError {
 }
 
 impl Error for CliError {}
+
+impl CliError {
+    pub const fn telemetry_name(&self) -> &'static str {
+        match self {
+            Self::MissingInput => "MissingInput",
+            Self::InspectOpenApi(_) => "InspectOpenApi",
+            Self::LoadOpenApi(_) => "LoadOpenApi",
+            Self::UnsupportedValidationVersion { .. } => "UnsupportedValidationVersion",
+            Self::CreateOutputDirectory { .. } => "CreateOutputDirectory",
+            Self::WriteFiles { .. } => "WriteFiles",
+            Self::WriteTimeout { .. } => "WriteTimeout",
+            Self::WriteChannelClosed => "WriteChannelClosed",
+        }
+    }
+}
 
 pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
     execute_with(args, try_get_access_token)
@@ -320,29 +338,6 @@ mod tests {
             ),
             output_folder: output_folder.to_string_lossy().into_owned(),
             ..CliArgs::default()
-        }
-    }
-
-    impl Default for CliArgs {
-        fn default() -> Self {
-            Self {
-                open_api_path: None,
-                output_folder: "./".to_string(),
-                no_logging: false,
-                skip_validation: false,
-                authorization_header: None,
-                authorization_header_from_environment_variable: false,
-                authorization_header_variable_name: "authorization".to_string(),
-                content_type: "application/json".to_string(),
-                base_url: None,
-                output_type: super::args::OutputTypeArg::OneRequestPerFile,
-                azure_scope: None,
-                azure_tenant_id: None,
-                timeout: 120,
-                generate_intellij_tests: false,
-                custom_headers: Vec::new(),
-                skip_headers: false,
-            }
         }
     }
 

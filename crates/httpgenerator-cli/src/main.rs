@@ -1,6 +1,6 @@
 use clap::FromArgMatches;
 use httpgenerator_cli::{
-    AzureAuthStatus, CliError,
+    AzureAuthStatus, CliError, NoopTelemetrySink, TelemetryRecorder,
     args::{CliArgs, build_command},
     execute,
 };
@@ -17,9 +17,10 @@ fn main() {
         raw_args.push(OsString::from("--help"));
     }
 
-    let matches = build_command().get_matches_from(raw_args);
+    let matches = build_command().get_matches_from(raw_args.clone());
     let args = CliArgs::from_arg_matches(&matches)
         .expect("clap should only return matches that satisfy CliArgs");
+    let mut telemetry = TelemetryRecorder::from_cli_args(&raw_args, &args, NoopTelemetrySink);
     let should_validate = !args.skip_validation;
     let should_attempt_azure_auth = should_attempt_azure_auth(&args);
     let started_at = Instant::now();
@@ -29,8 +30,9 @@ fn main() {
         println!("Validating OpenAPI specification...");
     }
 
-    match execute(args) {
+    match execute(args.clone()) {
         Ok(summary) => {
+            telemetry.record_feature_usage(&args);
             if let Some(validation) = &summary.validation {
                 println!(
                     "Validated {} specification successfully",
@@ -64,6 +66,7 @@ fn main() {
             println!("Duration: {}", format_duration(started_at.elapsed()));
         }
         Err(error) => {
+            telemetry.record_error(&args, error.telemetry_name(), &error.to_string());
             if let CliError::UnsupportedValidationVersion { version } = &error {
                 eprintln!("Error: {error}");
                 eprintln!();
