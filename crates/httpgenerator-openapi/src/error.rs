@@ -3,7 +3,7 @@ use std::{error::Error, fmt, path::PathBuf};
 use reqwest::StatusCode;
 use url::Url;
 
-use crate::{OpenApiContentFormat, OpenApiSource};
+use crate::{OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SourceClassificationError {
@@ -152,3 +152,51 @@ impl fmt::Display for SpecificationVersionDetectionError {
 }
 
 impl Error for SpecificationVersionDetectionError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum TypedOpenApiParseError {
+    VersionDetection {
+        source: OpenApiSource,
+        error: SpecificationVersionDetectionError,
+    },
+    UnsupportedVersion {
+        source: OpenApiSource,
+        version: OpenApiSpecificationVersion,
+    },
+    Deserialize {
+        source: OpenApiSource,
+        version: OpenApiSpecificationVersion,
+        reason: String,
+    },
+}
+
+impl fmt::Display for TypedOpenApiParseError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::VersionDetection { source, error } => {
+                write!(
+                    f,
+                    "failed to detect OpenAPI specification version for '{source}': {error}"
+                )
+            }
+            Self::UnsupportedVersion { source, version } => {
+                write!(
+                    f,
+                    "typed OpenAPI parsing is not implemented for {version} documents from '{source}'"
+                )
+            }
+            Self::Deserialize {
+                source,
+                version,
+                reason,
+            } => {
+                write!(
+                    f,
+                    "failed to deserialize {version} document from '{source}': {reason}"
+                )
+            }
+        }
+    }
+}
+
+impl Error for TypedOpenApiParseError {}
