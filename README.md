@@ -2,14 +2,16 @@
 
 - [HTTP File Generator](#http-file-generator)
   - [Installation](#installation)
-  - [Usage](#usage) - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy) - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
+  - [Usage](#usage)
+  - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
+  - [VS Code Extension](#vs-code-extension)
+  - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
   <!--toc:end-->
 
 #
 
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
 [![Smoke Tests](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml)
-[![NuGet](https://img.shields.io/nuget/v/httpgenerator?color=blue)](https://www.nuget.org/packages/httpgenerator)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=christianhelle_httpgenerator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=christianhelle_httpgenerator)
 [![codecov](https://codecov.io/gh/christianhelle/httpgenerator/graph/badge.svg?token=YeSFnn0bH6)](https://codecov.io/gh/christianhelle/httpgenerator)
 
@@ -21,13 +23,17 @@ Generate .http files from OpenAPI specifications
 
 ## Installation
 
-This is tool is distrubuted as a .NET Tool on NuGet.org
+HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
-To install, simply use the following command
+- **Standalone CLI**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
+  - `httpgenerator-<version>-linux-x64.tar.gz`
+  - `httpgenerator-<version>-darwin-x64.tar.gz`
+  - `httpgenerator-<version>-win-x64.zip`
+- **Build locally**: `cargo build --release -p httpgenerator-cli`
+- **VS Code**: install the platform-specific `.vsix` for your OS and architecture. Each package bundles the native Rust CLI, and you can override it with `http-file-generator.executablePath`.
+- **Visual Studio 2022**: install the Visual Studio `.vsix`, which bundles `httpgenerator.exe`.
 
-```bash
-dotnet tool install --global httpgenerator
-```
+The legacy `.NET` CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.
 
 ## Usage
 
@@ -202,7 +208,7 @@ az account get-access-token --scope [Some Application ID URI]/.default `
 }
 ```
 
-You can also use the `--azure-scope` and `azure-tenant-id` arguments internally use `DefaultAzureCredentials` from the `Microsoft.Extensions.Azure` NuGet package to retrieve an access token for the specified `scope`.
+You can also use `--azure-scope` and `--azure-tenant-id` to let the Rust CLI acquire an access token during generation. The CLI currently checks Azure CLI and Azure Developer CLI logins and keeps generation running even if token acquisition fails.
 
 ```powershell
 httpgenerator `
@@ -214,28 +220,26 @@ httpgenerator `
 
 ### Error Logging, Telemetry, and Privacy
 
-This tool collects errors and tracks features usages to service called [Exceptionless](https://exceptionless.com/)
+The Rust CLI keeps a sink-agnostic telemetry recorder that can capture feature usage and redacted error context.
 
-By default, error logging and telemetry collection is enabled but it is possible to **opt-out** by using the `--no-logging` CLI argument.
+By default, logging is enabled, but `--no-logging` disables feature and error event recording entirely.
 
-User tracking is done anonymously using the **Support key** shown when running the tool and a generated anonymous identity based on a secure hash algorithm of username@host.
+User tracking is anonymous and derived from the **Support key** shown when running the tool while logging is enabled.
 
 ```sh
 HTTP File Generator v0.1.5
 Support key: mbmbqvd
 ```
 
-The support key is just the first 7 characters of the generated anonymous identity
+The support key is just the first 7 characters of the generated anonymous identity. Authorization headers are recorded as **`[REDACTED]`**, and personal machine details are normalized before telemetry is emitted.
 
-![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-overview.png)
+No **support key** is generated when you opt out with `--no-logging`.
 
-![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-exception.png)
+### VS Code Extension
 
-The `--authorization-header` value is **`[REDACTED]`** and the same goes for all personal identifiable information like the IP address, machine name, and file system folders
+The VS Code extension is now packaged per platform because it bundles the native Rust CLI.
 
-![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-environment.png)
-
-It's important to know that no **support key** will be generated if you opt-out from telemetry collection and that the Exceptionless SDK will be completely disabled.
+When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`.
 
 ### Visual Studio 2022 Extension
 
@@ -247,7 +251,7 @@ From the **Tools** menu select **Generate .http files**
 
 This opens the main dialog which has similar input fields as the CLI tool and now shells out to the Rust `httpgenerator` executable.
 
-The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, beside the VSIX assembly, from workspace `target\debug` / `target\release` outputs during development, or from `PATH`.
+The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, workspace `target\debug` / `target\release` outputs during development, or `PATH`.
 
 ![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
 
