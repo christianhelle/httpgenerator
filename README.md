@@ -245,11 +245,13 @@ From the **Tools** menu select **Generate .http files**
 
 ![Tools menu](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_tools.png?raw=true)
 
-This opens the main dialog which has similar input fields as the CLI tool
+This opens the main dialog which has similar input fields as the CLI tool and now shells out to the Rust `httpgenerator` executable.
+
+The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, beside the VSIX assembly, from workspace `target\debug` / `target\release` outputs during development, or from `PATH`.
 
 ![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
 
-You can acquire an Azure Entra ID access token by clicking on the `...` button beside the **Authorization Headers** input field
+You can supply Azure Entra ID tenant and scope settings by clicking on the `...` button beside the **Authorization Headers** input field. The Rust CLI acquires the access token during generation.
 
 ![Acquire Azure Entra ID access token](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_azure_entra_id.png?raw=true)
 
