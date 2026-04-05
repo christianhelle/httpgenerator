@@ -21,6 +21,6 @@ openapiv3_1 = "0.1.5"
 regex = "1.12.2"
 reqwest = { version = "0.12.24", default-features = false, features = ["blocking", "gzip", "rustls-tls"] }
 serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.145"
+serde_json = { version = "1.0.145", features = ["preserve_order"] }
 url = "2.5.7"
 yaml_serde = "0.10.4"

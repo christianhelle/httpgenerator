@@ -1,6 +1,7 @@
 pub mod base_url;
 pub mod file_naming;
 pub mod model;
+pub mod normalized;
 pub mod operation_name;
 pub mod privacy;
 pub mod string_extensions;
@@ -9,6 +10,12 @@ pub mod support_information;
 pub use base_url::resolve_base_url;
 pub use file_naming::unique_filename;
 pub use model::{GeneratorResult, GeneratorSettings, HttpFile, OutputType};
+pub use normalized::{
+    NormalizedHttpMethod, NormalizedInlineParameter, NormalizedInlineRequestBody,
+    NormalizedMediaType, NormalizedOpenApiDocument, NormalizedOperation, NormalizedParameter,
+    NormalizedParameterLocation, NormalizedRequestBody, NormalizedSchema, NormalizedSchemaProperty,
+    NormalizedSchemaType, NormalizedServer, NormalizedSpecificationVersion,
+};
 pub use operation_name::generate_operation_name;
 pub use privacy::redact_authorization_headers;
 pub use string_extensions::{

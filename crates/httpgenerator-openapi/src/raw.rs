@@ -285,7 +285,7 @@ mod tests {
         fs::create_dir_all(&directory).unwrap();
 
         directory.join(format!(
-            "{}-{}-{file_name}",
+            "raw-{}-{}-{file_name}",
             std::process::id(),
             artifact_id
         ))
