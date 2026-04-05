@@ -1,5 +1,6 @@
 use clap::FromArgMatches;
 use httpgenerator_cli::{
+    AzureAuthStatus,
     args::{CliArgs, build_command},
     execute,
 };
@@ -18,6 +19,16 @@ fn main() {
 
     match execute(args) {
         Ok(summary) => {
+            match &summary.azure_auth {
+                AzureAuthStatus::NotRequested => {}
+                AzureAuthStatus::Acquired => {
+                    println!("Successfully acquired access token from Azure Entra ID");
+                }
+                AzureAuthStatus::Failed { reason } => {
+                    eprintln!("Error: {reason}");
+                }
+            }
+
             if let Some(validation) = &summary.validation {
                 println!(
                     "Validated {} specification successfully",

@@ -10,6 +10,9 @@ name = "httpgenerator"
 path = "src/main.rs"
 
 [dependencies]
+azure_core.workspace = true
+azure_identity.workspace = true
 clap.workspace = true
 httpgenerator-core.workspace = true
 httpgenerator-openapi.workspace = true
+pollster.workspace = true
