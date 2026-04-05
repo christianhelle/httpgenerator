@@ -1,0 +1,10 @@
+[package]
+name = "httpgenerator-cli"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+clap.workspace = true
+httpgenerator-core.workspace = true
