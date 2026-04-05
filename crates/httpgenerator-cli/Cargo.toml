@@ -16,3 +16,4 @@ clap.workspace = true
 httpgenerator-core.workspace = true
 httpgenerator-openapi.workspace = true
 pollster.workspace = true
+serde_json.workspace = true

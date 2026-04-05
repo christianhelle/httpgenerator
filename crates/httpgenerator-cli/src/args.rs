@@ -180,6 +180,29 @@ pub struct CliArgs {
     pub skip_headers: bool,
 }
 
+impl Default for CliArgs {
+    fn default() -> Self {
+        Self {
+            open_api_path: None,
+            output_folder: "./".to_string(),
+            no_logging: false,
+            skip_validation: false,
+            authorization_header: None,
+            authorization_header_from_environment_variable: false,
+            authorization_header_variable_name: "authorization".to_string(),
+            content_type: "application/json".to_string(),
+            base_url: None,
+            output_type: OutputTypeArg::OneRequestPerFile,
+            azure_scope: None,
+            azure_tenant_id: None,
+            timeout: 120,
+            generate_intellij_tests: false,
+            custom_headers: Vec::new(),
+            skip_headers: false,
+        }
+    }
+}
+
 pub fn build_command() -> Command {
     CliArgs::command()
         .override_usage("httpgenerator [URL or input file] [OPTIONS]")
