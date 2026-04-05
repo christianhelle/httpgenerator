@@ -2,6 +2,13 @@ use std::path::{Path, PathBuf};
 
 use httpgenerator_core::OutputType;
 
+mod runner;
+
+pub use runner::{
+    CommandSpec, DifferentialRunPlan, DotnetOracleLaunch, DotnetOracleRunner, RustCliLaunch,
+    RustCliRunner, ScenarioOutputLayout, scenario_directory_name,
+};
+
 const SMOKE_FIXTURE_NAMES: &[&str] = &[
     "petstore",
     "petstore-expanded",
@@ -36,7 +43,7 @@ pub struct CompatibilityScenario {
 }
 
 impl CompatibilityScenario {
-    pub fn dotnet_arguments(&self, output_dir: &Path) -> Vec<String> {
+    pub fn cli_arguments(&self, output_dir: &Path) -> Vec<String> {
         let mut arguments = vec![
             self.input_path.to_string_lossy().into_owned(),
             "--output".to_string(),
@@ -91,6 +98,14 @@ impl CompatibilityScenario {
         }
 
         arguments
+    }
+
+    pub fn dotnet_arguments(&self, output_dir: &Path) -> Vec<String> {
+        self.cli_arguments(output_dir)
+    }
+
+    pub fn differential_plan(&self, artifacts_root: impl AsRef<Path>) -> DifferentialRunPlan {
+        DifferentialRunPlan::for_scenario(artifacts_root, self.clone())
     }
 }
 
