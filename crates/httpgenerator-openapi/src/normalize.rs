@@ -40,6 +40,10 @@ fn normalize_specification_version(
 
 fn normalize_servers(value: &Value) -> Result<Vec<NormalizedServer>, OpenApiNormalizationError> {
     let Some(servers) = value.get("servers") else {
+        if value.get("swagger").is_some() {
+            return normalize_swagger2_servers(value);
+        }
+
         return Ok(Vec::new());
     };
 
@@ -67,6 +71,62 @@ fn normalize_servers(value: &Value) -> Result<Vec<NormalizedServer>, OpenApiNorm
     }
 
     Ok(normalized)
+}
+
+fn normalize_swagger2_servers(
+    value: &Value,
+) -> Result<Vec<NormalizedServer>, OpenApiNormalizationError> {
+    let host = value
+        .get("host")
+        .and_then(Value::as_str)
+        .unwrap_or_default()
+        .trim();
+    let base_path = value
+        .get("basePath")
+        .and_then(Value::as_str)
+        .unwrap_or_default();
+    let schemes = value.get("schemes");
+
+    if host.is_empty() && base_path.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let schemes = match schemes {
+        Some(schemes) => {
+            let Some(schemes) = schemes.as_array() else {
+                return Err(OpenApiNormalizationError::InvalidStructure {
+                    path: "schemes".to_string(),
+                    context: "expected an array".to_string(),
+                });
+            };
+
+            schemes
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect::<Vec<_>>()
+        }
+        None => Vec::new(),
+    };
+
+    if host.is_empty() {
+        return Ok(vec![NormalizedServer {
+            url: base_path.to_string(),
+        }]);
+    }
+
+    if schemes.is_empty() {
+        return Ok(vec![NormalizedServer {
+            url: format!("https://{host}{base_path}"),
+        }]);
+    }
+
+    Ok(schemes
+        .into_iter()
+        .map(|scheme| NormalizedServer {
+            url: format!("{scheme}://{host}{base_path}"),
+        })
+        .collect())
 }
 
 fn normalize_operations(
@@ -150,7 +210,7 @@ fn normalize_operation(
             .map(str::to_string),
         tags: normalize_tags(operation)?,
         parameters: normalize_parameters(root, path, method, path_parameters, operation)?,
-        request_body: normalize_request_body(root, path, method, operation.get("requestBody"))?,
+        request_body: normalize_request_body(root, path, method, operation)?,
     })
 }
 
@@ -190,7 +250,9 @@ fn normalize_parameters(
         .copied()
         .chain(operation_parameters.iter().copied())
     {
-        let normalized = normalize_parameter(root, path, method, parameter)?;
+        let Some(normalized) = normalize_parameter(root, path, method, parameter)? else {
+            continue;
+        };
         let parameter_key = normalized.inline_key();
 
         if let Some(parameter_key) = parameter_key {
@@ -232,7 +294,7 @@ fn normalize_parameter(
     path: &str,
     method: NormalizedHttpMethod,
     value: &Value,
-) -> Result<NormalizedParameter, OpenApiNormalizationError> {
+) -> Result<Option<NormalizedParameter>, OpenApiNormalizationError> {
     if let Some(reference) = value.get("$ref").and_then(Value::as_str) {
         return Err(OpenApiNormalizationError::UnsupportedParameterReference {
             path: path.to_string(),
@@ -254,42 +316,77 @@ fn normalize_parameter(
         .map(str::to_string)
         .unwrap_or_default();
 
-    let location = parameter
-        .get("in")
-        .and_then(Value::as_str)
-        .and_then(normalize_parameter_location)
-        .ok_or_else(|| OpenApiNormalizationError::InvalidStructure {
+    let location_name = parameter.get("in").and_then(Value::as_str).ok_or_else(|| {
+        OpenApiNormalizationError::InvalidStructure {
             path: format!("{path}.{}.parameters", method.as_str()),
-            context: "parameter is missing a supported location".to_string(),
-        })?;
+            context: "parameter is missing a location".to_string(),
+        }
+    })?;
+    let Some(location) = normalize_parameter_location(location_name) else {
+        return Ok(None);
+    };
 
-    Ok(NormalizedParameter::Inline(NormalizedInlineParameter {
-        name,
-        location,
-        description: parameter
-            .get("description")
-            .and_then(Value::as_str)
-            .map(str::to_string),
-        required: parameter
-            .get("required")
-            .and_then(Value::as_bool)
-            .unwrap_or(false),
-        schema: parameter
-            .get("schema")
-            .map(|schema| normalize_schema(root, schema)),
-    }))
+    let synthetic_schema = synthesize_swagger2_parameter_schema(parameter);
+
+    Ok(Some(NormalizedParameter::Inline(
+        NormalizedInlineParameter {
+            name,
+            location,
+            description: parameter
+                .get("description")
+                .and_then(Value::as_str)
+                .map(str::to_string),
+            required: parameter
+                .get("required")
+                .and_then(Value::as_bool)
+                .unwrap_or(false),
+            schema: parameter
+                .get("schema")
+                .or(synthetic_schema.as_ref())
+                .map(|schema| normalize_schema(root, schema)),
+        },
+    )))
+}
+
+fn synthesize_swagger2_parameter_schema(parameter: &Map<String, Value>) -> Option<Value> {
+    if parameter.get("schema").is_some() {
+        return None;
+    }
+
+    let mut schema = Map::new();
+
+    for field_name in ["type", "items", "allOf", "oneOf", "anyOf", "properties"] {
+        if let Some(value) = parameter.get(field_name) {
+            schema.insert(field_name.to_string(), value.clone());
+        }
+    }
+
+    if schema.is_empty() {
+        None
+    } else {
+        Some(Value::Object(schema))
+    }
 }
 
 fn normalize_request_body(
     root: &Value,
     path: &str,
     method: NormalizedHttpMethod,
-    value: Option<&Value>,
+    operation: &Map<String, Value>,
 ) -> Result<Option<NormalizedRequestBody>, OpenApiNormalizationError> {
-    let Some(request_body) = value else {
-        return Ok(None);
-    };
+    if let Some(request_body) = operation.get("requestBody") {
+        return normalize_openapi3_request_body(root, path, method, request_body);
+    }
 
+    normalize_swagger2_request_body(root, path, method, operation)
+}
+
+fn normalize_openapi3_request_body(
+    root: &Value,
+    path: &str,
+    method: NormalizedHttpMethod,
+    request_body: &Value,
+) -> Result<Option<NormalizedRequestBody>, OpenApiNormalizationError> {
     if let Some(reference) = request_body.get("$ref").and_then(Value::as_str) {
         return Err(OpenApiNormalizationError::UnsupportedRequestBodyReference {
             path: path.to_string(),
@@ -305,7 +402,77 @@ fn normalize_request_body(
         });
     };
 
-    let content = match request_body.get("content") {
+    Ok(Some(NormalizedRequestBody::Inline(
+        NormalizedInlineRequestBody {
+            description: request_body
+                .get("description")
+                .and_then(Value::as_str)
+                .map(str::to_string),
+            required: request_body
+                .get("required")
+                .and_then(Value::as_bool)
+                .unwrap_or(false),
+            content: normalize_request_body_content(root, path, method, request_body)?,
+        },
+    )))
+}
+
+fn normalize_swagger2_request_body(
+    root: &Value,
+    path: &str,
+    method: NormalizedHttpMethod,
+    operation: &Map<String, Value>,
+) -> Result<Option<NormalizedRequestBody>, OpenApiNormalizationError> {
+    let Some(parameters) = operation.get("parameters").and_then(Value::as_array) else {
+        return Ok(None);
+    };
+
+    let Some(body_parameter) = parameters.iter().find(|parameter| {
+        parameter
+            .get("in")
+            .and_then(Value::as_str)
+            .is_some_and(|location| location == "body")
+    }) else {
+        return Ok(None);
+    };
+
+    if let Some(reference) = body_parameter.get("$ref").and_then(Value::as_str) {
+        return Err(OpenApiNormalizationError::UnsupportedRequestBodyReference {
+            path: path.to_string(),
+            method,
+            reference: reference.to_string(),
+        });
+    }
+
+    let Some(body_parameter) = body_parameter.as_object() else {
+        return Err(OpenApiNormalizationError::InvalidStructure {
+            path: format!("{path}.{}.parameters.body", method.as_str()),
+            context: "expected a body parameter object".to_string(),
+        });
+    };
+
+    Ok(Some(NormalizedRequestBody::Inline(
+        NormalizedInlineRequestBody {
+            description: body_parameter
+                .get("description")
+                .and_then(Value::as_str)
+                .map(str::to_string),
+            required: body_parameter
+                .get("required")
+                .and_then(Value::as_bool)
+                .unwrap_or(false),
+            content: normalize_swagger2_request_body_content(root, body_parameter, operation),
+        },
+    )))
+}
+
+fn normalize_request_body_content(
+    root: &Value,
+    path: &str,
+    method: NormalizedHttpMethod,
+    request_body: &Map<String, Value>,
+) -> Result<Vec<NormalizedMediaType>, OpenApiNormalizationError> {
+    match request_body.get("content") {
         Some(content) => {
             let Some(content) = content.as_object() else {
                 return Err(OpenApiNormalizationError::InvalidStructure {
@@ -334,24 +501,40 @@ fn normalize_request_body(
                             .map(|schema| normalize_schema(root, schema)),
                     })
                 })
-                .collect::<Result<Vec<_>, _>>()?
+                .collect::<Result<Vec<_>, _>>()
         }
-        None => Vec::new(),
-    };
+        None => Ok(Vec::new()),
+    }
+}
 
-    Ok(Some(NormalizedRequestBody::Inline(
-        NormalizedInlineRequestBody {
-            description: request_body
-                .get("description")
-                .and_then(Value::as_str)
-                .map(str::to_string),
-            required: request_body
-                .get("required")
-                .and_then(Value::as_bool)
-                .unwrap_or(false),
-            content,
-        },
-    )))
+fn normalize_swagger2_request_body_content(
+    root: &Value,
+    body_parameter: &Map<String, Value>,
+    operation: &Map<String, Value>,
+) -> Vec<NormalizedMediaType> {
+    let content_types = operation
+        .get("consumes")
+        .or_else(|| root.get("consumes"))
+        .and_then(Value::as_array)
+        .map(|content_types| {
+            content_types
+                .iter()
+                .filter_map(Value::as_str)
+                .map(str::to_string)
+                .collect::<Vec<_>>()
+        })
+        .filter(|content_types| !content_types.is_empty())
+        .unwrap_or_else(|| vec!["application/json".to_string()]);
+
+    content_types
+        .into_iter()
+        .map(|content_type| NormalizedMediaType {
+            content_type,
+            schema: body_parameter
+                .get("schema")
+                .map(|schema| normalize_schema(root, schema)),
+        })
+        .collect()
 }
 
 fn normalize_schema(root: &Value, value: &Value) -> NormalizedSchema {
@@ -629,6 +812,109 @@ mod tests {
                         && parameter.location == NormalizedParameterLocation::Query
             )
         }));
+    }
+
+    #[test]
+    fn normalizes_petstore_v20_fixture_into_generator_facing_operations() {
+        let raw = decode_raw_document(
+            OpenApiSource::Path(PathBuf::from("test/OpenAPI/v2.0/petstore.json")),
+            include_str!("../../../test/OpenAPI/v2.0/petstore.json"),
+        )
+        .unwrap();
+        let loaded = load_document_from_raw(raw).unwrap();
+        let normalized = normalize_loaded_document(&loaded).unwrap();
+
+        assert_eq!(
+            normalized.specification_version,
+            NormalizedSpecificationVersion::Swagger2
+        );
+        assert_eq!(normalized.servers[0].url, "https://petstore.swagger.io/v2");
+        assert_eq!(normalized.operations.len(), 20);
+        assert!(normalized.operations.iter().any(|operation| {
+            operation.path == "/user/createWithArray"
+                && operation.method == NormalizedHttpMethod::Post
+        }));
+
+        let add_pet = normalized
+            .operations
+            .iter()
+            .find(|operation| {
+                operation.path == "/pet" && operation.method == NormalizedHttpMethod::Post
+            })
+            .unwrap();
+        match add_pet.request_body.as_ref().unwrap() {
+            NormalizedRequestBody::Inline(request_body) => {
+                assert_eq!(
+                    request_body
+                        .content
+                        .iter()
+                        .map(|content| content.content_type.as_str())
+                        .collect::<Vec<_>>(),
+                    vec!["application/json", "application/xml"]
+                );
+                let schema = request_body.content[0].schema.as_ref().unwrap();
+                assert_eq!(schema.reference.as_deref(), Some("#/definitions/Pet"));
+                assert_eq!(
+                    schema
+                        .properties
+                        .iter()
+                        .take(3)
+                        .map(|property| property.name.as_str())
+                        .collect::<Vec<_>>(),
+                    vec!["id", "category", "name"]
+                );
+            }
+            NormalizedRequestBody::Reference { .. } => {
+                panic!("expected addPet to use an inline Swagger 2 request body")
+            }
+        }
+
+        let find_by_status = normalized
+            .operations
+            .iter()
+            .find(|operation| {
+                operation.path == "/pet/findByStatus"
+                    && operation.method == NormalizedHttpMethod::Get
+            })
+            .unwrap();
+        assert!(find_by_status.parameters.iter().any(|parameter| {
+            matches!(
+                parameter,
+                NormalizedParameter::Inline(parameter)
+                    if parameter.name == "status"
+                        && parameter.location == NormalizedParameterLocation::Query
+                        && parameter
+                            .schema
+                            .as_ref()
+                            .is_some_and(|schema| schema.types.contains(&httpgenerator_core::NormalizedSchemaType::Array))
+            )
+        }));
+
+        let upload_image = normalized
+            .operations
+            .iter()
+            .find(|operation| {
+                operation.path == "/pet/{petId}/uploadImage"
+                    && operation.method == NormalizedHttpMethod::Post
+            })
+            .unwrap();
+        assert_eq!(upload_image.parameters.len(), 1);
+        assert!(matches!(
+            &upload_image.parameters[0],
+            NormalizedParameter::Inline(parameter)
+                if parameter.name == "petId"
+                    && parameter.location == NormalizedParameterLocation::Path
+        ));
+
+        let update_pet_with_form = normalized
+            .operations
+            .iter()
+            .find(|operation| {
+                operation.path == "/pet/{petId}" && operation.method == NormalizedHttpMethod::Post
+            })
+            .unwrap();
+        assert_eq!(update_pet_with_form.parameters.len(), 1);
+        assert!(update_pet_with_form.request_body.is_none());
     }
 
     #[test]
