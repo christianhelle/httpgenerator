@@ -16,6 +16,7 @@ version = "0.1.0"
 [workspace.dependencies]
 clap = { version = "4.5.53", features = ["derive"] }
 httpgenerator-core = { path = "crates/httpgenerator-core" }
+httpgenerator-openapi = { path = "crates/httpgenerator-openapi" }
 openapiv3 = "2.2.0"
 openapiv3_1 = "0.1.5"
 regex = "1.12.2"
