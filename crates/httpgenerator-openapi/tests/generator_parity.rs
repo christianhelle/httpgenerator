@@ -78,10 +78,7 @@ fn petstore_renders_expected_one_file_content() {
         content.contains("GET {{baseUrl}}/pet/findByStatus?status={{GetFindPetsByStatus_status}}")
     );
     assert!(content.contains("\"category\": {\"property\": \"value\"}"));
-    assert!(content.contains(&format!(
-        "[{nl}  \"item1\",{nl}  \"item2\"{nl}]",
-        nl = newline()
-    )));
+    assert!(content.contains("[\n  \"item1\",\n  \"item2\"\n]"));
 }
 
 #[test]
