@@ -5,6 +5,10 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "httpgenerator"
+path = "src/main.rs"
+
 [dependencies]
 clap.workspace = true
 httpgenerator-core.workspace = true
