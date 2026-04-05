@@ -144,6 +144,9 @@ dependencies = [
 [[package]]
 name = "httpgenerator-compat"
 version = "0.1.0"
+dependencies = [
+ "httpgenerator-core",
+]
 
 [[package]]
 name = "httpgenerator-core"
