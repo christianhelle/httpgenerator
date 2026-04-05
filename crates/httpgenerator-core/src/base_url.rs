@@ -31,6 +31,10 @@ pub fn resolve_base_url(
 }
 
 fn is_absolute_uri(value: &str) -> bool {
+    if is_dotnet_style_windows_file_uri(value) {
+        return false;
+    }
+
     Url::parse(value).is_ok()
 }
 
@@ -45,6 +49,18 @@ fn authority(value: &str) -> Option<String> {
     }
 
     Some(authority)
+}
+
+fn is_dotnet_style_windows_file_uri(value: &str) -> bool {
+    let Some(rest) = value.strip_prefix("file://") else {
+        return false;
+    };
+
+    let bytes = rest.as_bytes();
+    bytes.len() >= 3
+        && bytes[0].is_ascii_alphabetic()
+        && bytes[1] == b':'
+        && bytes[2] == b'/'
 }
 
 #[cfg(test)]
@@ -89,5 +105,34 @@ mod tests {
         let base_url = resolve_base_url("https://petstore.swagger.io/v2/swagger.json", None, None);
 
         assert_eq!(base_url, "https://petstore.swagger.io");
+    }
+
+    #[test]
+    fn appends_dotnet_style_windows_file_uri_to_configured_base_url() {
+        let base_url = resolve_base_url(
+            "C:\\specs\\petstore.json",
+            Some("file://C:/specs"),
+            Some("https://api.example.io/"),
+        );
+
+        assert_eq!(base_url, "https://api.example.io/file://C:/specs");
+    }
+
+    #[test]
+    fn uses_dotnet_style_windows_file_uri_when_no_base_url_is_configured() {
+        let base_url = resolve_base_url("C:\\specs\\petstore.json", Some("file://C:/specs"), None);
+
+        assert_eq!(base_url, "file://C:/specs");
+    }
+
+    #[test]
+    fn preserves_configured_absolute_base_url_for_local_specs_without_a_server_url() {
+        let base_url = resolve_base_url(
+            "C:\\specs\\petstore.json",
+            None,
+            Some("https://api.example.io/"),
+        );
+
+        assert_eq!(base_url, "https://api.example.io/");
     }
 }
