@@ -160,6 +160,9 @@ dependencies = [
 [[package]]
 name = "httpgenerator-openapi"
 version = "0.1.0"
+dependencies = [
+ "url",
+]
 
 [[package]]
 name = "icu_collections"

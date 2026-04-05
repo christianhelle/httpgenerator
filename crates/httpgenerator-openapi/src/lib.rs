@@ -1,8 +1,7 @@
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum OpenApiPortStatus {
-    Planned,
-}
+mod error;
+mod format;
+mod source;
 
-pub fn current_status() -> OpenApiPortStatus {
-    OpenApiPortStatus::Planned
-}
+pub use error::{ContentFormatDetectionError, SourceClassificationError};
+pub use format::{OpenApiContentFormat, detect_content_format, sniff_content_format};
+pub use source::{OpenApiSource, classify_source};
