@@ -5,6 +5,9 @@ use crate::{
 };
 
 pub enum LoadedOpenApiDocument {
+    Swagger2 {
+        raw: RawOpenApiDocument,
+    },
     OpenApi30 {
         raw: RawOpenApiDocument,
         document: openapiv3::OpenAPI,
@@ -21,7 +24,8 @@ pub enum LoadedOpenApiDocument {
 impl LoadedOpenApiDocument {
     pub fn raw(&self) -> &RawOpenApiDocument {
         match self {
-            Self::OpenApi30 { raw, .. }
+            Self::Swagger2 { raw }
+            | Self::OpenApi30 { raw, .. }
             | Self::OpenApi31 { raw, .. }
             | Self::OpenApi31WebhookOnly { raw } => raw,
         }
@@ -37,6 +41,7 @@ impl LoadedOpenApiDocument {
 
     pub fn specification_version(&self) -> OpenApiSpecificationVersion {
         match self {
+            Self::Swagger2 { .. } => OpenApiSpecificationVersion::Swagger2,
             Self::OpenApi30 { .. } => OpenApiSpecificationVersion::OpenApi30,
             Self::OpenApi31 { .. } | Self::OpenApi31WebhookOnly { .. } => {
                 OpenApiSpecificationVersion::OpenApi31
@@ -46,14 +51,18 @@ impl LoadedOpenApiDocument {
 
     pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
         match self {
+            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31WebhookOnly { .. } => {
+                None
+            }
             Self::OpenApi30 { document, .. } => Some(document),
-            Self::OpenApi31 { .. } | Self::OpenApi31WebhookOnly { .. } => None,
         }
     }
 
     pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
         match self {
-            Self::OpenApi30 { .. } | Self::OpenApi31WebhookOnly { .. } => None,
+            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31WebhookOnly { .. } => {
+                None
+            }
             Self::OpenApi31 { document, .. } => Some(document),
         }
     }
@@ -74,6 +83,13 @@ pub fn load_document_from_source(
 pub fn load_document_from_raw(
     raw: RawOpenApiDocument,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
+    if matches!(
+        raw.specification_version(),
+        Ok(OpenApiSpecificationVersion::Swagger2)
+    ) {
+        return Ok(LoadedOpenApiDocument::Swagger2 { raw });
+    }
+
     match parse_typed_document(&raw) {
         Ok(TypedOpenApiDocument::OpenApi30(document)) => {
             Ok(LoadedOpenApiDocument::OpenApi30 { raw, document })
@@ -111,9 +127,7 @@ mod tests {
         sync::atomic::{AtomicU64, Ordering},
     };
 
-    use crate::{
-        OpenApiSource, OpenApiSpecificationVersion, TypedOpenApiParseError, decode_raw_document,
-    };
+    use crate::{OpenApiSource, OpenApiSpecificationVersion, decode_raw_document};
 
     use super::{
         LoadedOpenApiDocument, load_document, load_document_from_raw, load_document_from_source,
@@ -187,7 +201,7 @@ mod tests {
     }
 
     #[test]
-    fn wraps_swagger_two_documents_as_typed_parse_errors() {
+    fn loads_swagger_two_documents_with_a_raw_bridge() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("swagger.json")),
             r#"{
@@ -198,19 +212,15 @@ mod tests {
         )
         .unwrap();
 
-        match load_document_from_raw(raw) {
-            Err(crate::OpenApiDocumentLoadError::TypedParse(error)) => {
-                assert_eq!(
-                    error,
-                    TypedOpenApiParseError::UnsupportedVersion {
-                        source: OpenApiSource::Path(PathBuf::from("swagger.json")),
-                        version: OpenApiSpecificationVersion::Swagger2,
-                    }
-                );
-            }
-            Err(error) => panic!("unexpected loader error: {error}"),
-            Ok(_) => panic!("expected Swagger 2 parsing to remain unsupported"),
-        }
+        let loaded = load_document_from_raw(raw).unwrap();
+
+        assert!(matches!(loaded, LoadedOpenApiDocument::Swagger2 { .. }));
+        assert_eq!(
+            loaded.specification_version(),
+            OpenApiSpecificationVersion::Swagger2
+        );
+        assert!(loaded.as_openapi30().is_none());
+        assert!(loaded.as_openapi31().is_none());
     }
 
     #[test]

@@ -40,6 +40,10 @@ fn petstore_parity_matrix_matches_dotnet_oracle() {
         "petstore-v3.0-json-auth-env",
         "petstore-v3.0-json-skip-headers",
         "petstore-v3.0-json-env-baseurl",
+        "petstore-v2.0-json-one-request-per-file",
+        "petstore-v2.0-json-one-file",
+        "petstore-v2.0-json-one-file-per-tag",
+        "petstore-v2.0-json-auth-header",
     ] {
         let scenario = scenarios
             .iter()
