@@ -48,11 +48,14 @@
             <!-- Installation Section -->
             <section id="installation" class="section">
                 <h2 class="section-title">Installation</h2>
-                <p>This tool is distributed as a .NET Tool on NuGet.org</p>
-                <p>To install, simply use the following command:</p>
-                <div class="code-block">
-                    <pre><code>dotnet tool install --global httpgenerator</code></pre>
-                </div>
+                <p>HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.</p>
+                <ul>
+                    <li>Download a platform-specific CLI archive from <a href="https://github.com/christianhelle/httpgenerator/releases">GitHub Releases</a> and place <code>httpgenerator</code> / <code>httpgenerator.exe</code> on <code>PATH</code>.</li>
+                    <li>Build locally with <code>cargo build --release -p httpgenerator-cli</code>.</li>
+                    <li>Install the platform-specific VS Code <code>.vsix</code>; each package bundles the native Rust CLI.</li>
+                    <li>Install the Visual Studio 2022 <code>.vsix</code>; it bundles <code>httpgenerator.exe</code>.</li>
+                </ul>
+                <p>The legacy .NET CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.</p>
             </section>
 
             <!-- Usage Section -->
@@ -201,7 +204,7 @@ Content-Type: {{contentType}}</code></pre>
 }</code></pre>
                 </div>
 
-                <p>You can also use the <code>--azure-scope</code> and <code>azure-tenant-id</code> arguments internally use <code>DefaultAzureCredentials</code> from the <code>Microsoft.Extensions.Azure</code> NuGet package to retrieve an access token for the specified <code>scope</code>.</p>
+                <p>You can also use <code>--azure-scope</code> and <code>--azure-tenant-id</code> to let the Rust CLI acquire an access token during generation. The CLI currently checks Azure CLI and Azure Developer CLI logins and keeps generation running even if token acquisition fails.</p>
                 <div class="code-block">
                     <pre><code>httpgenerator `
   https://api.example.com/swagger/v1/swagger.json `
@@ -214,33 +217,18 @@ Content-Type: {{contentType}}</code></pre>
             <!-- Error Logging Section -->
             <section class="section">
                 <h2 class="section-title">Error Logging, Telemetry, and Privacy</h2>
-                <p>This tool collects errors and tracks features usages to service called <a href="https://exceptionless.com/">Exceptionless</a></p>
-                <p>By default, error logging and telemetry collection is enabled but it is possible to <strong>opt-out</strong> by using the <code>--no-logging</code> CLI argument.</p>
-                <p>User tracking is done anonymously using the <strong>Support key</strong> shown when running the tool and a generated anonymous identity based on a secure hash algorithm of username@host.</p>
+                <p>The Rust CLI keeps a sink-agnostic telemetry recorder that can capture feature usage and redacted error context.</p>
+                <p>By default, logging is enabled, but <code>--no-logging</code> disables feature and error event recording entirely.</p>
+                <p>User tracking is anonymous and derived from the <strong>Support key</strong> shown when running the tool while logging is enabled.</p>
                 
                 <div class="code-block">
                     <pre><code>HTTP File Generator v0.1.5
 Support key: mbmbqvd</code></pre>
                 </div>
 
-                <p>The support key is just the first 7 characters of the generated anonymous identity</p>
-                
-                <div class="image-grid">
-                    <div class="image-container">
-                        <img src="images/exceptionless-overview.png" alt="Exceptionless Overview" class="screenshot">
-                    </div>
-                    <div class="image-container">
-                        <img src="images/exceptionless-exception.png" alt="Exceptionless Exception" class="screenshot">
-                    </div>
-                </div>
+                <p>The support key is just the first 7 characters of the generated anonymous identity. Authorization headers are recorded as <strong><code>[REDACTED]</code></strong>, and personal machine details are normalized before telemetry is emitted.</p>
 
-                <p>The <code>--authorization-header</code> value is <strong><code>[REDACTED]</code></strong> and the same goes for all personal identifiable information like the IP address, machine name, and file system folders</p>
-                
-                <div class="image-container">
-                    <img src="images/exceptionless-environment.png" alt="Exceptionless Environment" class="screenshot">
-                </div>
-
-                <p>It's important to know that no <strong>support key</strong> will be generated if you opt-out from telemetry collection and that the Exceptionless SDK will be completely disabled.</p>
+                <p>No <strong>support key</strong> is generated when you opt out with <code>--no-logging</code>.</p>
             </section>
 
             <!-- Visual Studio Extension Section -->
@@ -253,12 +241,14 @@ Support key: mbmbqvd</code></pre>
                     <img src="images/vsix_tools.png" alt="Tools menu" class="screenshot">
                 </div>
 
-                <p>This opens the main dialog which has similar input fields as the CLI tool</p>
+                <p>This opens the main dialog which has similar input fields as the CLI tool and shells out to the Rust <code>httpgenerator.exe</code> executable.</p>
                 <div class="image-container">
                     <img src="images/vsix_httpgenerator_dialog.png" alt="Main dialog" class="screenshot">
                 </div>
 
-                <p>You can acquire an Azure Entra ID access token by clicking on the <code>...</code> button beside the <strong>Authorization Headers</strong> input field</p>
+                <p>The Visual Studio extension resolves <code>httpgenerator.exe</code> from <code>HTTPGENERATOR_PATH</code>, the bundled VSIX payload, workspace <code>target\debug</code> / <code>target\release</code> outputs during development, or <code>PATH</code>.</p>
+
+                <p>You can supply Azure Entra ID tenant and scope settings by clicking on the <code>...</code> button beside the <strong>Authorization Headers</strong> input field. The Rust CLI acquires the access token during generation.</p>
                 <div class="image-container">
                     <img src="images/vsix_azure_entra_id.png" alt="Acquire Azure Entra ID access token" class="screenshot">
                 </div>
