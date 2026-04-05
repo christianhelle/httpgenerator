@@ -3,8 +3,9 @@ use std::fs;
 use serde_json::Value;
 
 use crate::{
-    OpenApiContentFormat, OpenApiSource, RawOpenApiLoadError, classify_source,
-    detect_content_format,
+    OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion, RawOpenApiLoadError,
+    SpecificationVersionDetectionError, classify_source, detect_content_format,
+    detect_specification_version,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -34,6 +35,12 @@ impl RawOpenApiDocument {
 
     pub fn into_value(self) -> Value {
         self.value
+    }
+
+    pub fn specification_version(
+        &self,
+    ) -> Result<OpenApiSpecificationVersion, SpecificationVersionDetectionError> {
+        detect_specification_version(&self.value)
     }
 }
 
