@@ -1,4 +1,9 @@
-use std::process::{Command, Output};
+use std::{
+    fs,
+    path::PathBuf,
+    process::{Command, Output},
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 fn run_httpgenerator(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_httpgenerator"))
@@ -9,6 +14,40 @@ fn run_httpgenerator(args: &[&str]) -> Output {
 
 fn normalize(output: &[u8]) -> String {
     String::from_utf8_lossy(output).replace("\r\n", "\n")
+}
+
+fn temp_output_dir(name: &str) -> PathBuf {
+    std::env::temp_dir().join(format!(
+        "httpgenerator-rust-cli-bin-tests-{name}-{}",
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ))
+}
+
+fn petstore_fixture() -> String {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("test")
+        .join("OpenAPI")
+        .join("v3.0")
+        .join("petstore.json")
+        .to_string_lossy()
+        .into_owned()
+}
+
+fn webhook_fixture() -> String {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("test")
+        .join("OpenAPI")
+        .join("v3.1")
+        .join("webhook-example.json")
+        .to_string_lossy()
+        .into_owned()
 }
 
 #[test]
@@ -71,4 +110,55 @@ fn short_and_long_version_flags_match_public_identity() {
     assert_eq!(normalize(&long.stdout), expected);
     assert_eq!(normalize(&short.stderr), "");
     assert_eq!(normalize(&long.stderr), "");
+}
+
+#[test]
+fn generation_output_includes_support_key_header() {
+    let output_dir = temp_output_dir("support-key");
+    let petstore = petstore_fixture();
+    let output_path = output_dir.to_string_lossy().into_owned();
+
+    let output = run_httpgenerator(&[&petstore, "--output", &output_path]);
+
+    let _ = fs::remove_dir_all(&output_dir);
+
+    assert!(output.status.success());
+    let stdout = normalize(&output.stdout);
+    assert!(stdout.contains("HTTP File Generator v"));
+    assert!(stdout.contains("Support key: "));
+    assert!(!stdout.contains("Support key: Unavailable when logging is disabled"));
+}
+
+#[test]
+fn generation_output_hides_support_key_when_logging_is_disabled() {
+    let output_dir = temp_output_dir("support-key-disabled");
+    let petstore = petstore_fixture();
+    let output_path = output_dir.to_string_lossy().into_owned();
+
+    let output = run_httpgenerator(&[&petstore, "--output", &output_path, "--no-logging"]);
+
+    let _ = fs::remove_dir_all(&output_dir);
+
+    assert!(output.status.success());
+    let stdout = normalize(&output.stdout);
+    assert!(stdout.contains("HTTP File Generator v"));
+    assert!(stdout.contains("Support key: Unavailable when logging is disabled"));
+}
+
+#[test]
+fn unsupported_v31_validation_failure_suggests_skip_validation() {
+    let output_dir = temp_output_dir("v31-guidance");
+    let webhook = webhook_fixture();
+    let output_path = output_dir.to_string_lossy().into_owned();
+
+    let output = run_httpgenerator(&[&webhook, "--output", &output_path]);
+
+    let _ = fs::remove_dir_all(&output_dir);
+
+    assert!(!output.status.success());
+    let stderr = normalize(&output.stderr);
+    assert!(stderr.contains("Error: OpenAPI 3.1.x documents are not supported by CLI validation yet; retry with --skip-validation"));
+    assert!(stderr.contains("Tips:"));
+    assert!(stderr.contains("Consider using the --skip-validation argument."));
+    assert!(stderr.contains("Swagger 2.0 and OpenAPI 3.0.x"));
 }
