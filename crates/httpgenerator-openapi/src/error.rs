@@ -200,3 +200,20 @@ impl fmt::Display for TypedOpenApiParseError {
 }
 
 impl Error for TypedOpenApiParseError {}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum OpenApiDocumentLoadError {
+    RawLoad(RawOpenApiLoadError),
+    TypedParse(TypedOpenApiParseError),
+}
+
+impl fmt::Display for OpenApiDocumentLoadError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::RawLoad(error) => write!(f, "{error}"),
+            Self::TypedParse(error) => write!(f, "{error}"),
+        }
+    }
+}
+
+impl Error for OpenApiDocumentLoadError {}
