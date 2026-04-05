@@ -127,6 +127,12 @@ fn generation_output_includes_support_key_header() {
     assert!(stdout.contains("HTTP File Generator v"));
     assert!(stdout.contains("Support key: "));
     assert!(!stdout.contains("Support key: Unavailable when logging is disabled"));
+    assert!(stdout.contains("Validating OpenAPI specification..."));
+    assert!(stdout.contains("Validated OpenAPI 3.0.x specification successfully"));
+    assert!(stdout.contains("Writing 19 file(s)..."));
+    assert!(stdout.contains("Files written successfully:"));
+    assert!(stdout.contains("Generation completed successfully!"));
+    assert!(stdout.contains("Duration: "));
 }
 
 #[test]
