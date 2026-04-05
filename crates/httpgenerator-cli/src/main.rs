@@ -3,6 +3,7 @@ use httpgenerator_cli::{
     args::{CliArgs, build_command},
     execute,
 };
+use httpgenerator_openapi::OpenApiStats;
 use std::ffi::OsString;
 
 fn main() {
@@ -17,6 +18,14 @@ fn main() {
 
     match execute(args) {
         Ok(summary) => {
+            if let Some(validation) = &summary.validation {
+                println!(
+                    "Validated {} specification successfully",
+                    validation.specification_version
+                );
+                print_stats(&validation.stats);
+            }
+
             println!(
                 "Generated {} file(s) in {}",
                 summary.files.len(),
@@ -31,4 +40,15 @@ fn main() {
             std::process::exit(1);
         }
     }
+}
+
+fn print_stats(stats: &OpenApiStats) {
+    println!("Path Items: {}", stats.path_item_count);
+    println!("Operations: {}", stats.operation_count);
+    println!("Parameters: {}", stats.parameter_count);
+    println!("Request Bodies: {}", stats.request_body_count);
+    println!("Responses: {}", stats.response_count);
+    println!("Links: {}", stats.link_count);
+    println!("Callbacks: {}", stats.callback_count);
+    println!("Schemas: {}", stats.schema_count);
 }
