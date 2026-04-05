@@ -3,62 +3,75 @@ name: VSIX
 on:
   workflow_dispatch:
   push:
-    paths-ignore:
-      - '**/*'
-      - '!.github/workflows/vsix.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
     branches:
-      - '*'
+      - "*"
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/**"
+      - "src/HttpGenerator.VSIX/**"
+      - ".github/workflows/vsix.yml"
   pull_request:
     branches:
-      - '*'
+      - "*"
+    paths:
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - "crates/**"
+      - "src/HttpGenerator.VSIX/**"
+      - ".github/workflows/vsix.yml"
 
 env:
   VERSION: 1.0.${{ github.run_number }}
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Update Version
-      run: |
-        ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
-        ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
-      working-directory: src
-      shell: pwsh
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v3
+      - name: Update versions
+        run: |
+          ((Get-Content -Path Cargo.toml -Raw) -Replace 'version = "0\.1\.0"', 'version = "${{ env.VERSION }}"') | Set-Content -Path Cargo.toml
+          ((Get-Content -Path src\HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace '1.0.0', '${{ env.VERSION }}') | Set-Content -Path src\HttpGenerator.VSIX\source.extension.vsixmanifest
+        shell: pwsh
 
-    - name: Restore
-      run: msbuild VSIX.sln -t:Restore
-      working-directory: src
+      - name: Build Rust CLI
+        run: cargo build --release -p httpgenerator-cli
 
-    - name: Build
-      run: msbuild VSIX.sln /property:Configuration=Release /p:DeployExtension=false
-      working-directory: src
+      - name: Bundle Rust CLI
+        run: Copy-Item target\release\httpgenerator.exe src\HttpGenerator.VSIX\httpgenerator.exe -Force
+        shell: pwsh
 
-    - name: Move build output
-      run: |
-        mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v3
 
-    - name: Publish artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: Artifacts
-        path: |
-          *.vsix
+      - name: Restore
+        run: msbuild src\VSIX.sln -t:Restore
 
-    - name: Publish to Open VSIX Gallery
-      if: github.ref == 'refs/heads/main'
-      run: |
-        (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
-        Vsix-PushArtifacts
-        Vsix-PublishToGallery -path HttpGenerator-${{ env.VERSION }}.vsix -readmeUrl https://raw.githubusercontent.com/christianhelle/HttpGenerator/master/docs/Marketplace.md
-      shell: pwsh
-      continue-on-error: true
+      - name: Build
+        run: msbuild src\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
+
+      - name: Move build output
+        run: Move-Item src\HttpGenerator.VSIX\bin\Release\HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
+        shell: pwsh
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Artifacts
+          path: |
+            *.vsix
+
+      - name: Publish to Open VSIX Gallery
+        if: github.ref == 'refs/heads/main'
+        run: |
+          (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+          Vsix-PushArtifacts
+          Vsix-PublishToGallery -path HttpGenerator-${{ env.VERSION }}.vsix -readmeUrl https://raw.githubusercontent.com/christianhelle/HttpGenerator/master/docs/Marketplace.md
+        shell: pwsh
+        continue-on-error: true

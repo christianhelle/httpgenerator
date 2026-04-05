@@ -14,7 +14,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 - A Rust `httpgenerator` executable available through one of these locations:
   - `http-file-generator.executablePath`
-  - a bundled `bin/httpgenerator` binary inside the extension
+  - a platform-specific bundled `bin/httpgenerator` binary inside the extension package
   - a workspace build output under `target/debug` or `target/release`
   - `httpgenerator` on your system `PATH`
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)

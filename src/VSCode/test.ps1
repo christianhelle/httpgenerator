@@ -2,11 +2,25 @@ Write-Host "Testing VS Code extension..."
 
 Set-Location -Path $PSScriptRoot
 
+function Get-VsCodeTarget {
+    if ($IsWindows) {
+        return "win32-x64"
+    }
+
+    if ($IsMacOS) {
+        return "darwin-x64"
+    }
+
+    return "linux-x64"
+}
+
+$vsCodeTarget = Get-VsCodeTarget
+
 # Ensure the extension is built
 ./build.ps1
 
 # Start VS Code with the extension
-code --install-extension http-file-generator-0.1.0.vsix --force
+code --install-extension "http-file-generator-0.1.0-$vsCodeTarget.vsix" --force
 
 # Open the test folder that contains OpenAPI specs
 code $PSScriptRoot/../../test
