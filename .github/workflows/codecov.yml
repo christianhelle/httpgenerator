@@ -49,7 +49,7 @@ jobs:
           README.md
 
     - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v6
       with:
         directory: src
         files: '**/coverage.cobertura.xml'
