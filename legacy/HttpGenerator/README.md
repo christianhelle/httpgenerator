@@ -14,7 +14,7 @@ This project contains the legacy .NET CLI kept in the repository as a compatibil
 Use this .NET project when you need to compare legacy behavior against the Rust implementation or inspect the original command surface during migration work.
 
 ```powershell
-dotnet run --project src\HttpGenerator\HttpGenerator.csproj -- test\OpenAPI\v3.0\petstore.json --output .\HttpFiles --no-logging
+dotnet run --project legacy\HttpGenerator\HttpGenerator.csproj -- test\OpenAPI\v3.0\petstore.json --output .\HttpFiles --no-logging
 ```
 
 ## Azure auth
