@@ -21,27 +21,27 @@ jobs:
       - name: Update versions
         run: |
           ((Get-Content -Path Cargo.toml -Raw) -Replace 'version = "0\.1\.0"', 'version = "${{ env.VERSION }}"') | Set-Content -Path Cargo.toml
-          ((Get-Content -Path src\HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace '1.0.0', '${{ env.VERSION }}') | Set-Content -Path src\HttpGenerator.VSIX\source.extension.vsixmanifest
+          ((Get-Content -Path legacy\HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace '1.0.0', '${{ env.VERSION }}') | Set-Content -Path legacy\HttpGenerator.VSIX\source.extension.vsixmanifest
         shell: pwsh
 
       - name: Build Rust CLI
         run: cargo build --release -p httpgenerator-cli
 
       - name: Bundle Rust CLI
-        run: Copy-Item target\release\httpgenerator.exe src\HttpGenerator.VSIX\httpgenerator.exe -Force
+        run: Copy-Item target\release\httpgenerator.exe legacy\HttpGenerator.VSIX\httpgenerator.exe -Force
         shell: pwsh
 
       - name: Setup MSBuild.exe
         uses: microsoft/setup-msbuild@v3
 
       - name: Restore
-        run: msbuild src\VSIX.sln -t:Restore
+        run: msbuild legacy\VSIX.sln -t:Restore
 
       - name: Build
-        run: msbuild src\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
+        run: msbuild legacy\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
 
       - name: Move build output
-        run: Move-Item src\HttpGenerator.VSIX\bin\Release\HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix.vsix
+        run: Move-Item legacy\HttpGenerator.VSIX\bin\Release\HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix.vsix
         shell: pwsh
 
       - name: Publish artifacts
@@ -57,5 +57,5 @@ jobs:
         run: |
           $VsixPublisher = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VSSDK\VisualStudioIntegration\Tools\Bin\VsixPublisher.exe"
           & $VsixPublisher login -personalAccessToken ${{ secrets.MARKETPLACE_PAT }} -publisherName ChristianResmaHelle
-          & $VsixPublisher publish -payload HttpGenerator-${{ env.VERSION }}.vsix.vsix -publishManifest src/publish-manifest.json -ignoreWarnings 'VSIXValidatorWarning01,VSIXValidatorWarning02'
+          & $VsixPublisher publish -payload HttpGenerator-${{ env.VERSION }}.vsix.vsix -publishManifest legacy/publish-manifest.json -ignoreWarnings 'VSIXValidatorWarning01,VSIXValidatorWarning02'
         shell: pwsh

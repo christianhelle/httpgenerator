@@ -401,7 +401,7 @@ impl DotnetOracleRunner {
         Self::project(
             repo_root.to_path_buf(),
             repo_root
-                .join("src")
+                .join("legacy")
                 .join("HttpGenerator")
                 .join("HttpGenerator.csproj"),
         )
@@ -631,7 +631,7 @@ mod tests {
         assert_eq!(
             command.args[2],
             PathBuf::from("C:\\repo")
-                .join("src")
+                .join("legacy")
                 .join("HttpGenerator")
                 .join("HttpGenerator.csproj")
                 .to_string_lossy()
@@ -659,7 +659,7 @@ mod tests {
     fn builds_dotnet_assembly_command_for_oracle_runs() {
         let repo_root = PathBuf::from("C:\\repo");
         let assembly_path = repo_root
-            .join("src")
+            .join("legacy")
             .join("HttpGenerator")
             .join("bin")
             .join("Release")

@@ -10,9 +10,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "crates/**"
-      - "src/**/*.cs"
-      - "src/**/*.csproj"
-      - "src/HttpGenerator.VSIX/**"
+      - "legacy/**"
       - "src/VSCode/**"
       - "test/**"
   pull_request:
@@ -23,9 +21,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "crates/**"
-      - "src/**/*.cs"
-      - "src/**/*.csproj"
-      - "src/HttpGenerator.VSIX/**"
+      - "legacy/**"
       - "src/VSCode/**"
       - "test/**"
 
@@ -52,10 +48,10 @@ jobs:
         run: cargo test
 
       - name: Build legacy solution
-        run: dotnet build -c Release HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+        run: dotnet build -c Release legacy\HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
 
       - name: Test legacy solution
-        run: dotnet test HttpGenerator.sln -c Release
+        run: dotnet test legacy\HttpGenerator.sln -c Release
 
   vscode:
     name: VS Code extension
@@ -88,7 +84,7 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Restore
-        run: msbuild src\VSIX.sln -t:Restore
+        run: msbuild legacy\VSIX.sln -t:Restore
 
       - name: Build
-        run: msbuild src\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
+        run: msbuild legacy\VSIX.sln /property:Configuration=Release /p:DeployExtension=false

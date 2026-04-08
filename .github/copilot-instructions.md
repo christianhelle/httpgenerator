@@ -1,6 +1,6 @@
 # HTTP File Generator
 
-HTTP File Generator is now a Rust-first CLI and compatibility-host repository. The Rust workspace under `crates/` is the primary implementation. The .NET projects under `src/HttpGenerator*` remain in the repo as the legacy oracle and thin host surfaces during the migration.
+HTTP File Generator is now a Rust-first CLI and compatibility-host repository. The Rust workspace under `crates/` is the primary implementation. The .NET projects under `legacy/HttpGenerator*` remain in the repo as the legacy oracle and thin host surfaces during the migration.
 
 Always reference these instructions first and fall back to deeper code search only when the current repo state differs from what is documented here.
 
@@ -13,9 +13,9 @@ Always reference these instructions first and fall back to deeper code search on
   - `cargo test`
   - `cargo run -q -p httpgenerator-cli -- test\OpenAPI\v3.0\petstore.json --output <dir> --no-logging`
 - .NET oracle validation:
-  - `dotnet restore HttpGenerator.sln`
-  - `dotnet build HttpGenerator.sln --configuration Release`
-  - `dotnet test HttpGenerator.sln --configuration Release`
+  - `dotnet restore legacy\HttpGenerator.sln`
+  - `dotnet build legacy\HttpGenerator.sln --configuration Release`
+  - `dotnet test legacy\HttpGenerator.sln --configuration Release`
 - Smoke validation on Windows:
   - `test\smoke-tests.ps1`
 - VS Code packaging validation:
@@ -26,8 +26,8 @@ Always reference these instructions first and fall back to deeper code search on
 Always validate generator-affecting changes with:
 
 1. `cargo test`
-2. `dotnet build HttpGenerator.sln --configuration Release`
-3. `dotnet test HttpGenerator.sln --configuration Release`
+2. `dotnet build legacy\HttpGenerator.sln --configuration Release`
+3. `dotnet test legacy\HttpGenerator.sln --configuration Release`
 4. `test\smoke-tests.ps1`
 
 Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI 3.1 scenarios still require `--skip-validation`.
@@ -43,10 +43,10 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 ### Compatibility surfaces
 
-- `src/HttpGenerator` - legacy .NET CLI oracle
-- `src/HttpGenerator.Core` - legacy .NET generation library
-- `src/HttpGenerator.Tests` - legacy .NET test suite
-- `src/HttpGenerator.VSIX` - Visual Studio host over `httpgenerator.exe`
+- `legacy/HttpGenerator` - legacy .NET CLI oracle
+- `legacy/HttpGenerator.Core` - legacy .NET generation library
+- `legacy/HttpGenerator.Tests` - legacy .NET test suite
+- `legacy/HttpGenerator.VSIX` - Visual Studio host over `httpgenerator.exe`
 - `src/VSCode` - VS Code host over the Rust CLI
 
 ## Common Tasks
@@ -76,7 +76,7 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 - External URL tests can still fail in restricted environments. Prefer local fixtures.
 - OpenAPI 3.1 generation still requires `--skip-validation`.
-- Headless VSIX builds are environment-sensitive. If `src\VSIX.sln` fails with missing Visual Studio SDK/toolkit types, compare the failure to a clean baseline before treating it as a regression.
+- Headless VSIX builds are environment-sensitive. If `legacy\VSIX.sln` fails with missing Visual Studio SDK/toolkit types, compare the failure to a clean baseline before treating it as a regression.
 
 ## Technology Stack
 
