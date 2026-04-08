@@ -31,7 +31,7 @@ internal static class HttpGeneratorCli
     private const string ExecutableOverrideEnvironmentVariable = "HTTPGENERATOR_PATH";
     private const string ExecutableName = "httpgenerator.exe";
 
-    public static async Task GenerateAsync(HttpGeneratorCliOptions options)
+    public static async Task<string?> GenerateAsync(HttpGeneratorCliOptions options)
     {
         var executablePath = ResolveExecutablePath();
         var startInfo = new ProcessStartInfo
@@ -60,7 +60,7 @@ internal static class HttpGeneratorCli
 
         if (process.ExitCode == 0)
         {
-            return;
+            return string.IsNullOrWhiteSpace(stderr) ? null : stderr.Trim();
         }
 
         var failureOutput = string.IsNullOrWhiteSpace(stderr) ? stdout : stderr;
