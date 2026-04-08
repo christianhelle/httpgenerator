@@ -32,7 +32,7 @@ bld/
 [Ll]og/
 [Ll]ogs/
 target/
-src/HttpGenerator.VSIX/httpgenerator.exe
+legacy/HttpGenerator.VSIX/httpgenerator.exe
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
