@@ -5,6 +5,11 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+const RICH_OUTPUT_MARKERS: &[&str] = &[
+    "┌", "┐", "└", "┘", "├", "┤", "│", "─", "╭", "╮", "╰", "╯", "┬", "┴", "┼", "🚀", "🔍", "✅",
+    "📊", "📝", "⚡", "📤", "📥", "🔗", "📞", "📋", "📁", "📄", "🎉", "⏱", "🔑", "⚠", "❌",
+];
+
 fn run_httpgenerator(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_httpgenerator"))
         .args(args)
@@ -16,20 +21,27 @@ fn normalize(output: &[u8]) -> String {
     String::from_utf8_lossy(output).replace("\r\n", "\n")
 }
 
-fn temp_output_dir(name: &str) -> PathBuf {
-    std::env::temp_dir().join(format!(
-        "httpgenerator-rust-cli-bin-tests-{name}-{}",
-        SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .unwrap()
-            .as_nanos()
-    ))
-}
-
-fn petstore_fixture() -> String {
+fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("..")
+}
+
+fn temp_output_dir(name: &str) -> PathBuf {
+    repo_root()
+        .join("temp_test_out")
+        .join("help-contract")
+        .join(format!(
+            "{name}-{}",
+            SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ))
+}
+
+fn petstore_fixture() -> String {
+    repo_root()
         .join("test")
         .join("OpenAPI")
         .join("v3.0")
@@ -39,15 +51,44 @@ fn petstore_fixture() -> String {
 }
 
 fn webhook_fixture() -> String {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("..")
-        .join("..")
+    repo_root()
         .join("test")
         .join("OpenAPI")
         .join("v3.1")
         .join("webhook-example.json")
         .to_string_lossy()
         .into_owned()
+}
+
+fn missing_fixture() -> String {
+    repo_root()
+        .join("test")
+        .join("OpenAPI")
+        .join("v3.0")
+        .join("does-not-exist.json")
+        .to_string_lossy()
+        .into_owned()
+}
+
+fn assert_plain_redirected_output(output: &str) {
+    assert!(
+        !output.contains('\u{1b}'),
+        "redirected output should not contain ANSI escape sequences\noutput:\n{output}"
+    );
+
+    for marker in RICH_OUTPUT_MARKERS {
+        assert!(
+            !output.contains(marker),
+            "redirected output should stay plain and semantic; found rich marker `{marker}`\noutput:\n{output}"
+        );
+    }
+}
+
+fn generated_file_lines(output: &str) -> Vec<&str> {
+    output
+        .lines()
+        .filter(|line| line.trim_end().ends_with(".http"))
+        .collect()
 }
 
 #[test]
@@ -62,6 +103,7 @@ fn no_args_matches_help_output_and_contract() {
     assert_eq!(normalize(&help.stderr), "");
 
     let stdout = normalize(&help.stdout);
+    assert_plain_redirected_output(&stdout);
     for expected in [
         "Usage: httpgenerator [URL or input file] [OPTIONS]",
         "Examples:",
@@ -124,15 +166,40 @@ fn generation_output_includes_support_key_header() {
 
     assert!(output.status.success());
     let stdout = normalize(&output.stdout);
+    assert_plain_redirected_output(&stdout);
     assert!(stdout.contains("HTTP File Generator v"));
     assert!(stdout.contains("Support key: "));
     assert!(!stdout.contains("Support key: Unavailable when logging is disabled"));
     assert!(stdout.contains("Validating OpenAPI specification..."));
     assert!(stdout.contains("Validated OpenAPI 3.0.x specification successfully"));
+    assert!(stdout.contains("Path Items: 13"));
+    assert!(stdout.contains("Operations: 19"));
+    assert!(stdout.contains("Parameters: 17"));
+    assert!(stdout.contains("Request Bodies: 9"));
+    assert!(stdout.contains("Responses: 19"));
+    assert!(stdout.contains("Links: 0"));
+    assert!(stdout.contains("Callbacks: 0"));
+    assert!(stdout.contains("Schemas: 73"));
     assert!(stdout.contains("Writing 19 file(s)..."));
     assert!(stdout.contains("Files written successfully:"));
     assert!(stdout.contains("Generation completed successfully!"));
     assert!(stdout.contains("Duration: "));
+    let generated_files = generated_file_lines(&stdout);
+    assert_eq!(
+        generated_files.len(),
+        19,
+        "expected one plain file path per generated request\nstdout:\n{stdout}"
+    );
+    assert!(
+        generated_files
+            .iter()
+            .any(|line| line.ends_with("PutUpdatePet.http"))
+    );
+    assert!(
+        generated_files
+            .iter()
+            .any(|line| line.ends_with("GetLoginUser.http"))
+    );
 }
 
 #[test]
@@ -147,8 +214,39 @@ fn generation_output_hides_support_key_when_logging_is_disabled() {
 
     assert!(output.status.success());
     let stdout = normalize(&output.stdout);
+    assert_plain_redirected_output(&stdout);
     assert!(stdout.contains("HTTP File Generator v"));
     assert!(stdout.contains("Support key: Unavailable when logging is disabled"));
+}
+
+#[test]
+fn azure_scope_warning_stays_plain_on_stderr_without_failing_generation() {
+    let output_dir = temp_output_dir("azure-scope-warning");
+    let petstore = petstore_fixture();
+    let output_path = output_dir.to_string_lossy().into_owned();
+
+    let output = run_httpgenerator(&[
+        &petstore,
+        "--output",
+        &output_path,
+        "--no-logging",
+        "--azure-tenant-id",
+        "tenant-id",
+    ]);
+
+    let _ = fs::remove_dir_all(&output_dir);
+
+    assert!(output.status.success());
+    let stdout = normalize(&output.stdout);
+    let stderr = normalize(&output.stderr);
+    assert_plain_redirected_output(&stdout);
+    assert_plain_redirected_output(&stderr);
+    assert!(stdout.contains("Generation completed successfully!"));
+    assert!(!stdout.contains("Azure Entra ID scope is required"));
+    assert_eq!(
+        stderr,
+        "Error: Azure Entra ID scope is required to acquire an authorization header.\n"
+    );
 }
 
 #[test]
@@ -163,8 +261,29 @@ fn unsupported_v31_validation_failure_suggests_skip_validation() {
 
     assert!(!output.status.success());
     let stderr = normalize(&output.stderr);
+    assert_plain_redirected_output(&stderr);
     assert!(stderr.contains("Error: OpenAPI 3.1.x documents are not supported by CLI validation yet; retry with --skip-validation"));
     assert!(stderr.contains("Tips:"));
     assert!(stderr.contains("Consider using the --skip-validation argument."));
     assert!(stderr.contains("Swagger 2.0 and OpenAPI 3.0.x"));
+}
+
+#[test]
+fn missing_file_failure_is_plain_and_mentions_requested_input() {
+    let output_dir = temp_output_dir("missing-file");
+    let missing = missing_fixture();
+    let output_path = output_dir.to_string_lossy().into_owned();
+
+    let output = run_httpgenerator(&[&missing, "--output", &output_path]);
+
+    let _ = fs::remove_dir_all(&output_dir);
+
+    assert!(!output.status.success());
+    let stderr = normalize(&output.stderr);
+    assert_plain_redirected_output(&stderr);
+    assert!(stderr.contains("Error:"));
+    assert!(
+        stderr.contains("does-not-exist.json"),
+        "expected missing file error to mention the requested input\nstderr:\n{stderr}"
+    );
 }
