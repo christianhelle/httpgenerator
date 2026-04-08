@@ -132,6 +132,12 @@
 **Why:** User preference and instruction for commit message format
 **Impact:** Squad commit convention updated to exclude Co-authored-by lines
 
+### 2026-04-08: User Directive — Small Logical Commits
+**By:** Christian Helle (via Copilot CLI)
+**What:** Commit changes in small logical groups for detailed progress history in this and future sessions
+**Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability
+**Impact:** Standing rule for all squad members; enables detailed session-to-session traceability
+
 ### 2026-04-08: CLI Output Parity — Rust Rich & Plain Dual Modes
 **By:** Ripley (Lead), Hicks (Core Dev), Bishop (Tester), Hudson (DevRel/Docs)
 **Status:** ✅ COMPLETE — Implementation merged, all validation passing
