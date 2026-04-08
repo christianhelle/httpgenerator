@@ -361,3 +361,27 @@ Team decision "xUnit stays on legacy family (v3 migration deferred)" is now supe
 **Decision Document:** .squad/decisions/inbox/ripley-close-pr-342.md
 
 **Pattern:** Duplicate PRs should be closed with a brief, courteous explanation referencing the accepted PR. This preserves the work trail without creating merge conflicts or redundancy.
+
+### CLI Output Parity Investigation - C# Spectre.Console to Rust (2026-03-20)
+**Task:** Investigate what 100% CLI output/UX parity means between the C# Spectre.Console implementation and the Rust CLI, and propose a phased implementation plan.
+
+**Key Findings:**
+- C# uses Spectre.Console for: Panel (header/success banners with rounded borders), Table (OpenAPI stats with green border), Rule (yellow file-writing separator), Markup/MarkupLine (colored text with emojis throughout), and TryWriteLine (fallback to Console.ForegroundColor if Spectre fails)
+- Rust has ZERO terminal styling crates - 100% println!/eprintln! with no colors, emojis, or formatting
+- Rust clap 4.5.53 present but color feature not enabled
+- C# does NOT use spinners, progress bars, or FigletText - only emoji-prefixed status messages and styled panels/tables
+- Rust architecture is cleaner: execute() in lib.rs returns structured data, main.rs is pure display. C# mixes execution with display in GenerateCommand.cs
+
+**Architecture Decision:**
+- Proposed crate stack: console (colors/styling) + comfy-table (bordered tables) + clap color feature
+- New ui.rs module in httpgenerator-cli for all rich output helpers
+- No changes to lib.rs - display stays in main.rs + ui.rs
+- Rejected indicatif (no spinners needed), figlet-rs (no ASCII art needed), ratatui (overkill)
+
+**Key File Paths:**
+- C# display logic: src/HttpGenerator/GenerateCommand.cs (lines 196-284)
+- Rust display logic: crates/httpgenerator-cli/src/main.rs (lines 27-93)
+- Rust execution logic: crates/httpgenerator-cli/src/lib.rs (execute() returns ExecutionSummary)
+
+**Decision Document:** .squad/decisions/inbox/ripley-cli-output-parity-plan.md
+**Estimated Effort:** ~8-10 hours across 5 phases. Phase 1 (color foundation) unblocks Phases 2-4 in parallel.

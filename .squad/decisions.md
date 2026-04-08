@@ -132,6 +132,23 @@
 **Why:** User preference and instruction for commit message format
 **Impact:** Squad commit convention updated to exclude Co-authored-by lines
 
+### 2026-04-08: CLI Output Parity — Rust Rich & Plain Dual Modes
+**By:** Ripley (Lead), Hicks (Core Dev), Bishop (Tester), Hudson (DevRel/Docs)
+**Status:** ✅ COMPLETE — Implementation merged, all validation passing
+**What:** Implemented context-aware output rendering in Rust CLI:
+- **Rich mode** (interactive terminal): Colors, emojis (🚀, ✅, 📊, 📁, 🎉, etc.), box-drawing characters, formatted tables via Spectre-inspired `comfy-table` + `console` crates
+- **Plain mode** (redirected/piped stdout): Semantic text only, no ANSI codes, no special characters, single-line file listings
+- **Detection:** `io::stdout().is_terminal()` respects `$TERM`, pipes, and file redirection
+**Key Implementation Details:**
+- Rust CLI presenter layer in `main.rs` + `ui.rs` (existing `lib.rs` execution logic unchanged)
+- Help contract tests validate both modes; all passing
+- VSIX host surfaces Azure diagnostics correctly (success-path warnings no longer dropped)
+- VS Code extension remains compatible (TTY detection handles rich output correctly)
+**Validation:** cargo test ✅, dotnet test ✅, test\smoke-tests.ps1 ✅; VSIX build deferred (known environment limitation)
+**Documentation:** README already accurate—no changes needed. Correctly conveys both output modes.
+**Files Updated:** crates/httpgenerator-cli/{src/ui.rs, tests/help_contract.rs}, test/smoke-tests.ps1, src/HttpGenerator.VSIX/{HttpGeneratorCli.cs, GenerateDialog.cs}
+**Decision:** Approved & ready for release. Pattern established: context-aware rendering + help contract validation for future CLI work.
+
 ## Governance
 
 - All meaningful changes require team consensus

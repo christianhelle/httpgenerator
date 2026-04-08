@@ -56,3 +56,49 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 
 **Key Decision:** No immediate docs changes during implementation; final docs review happens post-merge as part of `deps-010` closeout.
 
+### Rust CLI Output Parity: Docs Closeout (2026-03-20)
+
+**Task:** Verify README and docs accuracy after Rust CLI renders rich interactive output + plain redirected output.
+
+**Outcome:** ✅ No changes required. Documentation is already accurate.
+
+**Key Finding:**
+- Rust CLI correctly implements dual output modes via `io::stdout().is_terminal()` detection
+- **Rich mode** (terminal): Colors, emojis (🚀, ✅, 📊, 📁, 🎉), box-drawing characters (╭╮├┤│─), formatted tables
+- **Plain mode** (redirected): Semantic text only, no ANSI codes, no special characters
+- Help contract tests (`help_contract.rs`) comprehensively validate both modes; all passing
+
+**README Accuracy Check:**
+- Line 93 image (`httpgenerator-output.png`) shows correct rich terminal output with emojis and panels
+- Lines 40-83 show plain `--help` output (what users see when piping)
+- Lines 95-117 show plain file listing output
+- No inaccuracies detected; documentation correctly conveys both output modes
+
+**Pattern to Remember:**
+- Context-aware rendering (terminal vs. redirected) is a common CLI best practice
+- Standard Rust detection: `io::stdout().is_terminal()` respects `$TERM`, pipes, and file redirects
+- Help contract tests are essential for validating output parity across contexts
+- README images should show the rich interactive experience; plain usage examples belong in text sections
+
+### CLI Output Parity Closeout Session (2026-04-08)
+
+**Task:** Finalize docs/release milestone for Rust CLI output parity work.
+
+**Outcome:** ✅ Docs closeout complete. No changes needed to README or documentation. Rust CLI output parity work validated end-to-end and ready for release.
+
+**Coordination:**
+- Worked with Bishop (Tester) on VSIX host surface updates and smoke test coverage
+- Confirmed Hicks' implementation of dual output modes passes all validation
+- Verified README images and usage examples remain accurate for both modes
+
+**Release Readiness:**
+- Documentation: ✅ No gaps
+- Rust tests: ✅ Passing
+- .NET tests: ✅ Passing
+- Smoke tests: ✅ Passing
+- VS Code compatibility: ✅ Verified
+- VSIX compatibility: ✅ Verified (build deferred to real VS environment)
+
+**Key Learning:**
+Terminal rendering + documentation validation should happen in parallel for future CLI enhancements. The help contract tests established here (validating both rich and plain modes) provide a reusable pattern for output-sensitive changes.
+
