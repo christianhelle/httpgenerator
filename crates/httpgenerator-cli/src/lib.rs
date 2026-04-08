@@ -21,6 +21,25 @@ pub mod telemetry;
 
 pub use telemetry::{NoopTelemetrySink, TelemetryRecorder};
 
+pub trait ExecutionObserver {
+    fn validation_started(&mut self) {}
+
+    fn validation_succeeded(&mut self, _inspection: &OpenApiInspection) {}
+
+    fn azure_auth_started(&mut self) {}
+
+    fn azure_auth_finished(&mut self, _status: &AzureAuthStatus) {}
+
+    fn file_writing_started(&mut self, _file_count: usize) {}
+
+    fn files_written(&mut self, _paths: &[PathBuf]) {}
+}
+
+#[derive(Default)]
+struct NoopExecutionObserver;
+
+impl ExecutionObserver for NoopExecutionObserver {}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ExecutionSummary {
     pub output_folder: PathBuf,
@@ -111,16 +130,70 @@ impl CliError {
 }
 
 pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
-    execute_with(args, try_get_access_token)
+    let mut observer = NoopExecutionObserver;
+    execute_with(args, &mut observer, try_get_access_token)
 }
 
-fn execute_with<F>(args: CliArgs, acquire_token: F) -> Result<ExecutionSummary, CliError>
+pub fn execute_with_observer<O>(
+    args: CliArgs,
+    observer: &mut O,
+) -> Result<ExecutionSummary, CliError>
+where
+    O: ExecutionObserver,
+{
+    execute_with(args, observer, try_get_access_token)
+}
+
+pub fn should_attempt_azure_auth(args: &CliArgs) -> bool {
+    if args
+        .authorization_header
+        .as_deref()
+        .map(str::trim)
+        .is_some_and(|header| !header.is_empty())
+    {
+        return false;
+    }
+
+    args.azure_scope
+        .as_deref()
+        .map(str::trim)
+        .is_some_and(|scope| !scope.is_empty())
+        || args
+            .azure_tenant_id
+            .as_deref()
+            .map(str::trim)
+            .is_some_and(|tenant_id| !tenant_id.is_empty())
+}
+
+fn execute_with<F, O>(
+    args: CliArgs,
+    observer: &mut O,
+    acquire_token: F,
+) -> Result<ExecutionSummary, CliError>
 where
     F: Fn(Option<&str>, &str) -> Result<Option<String>, String>,
+    O: ExecutionObserver,
 {
     let open_api_path = args.open_api_path.clone().ok_or(CliError::MissingInput)?;
+    if !args.skip_validation {
+        observer.validation_started();
+    }
+
     let validation = validate_openapi_document(&open_api_path, args.skip_validation)?;
+    if let Some(inspection) = &validation {
+        observer.validation_succeeded(inspection);
+    }
+
+    let should_attempt_azure_auth = should_attempt_azure_auth(&args);
+    if should_attempt_azure_auth {
+        observer.azure_auth_started();
+    }
+
     let (authorization_header, azure_auth) = resolve_authorization_header(&args, acquire_token);
+    if should_attempt_azure_auth {
+        observer.azure_auth_finished(&azure_auth);
+    }
+
     let document = load_and_normalize_document_with_options(&open_api_path, args.skip_validation)
         .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
     let settings = GeneratorSettings {
@@ -138,8 +211,10 @@ where
         skip_headers: args.skip_headers,
     };
     let result = generate_http_files(&settings, &document);
+    observer.file_writing_started(result.files.len());
     let output_folder = PathBuf::from(&args.output_folder);
     let files = write_files(&output_folder, result.files, args.timeout)?;
+    observer.files_written(&files);
 
     Ok(ExecutionSummary {
         output_folder,
@@ -293,7 +368,8 @@ mod tests {
     };
 
     use crate::{
-        AzureAuthStatus, CliError, ExecutionSummary, args::CliArgs, execute, execute_with,
+        AzureAuthStatus, CliError, ExecutionObserver, ExecutionSummary, args::CliArgs, execute,
+        execute_with, should_attempt_azure_auth,
     };
 
     fn temp_output_dir(name: &str) -> PathBuf {
@@ -393,6 +469,57 @@ mod tests {
         cleanup(&summary);
     }
 
+    #[derive(Default)]
+    struct RecordingObserver {
+        events: Vec<String>,
+    }
+
+    impl ExecutionObserver for RecordingObserver {
+        fn validation_started(&mut self) {
+            self.events.push("validation_started".to_string());
+        }
+
+        fn validation_succeeded(&mut self, inspection: &httpgenerator_openapi::OpenApiInspection) {
+            self.events.push(format!(
+                "validation_succeeded:{}",
+                inspection.specification_version
+            ));
+        }
+
+        fn file_writing_started(&mut self, file_count: usize) {
+            self.events
+                .push(format!("file_writing_started:{file_count}"));
+        }
+
+        fn files_written(&mut self, paths: &[PathBuf]) {
+            self.events.push(format!("files_written:{}", paths.len()));
+        }
+    }
+
+    #[test]
+    fn execute_notifies_observer_in_cli_lifecycle_order() {
+        let output_folder = temp_output_dir("observer-order");
+        let mut observer = RecordingObserver::default();
+        let summary = execute_with(
+            petstore_args(output_folder),
+            &mut observer,
+            |_tenant_id, _scope| Ok(None),
+        )
+        .unwrap();
+
+        assert_eq!(
+            observer.events,
+            vec![
+                "validation_started".to_string(),
+                "validation_succeeded:OpenAPI 3.0.x".to_string(),
+                "file_writing_started:19".to_string(),
+                "files_written:19".to_string(),
+            ]
+        );
+
+        cleanup(&summary);
+    }
+
     #[test]
     fn execute_respects_one_file_mode_and_custom_headers() {
         let output_folder = temp_output_dir("onefile");
@@ -465,12 +592,14 @@ mod tests {
     #[test]
     fn execute_uses_acquired_azure_token_as_authorization_header() {
         let output_folder = temp_output_dir("azure-auth");
+        let mut observer = super::NoopExecutionObserver;
         let summary = execute_with(
             CliArgs {
                 azure_scope: Some("api://example/.default".to_string()),
                 azure_tenant_id: Some("tenant-id".to_string()),
                 ..petstore_args(output_folder)
             },
+            &mut observer,
             |tenant_id, scope| {
                 assert_eq!(tenant_id, Some("tenant-id"));
                 assert_eq!(scope, "api://example/.default");
@@ -490,12 +619,14 @@ mod tests {
     #[test]
     fn execute_continues_when_azure_token_lookup_fails() {
         let output_folder = temp_output_dir("azure-auth-failure");
+        let mut observer = super::NoopExecutionObserver;
         let summary = execute_with(
             CliArgs {
                 azure_scope: Some("api://example/.default".to_string()),
                 azure_tenant_id: Some("tenant-id".to_string()),
                 ..petstore_args(output_folder)
             },
+            &mut observer,
             |tenant_id, scope| {
                 assert_eq!(tenant_id, Some("tenant-id"));
                 assert_eq!(scope, "api://example/.default");
@@ -520,11 +651,13 @@ mod tests {
     #[test]
     fn execute_continues_when_azure_scope_is_missing() {
         let output_folder = temp_output_dir("azure-auth-missing-scope");
+        let mut observer = super::NoopExecutionObserver;
         let summary = execute_with(
             CliArgs {
                 azure_tenant_id: Some("tenant-id".to_string()),
                 ..petstore_args(output_folder)
             },
+            &mut observer,
             |_tenant_id, _scope| panic!("token provider should not run without a scope"),
         )
         .unwrap();
@@ -538,5 +671,35 @@ mod tests {
         );
 
         cleanup(&summary);
+    }
+
+    #[test]
+    fn should_attempt_azure_auth_only_when_scope_or_tenant_is_present_without_header() {
+        let mut args = CliArgs {
+            open_api_path: None,
+            output_folder: "./".to_string(),
+            no_logging: false,
+            skip_validation: false,
+            authorization_header: None,
+            authorization_header_from_environment_variable: false,
+            authorization_header_variable_name: "authorization".to_string(),
+            content_type: "application/json".to_string(),
+            base_url: None,
+            output_type: super::args::OutputTypeArg::OneRequestPerFile,
+            azure_scope: None,
+            azure_tenant_id: None,
+            timeout: 120,
+            generate_intellij_tests: false,
+            custom_headers: Vec::new(),
+            skip_headers: false,
+        };
+
+        assert!(!should_attempt_azure_auth(&args));
+
+        args.azure_scope = Some("api://example/.default".to_string());
+        assert!(should_attempt_azure_auth(&args));
+
+        args.authorization_header = Some("Bearer token".to_string());
+        assert!(!should_attempt_azure_auth(&args));
     }
 }
