@@ -45,6 +45,17 @@ HTTP File Generator generates `.http` files from OpenAPI specs. Core logic is in
 
 ## Learnings — Recent
 
+### CLI Surface Parity Audit: C# Spectre vs Rust clap (2026-04-08)
+
+- **User preference:** Christian wants the Rust CLI surface to align with the legacy C# CLI and, if possible, reach full feature parity for banners, colors, ASCII/Unicode chrome, and status output.
+- **Primary rich-output oracle:** `src\HttpGenerator\GenerateCommand.cs` owns the legacy Spectre.Console UX (panels, rules, tables, colors, emojis, link rendering, success/error formatting). `src\HttpGenerator\Program.cs` and `src\HttpGenerator\Settings.cs` define the public help/version/examples surface.
+- **Primary Rust CLI surface:** `crates\httpgenerator-cli\src\args.rs` owns parsing/help text, `crates\httpgenerator-cli\src\main.rs` owns user-visible stdout/stderr, `crates\httpgenerator-cli\src\lib.rs` owns execution flow, and `crates\httpgenerator-cli\tests\help_contract.rs` hard-locks the current plain-text output contract.
+- **Architecture constraint learned:** the Rust CLI currently renders from `main.rs` *after* `execute()` returns a summary, so Azure-auth and file-writing messages are post-facto and cannot become real progress/prologue output without introducing an event/reporting abstraction in `crates\httpgenerator-cli`.
+- **Validation parity gap:** the .NET CLI now validates OpenAPI 3.1 successfully (`src\HttpGenerator.Tests\GenerateCommandTests.cs` and direct runtime check), while Rust still rejects 3.1 in `crates\httpgenerator-cli\src\lib.rs` and `crates\httpgenerator-openapi\src\inspect.rs` unless `--skip-validation` is used.
+- **Stats parity gap:** C# statistics come from `src\HttpGenerator\Validation\OpenApiStats.cs` via `OpenApiWalker`, while Rust uses manual raw-JSON counting in `crates\httpgenerator-openapi\src\inspect.rs`; this already shows concrete petstore drift (`Request Bodies 9 vs 7`, `Schemas 73 vs 109`).
+- **Host integration constraint:** VS Code (`src\VSCode\src\extension.ts`) runs the Rust CLI in an interactive terminal, so rich ANSI/Unicode output is welcome there. Visual Studio (`src\HttpGenerator.VSIX\HttpGeneratorCli.cs`) captures stdout/stderr and only surfaces failures as plain text, so any parity work must keep a redirected/plain-safe mode.
+- **Coverage constraint:** `crates\httpgenerator-compat\src\runner.rs` and `crates\httpgenerator-compat\tests\differential_petstore.rs` compare generated files, not CLI UI/output. CLI parity work needs its own Rust-side output tests in addition to existing generator parity checks.
+
 ### Second Implementation Batch: Issues #329, #330, #331 Kickoff (2026-03-20)
 
 #### Issue #329 (deps-003): Spectre.Console.Cli 0.53.0 → 0.53.1
