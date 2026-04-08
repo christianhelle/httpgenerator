@@ -63,7 +63,7 @@ public partial class GenerateDialog : Form
 
     private async Task GenerateFilesAsync()
     {
-        await HttpGeneratorCli.GenerateAsync(
+        var warning = await HttpGeneratorCli.GenerateAsync(
             new HttpGeneratorCliOptions
             {
                 OpenApiPath = txtOpenApiFile.Text,
@@ -77,6 +77,16 @@ public partial class GenerateDialog : Form
                     ? "OneRequestPerFile"
                     : "OneFile",
             });
+
+        if (!string.IsNullOrWhiteSpace(warning))
+        {
+            MessageBox.Show(
+                warning,
+                "Generation completed with warnings",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button1);
+        }
     }
 
     private void btnAzureAccessToken_Click(object sender, EventArgs e)
