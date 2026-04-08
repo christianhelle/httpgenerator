@@ -2,7 +2,15 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.1-preview.17...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.1.0-preview.18...HEAD)
+
+**Merged pull requests:**
+
+- chore\(deps\): update dependency microsoft.net.test.sdk to 18.4.0 [\#359](https://github.com/christianhelle/httpgenerator/pull/359) ([renovate[bot]](https://github.com/apps/renovate))
+
+## [1.1.0-preview.18](https://github.com/christianhelle/httpgenerator/tree/1.1.0-preview.18) (2026-03-21)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.0.1-preview.17...1.1.0-preview.18)
 
 **Implemented enhancements:**
 
