@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using HttpGenerator.Tests.Resources;
 using Spectre.Console.Cli;
+using System.Reflection;
 using Inline = Atc.Test.InlineAutoNSubstituteDataAttribute;
 
 namespace HttpGenerator.Tests;
@@ -44,7 +45,7 @@ public class GenerateCommandTests
         settings.OpenApiPath = await TestFile.CreateSwaggerFile(json, filename);
         settings.NoLogging = true;
 
-        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
+        (await InvokeExecuteAsync(sut, context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -69,7 +70,7 @@ public class GenerateCommandTests
         settings.NoLogging = true;
         settings.SkipValidation = true;
 
-        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
+        (await InvokeExecuteAsync(sut, context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -94,7 +95,7 @@ public class GenerateCommandTests
         settings.NoLogging = true;
         settings.SkipValidation = false;
 
-        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
+        (await InvokeExecuteAsync(sut, context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -117,7 +118,7 @@ public class GenerateCommandTests
         settings.OpenApiPath = url;
         settings.NoLogging = true;
 
-        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
+        (await InvokeExecuteAsync(sut, context, settings, TestContext.Current.CancellationToken))
             .Should()
             .Be(0);
     }
@@ -133,8 +134,19 @@ public class GenerateCommandTests
         settings.OpenApiPath = url;
         settings.NoLogging = true;
 
-        (await sut.ExecuteAsync(context, settings, TestContext.Current.CancellationToken))
+        (await InvokeExecuteAsync(sut, context, settings, TestContext.Current.CancellationToken))
             .Should()
             .NotBe(0);
+    }
+    private static async Task<int> InvokeExecuteAsync(
+        GenerateCommand command,
+        CommandContext context,
+        Settings settings,
+        CancellationToken cancellationToken)
+    {
+        var method = typeof(GenerateCommand).GetMethod(
+            "ExecuteAsync",
+            BindingFlags.Instance | BindingFlags.NonPublic)!;
+        return await (Task<int>)method.Invoke(command, new object[] { context, settings, cancellationToken })!;
     }
 }
