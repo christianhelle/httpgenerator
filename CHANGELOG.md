@@ -6,7 +6,12 @@
 
 **Merged pull requests:**
 
+- Upgrade Spectre.Console.Cli from 0.53.1 to 0.55.0 [\#363](https://github.com/christianhelle/httpgenerator/pull/363) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update actions/github-script action to v9 [\#362](https://github.com/christianhelle/httpgenerator/pull/362) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.net.test.sdk to 18.4.0 [\#359](https://github.com/christianhelle/httpgenerator/pull/359) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/configure-pages action to v6 [\#355](https://github.com/christianhelle/httpgenerator/pull/355) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update codecov/codecov-action action to v6 [\#354](https://github.com/christianhelle/httpgenerator/pull/354) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/deploy-pages action to v5 [\#353](https://github.com/christianhelle/httpgenerator/pull/353) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [1.1.0-preview.18](https://github.com/christianhelle/httpgenerator/tree/1.1.0-preview.18) (2026-03-21)
 
