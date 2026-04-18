@@ -6,6 +6,8 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency @types/vscode to v1.116.0 [\#366](https://github.com/christianhelle/httpgenerator/pull/366) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update actions/upload-pages-artifact action to v5 [\#364](https://github.com/christianhelle/httpgenerator/pull/364) ([renovate[bot]](https://github.com/apps/renovate))
 - Upgrade Spectre.Console.Cli from 0.53.1 to 0.55.0 [\#363](https://github.com/christianhelle/httpgenerator/pull/363) ([christianhelle](https://github.com/christianhelle))
 - chore\(deps\): update actions/github-script action to v9 [\#362](https://github.com/christianhelle/httpgenerator/pull/362) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency @types/vscode to v1.115.0 [\#360](https://github.com/christianhelle/httpgenerator/pull/360) ([renovate[bot]](https://github.com/apps/renovate))
