@@ -34,9 +34,9 @@ function Generate {
         $production = $false
     )
 
-    $app = "./bin/httpgenerator"
+    $app = Get-HttpGeneratorPath
     if ($production) {
-        $app = "httpgenerator"
+        $app = Get-HttpGeneratorPath
     }
 
     Write-Host "$app ./openapi.$format --output ./Generated/$output --no-logging $args"
@@ -96,9 +96,9 @@ function GenerateWithSpecificArgs {
         $production = $false
     )
 
-    $app = "./bin/httpgenerator"
+    $app = Get-HttpGeneratorPath
     if ($production) {
-        $app = "httpgenerator"
+        $app = Get-HttpGeneratorPath
     }
 
     Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args"
@@ -111,6 +111,45 @@ function GenerateWithSpecificArgs {
     if ($process.ExitCode -ne 0) {
         throw "HttpGenerator failed with args: $args"
     }
+}
+
+function Get-HttpGeneratorPath {
+    if ($IsWindows) {
+        return ".\bin\httpgenerator.exe"
+    }
+
+    return "./bin/httpgenerator"
+}
+
+function Build-HttpGenerator {
+    param (
+        [Parameter(Mandatory=$false)]
+        [bool]
+        $Production = $false
+    )
+
+    if (Test-Path "./bin") {
+        Remove-Item -Recurse -Force "./bin"
+    }
+    New-Item -ItemType Directory -Force "./bin" | Out-Null
+
+    if ($Production -eq $true) {
+        Write-Host "cargo install httpgenerator --root . --force"
+        cargo install httpgenerator --root . --force
+        ThrowOnNativeFailure
+        return
+    }
+
+    Write-Host "cargo build --release --manifest-path ../Cargo.toml"
+    cargo build --release --manifest-path ../Cargo.toml
+    ThrowOnNativeFailure
+
+    $binaryName = "httpgenerator"
+    if ($IsWindows) {
+        $binaryName = "httpgenerator.exe"
+    }
+
+    Copy-Item "../target/release/$binaryName" "./bin/$binaryName"
 }
 
 function RunTests {
@@ -148,12 +187,7 @@ function RunTests {
 
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
  
-    if ($Production -eq $true) {
-        dotnet tool update -g HttpGenerator --prerelease
-    } else {
-        Write-Host "dotnet publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin"
-        Start-Process "dotnet" -Args "publish ../src/HttpGenerator/HttpGenerator.csproj -p:TreatWarningsAsErrors=false -p:PublishReadyToRun=true -o bin" -NoNewWindow -PassThru | Wait-Process
-    }
+    Build-HttpGenerator -Production $Production
 
     "v2.0", "v3.0", "v3.1" | ForEach-Object {
         $version = $_

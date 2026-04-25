@@ -1,4 +1,4 @@
 #!/bin/bash
 
-pwsh smoke-tests.ps1
+pwsh -NoProfile -File smoke-tests.ps1
 
