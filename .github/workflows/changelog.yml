@@ -6,8 +6,9 @@ on:
     paths-ignore:
       - '**/*'
       - '!.github/workflows/changelog.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - '!Cargo.toml'
+      - '!Cargo.lock'
+      - '!src/**/*.rs'
     branches:
       - 'main' 
 

@@ -17,7 +17,7 @@ jobs:
   
   test:
 
-    name: ${{ inputs.openapi }}.${{ inputs.format }} (${{ inputs.version }}) ${{ inputs.os }}
+    name: ${{ inputs.openapi }} (${{ inputs.os }})
     runs-on: ${{ inputs.os }}
     timeout-minutes: 10
 
@@ -25,9 +25,12 @@ jobs:
     - name: 🛒 Checkout repository
       uses: actions/checkout@v6
       
-    - uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '8.0.x'
+    - name: 🦀 Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: 📦 Cache Cargo
+      uses: Swatinem/rust-cache@v3
+    - name: 🛠️ Build
+      run: cargo build --release --locked
 
     - name: 🛠️ Generate code
       run: ${{ inputs.command }} "${{ inputs.openapi }}" --no-logging

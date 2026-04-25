@@ -23,6 +23,10 @@ jobs:
     steps:
     - name: 🛒 Checkout repository
       uses: actions/checkout@v6
+    - name: 🦀 Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: 📦 Cache Cargo
+      uses: Swatinem/rust-cache@v3
     - name: 🛠️ Run Smoke Test (Production)
       run: ./smoke-tests.ps1 -Production
       working-directory: test

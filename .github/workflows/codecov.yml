@@ -6,53 +6,47 @@ on:
     paths-ignore:
       - '**/*'
       - '!.github/workflows/codecov.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - '!Cargo.toml'
+      - '!Cargo.lock'
+      - '!src/**/*.rs'
     branches:
       - '*'
   pull_request:
     paths-ignore:
       - '**/*'
       - '!.github/workflows/codecov.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - '!Cargo.toml'
+      - '!Cargo.lock'
+      - '!src/**/*.rs'
     branches:
       - '*'
-
-env:
-  VERSION: 1.0.0.${{ github.run_number }}
-  CODECOV_TOKEN: 62284a15-ac3f-48bb-81c5-1204e3a8b66c
 
 jobs:
   build:
     name: 👌 Verify build
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
     
     - name: 🛒 Checkout repository
       uses: actions/checkout@v6
 
-    - uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: '8.0.x'    
-    
-    - name: 🧪 Test
-      run: dotnet test src/HttpGenerator.Tests/HttpGenerator.Tests.csproj -c Release --collect "XPlat Code coverage" -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}"
-    
-    - name: 🗳️ Upload
-      uses: actions/upload-artifact@v7
-      with:
-        name: Packages
-        path: |
-          **/*.nupkg
-          README.md
+    - name: 🦀 Install Rust
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: 📦 Cache Cargo
+      uses: Swatinem/rust-cache@v3
+
+    - name: 🧪 Generate coverage
+      uses: taiki-e/install-action@cargo-llvm-cov
+
+    - name: 🧪 Test with coverage
+      run: cargo llvm-cov --locked --lcov --output-path lcov.info
 
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v6
       with:
-        directory: src
-        files: '**/coverage.cobertura.xml'
+        files: lcov.info
         flags: unittests
         fail_ci_if_error: true
         verbose: true

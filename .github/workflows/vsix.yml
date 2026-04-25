@@ -6,8 +6,8 @@ on:
     paths-ignore:
       - '**/*'
       - '!.github/workflows/vsix.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - '!legacy/src/**/*.csproj'
+      - '!legacy/src/**/*.cs'
     branches:
       - '*'
   pull_request:
@@ -29,7 +29,7 @@ jobs:
       run: |
         ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
         ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
-      working-directory: src
+      working-directory: legacy/src
       shell: pwsh
 
     - name: Setup MSBuild.exe
@@ -37,15 +37,15 @@ jobs:
 
     - name: Restore
       run: msbuild VSIX.sln -t:Restore
-      working-directory: src
+      working-directory: legacy/src
 
     - name: Build
       run: msbuild VSIX.sln /property:Configuration=Release /p:DeployExtension=false
-      working-directory: src
+      working-directory: legacy/src
 
     - name: Move build output
       run: |
-        mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
+        mv legacy/src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
 
     - name: Publish artifacts
       uses: actions/upload-artifact@v7

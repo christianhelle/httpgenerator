@@ -6,21 +6,20 @@ on:
     paths-ignore:
       - "**/*"
       - "!.github/workflows/build.yml"
-      - "!src/**/*.csproj"
-      - "!src/**/*.cs"
+      - "!Cargo.toml"
+      - "!Cargo.lock"
+      - "!src/**/*.rs"
     branches:
       - "*"
   pull_request:
     paths-ignore:
       - "**/*"
       - "!.github/workflows/build.yml"
-      - "!src/**/*.csproj"
-      - "!src/**/*.cs"
+      - "!Cargo.toml"
+      - "!Cargo.lock"
+      - "!src/**/*.rs"
     branches:
       - "*"
-
-env:
-  VERSION: 1.1.0.${{ github.run_number }}
 
 jobs:
   build:
@@ -29,17 +28,18 @@ jobs:
     steps:
       - name: 🛒 Checkout repository
         uses: actions/checkout@v6
-      - uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "8.0.x"
+      - name: 🦀 Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      - name: 📦 Cache Cargo
+        uses: Swatinem/rust-cache@v3
       - name: 🛠️ Build
-        run: dotnet build -c Release HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+        run: cargo build --release --locked
       - name: 🧪 Test
-        run: dotnet test HttpGenerator.sln -c Release
+        run: cargo test --locked
       - name: 🗳️ Upload
         uses: actions/upload-artifact@v7
         with:
-          name: Packages
+          name: Binaries
           path: |
-            **/*.nupkg
+            target/release/httpgenerator
             README.md

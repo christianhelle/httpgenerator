@@ -5,8 +5,9 @@ on:
   push:
     paths-ignore:
       - "**/*"
-      - '!src/**/*.cs'
-      - '!src/**/*.csproj'
+      - '!Cargo.toml'
+      - '!Cargo.lock'
+      - '!src/**/*.rs'
       - "!.github/workflows/template.yml"
       - "!.github/workflows/template-url.yml"
       - "!.github/workflows/smoke-tests.yml"
@@ -15,8 +16,9 @@ on:
   pull_request:
     paths-ignore:
       - "**/*"
-      - '!src/**/*.cs'
-      - '!src/**/*.csproj'
+      - '!Cargo.toml'
+      - '!Cargo.lock'
+      - '!src/**/*.rs'
       - "!.github/workflows/template.yml"
       - "!.github/workflows/template-url.yml"
       - "!.github/workflows/smoke-tests.yml"
@@ -30,6 +32,10 @@ jobs:
     steps:
     - name: 🛒 Checkout repository
       uses: actions/checkout@v6
+    - name: 🦀 Install Rust
+      uses: dtolnay/rust-toolchain@stable
+    - name: 📦 Cache Cargo
+      uses: Swatinem/rust-cache@v3
     - name: 🛠️ Run Smoke Test
       run: ./smoke-tests.ps1
       working-directory: test
@@ -48,4 +54,4 @@ jobs:
     with:
       os: ${{ matrix.os }}
       openapi: ${{ matrix.openapi_url }}
-      command: 'dotnet run --project ../src/HttpGenerator/HttpGenerator.csproj'
+      command: '../target/release/httpgenerator'
