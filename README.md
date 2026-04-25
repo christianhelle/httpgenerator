@@ -9,7 +9,7 @@
 
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
 [![Smoke Tests](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml)
-[![NuGet](https://img.shields.io/nuget/v/httpgenerator?color=blue)](https://www.nuget.org/packages/httpgenerator)
+[![Crates.io](https://img.shields.io/crates/v/httpgenerator?color=blue)](https://crates.io/crates/httpgenerator)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=christianhelle_httpgenerator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=christianhelle_httpgenerator)
 [![codecov](https://codecov.io/gh/christianhelle/httpgenerator/graph/badge.svg?token=YeSFnn0bH6)](https://codecov.io/gh/christianhelle/httpgenerator)
 
@@ -21,12 +21,12 @@ Generate .http files from OpenAPI specifications
 
 ## Installation
 
-This is tool is distrubuted as a .NET Tool on NuGet.org
+This tool is implemented in Rust and distributed as a Cargo binary crate.
 
 To install, simply use the following command
 
 ```bash
-dotnet tool install --global httpgenerator
+cargo install httpgenerator
 ```
 
 ## Usage
@@ -113,6 +113,7 @@ Which will produce the following files:
 In this example, the contents of `PostAddPet.http` looks like this:
 
 ```sh
+@baseUrl = https://petstore3.swagger.io/api/v3
 @contentType = application/json
 
 #############################################
@@ -121,32 +122,20 @@ In this example, the contents of `PostAddPet.http` looks like this:
 ### Description: Add a new pet to the store
 #############################################
 
-POST https://petstore3.swagger.io/api/v3/pet
+POST {{baseUrl}}/pet
 Content-Type: {{contentType}}
 
 {
   "id": 0,
-  "name": "name",
-  "category": {
-    "id": 0,
-    "name": "name"
-  },
-  "photoUrls": [
-    ""
-  ],
-  "tags": [
-    {
-      "id": 0,
-      "name": "name"
-    }
-  ],
-  "status": "available"
+  "name": "example",
+  "category": {"property": "value"}
 }
 ```
 
 and the contents of `GetPetById.http` looks like this:
 
 ```sh
+@baseUrl = https://petstore3.swagger.io/api/v3
 @contentType = application/json
 
 #######################################
@@ -158,13 +147,14 @@ and the contents of `GetPetById.http` looks like this:
 ### Path Parameter: ID of pet to return
 @petId = 0
 
-GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
+GET {{baseUrl}}/pet/{{petId}}
 Content-Type: {{contentType}}
 ```
 
 with the `--generate-intellij-tests` option, the output looks like this:
 
 ```sh
+@baseUrl = https://petstore3.swagger.io/api/v3
 @contentType = application/json
 
 #######################################
@@ -174,9 +164,9 @@ with the `--generate-intellij-tests` option, the output looks like this:
 #######################################
 
 ### Path Parameter: ID of pet to return
-@petId = 1
+@petId = 0
 
-GET https://petstore3.swagger.io/api/v3/pet/{{petId}}
+GET {{baseUrl}}/pet/{{petId}}
 Content-Type: {{contentType}}
 
 > {%
@@ -202,7 +192,7 @@ az account get-access-token --scope [Some Application ID URI]/.default `
 }
 ```
 
-You can also use the `--azure-scope` and `azure-tenant-id` arguments internally use `DefaultAzureCredentials` from the `Microsoft.Extensions.Azure` NuGet package to retrieve an access token for the specified `scope`.
+You can also use the `--azure-scope` and `azure-tenant-id` arguments to ask the CLI to retrieve an access token for the specified `scope` using the Azure CLI.
 
 ```powershell
 httpgenerator `
@@ -214,32 +204,20 @@ httpgenerator `
 
 ### Error Logging, Telemetry, and Privacy
 
-This tool collects errors and tracks features usages to service called [Exceptionless](https://exceptionless.com/)
+The Rust CLI does not send telemetry or error logs to third-party services. The `--no-logging` option is retained for command-line compatibility with earlier versions.
 
-By default, error logging and telemetry collection is enabled but it is possible to **opt-out** by using the `--no-logging` CLI argument.
-
-User tracking is done anonymously using the **Support key** shown when running the tool and a generated anonymous identity based on a secure hash algorithm of username@host.
+The **Support key** shown when running the tool is generated locally from a secure hash of username@host and is intended only as a diagnostic identifier if you choose to share it.
 
 ```sh
 HTTP File Generator v0.1.5
 Support key: mbmbqvd
 ```
 
-The support key is just the first 7 characters of the generated anonymous identity
-
-![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-overview.png)
-
-![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-exception.png)
-
-The `--authorization-header` value is **`[REDACTED]`** and the same goes for all personal identifiable information like the IP address, machine name, and file system folders
-
-![Exceptionless](https://github.com/christianhelle/httpgenerator/raw/main/images/exceptionless-environment.png)
-
-It's important to know that no **support key** will be generated if you opt-out from telemetry collection and that the Exceptionless SDK will be completely disabled.
+The support key is just the first 7 characters of the generated anonymous identity. No support key is shown when `--no-logging` is used.
 
 ### Visual Studio 2022 Extension
 
-This tool is also available as a [Visual Studio 2022 extension](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.HttpGenerator)
+The previous .NET CLI, core library, tests, and Visual Studio 2022 extension source are preserved under `legacy/`. The active CLI is the Rust implementation in the repository root.
 
 From the **Tools** menu select **Generate .http files**
 

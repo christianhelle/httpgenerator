@@ -26,8 +26,9 @@ Before contributing, please:
 
 ### Prerequisites
 
-- **.NET 8.0 SDK** or later
-- **Visual Studio 2022**, **VS Code**, or **JetBrains Rider**
+- **Rust stable toolchain** (`rustup`, `cargo`, `rustc`)
+- **PowerShell Core (`pwsh`)** for smoke tests
+- **VS Code**, **JetBrains Rider**, or another Rust-capable editor
 - **Git** for version control
 
 ### Setting Up the Development Environment
@@ -38,129 +39,113 @@ Before contributing, please:
    cd httpgenerator
    ```
 
-2. Restore dependencies and build:
+2. Build:
    ```bash
-   dotnet restore
-   dotnet build --configuration Release
+   cargo build --release
    ```
 
 3. Run tests to ensure everything works:
    ```bash
-   dotnet test --configuration Release
+   cargo test
    ```
 
 ### Project Structure
 
 ```
 src/
-├── HttpGenerator/              # CLI application
-├── HttpGenerator.Core/         # Core library with generation logic
-├── HttpGenerator.Tests/        # Unit and integration tests
-├── HttpGenerator.VSIX/         # Visual Studio extension
+├── main.rs                     # CLI application entry point
+├── cli.rs                      # Command-line argument model
+├── generator.rs                # Core .http generation logic
+├── naming.rs                   # Operation and variable naming helpers
+├── openapi.rs                  # OpenAPI loading, parsing, and statistics
 └── VSCode/                     # VS Code extension
+
+legacy/
+├── HttpGenerator.sln           # Previous .NET solution
+└── src/                        # Previous .NET CLI, core library, tests, and VSIX source
 ```
 
 ## Code Patterns and Style
 
 **Use the existing code patterns consistently** throughout the codebase. Here are the key patterns to follow:
 
-### General C# Guidelines
+### General Rust Guidelines
 
-- **Target Framework**: Use .NET Standard 2.0 for libraries, .NET 8.0 for applications
-- **Nullable Reference Types**: Enabled - use nullable annotations appropriately
-- **File-scoped namespaces**: Use file-scoped namespace declarations (`namespace HttpGenerator.Core;`)
-- **Top-level statements**: Use in Program.cs where appropriate
+- Use stable Rust and keep the crate compatible with the current stable toolchain
+- Run `cargo fmt` before committing
+- Prefer explicit error context with `anyhow::Context`
+- Preserve the existing CLI and generated `.http` output contract unless a change is intentional and documented
 
 ### Naming Conventions
 
-- **Classes**: PascalCase (`HttpFileGenerator`, `GeneratorSettings`)
-- **Methods**: PascalCase (`GenerateAsync`, `CreateFromFile`)
-- **Properties**: PascalCase (`BaseUrl`, `OutputType`)
-- **Fields**: camelCase with underscore prefix for private fields (`_httpClient`)
-- **Parameters**: camelCase (`settings`, `document`)
-- **Local variables**: camelCase (`generateCode`, `serverUrl`)
+- **Types and enum variants**: PascalCase (`GeneratorSettings`, `OutputType`)
+- **Functions, modules, variables**: snake_case (`generate`, `openapi_path`)
+- **Constants**: SCREAMING_SNAKE_CASE when needed
 
 ### Code Organization
 
-- **Static classes** for utility functions (e.g., `HttpFileGenerator`, `OpenApiDocumentFactory`)
-- **Extension methods** in dedicated classes (e.g., `StringExtensions`)
-- **Async/await patterns** for I/O operations
-- **Factory patterns** for object creation (e.g., `OpenApiDocumentFactory`)
+- Keep CLI parsing in `src/cli.rs`
+- Keep OpenAPI loading/statistics in `src/openapi.rs`
+- Keep generation behavior in `src/generator.rs`
+- Keep naming transformations in `src/naming.rs`
 
 ### Example Code Pattern
 
-```csharp
-namespace HttpGenerator.Core;
-
-public static class HttpFileGenerator
-{
-    public static async Task<GeneratorResult> Generate(GeneratorSettings settings)
-    {
-        var document = await OpenApiDocumentFactory.CreateAsync(settings.OpenApiPath);
-        
-        return settings.OutputType switch
-        {
-            OutputType.OneRequestPerFile => GenerateMultipleFiles(settings, document),
-            OutputType.OneFile => GenerateSingleFile(settings, document),
-            OutputType.OneFilePerTag => GenerateFilePerTag(settings, document),
-            _ => throw new ArgumentOutOfRangeException(nameof(settings.OutputType))
-        };
+```rust
+pub fn generate(settings: &GeneratorSettings, document: &Document) -> anyhow::Result<Vec<HttpFile>> {
+    match settings.output_type {
+        OutputType::OneRequestPerFile => generate_multiple_files(settings, document),
+        OutputType::OneFile => Ok(vec![HttpFile {
+            filename: "Requests.http".to_string(),
+            content: generate_single_file(settings, document)?,
+        }]),
+        OutputType::OneFilePerTag => generate_file_per_tag(settings, document),
     }
 }
 ```
 
 ### Error Handling
 
-- Use **meaningful exceptions** with descriptive messages
-- Implement **validation** at public API boundaries
-- Use **Result patterns** where appropriate for error handling
-- Follow existing patterns in `OpenApiValidator` and `GenerateCommand`
+- Return `Result` from fallible operations
+- Add context to file, network, parse, and write errors
+- Do not silently ignore malformed input
 
 ### Dependencies
 
-- **Minimize external dependencies** - only add what's absolutely necessary
-- Use **Microsoft.Extensions.*** packages for dependency injection, logging, etc.
-- Follow existing patterns with **NSwag** and **Microsoft.OpenApi** libraries
+- **Minimize external dependencies** - only add what's necessary
+- Prefer widely used crates for CLI, HTTP, parsing, and test support
 
 ## Testing Guidelines
 
 ### Test Structure
 
-- **Unit tests** in `HttpGenerator.Tests` project
-- **Test classes** should mirror the structure of the code being tested
-- **Theory/InlineData** for parameterized tests (follow `SwaggerPetstoreTests` pattern)
+- **Unit tests** live beside the Rust modules under `src/`
+- Tests should cover generation output shape and edge cases from the legacy .NET suite
+- Add smoke-test coverage for end-to-end CLI scenarios when behavior changes
 
 ### Testing Patterns
 
-```csharp
-[Theory]
-[InlineData(Samples.PetstoreJsonV3, "SwaggerPetstore.json", OutputType.OneRequestPerFile)]
-[InlineData(Samples.PetstoreYamlV3, "SwaggerPetstore.yaml", OutputType.OneFile)]
-public async Task Can_Generate_Code(Samples version, string filename, OutputType outputType)
-{
-    var generateCode = await GenerateCode(version, filename, outputType);
+```rust
+#[test]
+fn generates_one_file_with_qualified_parameters() {
+    let files = generate(&settings(OutputType::OneFile), &document()).unwrap();
 
-    using var scope = new AssertionScope();
-    generateCode.Should().NotBeNull();
-    generateCode.Files.Should().NotBeNullOrEmpty();
-    generateCode.Files
-        .All(file => file.Content.Contains("client.assert"))
-        .Should()
-        .BeTrue();
+    assert_eq!(files[0].filename, "Requests.http");
+    assert!(files[0].content.contains("@GetPet_id = 0"));
 }
 ```
 
 ### Test Requirements
 
 - **All new functionality** must include comprehensive tests
-- **Use FluentAssertions** for readable assertions
+- **Use clear assertions** that verify generated filenames and `.http` content
 - **Test both success and failure scenarios**
 - **Include edge cases** and boundary conditions
 - **Maintain high code coverage** (current coverage is maintained via CodeCov)
 
 ### Sample Data
 
-- Add new test samples to `HttpGenerator.Tests/Resources/Samples.cs`
+- Add focused Rust unit tests beside the module under test
 - Place sample OpenAPI files in the `test/OpenAPI/` directory
 - Follow existing naming patterns for consistency
 
@@ -180,7 +165,7 @@ When making changes that affect users:
 
 ### Code Documentation
 
-- **XML documentation** for public APIs
+- **Rustdoc documentation** for public APIs when the behavior is not obvious
 - **Inline comments** for complex business logic
 - **README files** in individual projects when appropriate
 - **Update CHANGELOG.md** following existing format
@@ -201,7 +186,7 @@ When making changes that affect users:
 Use clear, descriptive titles:
 - `feat: Add support for OpenAPI 3.1 specifications`
 - `fix: Handle empty response schemas correctly`
-- `docs: Update installation instructions for .NET 8`
+- `docs: Update installation instructions for Cargo`
 - `test: Add integration tests for Azure authentication`
 
 ### Required PR Description Content

@@ -1,6 +1,6 @@
 {
-	"name": "C# (.NET)",
-	"image": "mcr.microsoft.com/devcontainers/dotnet",
+	"name": "Rust",
+	"image": "mcr.microsoft.com/devcontainers/rust",
 	"features": {
 		"ghcr.io/devcontainers/features/powershell:2": {}
 	}
