@@ -11,7 +11,7 @@ on:
       - ".github/workflows/template.yml"
       - "Cargo.toml"
       - "Cargo.lock"
-      - "crates/**"
+      - "src/rust/**"
       - "test/**"
   pull_request:
     branches:
@@ -22,7 +22,7 @@ on:
       - ".github/workflows/template.yml"
       - "Cargo.toml"
       - "Cargo.lock"
-      - "crates/**"
+      - "src/rust/**"
       - "test/**"
 
 jobs:

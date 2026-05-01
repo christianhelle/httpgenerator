@@ -6,14 +6,14 @@ on:
     paths-ignore:
       - '**/*'
       - '!.github/workflows/codecov.yml'
-      - '!legacy/**'
+      - '!src/dotnet/**'
     branches:
       - '*'
   pull_request:
     paths-ignore:
       - '**/*'
       - '!.github/workflows/codecov.yml'
-      - '!legacy/**'
+      - '!src/dotnet/**'
     branches:
       - '*'
 
@@ -36,7 +36,7 @@ jobs:
         dotnet-version: '8.0.x'    
     
     - name: 🧪 Test
-      run: dotnet test legacy/HttpGenerator.Tests/HttpGenerator.Tests.csproj -c Release --collect "XPlat Code coverage" -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}"
+      run: dotnet test src/dotnet/HttpGenerator.Tests/HttpGenerator.Tests.csproj -c Release --collect "XPlat Code coverage" -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}"
     
     - name: 🗳️ Upload
       uses: actions/upload-artifact@v7
@@ -49,7 +49,7 @@ jobs:
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v6
       with:
-        directory: legacy
+        directory: src/dotnet
         files: '**/coverage.cobertura.xml'
         flags: unittests
         fail_ci_if_error: true

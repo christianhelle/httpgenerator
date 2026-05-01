@@ -3,17 +3,17 @@ all: build
 
 # Build target
 build:
-	dotnet build --configuration Debug legacy\HttpGenerator.sln
+	dotnet build --configuration Debug src\dotnet\HttpGenerator.sln
 
 # Optional release build target
 release:
-	dotnet build --configuration Release legacy\HttpGenerator.sln
+	dotnet build --configuration Release src\dotnet\HttpGenerator.sln
 
 # Test target
 test:
-	dotnet test --configuration Debug legacy\HttpGenerator.sln
+	dotnet test --configuration Debug src\dotnet\HttpGenerator.sln
 
 # Clean target
 clean:
-	dotnet clean legacy\HttpGenerator.sln
+	dotnet clean src\dotnet\HttpGenerator.sln
 

@@ -101,7 +101,7 @@ internal static class HttpGeneratorCli
     private static IEnumerable<string> LocalExecutableCandidates()
     {
         var baseDirectory = AppDomain.CurrentDomain.BaseDirectory;
-        var repoRoot = Path.GetFullPath(Path.Combine(baseDirectory, "..", "..", "..", ".."));
+        var repoRoot = Path.GetFullPath(Path.Combine(baseDirectory, "..", "..", "..", "..", ".."));
 
         yield return Path.Combine(baseDirectory, ExecutableName);
         yield return Path.Combine(baseDirectory, "bin", ExecutableName);

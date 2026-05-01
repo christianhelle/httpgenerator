@@ -5,7 +5,7 @@
         "internalName": "httpgenerator",
         "tags": [ "OpenAPI", "Swagger", "REST Cient", "Code Generator" ]
     },
-    "overview": "../docs/Marketplace.md",
+    "overview": "../../docs/Marketplace.md",
     "priceCategory": "free",
     "publisher": "ChristianResmaHelle",
     "private": false,

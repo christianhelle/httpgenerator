@@ -5,7 +5,7 @@ on:
     paths:
       - "Cargo.toml"
       - "Cargo.lock"
-      - "crates/**"
+      - "src/rust/**"
       - "src/VSCode/**"
       - ".github/workflows/vscode.yml"
   workflow_dispatch:

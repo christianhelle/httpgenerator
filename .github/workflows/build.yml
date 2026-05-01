@@ -9,8 +9,8 @@ on:
       - ".github/workflows/build.yml"
       - "Cargo.toml"
       - "Cargo.lock"
-      - "crates/**"
-      - "legacy/**"
+      - "src/rust/**"
+      - "src/dotnet/**"
       - "src/VSCode/**"
       - "test/**"
   pull_request:
@@ -20,8 +20,8 @@ on:
       - ".github/workflows/build.yml"
       - "Cargo.toml"
       - "Cargo.lock"
-      - "crates/**"
-      - "legacy/**"
+      - "src/rust/**"
+      - "src/dotnet/**"
       - "src/VSCode/**"
       - "test/**"
 
@@ -30,7 +30,7 @@ env:
 
 jobs:
   cli:
-    name: Rust CLI and legacy solution
+    name: Rust CLI and .NET solution
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -47,11 +47,11 @@ jobs:
       - name: Run Rust tests
         run: cargo test
 
-      - name: Build legacy solution
-        run: dotnet build -c Release legacy\HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+      - name: Build .NET solution
+        run: dotnet build -c Release src\dotnet\HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
 
-      - name: Test legacy solution
-        run: dotnet test legacy\HttpGenerator.sln -c Release
+      - name: Test .NET solution
+        run: dotnet test src\dotnet\HttpGenerator.sln -c Release
 
   vscode:
     name: VS Code extension
@@ -84,7 +84,7 @@ jobs:
         uses: microsoft/setup-msbuild@v3
 
       - name: Restore
-        run: msbuild legacy\VSIX.sln -t:Restore
+        run: msbuild src\dotnet\VSIX.sln -t:Restore
 
       - name: Build
-        run: msbuild legacy\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
+        run: msbuild src\dotnet\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
