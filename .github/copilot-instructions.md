@@ -1,6 +1,6 @@
 # HTTP File Generator
 
-HTTP File Generator is now a Rust-first CLI and compatibility-host repository. The Rust workspace under `crates/` is the primary implementation. The .NET projects under `legacy/HttpGenerator*` remain in the repo as the legacy oracle and thin host surfaces during the migration.
+HTTP File Generator is now a Rust-first CLI and compatibility-host repository. The Rust workspace under `src/rust/` is the primary implementation. The .NET projects under `src/dotnet/HttpGenerator*` remain in the repo as the legacy oracle and thin host surfaces during the migration.
 
 Always reference these instructions first and fall back to deeper code search only when the current repo state differs from what is documented here.
 
@@ -13,21 +13,25 @@ Always reference these instructions first and fall back to deeper code search on
   - `cargo test`
   - `cargo run -q -p httpgenerator-cli -- test\OpenAPI\v3.0\petstore.json --output <dir> --no-logging`
 - .NET oracle validation:
-  - `dotnet restore legacy\HttpGenerator.sln`
-  - `dotnet build legacy\HttpGenerator.sln --configuration Release`
-  - `dotnet test legacy\HttpGenerator.sln --configuration Release`
+  - `dotnet restore src\dotnet\HttpGenerator.sln`
+  - `dotnet build src\dotnet\HttpGenerator.sln --configuration Release`
+  - `dotnet test src\dotnet\HttpGenerator.sln --configuration Release`
 - Smoke validation on Windows:
   - `test\smoke-tests.ps1`
 - VS Code packaging validation:
   - `src\VSCode\build.ps1`
+- Root entrypoints are preserved at the repository root:
+  - Use the root `Cargo.toml` / `Cargo.lock` for Cargo commands even though crates now live under `src\rust`
+  - Invoke `.NET` commands from the repo root against `src\dotnet\HttpGenerator.sln` / `src\dotnet\VSIX.sln`
+  - Invoke VS Code packaging from the repo root with `src\VSCode\build.ps1`
 
 ### Validation expectations
 
 Always validate generator-affecting changes with:
 
 1. `cargo test`
-2. `dotnet build legacy\HttpGenerator.sln --configuration Release`
-3. `dotnet test legacy\HttpGenerator.sln --configuration Release`
+2. `dotnet build src\dotnet\HttpGenerator.sln --configuration Release`
+3. `dotnet test src\dotnet\HttpGenerator.sln --configuration Release`
 4. `test\smoke-tests.ps1`
 
 Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI 3.1 scenarios still require `--skip-validation`.
@@ -36,31 +40,32 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 ### Primary implementation
 
-- `crates/httpgenerator-core` - normalized model and `.http` renderer
-- `crates/httpgenerator-openapi` - source loading, parsing, version detection, normalization
-- `crates/httpgenerator-cli` - Rust CLI surface
-- `crates/httpgenerator-compat` - differential and smoke compatibility harness
+- `src/rust/httpgenerator-core` - normalized model and `.http` renderer
+- `src/rust/httpgenerator-openapi` - source loading, parsing, version detection, normalization
+- `src/rust/httpgenerator-cli` - Rust CLI surface
+- `src/rust/httpgenerator-compat` - differential and smoke compatibility harness
 
 ### Compatibility surfaces
 
-- `legacy/HttpGenerator` - legacy .NET CLI oracle
-- `legacy/HttpGenerator.Core` - legacy .NET generation library
-- `legacy/HttpGenerator.Tests` - legacy .NET test suite
-- `legacy/HttpGenerator.VSIX` - Visual Studio host over `httpgenerator.exe`
+- `src/dotnet/HttpGenerator` - legacy .NET CLI oracle
+- `src/dotnet/HttpGenerator.Core` - legacy .NET generation library
+- `src/dotnet/HttpGenerator.Tests` - legacy .NET test suite
+- `src/dotnet/HttpGenerator.VSIX` - Visual Studio host over `httpgenerator.exe`
 - `src/VSCode` - VS Code host over the Rust CLI
+- Repo-root entrypoints remain in place (`Cargo.toml`, `Cargo.lock`, `Makefile`, `test\`, and `docs\`)
 
 ## Common Tasks
 
 ### Generator changes
 
-- Prefer editing Rust crates first.
-- Use `crates/httpgenerator-compat/tests/differential_petstore.rs` to catch byte-for-byte parity regressions against the .NET oracle.
+- Prefer editing Rust crates under `src/rust` first.
+- Use `src/rust/httpgenerator-compat/tests/differential_petstore.rs` to catch byte-for-byte parity regressions against the .NET oracle.
 
 ### CLI and host changes
 
-- Rust CLI entry point: `crates/httpgenerator-cli/src/lib.rs`
+- Rust CLI entry point: `src/rust/httpgenerator-cli/src/lib.rs`
 - VS Code executable setting: `http-file-generator.executablePath`
-- Visual Studio host resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, workspace `target\debug` / `target\release`, or `PATH`
+- Visual Studio host resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release`, or `PATH`
 
 ### Packaging and release
 
@@ -76,7 +81,7 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 - External URL tests can still fail in restricted environments. Prefer local fixtures.
 - OpenAPI 3.1 generation still requires `--skip-validation`.
-- Headless VSIX builds are environment-sensitive. If `legacy\VSIX.sln` fails with missing Visual Studio SDK/toolkit types, compare the failure to a clean baseline before treating it as a regression.
+- Headless VSIX builds are environment-sensitive. If `src\dotnet\VSIX.sln` fails with missing Visual Studio SDK/toolkit types, compare the failure to a clean baseline before treating it as a regression.
 
 ## Technology Stack
 

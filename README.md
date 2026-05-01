@@ -35,6 +35,13 @@ HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
 The legacy `.NET` CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.
 
+### Repository layout
+
+- `src\rust` contains the Rust workspace crates (`httpgenerator-cli`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`).
+- `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
+- `src\VSCode` contains the VS Code extension.
+- Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src\dotnet\*.sln`, and invoke VS Code packaging with `src\VSCode\build.ps1`.
+
 ## Usage
 
 ```text
@@ -239,7 +246,7 @@ No **support key** is generated when you opt out with `--no-logging`.
 
 The VS Code extension is now packaged per platform because it bundles the native Rust CLI.
 
-When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`.
+When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, repo-root workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`.
 
 ### Visual Studio 2022 Extension
 
@@ -251,7 +258,7 @@ From the **Tools** menu select **Generate .http files**
 
 This opens the main dialog which has similar input fields as the CLI tool and now shells out to the Rust `httpgenerator` executable.
 
-The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, workspace `target\debug` / `target\release` outputs during development, or `PATH`.
+The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, or `PATH`.
 
 ![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
 

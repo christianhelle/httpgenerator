@@ -2,6 +2,8 @@
 
 This directory contains the static documentation website for the HTTP File Generator project.
 
+The canonical source layout for the product now lives under `src\rust`, `src\dotnet`, and `src\VSCode`; this `docs/` folder remains a root-level documentation surface alongside the preserved repo-root build entrypoints.
+
 ## Files
 
 - `index.html` - Main documentation page with complete project information
@@ -37,6 +39,8 @@ python3 -m http.server 8080
 ```
 
 Then visit `http://localhost:8080`
+
+Build and packaging entrypoints for the product remain at the repository root (`Cargo.toml`, `src\dotnet\HttpGenerator.sln`, and `src\VSCode\build.ps1`), even though implementation sources now live under `src\`.
 
 ## Theme
 

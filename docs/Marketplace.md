@@ -12,7 +12,7 @@ From the **Tools** menu select **Generate .http files**
 
 This opens the main dialog which has similar input fields as the CLI tool and shells out to the Rust `httpgenerator.exe` executable.
 
-The extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, workspace `target\debug` / `target\release` outputs during development, or `PATH`.
+The extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, or `PATH`.
 
 ![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
 

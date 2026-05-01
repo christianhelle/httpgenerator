@@ -56,6 +56,7 @@
                     <li>Install the Visual Studio 2022 <code>.vsix</code>; it bundles <code>httpgenerator.exe</code>.</li>
                 </ul>
                 <p>The legacy .NET CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.</p>
+                <p>The canonical source layout is <code>src\rust</code>, <code>src\dotnet</code>, and <code>src\VSCode</code>. Root entrypoints stay at the repository root, so Cargo commands still run from the root <code>Cargo.toml</code>, .NET commands still target <code>src\dotnet\*.sln</code>, and VS Code packaging still runs through <code>src\VSCode\build.ps1</code>.</p>
             </section>
 
             <!-- Usage Section -->
@@ -246,7 +247,7 @@ Support key: mbmbqvd</code></pre>
                     <img src="images/vsix_httpgenerator_dialog.png" alt="Main dialog" class="screenshot">
                 </div>
 
-                <p>The Visual Studio extension resolves <code>httpgenerator.exe</code> from <code>HTTPGENERATOR_PATH</code>, the bundled VSIX payload, workspace <code>target\debug</code> / <code>target\release</code> outputs during development, or <code>PATH</code>.</p>
+                <p>The Visual Studio extension resolves <code>httpgenerator.exe</code> from <code>HTTPGENERATOR_PATH</code>, the bundled VSIX payload, repo-root workspace <code>target\debug</code> / <code>target\release</code> outputs during development, or <code>PATH</code>.</p>
 
                 <p>You can supply Azure Entra ID tenant and scope settings by clicking on the <code>...</code> button beside the <strong>Authorization Headers</strong> input field. The Rust CLI acquires the access token during generation.</p>
                 <div class="image-container">

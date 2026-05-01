@@ -4,17 +4,18 @@ This project contains the legacy .NET CLI kept in the repository as a compatibil
 
 ## Current product surface
 
-- **Primary CLI**: the Rust `httpgenerator` binary built from `crates/httpgenerator-cli`
+- **Primary CLI**: the Rust `httpgenerator` binary built from `src/rust/httpgenerator-cli`
 - **VS Code**: a thin host that resolves and invokes the Rust CLI
 - **Visual Studio 2022**: a thin VSIX host that shells out to `httpgenerator.exe`
 - **Release artifacts**: platform-specific Rust CLI archives, platform-targeted VS Code `.vsix` packages, and a bundled Visual Studio `.vsix`
+- **Canonical layout**: source now lives under `src\rust`, `src\dotnet`, and `src\VSCode`, while repo-root entrypoints remain stable for Cargo, .NET solution, and VS Code packaging commands
 
 ## When to use this project
 
 Use this .NET project when you need to compare legacy behavior against the Rust implementation or inspect the original command surface during migration work.
 
 ```powershell
-dotnet run --project legacy\HttpGenerator\HttpGenerator.csproj -- test\OpenAPI\v3.0\petstore.json --output .\HttpFiles --no-logging
+dotnet run --project src\dotnet\HttpGenerator\HttpGenerator.csproj -- test\OpenAPI\v3.0\petstore.json --output .\HttpFiles --no-logging
 ```
 
 ## Azure auth
@@ -27,4 +28,4 @@ The rewrite keeps redacted feature and error recording behind an internal teleme
 
 ## See also
 
-For current installation and user-facing usage guidance, see the repository root [README](../../README.md).
+For current installation and user-facing usage guidance, see the repository root [README](../../../README.md).
