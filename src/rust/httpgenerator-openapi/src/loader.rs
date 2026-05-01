@@ -215,7 +215,7 @@ mod tests {
     fn loads_webhook_only_openapi_thirty_one_documents_with_a_raw_fallback() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
-            include_str!("../../../test/OpenAPI/v3.1/webhook-example.json"),
+            include_str!("../../../../test/OpenAPI/v3.1/webhook-example.json"),
         )
         .unwrap();
 
@@ -236,7 +236,7 @@ mod tests {
     fn tolerant_loader_accepts_invalid_openapi_thirty_one_documents() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/non-oauth-scopes.json")),
-            include_str!("../../../test/OpenAPI/v3.1/non-oauth-scopes.json"),
+            include_str!("../../../../test/OpenAPI/v3.1/non-oauth-scopes.json"),
         )
         .unwrap();
 

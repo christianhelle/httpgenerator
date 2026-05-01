@@ -388,6 +388,7 @@ mod tests {
                 PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                     .join("..")
                     .join("..")
+                    .join("..")
                     .join("test")
                     .join("OpenAPI")
                     .join("v3.0")
@@ -406,6 +407,7 @@ mod tests {
                 PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                     .join("..")
                     .join("..")
+                    .join("..")
                     .join("test")
                     .join("OpenAPI")
                     .join("v3.1")
@@ -422,6 +424,7 @@ mod tests {
         CliArgs {
             open_api_path: Some(
                 PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("..")
                     .join("..")
                     .join("..")
                     .join("test")

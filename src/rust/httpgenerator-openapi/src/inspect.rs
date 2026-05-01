@@ -551,7 +551,7 @@ mod tests {
     fn inspects_petstore_v30_with_dotnet_parity_counts() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/petstore.json")),
-            include_str!("../../../test/OpenAPI/v3.0/petstore.json"),
+            include_str!("../../../../test/OpenAPI/v3.0/petstore.json"),
         )
         .unwrap();
 
@@ -575,7 +575,7 @@ mod tests {
     fn inspects_petstore_v20_with_body_parameters_as_request_bodies() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v2.0/petstore.json")),
-            include_str!("../../../test/OpenAPI/v2.0/petstore.json"),
+            include_str!("../../../../test/OpenAPI/v2.0/petstore.json"),
         )
         .unwrap();
 
@@ -593,7 +593,7 @@ mod tests {
     fn inspects_callback_examples_with_callbacks() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/callback-example.json")),
-            include_str!("../../../test/OpenAPI/v3.0/callback-example.json"),
+            include_str!("../../../../test/OpenAPI/v3.0/callback-example.json"),
         )
         .unwrap();
 

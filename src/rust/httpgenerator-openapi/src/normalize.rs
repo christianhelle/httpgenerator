@@ -774,7 +774,7 @@ mod tests {
     fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/petstore.json")),
-            include_str!("../../../test/OpenAPI/v3.0/petstore.json"),
+            include_str!("../../../../test/OpenAPI/v3.0/petstore.json"),
         )
         .unwrap();
         let loaded = load_document_from_raw(raw).unwrap();
@@ -856,7 +856,7 @@ mod tests {
     fn normalizes_petstore_v20_fixture_into_generator_facing_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v2.0/petstore.json")),
-            include_str!("../../../test/OpenAPI/v2.0/petstore.json"),
+            include_str!("../../../../test/OpenAPI/v2.0/petstore.json"),
         )
         .unwrap();
         let loaded = load_document_from_raw(raw).unwrap();
@@ -960,6 +960,7 @@ mod tests {
         let input = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
+            .join("..")
             .join("test")
             .join("OpenAPI")
             .join("v2.0")
@@ -991,6 +992,7 @@ mod tests {
         let input = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
+            .join("..")
             .join("test")
             .join("OpenAPI")
             .join("v3.0")
@@ -1004,7 +1006,7 @@ mod tests {
     fn webhook_only_v31_documents_normalize_without_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
-            include_str!("../../../test/OpenAPI/v3.1/webhook-example.json"),
+            include_str!("../../../../test/OpenAPI/v3.1/webhook-example.json"),
         )
         .unwrap();
         let loaded = load_document_from_raw(raw).unwrap();
@@ -1022,6 +1024,7 @@ mod tests {
     fn invalid_v31_documents_normalize_when_tolerated() {
         let normalized = load_and_normalize_document_with_options(
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
                 .join("..")
                 .join("..")
                 .join("test")
@@ -1134,6 +1137,7 @@ mod tests {
     fn convenience_loader_normalizes_local_documents() {
         let normalized = load_and_normalize_document(
             PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
                 .join("..")
                 .join("..")
                 .join("test")

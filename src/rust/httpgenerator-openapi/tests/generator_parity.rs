@@ -7,6 +7,7 @@ fn petstore_input() -> String {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("..")
         .join("..")
+        .join("..")
         .join("test")
         .join("OpenAPI")
         .join("v3.0")

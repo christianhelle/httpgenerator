@@ -280,6 +280,7 @@ mod tests {
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .parent()
             .and_then(|path| path.parent())
+            .and_then(|path| path.parent())
             .expect("workspace root should exist")
             .to_path_buf()
     }
