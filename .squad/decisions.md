@@ -155,6 +155,17 @@
 **Files Updated:** crates/httpgenerator-cli/{src/ui.rs, tests/help_contract.rs}, test/smoke-tests.ps1, src/HttpGenerator.VSIX/{HttpGeneratorCli.cs, GenerateDialog.cs}
 **Decision:** Approved & ready for release. Pattern established: context-aware rendering + help contract validation for future CLI work.
 
+### 2026-05-01: Source Layout Migration to `src\rust` and `src\dotnet`
+**By:** Hicks (Core Dev), Bishop (Tester), Hudson (DevRel/Docs), Ripley (Lead)
+**What:** Moved Rust crates to `src\rust` and legacy .NET sources to `src\dotnet` while keeping repo-root entrypoints intact and leaving `src\VSCode` in place. Updated build, validation, release, documentation, and runtime path-bearing surfaces in one coordinated pass.
+**Validation:** `cargo test`; `dotnet build src\dotnet\HttpGenerator.sln -c Release`; `dotnet test src\dotnet\HttpGenerator.sln -c Release`; `test\smoke-tests.ps1`; `npm ci` + `npm run compile` in `src\VSCode`
+**Decision:** APPROVED. Validation matrix shape is unchanged. Only non-blocking follow-up was stale old-path guidance inside `.squad\` notes/history.
+
+### 2026-05-01: Session Directive — Spawned Agents Use GPT-5.4
+**By:** Christian Helle (via Copilot CLI)
+**What:** All spawned agents in this session must use GPT-5.4.
+**Why:** Session-only user directive for consistent agent execution.
+
 ## Governance
 
 - All meaningful changes require team consensus
