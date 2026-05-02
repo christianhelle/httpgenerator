@@ -55,7 +55,7 @@ Before contributing, please:
 
 4. If you touched the VS Code extension, package it from the repo root:
    ```bash
-   src\VSCode\build.ps1
+   src\vscode\build.ps1
    ```
 
 ### Project Structure
@@ -72,13 +72,13 @@ src/
 │   ├── HttpGenerator.Core/     # Legacy .NET generation library
 │   ├── HttpGenerator.Tests/    # Legacy .NET test suite
 │   └── HttpGenerator.VSIX/     # Visual Studio extension host
-└── VSCode/                     # VS Code extension
+└── vscode/                     # VS Code extension
 
 docs/                           # Documentation site and marketplace content
 test/                           # OpenAPI fixtures and smoke-test assets
 ```
 
-Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src\dotnet\HttpGenerator.sln`, and package VS Code from `src\VSCode\build.ps1`.
+Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src\dotnet\HttpGenerator.sln`, and package VS Code from `src\vscode\build.ps1`.
 
 ## Code Patterns and Style
 
@@ -361,3 +361,4 @@ If you need assistance:
 ## License
 
 By contributing to this project, you agree that your contributions will be licensed under the same license as the project.
+

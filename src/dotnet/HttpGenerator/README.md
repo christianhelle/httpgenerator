@@ -8,7 +8,7 @@ This project contains the legacy .NET CLI kept in the repository as a compatibil
 - **VS Code**: a thin host that resolves and invokes the Rust CLI
 - **Visual Studio 2022**: a thin VSIX host that shells out to `httpgenerator.exe`
 - **Release artifacts**: platform-specific Rust CLI archives, platform-targeted VS Code `.vsix` packages, and a bundled Visual Studio `.vsix`
-- **Canonical layout**: source now lives under `src\rust`, `src\dotnet`, and `src\VSCode`, while repo-root entrypoints remain stable for Cargo, .NET solution, and VS Code packaging commands
+- **Canonical layout**: source now lives under `src\rust`, `src\dotnet`, and `src\vscode`, while repo-root entrypoints remain stable for Cargo, .NET solution, and VS Code packaging commands
 
 ## When to use this project
 

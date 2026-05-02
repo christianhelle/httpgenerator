@@ -6,7 +6,7 @@ on:
       - "Cargo.toml"
       - "Cargo.lock"
       - "src/rust/**"
-      - "src/VSCode/**"
+      - "src/vscode/**"
       - ".github/workflows/vscode.yml"
   workflow_dispatch:
 
@@ -31,26 +31,26 @@ jobs:
       - name: Update versions
         run: |
           sed -i 's/^version = "0\.1\.0"$/version = "${{ env.VERSION }}"/' Cargo.toml
-          node -e "const fs=require('fs'); const path='src/VSCode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version='${{ env.VERSION }}'; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
+          node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version='${{ env.VERSION }}'; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
 
       - name: Build Rust CLI
         run: cargo build --release -p httpgenerator-cli
 
       - name: Bundle Rust CLI
         run: |
-          mkdir -p src/VSCode/bin
-          cp target/release/httpgenerator src/VSCode/bin/httpgenerator
+          mkdir -p src/vscode/bin
+          cp target/release/httpgenerator src/vscode/bin/httpgenerator
 
       - name: Install dependencies
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: npm ci
 
       - name: Compile extension
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: npm run compile
 
       - name: Package extension
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: |
           npm install -g @vscode/vsce
           vsce package --target linux-x64
@@ -59,4 +59,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: VSCode Extension
-          path: src/VSCode/*.vsix
+          path: src/vscode/*.vsix

@@ -11,7 +11,7 @@ on:
       - "Cargo.lock"
       - "src/rust/**"
       - "src/dotnet/**"
-      - "src/VSCode/**"
+      - "src/vscode/**"
       - "test/**"
   pull_request:
     branches:
@@ -22,7 +22,7 @@ on:
       - "Cargo.lock"
       - "src/rust/**"
       - "src/dotnet/**"
-      - "src/VSCode/**"
+      - "src/vscode/**"
       - "test/**"
 
 env:
@@ -66,11 +66,11 @@ jobs:
           node-version: "24"
 
       - name: Install dependencies
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: npm ci
 
       - name: Compile extension
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: npm run compile
 
   vsix:
@@ -88,3 +88,4 @@ jobs:
 
       - name: Build
         run: msbuild src\dotnet\VSIX.sln /property:Configuration=Release /p:DeployExtension=false
+

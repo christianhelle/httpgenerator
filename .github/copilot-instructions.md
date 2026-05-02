@@ -19,11 +19,11 @@ Always reference these instructions first and fall back to deeper code search on
 - Smoke validation on Windows:
   - `test\smoke-tests.ps1`
 - VS Code packaging validation:
-  - `src\VSCode\build.ps1`
+  - `src\vscode\build.ps1`
 - Root entrypoints are preserved at the repository root:
   - Use the root `Cargo.toml` / `Cargo.lock` for Cargo commands even though crates now live under `src\rust`
   - Invoke `.NET` commands from the repo root against `src\dotnet\HttpGenerator.sln` / `src\dotnet\VSIX.sln`
-  - Invoke VS Code packaging from the repo root with `src\VSCode\build.ps1`
+  - Invoke VS Code packaging from the repo root with `src\vscode\build.ps1`
 
 ### Validation expectations
 
@@ -51,7 +51,7 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 - `src/dotnet/HttpGenerator.Core` - legacy .NET generation library
 - `src/dotnet/HttpGenerator.Tests` - legacy .NET test suite
 - `src/dotnet/HttpGenerator.VSIX` - Visual Studio host over `httpgenerator.exe`
-- `src/VSCode` - VS Code host over the Rust CLI
+- `src/vscode` - VS Code host over the Rust CLI
 - Repo-root entrypoints remain in place (`Cargo.toml`, `Cargo.lock`, `Makefile`, `test\`, and `docs\`)
 
 ## Common Tasks
