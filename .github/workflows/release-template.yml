@@ -7,9 +7,6 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: write
-
 jobs:
   cli-linux:
     name: Rust CLI (Linux)
@@ -303,4 +300,3 @@ jobs:
               ref: "refs/tags/${{ inputs.version }}",
               sha: context.sha
             })
-
