@@ -40,7 +40,7 @@ The legacy `.NET` CLI remains in the repository as the migration oracle and comp
 - `src\rust` contains the Rust workspace crates (`httpgenerator-cli`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`).
 - `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
 - `src\vscode` contains the VS Code extension.
-- Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src\dotnet\*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
+- Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src/dotnet/*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
 
 ## Usage
 

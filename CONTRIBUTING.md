@@ -43,13 +43,13 @@ Before contributing, please:
 2. Build from the preserved repo-root entrypoints:
    ```bash
    cargo test
-   dotnet restore src\dotnet\HttpGenerator.slnx
-   dotnet build src\dotnet\HttpGenerator.slnx --configuration Release
+   dotnet restore src/dotnet/HttpGenerator.slnx
+   dotnet build src/dotnet/HttpGenerator.slnx --configuration Release
    ```
 
 3. Run the validation surfaces affected by your changes:
    ```bash
-   dotnet test src\dotnet\HttpGenerator.slnx --configuration Release
+   dotnet test src/dotnet/HttpGenerator.slnx --configuration Release
    test\smoke-tests.ps1
    ```
 
@@ -78,7 +78,7 @@ docs/                           # Documentation site and marketplace content
 test/                           # OpenAPI fixtures and smoke-test assets
 ```
 
-Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src\dotnet\HttpGenerator.slnx`, and package VS Code from `src\vscode\build.ps1`.
+Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src/dotnet/HttpGenerator.slnx`, and package VS Code from `src\vscode\build.ps1`.
 
 ## Code Patterns and Style
 
@@ -147,7 +147,7 @@ public static class HttpFileGenerator
 ### Test Structure
 
 - **Rust crate tests** live beside the primary implementation under `src\rust\**\tests`
-- **Legacy .NET tests** live in `src\dotnet\HttpGenerator.Tests`
+- **Legacy .NET tests** live in `src/dotnet/HttpGenerator.Tests`
 - **Test classes** should mirror the structure of the code being tested
 - **Theory/InlineData** for parameterized tests (follow `SwaggerPetstoreTests` pattern)
 
@@ -181,7 +181,7 @@ public async Task Can_Generate_Code(Samples version, string filename, OutputType
 
 ### Sample Data
 
-- Add new legacy .NET test samples to `src\dotnet\HttpGenerator.Tests\Resources\Samples.cs`
+- Add new legacy .NET test samples to `src/dotnet/HttpGenerator.Tests\Resources\Samples.cs`
 - Place sample OpenAPI files in the `test/OpenAPI/` directory
 - Follow existing naming patterns for consistency
 

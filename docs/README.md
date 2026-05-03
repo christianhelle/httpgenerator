@@ -40,7 +40,7 @@ python3 -m http.server 8080
 
 Then visit `http://localhost:8080`
 
-Build and packaging entrypoints for the product remain at the repository root (`Cargo.toml`, `src\dotnet\HttpGenerator.slnx`, and `src\vscode\build.ps1`), even though implementation sources now live under `src\`.
+Build and packaging entrypoints for the product remain at the repository root (`Cargo.toml`, `src/dotnet/HttpGenerator.slnx`, and `src\vscode\build.ps1`), even though implementation sources now live under `src\`.
 
 ## Theme
 

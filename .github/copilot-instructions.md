@@ -13,16 +13,16 @@ Always reference these instructions first and fall back to deeper code search on
   - `cargo test`
   - `cargo run -q -p httpgenerator-cli -- test\OpenAPI\v3.0\petstore.json --output <dir> --no-logging`
 - .NET oracle validation:
-  - `dotnet restore src\dotnet\HttpGenerator.sln`
-  - `dotnet build src\dotnet\HttpGenerator.sln --configuration Release`
-  - `dotnet test src\dotnet\HttpGenerator.sln --configuration Release`
+  - `dotnet restore src/dotnet/HttpGenerator.slnx`
+  - `dotnet build src/dotnet/HttpGenerator.slnx --configuration Release`
+  - `dotnet test src/dotnet/HttpGenerator.slnx --configuration Release`
 - Smoke validation on Windows:
   - `test\smoke-tests.ps1`
 - VS Code packaging validation:
   - `src\vscode\build.ps1`
 - Root entrypoints are preserved at the repository root:
   - Use the root `Cargo.toml` / `Cargo.lock` for Cargo commands even though crates now live under `src\rust`
-  - Invoke `.NET` commands from the repo root against `src\dotnet\HttpGenerator.sln` / `src\dotnet\VSIX.sln`
+  - Invoke `.NET` commands from the repo root against `src/dotnet/HttpGenerator.slnx` / `src/dotnet/VSIX.slnx`
   - Invoke VS Code packaging from the repo root with `src\vscode\build.ps1`
 
 ### Validation expectations
@@ -30,8 +30,8 @@ Always reference these instructions first and fall back to deeper code search on
 Always validate generator-affecting changes with:
 
 1. `cargo test`
-2. `dotnet build src\dotnet\HttpGenerator.sln --configuration Release`
-3. `dotnet test src\dotnet\HttpGenerator.sln --configuration Release`
+2. `dotnet build src/dotnet/HttpGenerator.slnx --configuration Release`
+3. `dotnet test src/dotnet/HttpGenerator.slnx --configuration Release`
 4. `test\smoke-tests.ps1`
 
 Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI 3.1 scenarios still require `--skip-validation`.
@@ -81,7 +81,7 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 - External URL tests can still fail in restricted environments. Prefer local fixtures.
 - OpenAPI 3.1 generation still requires `--skip-validation`.
-- Headless VSIX builds are environment-sensitive. If `src\dotnet\VSIX.sln` fails with missing Visual Studio SDK/toolkit types, compare the failure to a clean baseline before treating it as a regression.
+- Headless VSIX builds are environment-sensitive. If `src/dotnet/VSIX.slnx` fails with missing Visual Studio SDK/toolkit types, compare the failure to a clean baseline before treating it as a regression.
 
 ## Technology Stack
 
