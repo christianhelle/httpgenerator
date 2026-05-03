@@ -3,10 +3,7 @@ name: VS Code
 on:
   push:
     paths:
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "src/rust/**"
-      - "src/vscode/**"
+      - "src/VSCode/**"
       - ".github/workflows/vscode.yml"
   workflow_dispatch:
 
@@ -20,43 +17,35 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+      - name: Update Version
+        run: |
+          cd src/VSCode
+          # Use sed to replace the version in package.json
+          sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ env.VERSION }}"/' package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24"
 
-      - name: Update versions
-        run: |
-          sed -i 's/^version = "0\.1\.0"$/version = "${{ env.VERSION }}"/' Cargo.toml
-          node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version='${{ env.VERSION }}'; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
-
-      - name: Build Rust CLI
-        run: cargo build --release -p httpgenerator-cli
-
-      - name: Bundle Rust CLI
-        run: |
-          mkdir -p src/vscode/bin
-          cp target/release/httpgenerator src/vscode/bin/httpgenerator
-
       - name: Install dependencies
-        working-directory: src/vscode
-        run: npm ci
+        working-directory: src/VSCode
+        run: |
+          npm install
 
       - name: Compile extension
-        working-directory: src/vscode
-        run: npm run compile
+        working-directory: src/VSCode
+        run: |
+          npm run compile
 
       - name: Package extension
-        working-directory: src/vscode
+        working-directory: src/VSCode
         run: |
           npm install -g @vscode/vsce
-          vsce package --target linux-x64
+          vsce package
 
       - name: Upload VSIX as artifact
         uses: actions/upload-artifact@v7
         with:
           name: VSCode Extension
-          path: src/vscode/*.vsix
+          path: src/VSCode/*.vsix
