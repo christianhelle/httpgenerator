@@ -43,13 +43,13 @@ Before contributing, please:
 2. Build from the preserved repo-root entrypoints:
    ```bash
    cargo test
-   dotnet restore src\dotnet\HttpGenerator.sln
-   dotnet build src\dotnet\HttpGenerator.sln --configuration Release
+   dotnet restore src\dotnet\HttpGenerator.slnx
+   dotnet build src\dotnet\HttpGenerator.slnx --configuration Release
    ```
 
 3. Run the validation surfaces affected by your changes:
    ```bash
-   dotnet test src\dotnet\HttpGenerator.sln --configuration Release
+   dotnet test src\dotnet\HttpGenerator.slnx --configuration Release
    test\smoke-tests.ps1
    ```
 
@@ -78,7 +78,7 @@ docs/                           # Documentation site and marketplace content
 test/                           # OpenAPI fixtures and smoke-test assets
 ```
 
-Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src\dotnet\HttpGenerator.sln`, and package VS Code from `src\vscode\build.ps1`.
+Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src\dotnet\HttpGenerator.slnx`, and package VS Code from `src\vscode\build.ps1`.
 
 ## Code Patterns and Style
 
