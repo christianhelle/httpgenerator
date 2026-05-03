@@ -45,7 +45,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Run Rust tests
-        run: cargo test
+        run: cargo test --locked
 
       - name: Build .NET solution
         run: dotnet build -c Release src/dotnet/HttpGenerator.slnx -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
@@ -67,7 +67,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: src/vscode
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Compile extension
         working-directory: src/vscode
