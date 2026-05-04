@@ -1,0 +1,45 @@
+name: httpgenerator
+base: core24
+version: 0.1.0
+adopt-info: httpgenerator
+summary: Generate .http files from OpenAPI specifications
+description: |
+  HTTP File Generator converts OpenAPI specifications into ready-to-run .http
+  files for tools such as HTTP File Runner, REST Client for VS Code, 
+  JetBrains IDEs, and Visual Studio.
+
+  Key capabilities:
+  - Generate one request per file, one file per tag, or a single combined file
+  - Override base URLs and content types
+  - Carry custom headers into generated requests
+  - Optionally acquire Azure access tokens for Authorization headers
+  - Skip validation for OpenAPI 3.1 documents when needed
+
+title: HTTP File Generator
+contact: https://github.com/christianhelle/httpgenerator/issues
+issues: https://github.com/christianhelle/httpgenerator/issues
+source-code: https://github.com/christianhelle/httpgenerator
+website: https://github.com/christianhelle/httpgenerator
+
+grade: stable
+confinement: strict
+license: MIT
+
+apps:
+  httpgenerator:
+    command: bin/httpgenerator
+    plugs:
+      - network
+      - home
+
+parts:
+  httpgenerator:
+    plugin: rust
+    source: .
+    override-build: |
+      cargo build --release --package httpgenerator-cli
+      install -D -m755 target/release/httpgenerator $SNAPCRAFT_PART_INSTALL/bin/httpgenerator
+    build-packages:
+      - libssl-dev
+      - pkg-config
+      - git
