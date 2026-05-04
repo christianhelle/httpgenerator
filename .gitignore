@@ -416,3 +416,7 @@ src/VSCode/*.vsix
 .squad/sessions/
 # Squad: SubSquad activation file (local to this machine)
 .squad-workstream
+.craft
+parts/httpgenerator
+prime/meta
+*.snap
