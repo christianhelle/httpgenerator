@@ -31,6 +31,8 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+target/
+src/dotnet/HttpGenerator.VSIX/httpgenerator.exe
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/

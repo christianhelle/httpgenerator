@@ -3,6 +3,9 @@ name: Release (Preview)
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   publish:
     uses: ./.github/workflows/release-template.yml

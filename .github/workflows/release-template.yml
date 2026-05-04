@@ -7,48 +7,325 @@ on:
         required: true
         type: string
 
-env:
-  NUGET_REPO_URL: "https://api.nuget.org/v3/index.json"
-
-permissions:
-  id-token: write
-  contents: write
-  packages: write
-
 jobs:
-  CLI:
-    name: 🚚 Prepare new release
+  validate-version:
+    name: Validate release version
     runs-on: ubuntu-latest
+    outputs:
+      release-version: ${{ steps.validate.outputs.release-version }}
+    steps:
+      - name: Validate version format
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        shell: bash
+        run: |
+          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*$ ]]; then
+            echo "::error::Invalid release version '$RELEASE_VERSION'."
+            exit 1
+          fi
+
+          echo "release-version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+
+  cli-linux:
+    name: Rust CLI (Linux)
+    needs: validate-version
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: "8.0.x"
-      - name: Sets environment variables - branch-name
-        uses: nelonoel/branch-name@v1.0.1
-      - name: Sets environment variables - Nerdbank.GitVersioning
-        uses: dotnet/nbgv@master
-        with:
-          setAllVars: true
-      - name: Build
-        run: dotnet build -c Release HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ inputs.version }}" -p:Version="${{ inputs.version }}"
-      - name: Move packages
-        shell: pwsh
-        run: Get-ChildItem -Filter *.nupkg -Recurse | ForEach-Object { Move-Item -Path $_ -Destination . }
+
+      - name: Update Rust version
+        run: sed -i "s/^version = \"0\.1\.0\"$/version = \"$RELEASE_VERSION\"/" Cargo.toml
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Stage artifact
+        run: |
+          mkdir -p artifacts
+          tar -czf "artifacts/httpgenerator-${RELEASE_VERSION}-linux-x64.tar.gz" -C target/release httpgenerator
+
       - name: Publish artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: Packages
-          path: |
-            **/*.nupkg
-            README.md
-      - name: NuGet login (OIDC → temp API key)
-        uses: NuGet/login@v1
-        id: login
+          name: Rust CLI Linux
+          path: artifacts/*
+
+  cli-macos:
+    name: Rust CLI (macOS)
+    needs: validate-version
+    runs-on: macos-13
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Update Rust version
+        run: sed -i '' "s/^version = \"0\.1\.0\"$/version = \"$RELEASE_VERSION\"/" Cargo.toml
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Stage artifact
+        run: |
+          mkdir -p artifacts
+          tar -czf "artifacts/httpgenerator-${RELEASE_VERSION}-darwin-x64.tar.gz" -C target/release httpgenerator
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
         with:
-          user: christian.helle
-      - name: Push packages to NuGet
-        run: dotnet nuget push **/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source ${{ env.NUGET_REPO_URL }} --no-symbols
+          name: Rust CLI macOS
+          path: artifacts/*
+
+  cli-windows:
+    name: Rust CLI (Windows)
+    needs: validate-version
+    runs-on: windows-latest
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Update Rust version
+        run: ((Get-Content -Path Cargo.toml -Raw) -Replace 'version = "0\.1\.0"', ('version = "' + $env:RELEASE_VERSION + '"')) | Set-Content -Path Cargo.toml
+        shell: pwsh
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Stage artifact
+        run: |
+          New-Item -ItemType Directory -Path artifacts -Force | Out-Null
+          $artifactPath = "artifacts\httpgenerator-$env:RELEASE_VERSION-win-x64.zip"
+          Compress-Archive -Path target\release\httpgenerator.exe -DestinationPath $artifactPath -Force
+        shell: pwsh
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Rust CLI Windows
+          path: artifacts\*
+
+  vscode-linux:
+    name: VS Code Extension (Linux)
+    needs: validate-version
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Update versions
+        run: |
+          sed -i "s/^version = \"0\.1\.0\"$/version = \"$RELEASE_VERSION\"/" Cargo.toml
+          node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version=process.env.RELEASE_VERSION; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Bundle Rust CLI
+        run: |
+          mkdir -p src/vscode/bin
+          cp target/release/httpgenerator src/vscode/bin/httpgenerator
+
+      - name: Install dependencies
+        working-directory: src/vscode
+        run: npm ci --ignore-scripts
+
+      - name: Compile extension
+        working-directory: src/vscode
+        run: npm run compile
+
+      - name: Package extension
+        working-directory: src/vscode
+        run: npx --no-install vsce package --target linux-x64
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: VS Code Extension Linux
+          path: src/vscode/*.vsix
+
+  vscode-macos:
+    name: VS Code Extension (macOS)
+    needs: validate-version
+    runs-on: macos-13
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Update versions
+        run: |
+          sed -i '' "s/^version = \"0\.1\.0\"$/version = \"$RELEASE_VERSION\"/" Cargo.toml
+          node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version=process.env.RELEASE_VERSION; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Bundle Rust CLI
+        run: |
+          mkdir -p src/vscode/bin
+          cp target/release/httpgenerator src/vscode/bin/httpgenerator
+
+      - name: Install dependencies
+        working-directory: src/vscode
+        run: npm ci --ignore-scripts
+
+      - name: Compile extension
+        working-directory: src/vscode
+        run: npm run compile
+
+      - name: Package extension
+        working-directory: src/vscode
+        run: npx --no-install vsce package --target darwin-x64
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: VS Code Extension macOS
+          path: src/vscode/*.vsix
+
+  vscode-windows:
+    name: VS Code Extension (Windows)
+    needs: validate-version
+    runs-on: windows-latest
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Update versions
+        run: |
+          ((Get-Content -Path Cargo.toml -Raw) -Replace 'version = "0\.1\.0"', ('version = "' + $env:RELEASE_VERSION + '"')) | Set-Content -Path Cargo.toml
+          $path = 'src\vscode\package.json'
+          $json = Get-Content $path -Raw | ConvertFrom-Json
+          $json.version = $env:RELEASE_VERSION
+          $json | ConvertTo-Json -Depth 100 | Set-Content $path
+        shell: pwsh
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Bundle Rust CLI
+        run: |
+          New-Item -ItemType Directory -Path src\vscode\bin -Force | Out-Null
+          Copy-Item target\release\httpgenerator.exe src\vscode\bin\httpgenerator.exe -Force
+        shell: pwsh
+
+      - name: Install dependencies
+        working-directory: src/vscode
+        run: npm ci --ignore-scripts
+
+      - name: Compile extension
+        working-directory: src/vscode
+        run: npm run compile
+
+      - name: Package extension
+        working-directory: src/vscode
+        run: npx --no-install vsce package --target win32-x64
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: VS Code Extension Windows
+          path: src/vscode/*.vsix
+
+  vsix:
+    name: Visual Studio extension
+    needs: validate-version
+    runs-on: windows-latest
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Update versions
+        run: |
+          ((Get-Content -Path Cargo.toml -Raw) -Replace 'version = "0\.1\.0"', ('version = "' + $env:RELEASE_VERSION + '"')) | Set-Content -Path Cargo.toml
+          ((Get-Content -Path src/dotnet/HttpGenerator.VSIX/source.extension.vsixmanifest -Raw) -Replace '1.0.0', $env:RELEASE_VERSION) | Set-Content -Path src/dotnet/HttpGenerator.VSIX/source.extension.vsixmanifest
+        shell: pwsh
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust CLI
+        run: cargo build --locked --release -p httpgenerator-cli
+
+      - name: Bundle Rust CLI
+        run: Copy-Item target\release\httpgenerator.exe src/dotnet/HttpGenerator.VSIX/httpgenerator.exe -Force
+        shell: pwsh
+
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v3
+
+      - name: Restore
+        run: msbuild src/dotnet/VSIX.slnx -t:Restore
+
+      - name: Build
+        run: msbuild src/dotnet/VSIX.slnx /property:Configuration=Release /p:DeployExtension=false
+
+      - name: Move build output
+        run: Move-Item src/dotnet/HttpGenerator.VSIX/bin\Release\HttpGenerator.VSIX.vsix ("HttpGenerator-" + $env:RELEASE_VERSION + ".vsix")
+        shell: pwsh
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Visual Studio Extension
+          path: |
+            *.vsix
+            docs/Marketplace*.md
+
+  create-tag:
+    name: Create tag
+    needs:
+      - validate-version
+      - cli-linux
+      - cli-macos
+      - cli-windows
+      - vscode-linux
+      - vscode-macos
+      - vscode-windows
+      - vsix
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
       - name: Create tag
         uses: actions/github-script@v9
         with:
@@ -57,6 +334,6 @@ jobs:
             github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: "refs/tags/${{ inputs.version }}",
+              ref: `refs/tags/${process.env.RELEASE_VERSION}`,
               sha: context.sha
             })

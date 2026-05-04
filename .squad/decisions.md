@@ -132,6 +132,40 @@
 **Why:** User preference and instruction for commit message format
 **Impact:** Squad commit convention updated to exclude Co-authored-by lines
 
+### 2026-04-08: User Directive — Small Logical Commits
+**By:** Christian Helle (via Copilot CLI)
+**What:** Commit changes in small logical groups for detailed progress history in this and future sessions
+**Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability
+**Impact:** Standing rule for all squad members; enables detailed session-to-session traceability
+
+### 2026-04-08: CLI Output Parity — Rust Rich & Plain Dual Modes
+**By:** Ripley (Lead), Hicks (Core Dev), Bishop (Tester), Hudson (DevRel/Docs)
+**Status:** ✅ COMPLETE — Implementation merged, all validation passing
+**What:** Implemented context-aware output rendering in Rust CLI:
+- **Rich mode** (interactive terminal): Colors, emojis (🚀, ✅, 📊, 📁, 🎉, etc.), box-drawing characters, formatted tables via Spectre-inspired `comfy-table` + `console` crates
+- **Plain mode** (redirected/piped stdout): Semantic text only, no ANSI codes, no special characters, single-line file listings
+- **Detection:** `io::stdout().is_terminal()` respects `$TERM`, pipes, and file redirection
+**Key Implementation Details:**
+- Rust CLI presenter layer in `main.rs` + `ui.rs` (existing `lib.rs` execution logic unchanged)
+- Help contract tests validate both modes; all passing
+- VSIX host surfaces Azure diagnostics correctly (success-path warnings no longer dropped)
+- VS Code extension remains compatible (TTY detection handles rich output correctly)
+**Validation:** cargo test ✅, dotnet test ✅, test\smoke-tests.ps1 ✅; VSIX build deferred (known environment limitation)
+**Documentation:** README already accurate—no changes needed. Correctly conveys both output modes.
+**Files Updated:** crates/httpgenerator-cli/{src/ui.rs, tests/help_contract.rs}, test/smoke-tests.ps1, src/HttpGenerator.VSIX/{HttpGeneratorCli.cs, GenerateDialog.cs}
+**Decision:** Approved & ready for release. Pattern established: context-aware rendering + help contract validation for future CLI work.
+
+### 2026-05-01: Source Layout Migration to `src\rust` and `src\dotnet`
+**By:** Hicks (Core Dev), Bishop (Tester), Hudson (DevRel/Docs), Ripley (Lead)
+**What:** Moved Rust crates to `src\rust` and legacy .NET sources to `src\dotnet` while keeping repo-root entrypoints intact and leaving `src\VSCode` in place. Updated build, validation, release, documentation, and runtime path-bearing surfaces in one coordinated pass.
+**Validation:** `cargo test`; `dotnet build src\dotnet\HttpGenerator.sln -c Release`; `dotnet test src\dotnet\HttpGenerator.sln -c Release`; `test\smoke-tests.ps1`; `npm ci` + `npm run compile` in `src\VSCode`
+**Decision:** APPROVED. Validation matrix shape is unchanged. Only non-blocking follow-up was stale old-path guidance inside `.squad\` notes/history.
+
+### 2026-05-01: Session Directive — Spawned Agents Use GPT-5.4
+**By:** Christian Helle (via Copilot CLI)
+**What:** All spawned agents in this session must use GPT-5.4.
+**Why:** Session-only user directive for consistent agent execution.
+
 ## Governance
 
 - All meaningful changes require team consensus

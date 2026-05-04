@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup Label="README">
-    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\..\images\icon.png" Pack="true" PackagePath="\" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 

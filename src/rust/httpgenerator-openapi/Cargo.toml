@@ -1,0 +1,16 @@
+[package]
+name = "httpgenerator-openapi"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+httpgenerator-core.workspace = true
+openapiv3.workspace = true
+openapiv3_1.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+url.workspace = true
+yaml_serde.workspace = true

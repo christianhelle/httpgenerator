@@ -1,59 +1,34 @@
 ---
-updated_at: 2026-03-20T15:08:43Z
-focus_area: Low-risk dependency batch complete (3/10), OpenAPI migration in progress
+updated_at: 2026-05-01T11:49:02Z
+focus_area: Source layout migration closeout for src/rust + src/dotnet + src/VSCode
 completed_issues:
-  - deps-002: SourceLink upgrade ✅ merged PR #337
-  - deps-003: Spectre.Console.Cli patch ✅ merged PR #338
-  - deps-004: Atc.Test upgrade ✅ merged PR #340 (xUnit v3 minimal migration, superseding defer decision)
+  - Planning complete: target topology locked and implementation plan saved
+  - relocate-rust-workspace: moved crates/ to src/rust while preserving repo-root cargo entrypoints
+  - relocate-legacy-dotnet: moved legacy/ to src/dotnet and updated solution/project/package paths
+  - normalize-ide-host-layout: kept src/VSCode in place and repointed dependent scripts and hosts
+  - sweep-path-dependencies: updated CI, docs, smoke tests, release scripts, and instructions
+  - validate-migration: cargo, dotnet, smoke, and VS Code validation completed against the new layout
 active_issues:
-  - deps-005: OpenAPI reader pipeline migration (IN PROGRESS, CRITICAL)
-  - deps-006: OpenAPI visitor/stats migration (planned)
-  - deps-007: OpenAPI generator/CLI reconciliation (planned)
-  - deps-008: OpenAPI regression tests (planned)
-  - deps-009: VSIX SDK refresh (planned, parallelizable)
-  - deps-010: Final regression + docs closeout (planned)
+  - squad-followup: continue reducing stale old-path references inside .squad notes and skills as they surface
 ---
 
 # What We're Focused On
 
-## Current Focus: Low-Risk Dependency Batch Complete — OpenAPI Migration Stream In Progress
+## Current Focus: Source Layout Migration Closeout
 
-Three low-risk dependency updates landed. The critical OpenAPI v3 migration stream is in progress. Major decision made: xUnit v3 migration pulled forward due to Atc.Test 2.x hard dependency (vs deferral).
-
-- ✅ **Issue #328 (deps-002):** Microsoft.SourceLink.GitHub — PR #337 merged
-- ✅ **Issue #329 (deps-003):** Spectre.Console.Cli — PR #338 merged
-- ✅ **Issue #330 (deps-004):** Atc.Test — PR #340 merged (chose over PR #339; xUnit v3 alignment, see decision doc)
-- 🔄 **Issue #331 (deps-005):** OpenAPI reader pipeline migration — IN PROGRESS (critical blocker)
-- 📋 **Issues #332–#336 (deps-006–deps-010):** Ready for implementation
+The team has completed the repo reorganization that moves product source under `src` while preserving root-level commands. The canonical layout is now `src/rust`, `src/dotnet`, and existing `src/VSCode`; tests, docs, and fixtures remain outside `src`.
 
 ## Status Summary
 
-- ✅ Ripley: 3/10 deps-001 checklist items complete; ready for next review gate
-- ✅ Hicks: IN PROGRESS on deps-005 (OpenAPI reader pipeline) — critical path
-- ✅ Bishop: Available for deps-008 (OpenAPI regression tests) after deps-005 lands
-- 🎯 Baseline: 204/204 tests passing on xUnit v3, build green
+- ✅ Ripley: reviewer gates cleared and final approval recorded
+- ✅ Hicks: source relocation and runtime/path rewrites completed
+- ✅ Bishop: validation and workflow retargeting completed
+- ✅ Hudson: docs and instruction surfaces updated
+- 📌 Session directive: use GPT-5.4 for all agents during this session only
 
 ## Next Steps
 
-1. **Hicks** to continue `deps-005` (Migrate OpenAPI reader pipeline to v3) — HIGH PRIORITY
-2. **Hicks** can parallelize `deps-009` (VSIX SDK refresh) once deps-005 is moving
-3. **Bishop** prepares for `deps-008` (OpenAPI regression tests) — ready once deps-005 lands
-4. **Ripley** gates all PRs
-
-## Key Decisions Locked
-
-- ✅ Keep `FluentAssertions` pinned during refresh
-- ✅ Isolate `Microsoft.OpenApi` migration as dedicated stream
-- ✅ VSIX SDK updates separate from main solution track
-- ✅ **xUnit v3 migration complete** (SUPERSEDES earlier "defer xUnit v3" decision — pulled forward by Atc.Test 2.x hard dependency)
-- ✅ Regular merge commits (no squash/rebase)
-- ✅ Feature/fix branches per issue with Ripley PR gates
-
-## Session Artifacts
-
-- **Orchestration Logs:** 6 entries documenting completed PRs #337, #338, #340, and deps-005 kickoff
-- **Session Log:** `.squad/log/20260320-second-implementation-batch.md` — comprehensive summary of batch progress
-- **Decision Documents (merged to decisions.md):**
-  - PR #338 review (deps-003)
-  - PR #339 vs #340 verdict (deps-004, xUnit v3 override)
+1. Keep internal `.squad` guidance converged on `src/rust` and `src/dotnet`
+2. Carry the preserved repo-root entrypoint contract into future docs and workflow edits
+3. Treat the pre-existing VS Code packaging metadata issue as separate follow-up work
 

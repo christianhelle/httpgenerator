@@ -4,61 +4,60 @@ on:
   workflow_dispatch:
   push:
     paths-ignore:
-      - '**/*'
-      - '!.github/workflows/vsix.yml'
-      - '!src/**/*.csproj'
-      - '!src/**/*.cs'
+      - "**/*"
+      - "!.github/workflows/vsix.yml"
+      - "!src/**/*.csproj"
+      - "!src/**/*.cs"
     branches:
-      - '*'
+      - "*"
   pull_request:
     branches:
-      - '*'
+      - "*"
 
 env:
   VERSION: 1.0.${{ github.run_number }}
 
 jobs:
   build:
-
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v6
+      - uses: actions/checkout@v6
 
-    - name: Update Version
-      run: |
-        ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
-        ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
-      working-directory: src
-      shell: pwsh
+      - name: Update Version
+        run: |
+          ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
+          ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
+        working-directory: src/dotnet
+        shell: pwsh
 
-    - name: Setup MSBuild.exe
-      uses: microsoft/setup-msbuild@v3
+      - name: Setup MSBuild.exe
+        uses: microsoft/setup-msbuild@v3
 
-    - name: Restore
-      run: msbuild VSIX.sln -t:Restore
-      working-directory: src
+      - name: Restore
+        run: msbuild VSIX.slnx -t:Restore
+        working-directory: src/dotnet
 
-    - name: Build
-      run: msbuild VSIX.sln /property:Configuration=Release /p:DeployExtension=false
-      working-directory: src
+      - name: Build
+        run: msbuild VSIX.slnx /property:Configuration=Release /p:DeployExtension=false
+        working-directory: src/dotnet
 
-    - name: Move build output
-      run: |
-        mv src/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
+      - name: Move build output
+        run: |
+          mv src/dotnet/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
 
-    - name: Publish artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: Artifacts
-        path: |
-          *.vsix
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Artifacts
+          path: |
+            *.vsix
 
-    - name: Publish to Open VSIX Gallery
-      if: github.ref == 'refs/heads/main'
-      run: |
-        (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
-        Vsix-PushArtifacts
-        Vsix-PublishToGallery -path HttpGenerator-${{ env.VERSION }}.vsix -readmeUrl https://raw.githubusercontent.com/christianhelle/HttpGenerator/master/docs/Marketplace.md
-      shell: pwsh
-      continue-on-error: true
+      - name: Publish to Open VSIX Gallery
+        if: github.ref == 'refs/heads/main'
+        run: |
+          (new-object Net.WebClient).DownloadString("https://raw.github.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+          Vsix-PushArtifacts
+          Vsix-PublishToGallery -path HttpGenerator-${{ env.VERSION }}.vsix -readmeUrl https://raw.githubusercontent.com/christianhelle/HttpGenerator/master/docs/Marketplace.md
+        shell: pwsh
+        continue-on-error: true

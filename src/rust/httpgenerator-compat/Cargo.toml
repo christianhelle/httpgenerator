@@ -1,0 +1,9 @@
+[package]
+name = "httpgenerator-compat"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+httpgenerator-core.workspace = true

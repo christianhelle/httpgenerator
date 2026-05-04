@@ -26,7 +26,9 @@ Before contributing, please:
 
 ### Prerequisites
 
+- **Rust toolchain** (stable)
 - **.NET 8.0 SDK** or later
+- **Node.js + npm** for the VS Code extension
 - **Visual Studio 2022**, **VS Code**, or **JetBrains Rider**
 - **Git** for version control
 
@@ -38,27 +40,45 @@ Before contributing, please:
    cd httpgenerator
    ```
 
-2. Restore dependencies and build:
+2. Build from the preserved repo-root entrypoints:
    ```bash
-   dotnet restore
-   dotnet build --configuration Release
+   cargo test
+   dotnet restore src/dotnet/HttpGenerator.slnx
+   dotnet build src/dotnet/HttpGenerator.slnx --configuration Release
    ```
 
-3. Run tests to ensure everything works:
+3. Run the validation surfaces affected by your changes:
    ```bash
-   dotnet test --configuration Release
+   dotnet test src/dotnet/HttpGenerator.slnx --configuration Release
+   test\smoke-tests.ps1
+   ```
+
+4. If you touched the VS Code extension, package it from the repo root:
+   ```bash
+   src\vscode\build.ps1
    ```
 
 ### Project Structure
 
 ```
 src/
-├── HttpGenerator/              # CLI application
-├── HttpGenerator.Core/         # Core library with generation logic
-├── HttpGenerator.Tests/        # Unit and integration tests
-├── HttpGenerator.VSIX/         # Visual Studio extension
-└── VSCode/                     # VS Code extension
+├── rust/
+│   ├── httpgenerator-cli/      # Primary Rust CLI
+│   ├── httpgenerator-core/     # Shared rendering and normalized model
+│   ├── httpgenerator-openapi/  # OpenAPI loading and normalization
+│   └── httpgenerator-compat/   # Differential and compatibility harness
+├── dotnet/
+│   ├── HttpGenerator/          # Legacy .NET CLI oracle
+│   ├── HttpGenerator.Core/     # Legacy .NET generation library
+│   ├── HttpGenerator.Tests/    # Legacy .NET test suite
+│   └── HttpGenerator.VSIX/     # Visual Studio extension host
+└── vscode/                     # VS Code extension
+
+docs/                           # Documentation site and marketplace content
+test/                           # OpenAPI fixtures and smoke-test assets
 ```
+
+Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src/dotnet/HttpGenerator.slnx`, and package VS Code from `src\vscode\build.ps1`.
 
 ## Code Patterns and Style
 
@@ -126,7 +146,8 @@ public static class HttpFileGenerator
 
 ### Test Structure
 
-- **Unit tests** in `HttpGenerator.Tests` project
+- **Rust crate tests** live beside the primary implementation under `src\rust\**\tests`
+- **Legacy .NET tests** live in `src/dotnet/HttpGenerator.Tests`
 - **Test classes** should mirror the structure of the code being tested
 - **Theory/InlineData** for parameterized tests (follow `SwaggerPetstoreTests` pattern)
 
@@ -160,7 +181,7 @@ public async Task Can_Generate_Code(Samples version, string filename, OutputType
 
 ### Sample Data
 
-- Add new test samples to `HttpGenerator.Tests/Resources/Samples.cs`
+- Add new legacy .NET test samples to `src/dotnet/HttpGenerator.Tests\Resources\Samples.cs`
 - Place sample OpenAPI files in the `test/OpenAPI/` directory
 - Follow existing naming patterns for consistency
 
@@ -340,3 +361,4 @@ If you need assistance:
 ## License
 
 By contributing to this project, you agree that your contributions will be licensed under the same license as the project.
+
