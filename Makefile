@@ -4,16 +4,20 @@ all: build
 # Build target
 build:
 	dotnet build --configuration Debug src/dotnet/HttpGenerator.slnx
+	cargo build
 
 # Optional release build target
 release:
 	dotnet build --configuration Release src/dotnet/HttpGenerator.slnx
+	cargo build --release
 
 # Test target
 test:
 	dotnet test --configuration Debug src/dotnet/HttpGenerator.slnx
+	cargo test
 
 # Clean target
 clean:
 	dotnet clean src/dotnet/HttpGenerator.slnx
+	cargo clean
 
