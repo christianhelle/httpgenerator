@@ -37,7 +37,7 @@ parts:
     plugin: rust
     source: .
     override-build: |
-      cargo build --release --package httpgenerator-cli
+      cargo build --release --package httpgenerator
       install -D -m755 target/release/httpgenerator $SNAPCRAFT_PART_INSTALL/bin/httpgenerator
     build-packages:
       - libssl-dev
