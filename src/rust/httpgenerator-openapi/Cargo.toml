@@ -1,9 +1,17 @@
 [package]
 name = "httpgenerator-openapi"
+authors.workspace = true
 version.workspace = true
 edition.workspace = true
+description = "OpenAPI loading, inspection, and normalization for HTTP File Generator"
+homepage.workspace = true
 license.workspace = true
 repository.workspace = true
+rust-version.workspace = true
+documentation = "https://docs.rs/httpgenerator-openapi"
+readme = "README.md"
+keywords = ["openapi", "http", "parser", "generator", "rest"]
+categories = ["development-tools", "parser-implementations", "web-programming"]
 
 [dependencies]
 httpgenerator-core.workspace = true

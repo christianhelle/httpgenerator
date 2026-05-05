@@ -1,9 +1,20 @@
 [package]
-name = "httpgenerator-cli"
+name = "httpgenerator"
+authors.workspace = true
 version.workspace = true
 edition.workspace = true
+description = "Generate .http files from OpenAPI specifications"
+homepage.workspace = true
 license.workspace = true
 repository.workspace = true
+rust-version.workspace = true
+documentation = "https://docs.rs/httpgenerator"
+readme = "README.md"
+keywords = ["openapi", "http", "generator", "cli", "rest"]
+categories = ["command-line-utilities", "development-tools"]
+
+[lib]
+name = "httpgenerator_cli"
 
 [[bin]]
 name = "httpgenerator"
