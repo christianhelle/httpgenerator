@@ -32,3 +32,32 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 - The main docs surfaces that needed updates for the move were `README.md`, `CONTRIBUTING.md`, `.github\copilot-instructions.md`, `docs\README.md`, `docs\index.html`, `docs\Marketplace.md`, and `src\dotnet\HttpGenerator\README.md`.
 - Cross-agent closeout: Hicks preserved repo-root entrypoints and runtime lookup, Bishop confirmed validation/release matrix continuity, and Ripley approved the migration once the path-bearing active surfaces were clean.
 - Session directive: all spawned agents used GPT-5.4 for this session only.
+
+### Crates.io Publishing Pattern Analysis (2026-05-DD)
+- **Objective**: Extract patterns from `christianhelle/httprunner` and `christianhelle/azdocli` to guide httpgenerator crates.io publishing.
+- **Key findings**:
+  - Both repos use single `VERSION` env var in GitHub Actions workflow, injected via PowerShell to `Cargo.toml` before publish
+  - Both use `cargo publish --allow-dirty --token ${{ secrets.CRATES_TOKEN }}` for authentication
+  - httprunner (multi-crate) publishes core + CLI sequentially in same job; azdocli (single crate) publishes in standalone job
+  - httprunner updates per-crate README.md with version; azdocli does not
+  - No reference repos have .NET co-release; Rust CLI is isolated from legacy distribution
+- **Httpgenerator applicability**:
+  - ✅ Version injection pattern works identically (same workspace + per-crate Cargo.toml structure as httprunner)
+  - ✅ Multi-crate sequential publish fits 3-crate workspace (core → openapi → cli dependency chain)
+  - ✅ Token-based auth via CRATES_TOKEN secret is standard practice
+  - ⚠️ Decision needed: Publish httpgenerator-openapi and httpgenerator-core as public crates, or CLI-only?
+  - ⚠️ Version source strategy: httprunner uses `0.9.${{ github.run_number }}` (incremental), azdocli hardcodes constant
+- **Documentation checklist** (for future release workflow):
+  - Add CONTRIBUTING.md section on crates.io prerequisites (token setup, permissions)
+  - Link to crates.io package pages from README once released
+  - Consider adding per-crate README.md files if libraries are intended for downstream use
+- The reference-repo pattern study (httprunner + azdocli) was merged into `.squad\decisions.md` during the 2026-05-05 crates.io publishing closeout.
+
+### Crates.io Install Guidance Sweep (2026-05-05)
+- Ripley's packaging gate makes three crates public (`httpgenerator`, `httpgenerator-core`, `httpgenerator-openapi`) and keeps `src\rust\httpgenerator-compat` private with `publish = false`; docs should mirror that split exactly.
+- User-facing install guidance now needs a three-lane explanation: crates.io for Rust-native installs (`cargo install httpgenerator` for published releases), GitHub Releases for prebuilt standalone CLI archives, and Marketplace / VSIX packages for editor extensions that bundle native binaries.
+- The main surfaces for this message are `README.md`, `docs\index.html`, and `docs\README.md`; extension sections should also remind users that Cargo-installed binaries can be reused through `PATH`, `HTTPGENERATOR_PATH`, or `http-file-generator.executablePath`.
+
+### Team Closeout — crates.io publishing (2026-05-05)
+- Ripley approved the public/private crate split and release-readiness gate, while Hicks encoded ordered crates.io publication in the reusable workflow.
+- Bishop's validation closeout means the docs can safely describe crates.io as first-class while still calling out the expected pre-publish dry-run limitation.

@@ -17,3 +17,7 @@ Scribe maintains `.squad` memory: orchestration logs, session logs, decision mer
 - Logged the session in `.squad\log\` and merged the current decision inbox into `decisions.md`, then cleared `.squad\decisions\inbox\`.
 - Refreshed affected agent histories and summarized oversized history files into compact core context so internal notes stay useful after the source-layout migration.
 - Session directive: all spawned agents used GPT-5.4 for this session only.
+
+### Crates.io Publishing Session Closeout (2026-05-05)
+- Recorded orchestration outcomes for Ripley, Hicks, Hudson, and Bishop under `.squad\orchestration-log\` using UTC ISO-style timestamps.
+- Logged the session, merged the current decision inbox into `decisions.md`, cleared `.squad\decisions\inbox\`, and captured the GPT-5.5 session directive plus the crates.io packaging/workflow/docs/validation/release-readiness decisions.
