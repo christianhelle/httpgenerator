@@ -38,8 +38,8 @@ function PrepareLocalRustCli {
         New-Item -ItemType Directory -Path $binDirectory | Out-Null
     }
 
-    Write-Host "cargo build --release -p httpgenerator-cli"
-    $process = Start-Process "cargo" -Args "build --release -p httpgenerator-cli" -NoNewWindow -PassThru
+    Write-Host "cargo build --release -p httpgenerator"
+    $process = Start-Process "cargo" -Args "build --release -p httpgenerator" -NoNewWindow -PassThru
     $process | Wait-Process
     if ($process.ExitCode -ne 0) {
         throw "cargo build failed"
@@ -475,5 +475,11 @@ function RunTests {
     }
 }
 
-Measure-Command { RunTests -Method "RustCli" -Parallel $Parallel -Production $Production }
-Write-Host "`r`n"
+Push-Location $PSScriptRoot
+try {
+    Measure-Command { RunTests -Method "RustCli" -Parallel $Parallel -Production $Production }
+    Write-Host "`r`n"
+}
+finally {
+    Pop-Location
+}
