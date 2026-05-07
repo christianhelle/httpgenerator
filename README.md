@@ -26,7 +26,7 @@ Generate .http files from OpenAPI specifications
 HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
 - **crates.io**: `cargo install httpgenerator`
-  - Best when you already have Rust and Cargo (Rust 1.85+) on your machine and want the canonical Rust ecosystem install path for published releases.
+  - Best when you already have Rust and Cargo (Rust 1.95+) on your machine and want the canonical Rust ecosystem install path for published releases.
   - The public crates.io surface is the end-user CLI crate `httpgenerator` plus the reusable library crate `httpgenerator-core`.
 - **Standalone CLI**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
   - Best when you want a prebuilt binary without installing the Rust toolchain.
