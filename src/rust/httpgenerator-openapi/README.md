@@ -2,9 +2,8 @@
 
 `httpgenerator-openapi` loads, inspects, and normalizes OpenAPI documents for HTTP File Generator.
 
-- Docs: https://docs.rs/httpgenerator-openapi
-- Homepage: https://christianhelle.github.io/httpgenerator/
-- Repository: https://github.com/christianhelle/httpgenerator
+- Homepage: <https://christianhelle.com/httpgenerator/>
+- Repository: <https://github.com/christianhelle/httpgenerator>
 
 ## Add to your project
 

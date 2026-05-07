@@ -10,7 +10,7 @@ resolver = "2"
 [workspace.package]
 authors = ["Christian Helle"]
 edition = "2024"
-homepage = "https://christianhelle.github.io/httpgenerator/"
+homepage = "https://christianhelle.com/httpgenerator/"
 license = "MIT"
 repository = "https://github.com/christianhelle/httpgenerator"
 rust-version = "1.95"

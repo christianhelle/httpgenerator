@@ -8,7 +8,6 @@ homepage.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
-documentation = "https://docs.rs/httpgenerator-openapi"
 readme = "README.md"
 keywords = ["openapi", "http", "parser", "generator", "rest"]
 categories = ["development-tools", "parser-implementations", "web-programming"]

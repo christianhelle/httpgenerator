@@ -2,9 +2,8 @@
 
 `httpgenerator-core` provides the normalized model and `.http` rendering primitives used by HTTP File Generator.
 
-- Docs: https://docs.rs/httpgenerator-core
-- Homepage: https://christianhelle.github.io/httpgenerator/
-- Repository: https://github.com/christianhelle/httpgenerator
+- Homepage: <https://christianhelle.com/httpgenerator/>
+- Repository: <https://github.com/christianhelle/httpgenerator>
 
 ## Add to your project
 
