@@ -358,7 +358,7 @@ jobs:
           python .github/scripts/check-crates-io-version.py --crate httpgenerator-openapi --version "$RELEASE_VERSION" --state absent
           python .github/scripts/check-crates-io-version.py --crate httpgenerator --version "$RELEASE_VERSION" --state absent
 
-      - name: Dry run: publish core
+      - name: Dry run - publish core
         run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator-core
 
   publish-crates:
@@ -387,7 +387,7 @@ jobs:
         shell: bash
         run: python .github/scripts/check-crates-io-version.py --crate httpgenerator-core --version "$RELEASE_VERSION" --state present --retries 30 --delay-seconds 10
 
-      - name: Dry run: publish httpgenerator-openapi
+      - name: Dry run - publish httpgenerator-openapi
         run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator-openapi
 
       - name: Publish httpgenerator-openapi
@@ -397,7 +397,7 @@ jobs:
         shell: bash
         run: python .github/scripts/check-crates-io-version.py --crate httpgenerator-openapi --version "$RELEASE_VERSION" --state present --retries 30 --delay-seconds 10
 
-      - name: Dry run: publish httpgenerator
+      - name: Dry run - publish httpgenerator
         run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator
 
       - name: Publish httpgenerator
