@@ -25,22 +25,35 @@ Generate .http files from OpenAPI specifications
 
 HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
+- **crates.io**: `cargo install httpgenerator`
+  - Best when you already have Rust and Cargo (Rust 1.95+) on your machine and want the canonical Rust ecosystem install path for published releases.
+  - The public crates.io surface is split into the end-user CLI crate `httpgenerator` plus the reusable library crates `httpgenerator-core` and `httpgenerator-openapi`.
 - **Standalone CLI**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
+  - Best when you want a prebuilt binary without installing the Rust toolchain.
   - `httpgenerator-<version>-linux-x64.tar.gz`
   - `httpgenerator-<version>-darwin-x64.tar.gz`
   - `httpgenerator-<version>-win-x64.zip`
-- **Build locally**: `cargo build --release -p httpgenerator-cli`
+- **Build locally**: `cargo build --release -p httpgenerator`
 - **VS Code**: install the platform-specific `.vsix` for your OS and architecture. Each package bundles the native Rust CLI, and you can override it with `http-file-generator.executablePath`.
 - **Visual Studio 2022**: install the Visual Studio `.vsix`, which bundles `httpgenerator.exe`.
 
 The legacy `.NET` CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.
 
+crates.io complements rather than replaces the existing release channels. Use crates.io for Rust-native installation and library consumption, use GitHub Releases for prebuilt CLI archives, and use the VS Code / Visual Studio Marketplace packages when you want the editor hosts with their bundled binaries.
+
 ### Repository layout
 
-- `src\rust` contains the Rust workspace crates (`httpgenerator-cli`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`).
+- `src\rust` contains the Rust workspace crates (`httpgenerator`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`); the CLI crate `httpgenerator` lives in the `src/rust/httpgenerator-cli` directory.
 - `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
 - `src\vscode` contains the VS Code extension.
 - Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src/dotnet/*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
+
+### Public vs private Rust crates
+
+- `httpgenerator` is the public CLI crate and the package normal users install with `cargo install httpgenerator`.
+- `httpgenerator-core` is a public library crate for the normalized model and `.http` rendering pipeline.
+- `httpgenerator-openapi` is a public library crate for OpenAPI loading, parsing, version detection, and normalization.
+- `httpgenerator-compat` is an internal compatibility and differential-testing harness. It stays private and is not intended for crates.io distribution.
 
 ## Usage
 
@@ -246,7 +259,7 @@ No **support key** is generated when you opt out with `--no-logging`.
 
 The VS Code extension is now packaged per platform because it bundles the native Rust CLI.
 
-When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, repo-root workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`.
+When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, repo-root workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`. That means a Cargo-installed `httpgenerator` binary can also satisfy the extension if you prefer to manage the CLI yourself.
 
 ### Visual Studio 2022 Extension
 
@@ -258,7 +271,7 @@ From the **Tools** menu select **Generate .http files**
 
 This opens the main dialog which has similar input fields as the CLI tool and now shells out to the Rust `httpgenerator` executable.
 
-The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, or `PATH`.
+The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, or `PATH`. A Cargo-installed CLI can therefore be reused here as long as the binary is discoverable on `PATH` or via `HTTPGENERATOR_PATH`.
 
 ![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
 

@@ -50,13 +50,16 @@
                 <h2 class="section-title">Installation</h2>
                 <p>HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.</p>
                 <ul>
+                    <li>Install from <strong>crates.io</strong> with <code>cargo install httpgenerator</code> when you want the canonical Rust ecosystem install path for published releases.</li>
                     <li>Download a platform-specific CLI archive from <a href="https://github.com/christianhelle/httpgenerator/releases">GitHub Releases</a> and place <code>httpgenerator</code> / <code>httpgenerator.exe</code> on <code>PATH</code>.</li>
-                    <li>Build locally with <code>cargo build --release -p httpgenerator-cli</code>.</li>
+                    <li>Build locally with <code>cargo build --release -p httpgenerator</code>.</li>
                     <li>Install the platform-specific VS Code <code>.vsix</code>; each package bundles the native Rust CLI.</li>
                     <li>Install the Visual Studio 2022 <code>.vsix</code>; it bundles <code>httpgenerator.exe</code>.</li>
                 </ul>
                 <p>The legacy .NET CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.</p>
-                <p>The canonical source layout is <code>src\rust</code>, <code>src\dotnet</code>, and <code>src\VSCode</code>. Root entrypoints stay at the repository root, so Cargo commands still run from the root <code>Cargo.toml</code>, .NET commands still target <code>src/dotnet/*.slnx</code>, and VS Code packaging still runs through <code>src\VSCode\build.ps1</code>.</p>
+                <p>crates.io is the Rust-native install and library distribution path. GitHub Releases remain the source for prebuilt CLI archives, and the editor extensions continue shipping their own bundled native binaries through Marketplace / VSIX distribution.</p>
+                <p>The public crates are <code>httpgenerator</code> (CLI), <code>httpgenerator-core</code>, and <code>httpgenerator-openapi</code>. The <code>httpgenerator-compat</code> crate is an internal compatibility harness and is not published.</p>
+                <p>The canonical source layout is <code>src\rust</code>, <code>src\dotnet</code>, and <code>src\vscode</code>. Root entrypoints stay at the repository root, so Cargo commands still run from the root <code>Cargo.toml</code>, .NET commands still target <code>src/dotnet/*.slnx</code>, and VS Code packaging still runs through <code>src\vscode\build.ps1</code>.</p>
             </section>
 
             <!-- Usage Section -->
@@ -247,7 +250,7 @@ Support key: mbmbqvd</code></pre>
                     <img src="images/vsix_httpgenerator_dialog.png" alt="Main dialog" class="screenshot">
                 </div>
 
-                <p>The Visual Studio extension resolves <code>httpgenerator.exe</code> from <code>HTTPGENERATOR_PATH</code>, the bundled VSIX payload, repo-root workspace <code>target\debug</code> / <code>target\release</code> outputs during development, or <code>PATH</code>.</p>
+                <p>The Visual Studio extension resolves <code>httpgenerator.exe</code> from <code>HTTPGENERATOR_PATH</code>, the bundled VSIX payload, repo-root workspace <code>target\debug</code> / <code>target\release</code> outputs during development, or <code>PATH</code>. A Cargo-installed CLI can therefore be reused when you want the extension to target the same binary you use from the terminal.</p>
 
                 <p>You can supply Azure Entra ID tenant and scope settings by clicking on the <code>...</code> button beside the <strong>Authorization Headers</strong> input field. The Rust CLI acquires the access token during generation.</p>
                 <div class="image-container">

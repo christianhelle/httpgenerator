@@ -11,7 +11,7 @@ Always reference these instructions first and fall back to deeper code search on
 - **Never cancel builds or smoke tests.**
 - Rust validation:
   - `cargo test`
-  - `cargo run -q -p httpgenerator-cli -- test\OpenAPI\v3.0\petstore.json --output <dir> --no-logging`
+  - `cargo run -q -p httpgenerator -- test\OpenAPI\v3.0\petstore.json --output <dir> --no-logging`
 - .NET oracle validation:
   - `dotnet restore src/dotnet/HttpGenerator.slnx`
   - `dotnet build src/dotnet/HttpGenerator.slnx --configuration Release`

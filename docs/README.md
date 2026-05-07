@@ -4,6 +4,10 @@ This directory contains the static documentation website for the HTTP File Gener
 
 The canonical source layout for the product now lives under `src\rust`, `src\dotnet`, and `src\vscode`; this `docs/` folder remains a root-level documentation surface alongside the preserved repo-root build entrypoints.
 
+The docs site is also the human-facing homepage referenced by the public Rust crates. Keep its installation guidance aligned with the root `README.md`: `cargo install httpgenerator` is the Rust ecosystem install path for published releases, GitHub Releases provide the prebuilt CLI archives, and the editor extensions continue distributing bundled native binaries through `.vsix` packages.
+
+The public crates are `httpgenerator`, `httpgenerator-core`, and `httpgenerator-openapi`. `httpgenerator-compat` is intentionally private and should not be presented as a user-installable crate.
+
 ## Files
 
 - `index.html` - Main documentation page with complete project information

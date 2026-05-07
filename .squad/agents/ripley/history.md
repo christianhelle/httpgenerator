@@ -32,3 +32,38 @@
 - Cross-agent closeout: Hicks landed the move and runtime rewrites, Bishop retargeted validation/release paths without changing matrix shape, Hudson updated the contributor/user-facing docs, and the migration passed the full validation set (`cargo test`, `dotnet build ...`, `dotnet test ...`, `test\smoke-tests.ps1`, `npm ci` + `npm run compile` in `src\VSCode`).
 - Only non-blocking follow-up after approval was stale old-path guidance inside `.squad\`; internal notes should keep converging on `src\rust` and `src\dotnet`.
 - Session directive: all spawned agents used GPT-5.4 for this session only.
+
+### Crates.io Publishing Readiness Investigation (2026-05-XX)
+- **Workspace structure:** Correct for publishing (CLI binary + 3 libraries; httpgenerator-compat is test-only)
+- **Critical blocker:** Edition specified as `"2024"` (invalid; must be `"2021"` or similar recognized edition). Blocks all crates.io submissions.
+- **Missing metadata:** All 4 crates lack `description`, `homepage`, `documentation`, `authors`, `keywords`, `categories` fields. Crates.io requires at minimum `description`; others improve discoverability.
+- **Binary vs library decision pending:** Architectural choice needed on whether to publish CLI to crates.io (for `cargo install`) or continue GitHub Releases only. Option C (Both) recommended for maximum user choice; adds ~5 min to release workflow.
+- **Library publication:** httpgenerator-core and httpgenerator-openapi are suitable for publication (stable public APIs, clean external dependency lists). httpgenerator-compat should be marked `publish = false` (test harness only).
+- **Dependency ordering:** Release workflow must publish in order: core → openapi → cli. Current release-template.yml has no `cargo publish` steps.
+- **Release workflow gaps:** Missing `cargo publish --dry-run` validation, missing CARGO_REGISTRY_TOKEN setup, missing publish steps in sequential order with delays for crates.io indexing.
+- **Documentation:** README lacks library usage guidance; no lib.rs root docs in crates. Need crate-level documentation comments and module examples.
+- **Versioning:** Currently 0.1.0 with manual sed/PowerShell updates. Semver strategy undefined (0.x.y vs 1.0.0 transition). Recommend staying in 0.x.y until APIs are stable.
+- The initial crates.io gap analysis (architecture, blockers, metadata completeness, and release workflow impact) was merged into `.squad\decisions.md` during the 2026-05-05 session closeout.
+
+### Crates.io Packaging Decision Gate (2026-05-05)
+- Rust 2024 is valid now; the Edition Guide pegs Rust 2024 to Rust 1.85. The earlier "2024 is invalid" assumption is stale and should not drive packaging decisions anymore.
+- Accepted public crate set: `httpgenerator` (CLI crate name for `cargo install httpgenerator`), `httpgenerator-core`, and `httpgenerator-openapi`. `src\rust\httpgenerator-compat` remains internal only with `publish = false`.
+- Canonical URL split for crates: `homepage = https://christianhelle.github.io/httpgenerator/` for the human-facing product surface, and `documentation = https://docs.rs/<crate>` for API docs on each public crate.
+- Direct decision-encoding paths touched: `Cargo.toml`, `src\rust\httpgenerator-{core,openapi,cli,compat}\Cargo.toml`, workflow/package-call surfaces that build by package name, and the merged decision record in `.squad\decisions.md`.
+
+### Final Crates.io Publishing Reviewer Gate (2026-05-05)
+- Final verdict: **approved / release-ready** for the crates.io implementation. No blocker-level defects found against the approved plan or the supplied validation evidence.
+- Expected limitation remains explicit: `cargo package` / `cargo publish --dry-run` is only expected to pass for `httpgenerator-core` before publication; downstream `httpgenerator-openapi` and `httpgenerator` dry-runs will fail until the sibling dependency version becomes visible on crates.io.
+- Publish sequencing is now encoded where it matters: `.github\workflows\release-template.yml` gates crates behind `publish-crates`, validates the token, publishes after artifact jobs, and publishes in order `httpgenerator-core` → `httpgenerator-openapi` → `httpgenerator` with crates.io polling between steps.
+- Metadata/docs contract is coherent across root and crate surfaces: root `Cargo.toml`, `src\rust\httpgenerator-{core,openapi,cli,compat}\Cargo.toml`, crate READMEs, `README.md`, `docs\README.md`, and `docs\index.html` all align on the public crate set, docs.rs/homepage split, and the private status of `httpgenerator-compat`.
+- Validation contract to remember for future reviews: `cargo test`, `dotnet build src\dotnet\HttpGenerator.slnx -c Release`, `dotnet test src\dotnet\HttpGenerator.slnx -c Release`, and `test\smoke-tests.ps1`; smoke correctness depends on the repo-root entrypoint staying anchored to `$PSScriptRoot`.
+
+## Governance
+
+- All meaningful changes require team consensus
+- Document architectural decisions here
+- Keep history focused on work, decisions focused on direction
+
+### Team Closeout — crates.io publishing (2026-05-05)
+- Hicks, Hudson, and Bishop cleared the implementation, docs, and validation tracks behind the packaging gate; final reviewer verdict stayed release-ready.
+- Expected publish-order limitation is now an explicit approved condition: downstream dry-runs wait for `httpgenerator-core` visibility on crates.io.

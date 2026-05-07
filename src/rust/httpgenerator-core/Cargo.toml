@@ -1,9 +1,17 @@
 [package]
 name = "httpgenerator-core"
+authors.workspace = true
 version.workspace = true
 edition.workspace = true
+description = "Core normalization and .http rendering for HTTP File Generator"
+homepage.workspace = true
 license.workspace = true
 repository.workspace = true
+rust-version.workspace = true
+documentation = "https://docs.rs/httpgenerator-core"
+readme = "README.md"
+keywords = ["openapi", "http", "generator", "codegen", "rest"]
+categories = ["development-tools", "web-programming"]
 
 [dependencies]
 base64 = "0.22.1"

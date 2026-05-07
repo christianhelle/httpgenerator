@@ -8,7 +8,7 @@ use std::{
 
 use crate::CompatibilityScenario;
 
-const DEFAULT_RUST_CLI_PACKAGE: &str = "httpgenerator-cli";
+const DEFAULT_RUST_CLI_PACKAGE: &str = "httpgenerator";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CommandSpec {
@@ -693,7 +693,7 @@ mod tests {
         assert_eq!(command.working_directory, repo_root);
         assert_eq!(command.args[0], "run");
         assert_eq!(command.args[1], "-p");
-        assert_eq!(command.args[2], "httpgenerator-cli");
+        assert_eq!(command.args[2], "httpgenerator");
         assert_eq!(command.args[3], "--");
         assert_eq!(command.args[4], plan.scenario.input_path.to_string_lossy());
         assert!(

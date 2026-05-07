@@ -7,6 +7,9 @@ on:
       - "*"
     paths:
       - ".github/workflows/build.yml"
+      - ".github/workflows/release.yml"
+      - ".github/workflows/release-template.yml"
+      - ".github/scripts/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "src/rust/**"
@@ -18,6 +21,9 @@ on:
       - "*"
     paths:
       - ".github/workflows/build.yml"
+      - ".github/workflows/release.yml"
+      - ".github/workflows/release-template.yml"
+      - ".github/scripts/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "src/rust/**"
@@ -72,6 +78,27 @@ jobs:
       - name: Compile extension
         working-directory: src/vscode
         run: npm run compile
+
+  publish-readiness:
+    name: crates.io publish readiness
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_VERSION: 0.0.0-ci.${{ github.run_number }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Inject workspace release version
+        run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
+
+      - name: "Dry run: publish core"
+        run: cargo publish --dry-run --allow-dirty -p httpgenerator-core
+
+      - name: Build downstream crates with injected version
+        run: cargo check -p httpgenerator-openapi -p httpgenerator
 
   vsix:
     name: VSIX solution

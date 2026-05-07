@@ -1,9 +1,14 @@
 [package]
 name = "httpgenerator-compat"
+authors.workspace = true
 version.workspace = true
 edition.workspace = true
+description = "Internal compatibility harness for HTTP File Generator"
+homepage.workspace = true
 license.workspace = true
 repository.workspace = true
+rust-version.workspace = true
+publish = false
 
 [dependencies]
 httpgenerator-core.workspace = true
