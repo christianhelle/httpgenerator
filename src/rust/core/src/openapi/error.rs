@@ -1,10 +1,11 @@
 use std::{error::Error, fmt, path::PathBuf};
 
-use httpgenerator_core::NormalizedHttpMethod;
 use reqwest::StatusCode;
 use url::Url;
 
-use crate::{OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion};
+use crate::{
+    NormalizedHttpMethod, OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SourceClassificationError {

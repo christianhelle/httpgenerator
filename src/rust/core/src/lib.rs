@@ -3,6 +3,8 @@ pub mod file_naming;
 pub mod generator;
 pub mod model;
 pub mod normalized;
+#[cfg(feature = "openapi")]
+pub mod openapi;
 pub mod operation_name;
 pub mod privacy;
 pub mod string_extensions;
@@ -28,3 +30,6 @@ pub use support_information::{
     anonymous_identity, anonymous_identity_from_parts, support_key,
     support_key_from_anonymous_identity,
 };
+
+#[cfg(feature = "openapi")]
+pub(crate) use openapi::*;

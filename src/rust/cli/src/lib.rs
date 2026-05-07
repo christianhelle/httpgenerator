@@ -7,10 +7,12 @@ use std::{
     time::Duration,
 };
 
-use httpgenerator_core::{GeneratorSettings, HttpFile, generate_http_files};
-use httpgenerator_openapi::{
-    OpenApiInspection, OpenApiSpecificationVersion, inspect_document,
-    load_and_normalize_document_with_options,
+use httpgenerator_core::{
+    GeneratorSettings, HttpFile, generate_http_files,
+    openapi::{
+        OpenApiInspection, OpenApiSpecificationVersion, inspect_document,
+        load_and_normalize_document_with_options,
+    },
 };
 
 use crate::{args::CliArgs, auth::try_get_access_token};
@@ -482,7 +484,10 @@ mod tests {
             self.events.push("validation_started".to_string());
         }
 
-        fn validation_succeeded(&mut self, inspection: &httpgenerator_openapi::OpenApiInspection) {
+        fn validation_succeeded(
+            &mut self,
+            inspection: &httpgenerator_core::openapi::OpenApiInspection,
+        ) {
             self.events.push(format!(
                 "validation_succeeded:{}",
                 inspection.specification_version
@@ -553,7 +558,7 @@ mod tests {
         assert_eq!(
             error,
             CliError::UnsupportedValidationVersion {
-                version: httpgenerator_openapi::OpenApiSpecificationVersion::OpenApi31,
+                version: httpgenerator_core::openapi::OpenApiSpecificationVersion::OpenApi31,
             }
         );
     }

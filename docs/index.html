@@ -58,7 +58,7 @@
                 </ul>
                 <p>The legacy .NET CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.</p>
                 <p>crates.io is the Rust-native install and library distribution path. GitHub Releases remain the source for prebuilt CLI archives, and the editor extensions continue shipping their own bundled native binaries through Marketplace / VSIX distribution.</p>
-                <p>The public crates are <code>httpgenerator</code> (CLI), <code>httpgenerator-core</code>, and <code>httpgenerator-openapi</code>. The <code>httpgenerator-compat</code> crate is an internal compatibility harness and is not published.</p>
+                <p>The public crates are <code>httpgenerator</code> (CLI) and <code>httpgenerator-core</code>. The <code>httpgenerator-core::openapi::*</code> API now covers OpenAPI loading, inspection, and normalization, while differential compatibility coverage remains internal test-only support.</p>
                 <p>The canonical source layout is <code>src\rust</code>, <code>src\dotnet</code>, and <code>src\vscode</code>. Root entrypoints stay at the repository root, so Cargo commands still run from the root <code>Cargo.toml</code>, .NET commands still target <code>src/dotnet/*.slnx</code>, and VS Code packaging still runs through <code>src\vscode\build.ps1</code>.</p>
             </section>
 

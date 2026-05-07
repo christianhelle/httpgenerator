@@ -1,6 +1,6 @@
 use std::fs;
 
-use httpgenerator_core::{
+use crate::{
     NormalizedHttpMethod, NormalizedInlineParameter, NormalizedInlineRequestBody,
     NormalizedMediaType, NormalizedOpenApiDocument, NormalizedOperation, NormalizedParameter,
     NormalizedParameterLocation, NormalizedRequestBody, NormalizedSchema, NormalizedSchemaProperty,
@@ -8,10 +8,10 @@ use httpgenerator_core::{
 };
 use serde_json::{Map, Value};
 
+use super::loader::load_document_with_options;
 use crate::{
     LoadedOpenApiDocument, OpenApiDocumentNormalizationError, OpenApiNormalizationError,
     OpenApiSource,
-    loader::load_document_with_options,
 };
 
 pub fn load_and_normalize_document(
@@ -758,9 +758,10 @@ impl InlineParameterKey for NormalizedParameter {
 mod tests {
     use std::path::PathBuf;
 
-    use httpgenerator_core::{
+    use crate::{
         NormalizedHttpMethod, NormalizedParameter, NormalizedParameterLocation,
-        NormalizedRequestBody, NormalizedServer, NormalizedSpecificationVersion,
+        NormalizedRequestBody, NormalizedSchemaType, NormalizedServer,
+        NormalizedSpecificationVersion,
     };
 
     use crate::{OpenApiSource, decode_raw_document, load_document_from_raw};
@@ -774,7 +775,7 @@ mod tests {
     fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/petstore.json")),
-            include_str!("../../../../test/OpenAPI/v3.0/petstore.json"),
+            include_str!("../../../../../test/OpenAPI/v3.0/petstore.json"),
         )
         .unwrap();
         let loaded = load_document_from_raw(raw).unwrap();
@@ -826,7 +827,7 @@ mod tests {
                     category
                         .schema
                         .types
-                        .contains(&httpgenerator_core::NormalizedSchemaType::Object)
+                        .contains(&NormalizedSchemaType::Object)
                 );
             }
             NormalizedRequestBody::Reference { .. } => {
@@ -856,7 +857,7 @@ mod tests {
     fn normalizes_petstore_v20_fixture_into_generator_facing_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v2.0/petstore.json")),
-            include_str!("../../../../test/OpenAPI/v2.0/petstore.json"),
+            include_str!("../../../../../test/OpenAPI/v2.0/petstore.json"),
         )
         .unwrap();
         let loaded = load_document_from_raw(raw).unwrap();
@@ -924,7 +925,7 @@ mod tests {
                         && parameter
                             .schema
                             .as_ref()
-                            .is_some_and(|schema| schema.types.contains(&httpgenerator_core::NormalizedSchemaType::Array))
+                            .is_some_and(|schema| schema.types.contains(&NormalizedSchemaType::Array))
             )
         }));
 
@@ -1006,7 +1007,7 @@ mod tests {
     fn webhook_only_v31_documents_normalize_without_operations() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
-            include_str!("../../../../test/OpenAPI/v3.1/webhook-example.json"),
+            include_str!("../../../../../test/OpenAPI/v3.1/webhook-example.json"),
         )
         .unwrap();
         let loaded = load_document_from_raw(raw).unwrap();
