@@ -14,7 +14,9 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Wait for, or assert the absence of, a crate version on crates.io."
     )
-    parser.add_argument("--crate", required=True, help="Crate name to query on crates.io.")
+    parser.add_argument(
+        "--crate", required=True, help="Crate name to query on crates.io."
+    )
     parser.add_argument("--version", required=True, help="Version to look for.")
     parser.add_argument(
         "--state",
@@ -54,11 +56,34 @@ def main() -> int:
     args = parse_args()
 
     for attempt in range(1, args.retries + 1):
-        versions = fetch_versions(args.crate)
+        try:
+            versions = fetch_versions(args.crate)
+        except (urllib.error.URLError, urllib.error.HTTPError) as e:
+            if isinstance(e, urllib.error.HTTPError) and e.code != 404:
+                print(
+                    f"Warning: HTTP Error {e.code} encountered for {args.crate}. Retrying..."
+                )
+            else:
+                # For URLError or non-transient HTTP errors (like 4xx other than 404), re-raise/break the loop if this was the last attempt
+                if attempt == args.retries:
+                    raise e
+                print(
+                    f"Warning: Network error encountered for {args.crate}: {e}. Retrying..."
+                )
+
+            # If we are here, it means an exception occurred and we need to retry (unless this is the last attempt)
+            if attempt < args.retries:
+                time.sleep(args.delay_seconds)
+                continue  # Continue loop on retry
+
+            raise e  # Re-raise if it was the final attempt
+
         is_present = args.version in versions
 
         if args.state == "present" and is_present:
-            print(f"{args.crate} {args.version} is visible on crates.io after {attempt} check(s).")
+            print(
+                f"{args.crate} {args.version} is visible on crates.io after {attempt} check(s)."
+            )
             return 0
 
         if args.state == "absent" and not is_present:
