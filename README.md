@@ -27,7 +27,7 @@ HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
 - **crates.io**: `cargo install httpgenerator`
   - Best when you already have Rust and Cargo (Rust 1.95+) on your machine and want the canonical Rust ecosystem install path for published releases.
-  - The public crates.io surface is split into the end-user CLI crate `httpgenerator` plus the reusable library crates `httpgenerator-core` and `httpgenerator-openapi`.
+  - The public crates.io surface is the end-user CLI crate `httpgenerator` plus the reusable library crate `httpgenerator-core`.
 - **Standalone CLI**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
   - Best when you want a prebuilt binary without installing the Rust toolchain.
   - `httpgenerator-<version>-linux-x64.tar.gz`
@@ -43,7 +43,7 @@ crates.io complements rather than replaces the existing release channels. Use cr
 
 ### Repository layout
 
-- `src\rust` contains the Rust workspace crates (`httpgenerator`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`); the CLI crate `httpgenerator` lives in the `src/rust/httpgenerator-cli` directory.
+- `src\rust` contains the Rust workspace crates (`httpgenerator`, `httpgenerator-core`, and `httpgenerator-compat`); the CLI crate `httpgenerator` lives in the `src/rust/httpgenerator-cli` directory.
 - `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
 - `src\vscode` contains the VS Code extension.
 - Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src/dotnet/*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
@@ -51,8 +51,7 @@ crates.io complements rather than replaces the existing release channels. Use cr
 ### Public vs private Rust crates
 
 - `httpgenerator` is the public CLI crate and the package normal users install with `cargo install httpgenerator`.
-- `httpgenerator-core` is a public library crate for the normalized model and `.http` rendering pipeline.
-- `httpgenerator-openapi` is a public library crate for OpenAPI loading, parsing, version detection, and normalization.
+- `httpgenerator-core` is the public library crate for OpenAPI loading, inspection, parsing, version detection, normalization, and `.http` rendering.
 - `httpgenerator-compat` is an internal compatibility and differential-testing harness. It stays private and is not intended for crates.io distribution.
 
 ## Usage

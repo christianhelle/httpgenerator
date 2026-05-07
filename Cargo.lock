@@ -836,20 +836,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "httpgenerator-openapi"
-version = "0.1.0"
-dependencies = [
- "httpgenerator-core",
- "openapiv3",
- "openapiv3_1",
- "reqwest 0.12.28",
- "serde",
- "serde_json",
- "url",
- "yaml_serde",
-]
-
-[[package]]
 name = "hybrid-array"
 version = "0.4.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"

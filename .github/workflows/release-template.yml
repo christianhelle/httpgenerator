@@ -355,13 +355,11 @@ jobs:
         shell: bash
         run: |
           python .github/scripts/check-crates-io-version.py --crate httpgenerator-core --version "$RELEASE_VERSION" --state absent
-          python .github/scripts/check-crates-io-version.py --crate httpgenerator-openapi --version "$RELEASE_VERSION" --state absent
           python .github/scripts/check-crates-io-version.py --crate httpgenerator --version "$RELEASE_VERSION" --state absent
 
-      - name: Run package validation and dry run - publish core
+      - name: Run package validation and dry run - publish crates
         run: |
           # Validate dependents packages locally for manifest issues
-          cargo package --allow-dirty -p httpgenerator-openapi
           cargo package --allow-dirty -p httpgenerator
           cargo publish --dry-run --allow-dirty -p httpgenerator-core
 
@@ -390,16 +388,6 @@ jobs:
       - name: Wait for httpgenerator-core on crates.io
         shell: bash
         run: python .github/scripts/check-crates-io-version.py --crate httpgenerator-core --version "$RELEASE_VERSION" --state present --retries 60 --delay-seconds 10
-
-      - name: Dry run - publish httpgenerator-openapi
-        run: cargo publish --dry-run --allow-dirty -p httpgenerator-openapi
-
-      - name: Publish httpgenerator-openapi
-        run: cargo publish --allow-dirty -p httpgenerator-openapi
-
-      - name: Wait for httpgenerator-openapi on crates.io
-        shell: bash
-        run: python .github/scripts/check-crates-io-version.py --crate httpgenerator-openapi --version "$RELEASE_VERSION" --state present --retries 60 --delay-seconds 10
 
       - name: Dry run - publish httpgenerator
         run: cargo publish --dry-run --allow-dirty -p httpgenerator

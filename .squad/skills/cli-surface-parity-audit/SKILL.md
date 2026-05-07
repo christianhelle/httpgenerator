@@ -56,7 +56,7 @@ Use this skill when the Rust CLI in `crates/` needs to match or intentionally di
 ### Validate content parity, not only chrome
 
 - Compare validation behavior and stats values, not only visual formatting.
-- In this repo, Rust stats in `crates/httpgenerator-openapi/src/inspect.rs` do not currently match the C# `OpenApiWalker` counts in `src/HttpGenerator/Validation/OpenApiStats.cs`.
+- In this repo, Rust stats in `src/rust/httpgenerator-core/src/openapi/inspect.rs` do not currently match the C# `OpenApiWalker` counts in `src/HttpGenerator/Validation/OpenApiStats.cs`.
 - OpenAPI 3.1 validation is another parity check: the C# oracle currently succeeds while Rust still blocks validation.
 
 ## Examples

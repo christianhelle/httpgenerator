@@ -1,7 +1,6 @@
 [workspace]
 members = [
   "src/rust/httpgenerator-core",
-  "src/rust/httpgenerator-openapi",
   "src/rust/httpgenerator-cli",
   "src/rust/httpgenerator-compat",
 ]
@@ -22,7 +21,6 @@ azure_identity = "0.35.0"
 clap = { version = "4.5.53", features = ["derive"] }
 console = "0.16.3"
 httpgenerator-core = { version = "0.1.0", path = "src/rust/httpgenerator-core" }
-httpgenerator-openapi = { version = "0.1.0", path = "src/rust/httpgenerator-openapi" }
 openapiv3 = "2.2.0"
 openapiv3_1 = "0.1.5"
 pollster = "0.4.0"

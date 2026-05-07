@@ -167,7 +167,7 @@
 
 ### 2026-05-05: Crates.io Packaging Gate
 **By:** Ripley (Lead)
-**What:** Keep Rust Edition 2024, set shared `rust-version = "1.85"`, publish `httpgenerator`, `httpgenerator-core`, and `httpgenerator-openapi`, keep `src\rust\httpgenerator-compat` private with `publish = false`, and use GitHub Pages for homepage plus docs.rs for per-crate documentation.
+**What:** Keep Rust Edition 2024, set shared `rust-version = "1.85"`, publish `httpgenerator` and `httpgenerator-core`, keep `src\rust\httpgenerator-compat` private with `publish = false`, and use GitHub Pages for homepage plus docs.rs for per-crate documentation.
 **Why:** This preserves the Rust-first product direction, keeps `cargo install httpgenerator` clean, and aligns crate metadata with the canonical product/docs surfaces.
 
 ### 2026-05-05: Publish-safe Workspace Dependency Wiring
@@ -177,7 +177,7 @@
 
 ### 2026-05-05: Release Workflow crates.io Publication Path
 **By:** Hicks (Core Dev)
-**What:** Wire crates.io publication into the reusable release workflow behind `publish-crates`, enable it for stable `release.yml`, keep preview/template callers artifact-only by default, require `CARGO_REGISTRY_TOKEN`, and publish in dependency order `httpgenerator-core` → `httpgenerator-openapi` → `httpgenerator` with crates.io visibility polling between steps.
+**What:** Wire crates.io publication into the reusable release workflow behind `publish-crates`, enable it for stable `release.yml`, keep preview/template callers artifact-only by default, require `CARGO_REGISTRY_TOKEN`, and publish in dependency order `httpgenerator-core` → `httpgenerator` with crates.io visibility polling between steps.
 **Why:** Stable releases should publish crates automatically without risking preview-package pushes or brittle fixed sleeps.
 
 ### 2026-05-05: crates.io Documentation Distribution Matrix
@@ -187,13 +187,13 @@
 
 ### 2026-05-05: Validation Contract for crates.io Publishing
 **By:** Bishop (Tester)
-**What:** Treat dirty-worktree publish failures without `--allow-dirty` separately from expected downstream crates.io resolution failures, keep the smoke-test root entrypoint anchored to `$PSScriptRoot`, and preserve publish sequencing `httpgenerator-core` → `httpgenerator-openapi` → `httpgenerator`.
+**What:** Treat dirty-worktree publish failures without `--allow-dirty` separately from expected downstream crates.io resolution failures, keep the smoke-test root entrypoint anchored to `$PSScriptRoot`, and preserve publish sequencing `httpgenerator-core` → `httpgenerator`.
 **Why:** Validation reporting should distinguish true regressions from the known pre-publish dependency-order limitation.
 
 ### 2026-05-05: Crates.io Publishing Release Readiness
 **By:** Ripley (Lead), Hicks (Core Dev), Hudson (DevRel/Docs), Bishop (Tester)
 **What:** Approved the crates.io publishing implementation as release-ready after green validation (`cargo test`, `dotnet build src\dotnet\HttpGenerator.slnx -c Release`, `dotnet test src\dotnet\HttpGenerator.slnx -c Release`, `test\smoke-tests.ps1`) and aligned metadata, workflow, and docs.
-**Expected limitation:** Only `httpgenerator-core` can pass local publish-style dry-runs before first publication; `httpgenerator-openapi` and `httpgenerator` must wait for crates.io visibility of the newly published dependency version.
+**Expected limitation:** Only `httpgenerator-core` can pass local publish-style dry-runs before first publication; `httpgenerator` must wait for crates.io visibility of the newly published dependency version.
 
 ## Governance
 

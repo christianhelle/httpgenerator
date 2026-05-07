@@ -77,10 +77,7 @@ publish-crates:
     - name: Publish Core to crates.io
       run: cargo publish --allow-dirty --token ${{ secrets.CRATES_TOKEN }} -p httpgenerator-core
       
-    - name: Publish OpenAPI to crates.io (depends on core)
-      run: cargo publish --allow-dirty --token ${{ secrets.CRATES_TOKEN }} -p httpgenerator-openapi
-      
-    - name: Publish CLI to crates.io (depends on both)
+    - name: Publish CLI to crates.io (depends on core)
       run: cargo publish --allow-dirty --token ${{ secrets.CRATES_TOKEN }} -p httpgenerator
 ```
 
@@ -121,7 +118,7 @@ jobs:
 
 **Httpgenerator example**:
 - `httpgenerator-core` passes `cargo package --allow-dirty` and `cargo publish --dry-run --allow-dirty`
-- `httpgenerator-openapi` and `httpgenerator` still fail until `httpgenerator-core` is available from crates.io for package verification
+- `httpgenerator` still fails until `httpgenerator-core` is available from crates.io for package verification
 
 **Interpretation rule**:
 - A failure that disappears with `--allow-dirty` is an expected release-workflow condition, not a product regression
@@ -218,7 +215,7 @@ python .github/scripts/check-crates-io-version.py \
   - crates.io: `cargo install httpgenerator`
   - GitHub Releases: prebuilt `httpgenerator-<version>-<platform>` archives
   - VS Code / Visual Studio: extension packages that bundle native binaries
-  - Public crates: `httpgenerator`, `httpgenerator-core`, `httpgenerator-openapi`
+  - Public crates: `httpgenerator`, `httpgenerator-core`
   - Private crate: `httpgenerator-compat`
 
 ## Anti-Patterns
@@ -249,7 +246,7 @@ python .github/scripts/check-crates-io-version.py \
 
 ## Decisions for Httpgenerator
 
-1. **All 3 crates public?** Publish `httpgenerator` (CLI crate name), `httpgenerator-core`, and `httpgenerator-openapi`. Keep `httpgenerator-compat` private with `publish = false`.
+1. **Both crates public?** Publish `httpgenerator` (CLI crate name) and `httpgenerator-core`. Keep `httpgenerator-compat` private with `publish = false`.
 
 2. **Edition/MSRV pairing?** Rust 2024 is valid as of Rust 1.85. Keep Edition 2024 if the repo is already on it, and make the corresponding `rust-version = "1.85"` promise explicit instead of downgrading based on stale pre-release guidance.
 

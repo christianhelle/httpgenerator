@@ -98,7 +98,7 @@ jobs:
         run: cargo publish --dry-run --allow-dirty -p httpgenerator-core
 
       - name: Build downstream crates with injected version
-        run: cargo check -p httpgenerator-openapi -p httpgenerator
+        run: cargo check -p httpgenerator-core -p httpgenerator
 
   vsix:
     name: VSIX solution

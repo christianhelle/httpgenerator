@@ -64,8 +64,7 @@ Before contributing, please:
 src/
 ├── rust/
 │   ├── httpgenerator-cli/      # Primary Rust CLI
-│   ├── httpgenerator-core/     # Shared rendering and normalized model
-│   ├── httpgenerator-openapi/  # OpenAPI loading and normalization
+│   ├── httpgenerator-core/     # OpenAPI loading, normalization, and .http rendering
 │   └── httpgenerator-compat/   # Differential and compatibility harness
 ├── dotnet/
 │   ├── HttpGenerator/          # Legacy .NET CLI oracle
