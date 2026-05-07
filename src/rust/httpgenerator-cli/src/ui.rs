@@ -1,6 +1,7 @@
 use httpgenerator_cli::{AzureAuthStatus, CliError, ExecutionObserver};
-use httpgenerator_core::support_key;
-use httpgenerator_openapi::{OpenApiInspection, OpenApiSpecificationVersion, OpenApiStats};
+use httpgenerator_core::{
+    OpenApiInspection, OpenApiSpecificationVersion, OpenApiStats, support_key,
+};
 use std::{
     env,
     io::{self, IsTerminal, Write as IoWrite},

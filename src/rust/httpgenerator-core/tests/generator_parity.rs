@@ -1,7 +1,6 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::{GeneratorSettings, OutputType, generate_http_files};
-use httpgenerator_openapi::load_and_normalize_document;
+use httpgenerator_core::{GeneratorSettings, OutputType, generate_http_files, load_and_normalize_document};
 
 fn petstore_input() -> String {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

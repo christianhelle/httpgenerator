@@ -1,6 +1,6 @@
 use std::{error::Error, fmt, path::PathBuf};
 
-use httpgenerator_core::NormalizedHttpMethod;
+use crate::NormalizedHttpMethod;
 use reqwest::StatusCode;
 use url::Url;
 

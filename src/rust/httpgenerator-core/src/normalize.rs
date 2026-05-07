@@ -1,6 +1,6 @@
 use std::fs;
 
-use httpgenerator_core::{
+use crate::{
     NormalizedHttpMethod, NormalizedInlineParameter, NormalizedInlineRequestBody,
     NormalizedMediaType, NormalizedOpenApiDocument, NormalizedOperation, NormalizedParameter,
     NormalizedParameterLocation, NormalizedRequestBody, NormalizedSchema, NormalizedSchemaProperty,
@@ -758,7 +758,7 @@ impl InlineParameterKey for NormalizedParameter {
 mod tests {
     use std::path::PathBuf;
 
-    use httpgenerator_core::{
+    use crate::{
         NormalizedHttpMethod, NormalizedParameter, NormalizedParameterLocation,
         NormalizedRequestBody, NormalizedServer, NormalizedSpecificationVersion,
     };
@@ -826,7 +826,7 @@ mod tests {
                     category
                         .schema
                         .types
-                        .contains(&httpgenerator_core::NormalizedSchemaType::Object)
+                        .contains(&crate::NormalizedSchemaType::Object)
                 );
             }
             NormalizedRequestBody::Reference { .. } => {
@@ -924,7 +924,7 @@ mod tests {
                         && parameter
                             .schema
                             .as_ref()
-                            .is_some_and(|schema| schema.types.contains(&httpgenerator_core::NormalizedSchemaType::Array))
+                            .is_some_and(|schema| schema.types.contains(&crate::NormalizedSchemaType::Array))
             )
         }));
 

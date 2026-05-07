@@ -40,8 +40,7 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 ### Primary implementation
 
-- `src/rust/httpgenerator-core` - normalized model and `.http` renderer
-- `src/rust/httpgenerator-openapi` - source loading, parsing, version detection, normalization
+- `src/rust/httpgenerator-core` - OpenAPI loading, parsing, normalization, and `.http` rendering
 - `src/rust/httpgenerator-cli` - Rust CLI surface
 - `src/rust/httpgenerator-compat` - differential and smoke compatibility harness
 

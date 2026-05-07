@@ -26,7 +26,6 @@ azure_identity.workspace = true
 clap.workspace = true
 console.workspace = true
 httpgenerator-core.workspace = true
-httpgenerator-openapi.workspace = true
 pollster.workspace = true
 serde_json.workspace = true
 unicode-width = "0.2"
