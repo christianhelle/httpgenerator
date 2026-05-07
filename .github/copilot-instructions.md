@@ -10,7 +10,7 @@ Always reference these instructions first and fall back to deeper code search on
 
 - **Never cancel builds or smoke tests.**
 - Rust validation:
-  - `cargo test`
+  - `cargo test --workspace`
   - `cargo run -q -p httpgenerator -- test\OpenAPI\v3.0\petstore.json --output <dir> --no-logging`
 - .NET oracle validation:
   - `dotnet restore src/dotnet/HttpGenerator.slnx`
@@ -29,10 +29,13 @@ Always reference these instructions first and fall back to deeper code search on
 
 Always validate generator-affecting changes with:
 
-1. `cargo test`
+1. `cargo test --workspace`
 2. `dotnet build src/dotnet/HttpGenerator.slnx --configuration Release`
 3. `dotnet test src/dotnet/HttpGenerator.slnx --configuration Release`
 4. `test\smoke-tests.ps1`
+
+- Plain `cargo publish --dry-run --allow-dirty` from the repo root attempts both Rust packages.
+- Use `cargo publish --dry-run -p httpgenerator-core` plus `cargo check -p httpgenerator` when you need CI-style publish-readiness validation in dependency order.
 
 Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI 3.1 scenarios still require `--skip-validation`.
 
@@ -40,10 +43,8 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 ### Primary implementation
 
-- `src/rust/httpgenerator-core` - normalized model and `.http` renderer
-- `src/rust/httpgenerator-openapi` - source loading, parsing, version detection, normalization
-- `src/rust/httpgenerator-cli` - Rust CLI surface
-- `src/rust/httpgenerator-compat` - differential and smoke compatibility harness
+- `src/rust/core` - normalized model, `.http` renderer, and `httpgenerator_core::openapi::*`
+- `src/rust/cli` - Rust CLI surface
 
 ### Compatibility surfaces
 
@@ -59,11 +60,11 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 ### Generator changes
 
 - Prefer editing Rust crates under `src/rust` first.
-- Use `src/rust/httpgenerator-compat/tests/differential_petstore.rs` to catch byte-for-byte parity regressions against the .NET oracle.
+- Use `src/rust/cli/tests/differential_petstore.rs` to catch byte-for-byte parity regressions against the .NET oracle.
 
 ### CLI and host changes
 
-- Rust CLI entry point: `src/rust/httpgenerator-cli/src/lib.rs`
+- Rust CLI entry point: `src/rust/cli/src/lib.rs`
 - VS Code executable setting: `http-file-generator.executablePath`
 - Visual Studio host resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release`, or `PATH`
 
