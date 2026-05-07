@@ -94,8 +94,8 @@ jobs:
       - name: Inject workspace release version
         run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
 
-      - name: Dry run: publish core
-        run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator-core
+      - name: "Dry run: publish core"
+        run: cargo publish --dry-run --allow-dirty -p httpgenerator-core
 
       - name: Build downstream crates with injected version
         run: cargo check --locked -p httpgenerator-openapi -p httpgenerator
