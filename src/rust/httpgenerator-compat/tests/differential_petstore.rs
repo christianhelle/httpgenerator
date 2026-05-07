@@ -4,11 +4,11 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use httpgenerator_core::OutputType;
 use httpgenerator_compat::{
     CompatibilityScenario, DotnetOracleRunner, RustCliRunner, execute_differential_plan,
     local_smoke_scenarios,
 };
+use httpgenerator_core::OutputType;
 
 fn repo_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))

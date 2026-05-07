@@ -10,8 +10,7 @@ use serde_json::{Map, Value};
 
 use crate::{
     LoadedOpenApiDocument, OpenApiDocumentNormalizationError, OpenApiNormalizationError,
-    OpenApiSource,
-    loader::load_document_with_options,
+    OpenApiSource, loader::load_document_with_options,
 };
 
 pub fn load_and_normalize_document(

@@ -51,18 +51,14 @@ impl LoadedOpenApiDocument {
 
     pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
         match self {
-            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => {
-                None
-            }
+            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => None,
             Self::OpenApi30 { document, .. } => Some(document),
         }
     }
 
     pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
         match self {
-            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => {
-                None
-            }
+            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => None,
             Self::OpenApi31 { document, .. } => Some(document),
         }
     }
@@ -221,10 +217,7 @@ mod tests {
 
         let loaded = load_document_from_raw(raw).unwrap();
 
-        assert!(matches!(
-            loaded,
-            LoadedOpenApiDocument::OpenApi31Raw { .. }
-        ));
+        assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31Raw { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::OpenApi31
