@@ -49,7 +49,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Stage artifact
         run: |
@@ -78,7 +78,7 @@ jobs:
         run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Stage artifact
         run: |
@@ -108,7 +108,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Stage artifact
         run: |
@@ -146,7 +146,7 @@ jobs:
           node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version=process.env.RELEASE_VERSION; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Bundle Rust CLI
         run: |
@@ -194,7 +194,7 @@ jobs:
           node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version=process.env.RELEASE_VERSION; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Bundle Rust CLI
         run: |
@@ -246,7 +246,7 @@ jobs:
           node-version: "24"
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Bundle Rust CLI
         run: |
@@ -291,7 +291,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Build Rust CLI
-        run: cargo build --locked --release -p httpgenerator
+        run: cargo build --release -p httpgenerator
 
       - name: Bundle Rust CLI
         run: Copy-Item target\release\httpgenerator.exe src/dotnet/HttpGenerator.VSIX/httpgenerator.exe -Force
@@ -359,7 +359,7 @@ jobs:
           python .github/scripts/check-crates-io-version.py --crate httpgenerator --version "$RELEASE_VERSION" --state absent
 
       - name: Dry run - publish core
-        run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator-core
+        run: cargo publish --dry-run --allow-dirty -p httpgenerator-core
 
   publish-crates:
     name: Publish crates.io packages
@@ -381,27 +381,27 @@ jobs:
         run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
 
       - name: Publish httpgenerator-core
-        run: cargo publish --locked --allow-dirty -p httpgenerator-core
+        run: cargo publish --allow-dirty -p httpgenerator-core
 
       - name: Wait for httpgenerator-core on crates.io
         shell: bash
         run: python .github/scripts/check-crates-io-version.py --crate httpgenerator-core --version "$RELEASE_VERSION" --state present --retries 30 --delay-seconds 10
 
       - name: Dry run - publish httpgenerator-openapi
-        run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator-openapi
+        run: cargo publish --dry-run --allow-dirty -p httpgenerator-openapi
 
       - name: Publish httpgenerator-openapi
-        run: cargo publish --locked --allow-dirty -p httpgenerator-openapi
+        run: cargo publish --allow-dirty -p httpgenerator-openapi
 
       - name: Wait for httpgenerator-openapi on crates.io
         shell: bash
         run: python .github/scripts/check-crates-io-version.py --crate httpgenerator-openapi --version "$RELEASE_VERSION" --state present --retries 30 --delay-seconds 10
 
       - name: Dry run - publish httpgenerator
-        run: cargo publish --locked --dry-run --allow-dirty -p httpgenerator
+        run: cargo publish --dry-run --allow-dirty -p httpgenerator
 
       - name: Publish httpgenerator
-        run: cargo publish --locked --allow-dirty -p httpgenerator
+        run: cargo publish --allow-dirty -p httpgenerator
 
   create-tag:
     name: Create tag
