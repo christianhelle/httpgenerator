@@ -43,7 +43,7 @@ crates.io complements rather than replaces the existing release channels. Use cr
 
 ### Repository layout
 
-- `src\rust` contains the Rust workspace crates (`httpgenerator-cli`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`).
+- `src\rust` contains the Rust workspace crates (`httpgenerator`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`); the CLI crate `httpgenerator` lives in the `src/rust/httpgenerator-cli` directory.
 - `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
 - `src\vscode` contains the VS Code extension.
 - Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src/dotnet/*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
