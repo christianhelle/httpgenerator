@@ -420,3 +420,4 @@ src/VSCode/*.vsix
 parts/httpgenerator
 prime/meta
 *.snap
+Cargo.lock
