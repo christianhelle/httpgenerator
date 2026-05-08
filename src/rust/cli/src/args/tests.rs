@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::args::{CliArgs, OutputTypeArg, build_command};
+use super::{CliArgs, OutputTypeArg, build_command};
 
 #[test]
 fn defaults_match_current_cli_surface() {

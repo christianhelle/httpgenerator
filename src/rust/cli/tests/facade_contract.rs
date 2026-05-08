@@ -2,8 +2,7 @@ use std::{ffi::OsString, path::PathBuf};
 
 use httpgenerator_cli::{
     AzureAuthStatus, CliError, ExecutionObserver, ExecutionSummary, NoopTelemetrySink,
-    TelemetryRecorder, args, execute, execute_with_observer, should_attempt_azure_auth,
-    telemetry,
+    TelemetryRecorder, args, execute, execute_with_observer, should_attempt_azure_auth, telemetry,
 };
 
 struct ContractObserver;
@@ -13,9 +12,10 @@ impl ExecutionObserver for ContractObserver {}
 #[test]
 fn lib_facade_exposes_the_intentional_public_cli_surface() {
     let _execute: fn(args::CliArgs) -> Result<ExecutionSummary, CliError> = execute;
-    let _execute_with_observer:
-        fn(args::CliArgs, &mut ContractObserver) -> Result<ExecutionSummary, CliError> =
-        execute_with_observer::<ContractObserver>;
+    let _execute_with_observer: fn(
+        args::CliArgs,
+        &mut ContractObserver,
+    ) -> Result<ExecutionSummary, CliError> = execute_with_observer::<ContractObserver>;
     let _should_attempt_azure_auth: fn(&args::CliArgs) -> bool = should_attempt_azure_auth;
 
     let _error = CliError::MissingInput;
