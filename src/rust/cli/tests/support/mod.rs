@@ -5,9 +5,7 @@ use httpgenerator_core::OutputType;
 mod runner;
 use runner::DifferentialRunPlan;
 
-pub use runner::{
-    DotnetOracleRunner, RustCliRunner, execute_differential_plan,
-};
+pub use runner::{DotnetOracleRunner, RustCliRunner, execute_differential_plan};
 
 const SMOKE_FIXTURE_NAMES: &[&str] = &[
     "petstore",
