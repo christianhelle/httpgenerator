@@ -219,3 +219,24 @@ ormalized public modules unless Ripley explicitly approves a breaking API change
 ## Review risk
 - Later CLI or generator work should continue to treat `normalize::schema` and `inspect::{paths,components,schema}` as internal seams only; avoid leaking new public exports from those folders.
 
+### 2026-05-08: Hicks — reshape CLI modules
+
+**By:** Hicks (Core Dev)
+
+**What:** Replaced flat Rust CLI files with bounded directory modules for `args`, `execution`, `telemetry`, and binary-local `ui`:
+- `args/mod.rs` facade with `help.rs`, `types.rs`, `tests.rs`
+- `execution/mod.rs` with `orchestrator.rs`, `validation.rs`, `authorization.rs`, `settings.rs`
+- `telemetry/mod.rs` with `events.rs`, `sink.rs`, `recorder.rs`, `redaction.rs`
+- `ui/mod.rs` (binary-local) with `presenter.rs`, `render.rs`, `format.rs`
+- Kept smaller leaf files flat: `auth.rs`, `error.rs`, `observer.rs`, `writer.rs`
+
+Kept `src\rust\cli\src\lib.rs` on the same intentional public facade: `args::*`, `telemetry::*`, `CliError`, execution entrypoints, and observer types still flow through the crate root.
+
+Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, facade-based parsing/execution wiring, telemetry hookup, and exit-code handling.
+
+**Why:** Follows the approved httprunner-style direction without renaming the binary, widening the public API promise, or touching unrelated host surfaces. The new shape creates stable internal seams for future work in auth resolution, validation, telemetry redaction, and UI rendering while preserving the frozen help/facade contracts.
+
+**Validation:** `cargo test -p httpgenerator` passed.
+
+**Review risk:** The UI folder is still binary-local rather than part of the library facade; future work should keep it private unless Ripley explicitly approves a broader public runtime API.
+
