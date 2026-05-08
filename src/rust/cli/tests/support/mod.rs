@@ -3,12 +3,10 @@ use std::path::{Path, PathBuf};
 use httpgenerator_core::OutputType;
 
 mod runner;
+use runner::DifferentialRunPlan;
 
 pub use runner::{
-    CommandOutput, CommandSpec, DifferentialRunError, DifferentialRunPlan, DifferentialRunResult,
-    DirectoryComparison, DirectorySnapshot, DotnetOracleLaunch, DotnetOracleRunner,
-    OutputDifference, OutputFileSnapshot, RustCliLaunch, RustCliRunner, ScenarioOutputLayout,
-    execute_differential_plan, scenario_directory_name,
+    DotnetOracleRunner, RustCliRunner, execute_differential_plan,
 };
 
 const SMOKE_FIXTURE_NAMES: &[&str] = &[

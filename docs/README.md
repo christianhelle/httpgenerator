@@ -6,7 +6,7 @@ The canonical source layout for the product now lives under `src\rust`, `src\dot
 
 The docs site is also the human-facing homepage referenced by the public Rust crates. Keep its installation guidance aligned with the root `README.md`: `cargo install httpgenerator` is the Rust ecosystem install path for published releases, GitHub Releases provide the prebuilt CLI archives, and the editor extensions continue distributing bundled native binaries through `.vsix` packages.
 
-The public crates are `httpgenerator`, `httpgenerator-core`, and `httpgenerator-openapi`. `httpgenerator-compat` is intentionally private and should not be presented as a user-installable crate.
+The public crates are `httpgenerator` and `httpgenerator-core`. The `httpgenerator-core` crate now also owns the `httpgenerator_core::openapi::*` API surface. Differential compatibility coverage remains internal test-only support and should not be presented as a user-installable crate.
 
 ## Files
 

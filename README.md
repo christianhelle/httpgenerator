@@ -27,13 +27,14 @@ HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
 - **crates.io**: `cargo install httpgenerator`
   - Best when you already have Rust and Cargo (Rust 1.95+) on your machine and want the canonical Rust ecosystem install path for published releases.
-  - The public crates.io surface is split into the end-user CLI crate `httpgenerator` plus the reusable library crates `httpgenerator-core` and `httpgenerator-openapi`.
+  - The public crates.io surface is the end-user CLI crate `httpgenerator` plus the reusable library crate `httpgenerator-core`.
 - **Standalone CLI**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
   - Best when you want a prebuilt binary without installing the Rust toolchain.
   - `httpgenerator-<version>-linux-x64.tar.gz`
   - `httpgenerator-<version>-darwin-x64.tar.gz`
   - `httpgenerator-<version>-win-x64.zip`
 - **Build locally**: `cargo build --release -p httpgenerator`
+- **Workspace testing**: `cargo test --workspace`
 - **VS Code**: install the platform-specific `.vsix` for your OS and architecture. Each package bundles the native Rust CLI, and you can override it with `http-file-generator.executablePath`.
 - **Visual Studio 2022**: install the Visual Studio `.vsix`, which bundles `httpgenerator.exe`.
 
@@ -43,17 +44,17 @@ crates.io complements rather than replaces the existing release channels. Use cr
 
 ### Repository layout
 
-- `src\rust` contains the Rust workspace crates (`httpgenerator`, `httpgenerator-core`, `httpgenerator-openapi`, and `httpgenerator-compat`); the CLI crate `httpgenerator` lives in the `src/rust/httpgenerator-cli` directory.
+- `src\rust` contains the two Rust workspace projects: `src/rust/cli` for the `httpgenerator` CLI package and `src/rust/core` for the `httpgenerator-core` library package.
 - `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
 - `src\vscode` contains the VS Code extension.
 - Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src/dotnet/*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
+- Plain `cargo publish --dry-run --allow-dirty` from the repo root attempts both Rust packages: `httpgenerator-core` and `httpgenerator`. CI still checks publish readiness in dependency order with `cargo publish --dry-run -p httpgenerator-core` plus `cargo check -p httpgenerator`.
 
 ### Public vs private Rust crates
 
 - `httpgenerator` is the public CLI crate and the package normal users install with `cargo install httpgenerator`.
-- `httpgenerator-core` is a public library crate for the normalized model and `.http` rendering pipeline.
-- `httpgenerator-openapi` is a public library crate for OpenAPI loading, parsing, version detection, and normalization.
-- `httpgenerator-compat` is an internal compatibility and differential-testing harness. It stays private and is not intended for crates.io distribution.
+- `httpgenerator-core` is the public library crate for the normalized model, `.http` rendering pipeline, and the `httpgenerator_core::openapi::*` loading/inspection/normalization API.
+- Differential compatibility coverage remains in the repository as test-only support under `src/rust/cli/tests`.
 
 ## Usage
 

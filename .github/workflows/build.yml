@@ -51,7 +51,7 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Run Rust tests
-        run: cargo test --locked
+        run: cargo test --locked --workspace
 
       - name: Build .NET solution
         run: dotnet build -c Release src/dotnet/HttpGenerator.slnx -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
@@ -97,8 +97,8 @@ jobs:
       - name: "Dry run: publish core"
         run: cargo publish --dry-run --allow-dirty -p httpgenerator-core
 
-      - name: Build downstream crates with injected version
-        run: cargo check -p httpgenerator-openapi -p httpgenerator
+      - name: Build downstream packages with injected version
+        run: cargo check -p httpgenerator
 
   vsix:
     name: VSIX solution

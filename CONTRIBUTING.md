@@ -42,7 +42,7 @@ Before contributing, please:
 
 2. Build from the preserved repo-root entrypoints:
    ```bash
-   cargo test
+   cargo test --workspace
    dotnet restore src/dotnet/HttpGenerator.slnx
    dotnet build src/dotnet/HttpGenerator.slnx --configuration Release
    ```
@@ -63,10 +63,8 @@ Before contributing, please:
 ```
 src/
 ├── rust/
-│   ├── httpgenerator-cli/      # Primary Rust CLI
-│   ├── httpgenerator-core/     # Shared rendering and normalized model
-│   ├── httpgenerator-openapi/  # OpenAPI loading and normalization
-│   └── httpgenerator-compat/   # Differential and compatibility harness
+│   ├── cli/                    # Primary Rust CLI package (`httpgenerator`)
+│   └── core/                   # Shared rendering, normalized model, and openapi support (`httpgenerator-core`)
 ├── dotnet/
 │   ├── HttpGenerator/          # Legacy .NET CLI oracle
 │   ├── HttpGenerator.Core/     # Legacy .NET generation library
@@ -79,6 +77,7 @@ test/                           # OpenAPI fixtures and smoke-test assets
 ```
 
 Root entrypoints are intentionally preserved: run Cargo from the repository root via `Cargo.toml`, target .NET builds with `src/dotnet/HttpGenerator.slnx`, and package VS Code from `src\vscode\build.ps1`.
+For publish readiness, plain `cargo publish --dry-run --allow-dirty` from the repo root attempts both Rust packages; CI mirrors the publish order more directly with `cargo publish --dry-run -p httpgenerator-core` plus `cargo check -p httpgenerator`.
 
 ## Code Patterns and Style
 

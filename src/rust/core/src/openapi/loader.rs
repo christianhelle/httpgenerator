@@ -51,18 +51,14 @@ impl LoadedOpenApiDocument {
 
     pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
         match self {
-            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => {
-                None
-            }
+            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => None,
             Self::OpenApi30 { document, .. } => Some(document),
         }
     }
 
     pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
         match self {
-            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => {
-                None
-            }
+            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => None,
             Self::OpenApi31 { document, .. } => Some(document),
         }
     }
@@ -215,16 +211,13 @@ mod tests {
     fn loads_webhook_only_openapi_thirty_one_documents_with_a_raw_fallback() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
-            include_str!("../../../../test/OpenAPI/v3.1/webhook-example.json"),
+            include_str!("../../../../../test/OpenAPI/v3.1/webhook-example.json"),
         )
         .unwrap();
 
         let loaded = load_document_from_raw(raw).unwrap();
 
-        assert!(matches!(
-            loaded,
-            LoadedOpenApiDocument::OpenApi31Raw { .. }
-        ));
+        assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31Raw { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::OpenApi31
@@ -236,7 +229,7 @@ mod tests {
     fn tolerant_loader_accepts_invalid_openapi_thirty_one_documents() {
         let raw = decode_raw_document(
             OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/non-oauth-scopes.json")),
-            include_str!("../../../../test/OpenAPI/v3.1/non-oauth-scopes.json"),
+            include_str!("../../../../../test/OpenAPI/v3.1/non-oauth-scopes.json"),
         )
         .unwrap();
 

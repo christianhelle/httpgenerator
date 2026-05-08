@@ -6,7 +6,7 @@ use std::{
     process::Command,
 };
 
-use crate::CompatibilityScenario;
+use super::CompatibilityScenario;
 
 const DEFAULT_RUST_CLI_PACKAGE: &str = "httpgenerator";
 
@@ -553,11 +553,11 @@ mod tests {
 
     use httpgenerator_core::OutputType;
 
+    use super::super::CompatibilityScenario;
     use super::{
         DifferentialRunPlan, DotnetOracleRunner, RustCliRunner, ScenarioOutputLayout,
         compare_output_directories, scenario_directory_name,
     };
-    use crate::CompatibilityScenario;
 
     fn example_scenario() -> CompatibilityScenario {
         CompatibilityScenario {
@@ -582,7 +582,7 @@ mod tests {
 
     fn temp_directory(name: &str) -> PathBuf {
         std::env::temp_dir().join(format!(
-            "httpgenerator-compat-tests-{name}-{}",
+            "httpgenerator-differential-tests-{name}-{}",
             SystemTime::now()
                 .duration_since(UNIX_EPOCH)
                 .unwrap()

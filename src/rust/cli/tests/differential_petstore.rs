@@ -4,8 +4,10 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
+mod support;
+
 use httpgenerator_core::OutputType;
-use httpgenerator_compat::{
+use support::{
     CompatibilityScenario, DotnetOracleRunner, RustCliRunner, execute_differential_plan,
     local_smoke_scenarios,
 };
@@ -91,7 +93,10 @@ fn parity_matrix_matches_dotnet_oracle() {
     let artifacts_root = temp_artifacts_root();
     let scenarios = local_smoke_scenarios(&repo_root);
     let oracle_runner = DotnetOracleRunner::from_repo_root(&repo_root);
-    let rust_runner = RustCliRunner::from_repo_root(&repo_root);
+    let rust_runner = RustCliRunner::binary(
+        &repo_root,
+        PathBuf::from(env!("CARGO_BIN_EXE_httpgenerator")),
+    );
 
     let scenarios_to_run = scenarios
         .iter()
