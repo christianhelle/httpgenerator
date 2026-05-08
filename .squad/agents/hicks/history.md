@@ -92,3 +92,22 @@
   - Cargo test -p httpgenerator-core passed
 
 **No further action required on Hicks' part.**
+
+## 2026-05-08T11:56:18Z — Scribe Session: extract-core-generator-modules Decision Recorded
+
+**From:** Scribe (Silent Logger)
+
+**Context:** Squad session processed spawn manifest for hicks-2 (extract-core-generator-modules).
+
+**Team Update:**
+- Decision **"2026-05-08: Hicks — generator extraction"** merged to active decisions.md
+- Decisions inbox cleared; 1 file processed.
+- Orchestration log created at `.squad/orchestration-log/2026-05-08T11-56-18Z-hicks-2.md`
+
+**Related Decision:**
+- **2026-05-08: Hicks — generator extraction**
+  - Replaced flat `generator.rs` with `generator/` facade and leaf modules
+  - Applied bounded shape: `mod.rs`, `modes.rs`, `render.rs`, `sample.rs`, `text.rs`, `tests.rs`
+  - Public API frozen through `pub use modes::generate_http_files`
+  - `cargo test -p httpgenerator-core` passed
+  - Maintains httprunner-style modularization direction

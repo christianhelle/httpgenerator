@@ -135,6 +135,26 @@ Add `src\vscode\build.ps1` and VSIX validation only if the refactor moves execut
 **What:** Keep a detailed progress history by committing changes as often as possible in small logical groups, without a co-author trailer.
 **Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability, and ensures commit message format consistency.
 
+### 2026-05-08: Hicks — generator extraction
+
+**By:** Hicks (Core Dev)
+
+**What:** Replaced flat `generator.rs` with `generator/` facade and leaf modules:
+- `mod.rs` facade
+- `modes.rs` for output-mode orchestration and file headers
+- `render.rs` for request rendering and parameter/summary formatting
+- `sample.rs` for JSON sample generation
+- `text.rs` for newline/line-writing helpers
+- `tests.rs` for the existing generator-focused unit contract
+
+**Why:**
+- Scope held to `src\rust\core\src\generator\` only; no OpenAPI pipeline movement
+- Public paths frozen through `pub use modes::generate_http_files`, so `httpgenerator_core::generator::*` and crate-root `generate_http_files` stay unchanged
+- Maintains httprunner-style modularization direction
+- `cargo test -p httpgenerator-core` passed
+
+**Main review risk:** Keep later extraction work from reaching back into generator internals and re-coupling rendering concerns with normalization concerns.
+
 ## Governance
 
 - All meaningful changes require team consensus
