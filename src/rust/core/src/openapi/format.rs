@@ -1,6 +1,6 @@
 use std::{fmt, path::Path};
 
-use crate::{ContentFormatDetectionError, OpenApiSource};
+use super::{ContentFormatDetectionError, OpenApiSource};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpenApiContentFormat {
@@ -99,7 +99,7 @@ fn looks_like_yaml(content: &str) -> bool {
 mod tests {
     use std::path::Path;
 
-    use crate::classify_source;
+    use crate::openapi::classify_source;
 
     use super::{
         ContentFormatDetectionError, OpenApiContentFormat, detect_content_format,

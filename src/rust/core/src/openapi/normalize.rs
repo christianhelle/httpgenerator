@@ -9,9 +9,9 @@ use crate::{
 use serde_json::{Map, Value};
 
 use super::loader::load_document_with_options;
-use crate::{
+use super::{
     LoadedOpenApiDocument, OpenApiDocumentNormalizationError, OpenApiNormalizationError,
-    OpenApiSource,
+    OpenApiSource, OpenApiSpecificationVersion,
 };
 
 pub fn load_and_normalize_document(
@@ -43,9 +43,9 @@ fn normalize_specification_version(
     document: &LoadedOpenApiDocument,
 ) -> NormalizedSpecificationVersion {
     match document.specification_version() {
-        crate::OpenApiSpecificationVersion::Swagger2 => NormalizedSpecificationVersion::Swagger2,
-        crate::OpenApiSpecificationVersion::OpenApi30 => NormalizedSpecificationVersion::OpenApi30,
-        crate::OpenApiSpecificationVersion::OpenApi31 => NormalizedSpecificationVersion::OpenApi31,
+        OpenApiSpecificationVersion::Swagger2 => NormalizedSpecificationVersion::Swagger2,
+        OpenApiSpecificationVersion::OpenApi30 => NormalizedSpecificationVersion::OpenApi30,
+        OpenApiSpecificationVersion::OpenApi31 => NormalizedSpecificationVersion::OpenApi31,
     }
 }
 
@@ -764,7 +764,9 @@ mod tests {
         NormalizedSpecificationVersion,
     };
 
-    use crate::{OpenApiSource, decode_raw_document, load_document_from_raw};
+    use crate::openapi::{
+        OpenApiNormalizationError, OpenApiSource, decode_raw_document, load_document_from_raw,
+    };
 
     use super::{
         load_and_normalize_document, load_and_normalize_document_with_options,
@@ -1126,7 +1128,7 @@ mod tests {
 
         assert_eq!(
             error,
-            crate::OpenApiNormalizationError::UnsupportedRequestBodyReference {
+            OpenApiNormalizationError::UnsupportedRequestBodyReference {
                 path: "/pets".to_string(),
                 method: NormalizedHttpMethod::Post,
                 reference: "#/components/requestBodies/PetBody".to_string(),

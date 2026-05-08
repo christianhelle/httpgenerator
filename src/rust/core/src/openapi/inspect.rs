@@ -1,6 +1,6 @@
 use serde_json::{Map, Value};
 
-use crate::{
+use super::{
     OpenApiInspectionError, OpenApiSpecificationVersion, RawOpenApiDocument, load_raw_document,
 };
 
@@ -543,7 +543,7 @@ fn is_reference_object(value: &Map<String, Value>) -> bool {
 mod tests {
     use std::path::PathBuf;
 
-    use crate::{OpenApiSource, OpenApiSpecificationVersion, decode_raw_document};
+    use crate::openapi::{OpenApiSource, OpenApiSpecificationVersion, decode_raw_document};
 
     use super::{OpenApiStats, inspect_raw_document};
 
