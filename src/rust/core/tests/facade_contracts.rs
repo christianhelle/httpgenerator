@@ -21,7 +21,9 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
         &model::GeneratorSettings,
         &normalized::NormalizedOpenApiDocument,
     ) -> model::GeneratorResult = generator::generate_http_files;
-    let _: fn(&str) -> Result<
+    let _: fn(
+        &str,
+    ) -> Result<
         normalized::NormalizedOpenApiDocument,
         openapi::OpenApiDocumentNormalizationError,
     > = openapi::load_and_normalize_document;
@@ -62,7 +64,11 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
 
     assert_eq!(result.files.len(), 1);
     assert_eq!(result.files[0].filename, "GetListPets.http");
-    assert!(result.files[0].content.contains("GET {{baseUrl}}/pets?limit={{limit}}"));
+    assert!(
+        result.files[0]
+            .content
+            .contains("GET {{baseUrl}}/pets?limit={{limit}}")
+    );
 }
 
 #[test]
