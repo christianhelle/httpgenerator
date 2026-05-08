@@ -3,9 +3,9 @@ use std::{error::Error, fmt, path::PathBuf};
 use reqwest::StatusCode;
 use url::Url;
 
-use crate::{
-    NormalizedHttpMethod, OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion,
-};
+use crate::NormalizedHttpMethod;
+
+use super::{OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SourceClassificationError {

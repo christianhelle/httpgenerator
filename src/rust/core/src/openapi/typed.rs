@@ -1,4 +1,4 @@
-use crate::{OpenApiSpecificationVersion, RawOpenApiDocument, TypedOpenApiParseError};
+use super::{OpenApiSpecificationVersion, RawOpenApiDocument, TypedOpenApiParseError};
 
 pub enum TypedOpenApiDocument {
     OpenApi30(openapiv3::OpenAPI),
@@ -82,7 +82,7 @@ where
 mod tests {
     use std::path::PathBuf;
 
-    use crate::{
+    use crate::openapi::{
         OpenApiSource, OpenApiSpecificationVersion, TypedOpenApiParseError, decode_raw_document,
     };
 

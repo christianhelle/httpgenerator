@@ -2,7 +2,7 @@ use std::fs;
 
 use serde_json::Value;
 
-use crate::{
+use super::{
     OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion, RawOpenApiLoadError,
     SpecificationVersionDetectionError, classify_source, detect_content_format,
     detect_specification_version,
@@ -156,7 +156,7 @@ mod tests {
     use url::Url;
 
     use super::load_raw_document;
-    use crate::{
+    use crate::openapi::{
         ContentFormatDetectionError, OpenApiContentFormat, OpenApiSource, RawOpenApiLoadError,
     };
 

@@ -2,7 +2,7 @@ use std::fmt;
 
 use serde_json::Value;
 
-use crate::SpecificationVersionDetectionError;
+use super::SpecificationVersionDetectionError;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpenApiSpecificationVersion {
@@ -111,7 +111,7 @@ mod tests {
     use serde_json::json;
 
     use super::{OpenApiSpecificationVersion, detect_specification_version};
-    use crate::{OpenApiSource, SpecificationVersionDetectionError, decode_raw_document};
+    use crate::openapi::{OpenApiSource, SpecificationVersionDetectionError, decode_raw_document};
 
     #[test]
     fn detects_swagger_two_documents() {

@@ -67,3 +67,9 @@
 ### Team Closeout — crates.io publishing (2026-05-05)
 - Hicks, Hudson, and Bishop cleared the implementation, docs, and validation tracks behind the packaging gate; final reviewer verdict stayed release-ready.
 - Expected publish-order limitation is now an explicit approved condition: downstream dry-runs wait for `httpgenerator-core` visibility on crates.io.
+
+### Rust Modularization Planning Gate (2026-05-08T13:19:39.287+02:00)
+- Current mismatch: `src\rust\core\src\openapi\mod.rs` already follows a bounded-context folder pattern, but most of `httpgenerator-core` and `httpgenerator` still expose large flat files (`generator.rs`, `openapi\normalize.rs`, `execution.rs`, `ui.rs`) instead of `httprunner`-style directory modules with `mod.rs` facades.
+- Reusable `httprunner` patterns worth porting: directory-per-domain layout (`parser\`, `types\`, `cli\`, `upgrade\`), thin `mod.rs` re-export surfaces, colocated `README.md` files for significant modules, and cfg/platform splits as leaf files rather than inline branching.
+- Planning preference from Christian Helle: investigate only and deliver staged refactor guidance before implementation; do not modify production Rust code during this pass.
+- Key review paths for the future refactor: `src\rust\core\src\lib.rs`, `src\rust\core\src\generator.rs`, `src\rust\core\src\normalized.rs`, `src\rust\core\src\model.rs`, `src\rust\core\src\openapi\normalize.rs`, `src\rust\cli\src\lib.rs`, `src\rust\cli\src\execution.rs`, `src\rust\cli\src\ui.rs`, plus `christianhelle/httprunner` reference modules under `src/core/src/{parser,types}` and `src/cli/src/{cli,shutdown,upgrade}`.
