@@ -51,13 +51,20 @@
                 <p>HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.</p>
                 <ul>
                     <li>Install from <strong>crates.io</strong> with <code>cargo install httpgenerator</code> when you want the canonical Rust ecosystem install path for published releases.</li>
+                    <li>Install the prebuilt CLI on macOS or Linux with <code>curl -fsSL https://christianhelle.com/httpgenerator/install | bash</code>.</li>
+                    <li>Install the prebuilt CLI on Windows PowerShell with <code>irm https://christianhelle.com/httpgenerator/install.ps1 | iex</code>.</li>
                     <li>Download a platform-specific CLI archive from <a href="https://github.com/christianhelle/httpgenerator/releases">GitHub Releases</a> and place <code>httpgenerator</code> / <code>httpgenerator.exe</code> on <code>PATH</code>.</li>
                     <li>Build locally with <code>cargo build --release -p httpgenerator</code>.</li>
                     <li>Install the platform-specific VS Code <code>.vsix</code>; each package bundles the native Rust CLI.</li>
                     <li>Install the Visual Studio 2022 <code>.vsix</code>; it bundles <code>httpgenerator.exe</code>.</li>
                 </ul>
+                <div class="code-block">
+                    <pre><code>curl -fsSL https://christianhelle.com/httpgenerator/install | bash
+irm https://christianhelle.com/httpgenerator/install.ps1 | iex</code></pre>
+                </div>
                 <p>The legacy .NET CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.</p>
-                <p>crates.io is the Rust-native install and library distribution path. GitHub Releases remain the source for prebuilt CLI archives, and the editor extensions continue shipping their own bundled native binaries through Marketplace / VSIX distribution.</p>
+                <p>crates.io is the Rust-native install and library distribution path. The install scripts and <a href="https://github.com/christianhelle/httpgenerator/releases">GitHub Releases</a> cover the prebuilt standalone CLI, and the editor extensions continue shipping their own bundled native binaries through Marketplace / VSIX distribution.</p>
+                <p>The standalone release matrix currently covers <code>linux-x64</code>, <code>darwin-x64</code>, <code>darwin-arm64</code>, and <code>win-x64</code>. Windows on ARM currently uses the x64 standalone install path.</p>
                 <p>The public crates are <code>httpgenerator</code> (CLI) and <code>httpgenerator-core</code>. The <code>httpgenerator-core::openapi::*</code> API now covers OpenAPI loading, inspection, and normalization, while differential compatibility coverage remains internal test-only support.</p>
                 <p>The canonical source layout is <code>src\rust</code>, <code>src\dotnet</code>, and <code>src\vscode</code>. Root entrypoints stay at the repository root, so Cargo commands still run from the root <code>Cargo.toml</code>, .NET commands still target <code>src/dotnet/*.slnx</code>, and VS Code packaging still runs through <code>src\vscode\build.ps1</code>.</p>
             </section>

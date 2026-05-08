@@ -11,6 +11,13 @@
 cargo install httpgenerator
 ```
 
+Prebuilt standalone installers are also available:
+
+```bash
+curl -fsSL https://christianhelle.com/httpgenerator/install | bash
+irm https://christianhelle.com/httpgenerator/install.ps1 | iex
+```
+
 ## Usage
 
 ```bash
