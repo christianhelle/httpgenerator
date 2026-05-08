@@ -3,3 +3,5 @@
 .squad/agents/*/history.md merge=union
 .squad/log/** merge=union
 .squad/orchestration-log/** merge=union
+docs/install text eol=lf
+docs/install.sh text eol=lf
