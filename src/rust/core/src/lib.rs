@@ -30,6 +30,3 @@ pub use support_information::{
     anonymous_identity, anonymous_identity_from_parts, support_key,
     support_key_from_anonymous_identity,
 };
-
-#[cfg(feature = "openapi")]
-pub(crate) use openapi::*;

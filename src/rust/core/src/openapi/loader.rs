@@ -1,4 +1,4 @@
-use crate::{
+use super::{
     OpenApiContentFormat, OpenApiDocumentLoadError, OpenApiSource, OpenApiSpecificationVersion,
     RawOpenApiDocument, TypedOpenApiDocument, TypedOpenApiParseError, load_raw_document,
     load_raw_document_from_source, parse_typed_document,
@@ -154,7 +154,9 @@ mod tests {
         sync::atomic::{AtomicU64, Ordering},
     };
 
-    use crate::{OpenApiSource, OpenApiSpecificationVersion, decode_raw_document};
+    use crate::openapi::{
+        OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion, decode_raw_document,
+    };
 
     use super::{
         LoadedOpenApiDocument, load_document, load_document_from_raw,
@@ -280,7 +282,7 @@ mod tests {
         let loaded = load_document(file.path().to_str().unwrap()).unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
-        assert_eq!(loaded.format(), crate::OpenApiContentFormat::Json);
+        assert_eq!(loaded.format(), OpenApiContentFormat::Json);
     }
 
     fn unique_test_path(file_name: &str) -> PathBuf {

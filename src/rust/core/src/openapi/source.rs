@@ -5,7 +5,7 @@ use std::{
 
 use url::Url;
 
-use crate::{OpenApiContentFormat, SourceClassificationError};
+use super::{OpenApiContentFormat, SourceClassificationError};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OpenApiSource {
@@ -85,7 +85,7 @@ mod tests {
     use std::path::PathBuf;
 
     use super::{OpenApiSource, classify_source};
-    use crate::{OpenApiContentFormat, SourceClassificationError};
+    use crate::openapi::{OpenApiContentFormat, SourceClassificationError};
 
     #[test]
     fn classifies_relative_file_paths_as_local_paths() {
