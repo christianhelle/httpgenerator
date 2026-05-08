@@ -32,6 +32,12 @@
 
 ## Learnings
 
+### Rust modularization seams vs httprunner (2026-05-08T13:19:39.287+02:00)
+- Current Rust crate roots are still mostly flat facades: `src\rust\core\src\lib.rs` publicly exposes individual helper files plus the `openapi` subtree, while `src\rust\cli\src\lib.rs` only exposes `args` and `telemetry` as modules and re-exports execution/observer/error types.
+- The highest-value split points are the large mixed-responsibility files: `src\rust\core\src\openapi\normalize.rs`, `src\rust\core\src\generator.rs`, `src\rust\core\src\openapi\inspect.rs`, `src\rust\cli\src\execution.rs`, `src\rust\cli\src\ui.rs`, and `src\rust\cli\src\telemetry.rs`.
+- A safe httprunner-style refactor should keep published namespace paths stable by turning file modules into same-named directory modules (`generator`, `model`, `normalized`, `args`, `telemetry`, `openapi`) and re-exporting the existing crate-root API from thin `mod.rs` facades.
+- Baseline validation before any restructure was green for `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, and `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`; `test\smoke-tests.ps1` currently fails on the existing release-binary copy/help-output checks, so modularization work must compare against that pre-existing smoke baseline instead of assuming a new regression.
+
 ### Release Workflow crates.io Path (2026-05-05)
 - Stable crates.io publication now lives in `.github\workflows\release-template.yml` behind a reusable `publish-crates` boolean input, with `.github\workflows\release.yml` opting in and preview callers staying artifact-only by default.
 - Shared Rust release version injection is handled by `.github\scripts\set-rust-workspace-version.py`, which rewrites every `version = "0.1.0"` anchor in the root `Cargo.toml` so `[workspace.package]` and publish-safe sibling dependency pins stay aligned.
@@ -67,3 +73,22 @@
 ### Team Closeout — crates.io publishing (2026-05-05)
 - Ripley's packaging gate and final approval are now the governing constraints for future Rust publish work in this repo.
 - Hudson aligned the user-facing install/docs story and Bishop confirmed the release validation matrix plus the `$PSScriptRoot` smoke-test anchor.
+
+## 2026-05-08T11:56:18Z — Scribe Session: extract-core-type-modules Decision Recorded
+
+**From:** Scribe (Silent Logger)
+
+**Context:** Squad session processed spawn manifest for hicks-1.
+
+**Team Update:**
+- Decision **"2026-05-08: Hicks — core type extraction"** archived to active decisions.md
+- Decisions merged and deduplicated; decisions.md reduced from 22,218 → 13,967 bytes.
+- Archive preserved entries older than 30 days.
+
+**Related Decision:**
+- **2026-05-08: Hicks — core type extraction**
+  - Frozen public httpgenerator_core::{model, normalized} facades
+  - Applied httprunner-style directory module structure
+  - Cargo test -p httpgenerator-core passed
+
+**No further action required on Hicks' part.**
