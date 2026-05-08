@@ -161,7 +161,16 @@ function Install-HttpGenerator
     New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
     Write-Info "Downloading $archiveName..."
-    Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath -ErrorAction Stop
+    $invokeWebRequestParams = @{
+      Uri = $downloadUrl
+      OutFile = $archivePath
+      ErrorAction = "Stop"
+    }
+    if ($PSVersionTable.PSVersion.Major -lt 6)
+    {
+      $invokeWebRequestParams.UseBasicParsing = $true
+    }
+    Invoke-WebRequest @invokeWebRequestParams
 
     Write-Info "Extracting archive..."
     Expand-Archive -Path $archivePath -DestinationPath $tempDir -Force

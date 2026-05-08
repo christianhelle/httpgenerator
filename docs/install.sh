@@ -134,8 +134,11 @@ download_and_install() {
     local download_url="https://github.com/$GITHUB_REPO/releases/download/$version/$archive_name"
     local temp_dir
     local source_binary
+    local archive_path
+    local archive_entry
 
     temp_dir=$(mktemp -d)
+    archive_path="$temp_dir/$archive_name"
 
     cleanup() {
         rm -rf "$temp_dir"
@@ -144,22 +147,36 @@ download_and_install() {
 
     log_info "Downloading $archive_name..."
 
-    if ! curl -fsSL -o "$temp_dir/$archive_name" "$download_url"; then
+    if ! curl -fsSL -o "$archive_path" "$download_url"; then
         log_error "Failed to download '$archive_name' from GitHub Releases."
         if [[ "$platform" == *"-arm64" ]]; then
             log_error "That usually means the current release does not publish a native $platform archive yet."
         fi
-        exit 1
+        return 1
+    fi
+
+    if tar -tzf "$archive_path" | grep -Eq '(^/|(^|/)\.\.(/|$))'; then
+        log_error "The downloaded archive contains unsafe paths."
+        return 1
+    fi
+
+    archive_entry=$(tar -tzf "$archive_path" | awk -F/ -v name="$BINARY_NAME" '$NF == name { print; exit }')
+    if [[ -z "$archive_entry" ]]; then
+        log_error "The downloaded archive did not contain '$BINARY_NAME'."
+        return 1
     fi
 
     log_info "Extracting archive..."
-    tar -xzf "$temp_dir/$archive_name" -C "$temp_dir"
+    if ! tar -xzf "$archive_path" -C "$temp_dir" -- "$archive_entry"; then
+        log_error "Failed to extract '$BINARY_NAME' from '$archive_name'."
+        return 1
+    fi
 
-    source_binary=$(find "$temp_dir" -maxdepth 2 -type f -name "$BINARY_NAME" | head -n 1 || true)
+    source_binary="$temp_dir/$archive_entry"
 
-    if [[ -z "$source_binary" ]]; then
+    if [[ ! -f "$source_binary" ]]; then
         log_error "The downloaded archive did not contain '$BINARY_NAME'."
-        exit 1
+        return 1
     fi
 
     ensure_install_directory
@@ -206,7 +223,7 @@ Environment variables:
 
 Examples:
   curl -fsSL https://christianhelle.com/httpgenerator/install | bash
-  INSTALL_DIR=\$HOME/.local/bin curl -fsSL https://christianhelle.com/httpgenerator/install | bash
+  curl -fsSL https://christianhelle.com/httpgenerator/install | INSTALL_DIR=\$HOME/.local/bin bash
   curl -fsSL https://christianhelle.com/httpgenerator/install | bash -s -- --version 1.1.0
 EOF
 }

@@ -15,6 +15,9 @@ Prebuilt standalone installers are also available:
 
 ```bash
 curl -fsSL https://christianhelle.com/httpgenerator/install | bash
+```
+
+```powershell
 irm https://christianhelle.com/httpgenerator/install.ps1 | iex
 ```
 

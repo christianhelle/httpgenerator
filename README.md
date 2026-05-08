@@ -30,7 +30,7 @@ HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
   - The public crates.io surface is the end-user CLI crate `httpgenerator` plus the reusable library crate `httpgenerator-core`.
 - **One-line installer (macOS/Linux)**: `curl -fsSL https://christianhelle.com/httpgenerator/install | bash`
   - Best when you want the prebuilt CLI without installing the Rust toolchain.
-  - Use `INSTALL_DIR=$HOME/.local/bin ...` to install into a user-writable directory, or pass `--version <tag>` to pin a specific release.
+  - Use `curl -fsSL https://christianhelle.com/httpgenerator/install | INSTALL_DIR=$HOME/.local/bin bash` to install into a user-writable directory, or pass `--version <tag>` to pin a specific release.
 - **One-line installer (Windows PowerShell)**: `irm https://christianhelle.com/httpgenerator/install.ps1 | iex`
   - Use `-InstallDir <path>` to choose a custom directory or `-Version <tag>` to pin a specific release.
 - **Standalone CLI archives**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
