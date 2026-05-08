@@ -195,6 +195,70 @@
 **What:** Approved the crates.io publishing implementation as release-ready after green validation (`cargo test`, `dotnet build src\dotnet\HttpGenerator.slnx -c Release`, `dotnet test src\dotnet\HttpGenerator.slnx -c Release`, `test\smoke-tests.ps1`) and aligned metadata, workflow, and docs.
 **Expected limitation:** Only `httpgenerator-core` can pass local publish-style dry-runs before first publication; `httpgenerator-openapi` and `httpgenerator` must wait for crates.io visibility of the newly published dependency version.
 
+### 2026-05-08: Rust Modularization Direction — httprunner-style Restructure
+**By:** Ripley (Lead), Hicks (Core Dev), Bishop (Tester)
+**Status:** Proposed planning direction pending further team work
+**What:** Adopt the `httprunner` Rust module style for future `httpgenerator` refactors:
+1. Prefer bounded-context directory modules with `mod.rs` facades over adding more large flat `.rs` files.
+2. Keep crate roots and executable entrypoints thin; move internal orchestration into submodules.
+3. Split oversized mixed-responsibility files first (`src\rust\core\src\openapi\normalize.rs`, `src\rust\core\src\generator.rs`, `src\rust\cli\src\ui.rs`, `src\rust\cli\src\execution.rs`).
+4. Preserve public crate APIs unless the user explicitly approves API reshaping.
+5. Add module-local `README.md` files only for significant multi-file directories, matching the `httprunner` documentation taste.
+
+**Target shape for `src\rust\core\src`:**
+- Keep small leaf helpers flat: `base_url.rs`, `file_naming.rs`, `operation_name.rs`, `privacy.rs`, `string_extensions.rs`, `support_information.rs`
+- Convert large file modules into folders:
+  - `generator\mod.rs` (contains `modes.rs`, `render.rs`, `sample.rs`, `text.rs`)
+  - `model\mod.rs`
+  - `normalized\mod.rs`
+  - `openapi\mod.rs` (contains `error.rs`, `load\mod.rs` with sub-modules, `inspect\mod.rs` with sub-modules, `normalize\mod.rs` with sub-modules)
+
+**Target shape for `src\rust\cli\src`:**
+- Keep binary entrypoint `main.rs` as thin wiring
+- Convert flat feature files into folders:
+  - `args\mod.rs` (contains `help.rs`, `types.rs`, `tests.rs`)
+  - `execution\mod.rs` (contains `orchestrator.rs`, `validation.rs`, `authorization.rs`, `settings.rs`)
+  - `telemetry\mod.rs` (contains `events.rs`, `sink.rs`, `recorder.rs`, `redaction.rs`)
+  - `ui\mod.rs` (contains `presenter.rs`, `render.rs`, `format.rs`)
+  - Keep smaller leaf files flat: `auth.rs`, `error.rs`, `observer.rs`, `writer.rs`
+
+**Key constraints:**
+- Preserve stable public paths such as `httpgenerator_core::openapi::*`, `httpgenerator_core::generate_http_files`, `httpgenerator_core::OutputType`, `httpgenerator_cli::args::*`, and `httpgenerator_cli::telemetry::*`.
+- Move tests with their new seams instead of leaving large `*_tests.rs` files pointing back into reshaped modules.
+- Treat `test\smoke-tests.ps1` failures as pre-existing baseline noise unless modularization changes the same failure signature.
+
+**Why:** `httprunner` shows a consistent pattern of domain folders with stable re-export surfaces and internal file-level seams. `httpgenerator` already started this approach in `src\rust\core\src\openapi`, so the safest migration is to extend that pattern rather than invent a new structure.
+
+### 2026-05-08: Facade Contract Tests — Module Restructuring Risk Coverage
+**By:** Bishop (Tester)
+**What:** For the first Rust module-refactor slice, freeze the public seam with `httpgenerator_core::{generator, model, normalized, openapi}` integration tests and rely on the existing CLI binary contract suite instead of adding more CLI cases.
+**Why:** The approved plan already treats the binary contract as covered by help/version/no-args/stderr tests. The higher-value new risk is accidental breakage of facade module paths while files move behind `mod.rs` boundaries.
+**Scope:** `src\rust\core\tests\facade_contracts.rs`
+**Implementation Status:** ✅ COMPLETE — Added `src\rust\core\tests\facade_contracts.rs` with 4 integration tests validating core module facades; targeted test passed; targeted Rust test passed.
+
+### 2026-05-08: Rust Modularization Validation Gates
+**By:** Bishop (Tester)
+**What:** Treat the restructure as a bounded internal refactor unless Hicks explicitly changes crate names, binary identity, or public `pub use` surfaces.
+**Validation gate:**
+1. `cargo test --workspace`
+2. `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`
+3. `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`
+4. `test\smoke-tests.ps1`
+
+Add `src\vscode\build.ps1` and VSIX validation only if the refactor moves executable resolution, package names, or host-facing wiring.
+
+**Coverage guidance:**
+- Add facade/re-export contract coverage for `src\rust\core\src\lib.rs`, `src\rust\core\src\openapi\mod.rs`, and `src\rust\cli\src\lib.rs`.
+- Add seam-local unit tests for any new folder/module boundaries that split orchestration, normalization, rendering, or auth logic.
+- Do **not** widen the smoke or differential fixture matrix unless external behavior changes; the current matrix already protects output parity and CLI option wiring.
+
+**Why this matters:** The current regression stack already catches the most likely restructuring failures: broken exports/imports, changed CLI text or stderr routing, Rust/.NET output drift, and release-binary regressions across the local fixture matrix.
+
+### 2026-05-08: User Directive — Small Logical Commits & No Co-Author
+**By:** Christian Helle (via Copilot CLI)
+**What:** Keep a detailed progress history by committing changes as often as possible in small logical groups, without a co-author trailer.
+**Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability, and ensures commit message format consistency.
+
 ## Governance
 
 - All meaningful changes require team consensus
