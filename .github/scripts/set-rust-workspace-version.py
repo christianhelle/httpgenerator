@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 
-PLACEHOLDER = 'version = "0.1.2"'
+PLACEHOLDER = 'version = "0.1.0"'
 
 
 def parse_args() -> argparse.Namespace:
