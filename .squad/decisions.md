@@ -203,3 +203,19 @@ Add `src\vscode\build.ps1` and VSIX validation only if the refactor moves execut
 - Keep later slices aligned with these seam boundaries when extracting generator/openapi internals.
 - Do not rename the model or 
 ormalized public modules unless Ripley explicitly approves a breaking API change.
+
+# 2026-05-08: Hicks — split OpenAPI pipeline slice
+
+## What
+- Replaced flat `src\rust\core\src\openapi\normalize.rs` with a bounded `normalize\` module facade split into `servers.rs`, `operations.rs`, `parameters.rs`, `request_body.rs`, `schema.rs`, and `tests.rs`.
+- Replaced flat `src\rust\core\src\openapi\inspect.rs` with an `inspect\` facade split into `model.rs`, `paths.rs`, `components.rs`, `schema.rs`, and `tests.rs`.
+- Kept `src\rust\core\src\openapi\mod.rs` and the public `httpgenerator_core::openapi::*` exports unchanged.
+
+## Why
+- This is the approved small refactor slice for oversized OpenAPI internals.
+- The chosen seams isolate server normalization, operation/parameter/request-body normalization, schema resolution, and inspection counting without reaching into CLI wiring.
+- Existing facade and generator parity tests stayed intact, so downstream behavior remains frozen while internal files become smaller and reviewable.
+
+## Review risk
+- Later CLI or generator work should continue to treat `normalize::schema` and `inspect::{paths,components,schema}` as internal seams only; avoid leaking new public exports from those folders.
+

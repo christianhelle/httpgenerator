@@ -23,6 +23,11 @@
 
 ## Learnings
 
+### Facade contract test slice (2026-05-08T13:19:39.287+02:00)
+- For the first Rust module-refactor safety slice, the smallest durable guard is an integration test that imports `httpgenerator_core::{generator, model, normalized, openapi}` directly and exercises those facades together.
+- Existing Rust CLI binary-contract coverage in `src\rust\cli\tests\help_contract.rs` already pins help, version, no-args, stderr warning, and validation-guidance behavior, so this slice should avoid widening that matrix unless a concrete public gap appears.
+- New facade-stability coverage lives in `src\rust\core\tests\facade_contracts.rs` and is intended to survive internal file moves behind the same public module paths.
+
 ### Source Layout Migration Closeout (2026-05-01)
 - Validation workflows are path-sensitive even when the repo root stays the user-facing entrypoint. For this migration, triggers and command targets had to move from `crates/**` and `legacy/**` to `src/rust/**` and `src/dotnet/**`.
 - The validation matrix shape did **not** change. The move required scope retargeting, not new test permutations.
@@ -42,3 +47,9 @@
 ### Team Closeout — crates.io publishing (2026-05-05)
 - Ripley signed off on the crates.io path as release-ready once Hicks' metadata/workflow changes and Hudson's docs updates aligned with the validation evidence.
 - The lasting tester-facing rule is to separate expected pre-publish dependency-order failures from true regressions and keep smoke execution rooted at `$PSScriptRoot`.
+
+### Rust module restructure validation sweep (2026-05-08T13:19:39.287+02:00)
+- Current protection layers for Rust-only module splits are `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx -c Release`, `dotnet test src\dotnet\HttpGenerator.slnx -c Release`, and `test\smoke-tests.ps1`; this baseline was green during the investigation.
+- The highest-risk public seams are the Rust facades in `src\rust\core\src\lib.rs`, `src\rust\core\src\openapi\mod.rs`, and `src\rust\cli\src\lib.rs`, plus CLI entrypoint wiring in `src\rust\cli\src\main.rs`.
+- `src\rust\cli\tests\differential_petstore.rs` and `test\smoke-tests.ps1` intentionally mirror the same output-mode and option permutations, so refactors that move execution or argument wiring should update both together.
+- New tester-owned coverage for future bounded module splits should emphasize facade/re-export contract checks and seam-local unit tests for extracted folders instead of widening the fixture matrix when behavior is unchanged.
