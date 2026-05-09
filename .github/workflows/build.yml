@@ -91,6 +91,9 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
+      - name: Validate release helper scripts
+        run: python -m unittest discover -s .github/scripts/tests -p "test_*.py"
+
       - name: Inject workspace release version
         run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
 
@@ -115,4 +118,3 @@ jobs:
 
       - name: Build
         run: msbuild src/dotnet/VSIX.slnx /property:Configuration=Release /p:DeployExtension=false
-

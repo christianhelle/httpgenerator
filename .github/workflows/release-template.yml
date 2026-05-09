@@ -18,27 +18,28 @@ jobs:
   validate-version:
     name: Validate release version
     runs-on: ubuntu-latest
-    outputs:
-      release-version: ${{ steps.validate.outputs.release-version }}
     steps:
       - name: Validate version format
         env:
           RELEASE_VERSION: ${{ inputs.version }}
         shell: bash
         run: |
+          if [[ -z "$RELEASE_VERSION" ]]; then
+            echo "::error::Release version input is required and must not be empty."
+            exit 1
+          fi
+
           if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*$ ]]; then
             echo "::error::Invalid release version '$RELEASE_VERSION'."
             exit 1
           fi
-
-          echo "release-version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
 
   cli-linux:
     name: Rust CLI (Linux)
     needs: validate-version
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -67,7 +68,7 @@ jobs:
     needs: validate-version
     runs-on: macos-15
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -96,7 +97,7 @@ jobs:
     needs: validate-version
     runs-on: macos-15
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -125,7 +126,7 @@ jobs:
     needs: validate-version
     runs-on: windows-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -157,7 +158,7 @@ jobs:
     needs: validate-version
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -205,7 +206,7 @@ jobs:
     needs: validate-version
     runs-on: macos-15
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -253,7 +254,7 @@ jobs:
     needs: validate-version
     runs-on: windows-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -306,7 +307,7 @@ jobs:
     needs: validate-version
     runs-on: windows-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -362,7 +363,7 @@ jobs:
       - vsix
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v6
@@ -401,7 +402,7 @@ jobs:
       - validate-publish
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v6
@@ -441,7 +442,7 @@ jobs:
       - publish-crates
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     if: >-
       ${{
         always() &&
@@ -503,7 +504,7 @@ jobs:
       contents: write
     env:
       GH_TOKEN: ${{ github.token }}
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+      RELEASE_VERSION: ${{ inputs.version }}
     if: >-
       ${{
         always() &&
