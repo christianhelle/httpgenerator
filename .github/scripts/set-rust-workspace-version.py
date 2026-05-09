@@ -14,6 +14,14 @@ SECTION_HEADER_PATTERN = re.compile(r"^\[[^\]]+\]\s*$")
 VERSION_LINE_PATTERN = re.compile(r'^(\s*)version\s*=\s*"[^"]*"\s*$')
 
 
+def split_line_ending(line: str) -> tuple[str, str]:
+    if line.endswith("\r\n"):
+        return line[:-2], "\r\n"
+    if line.endswith("\n"):
+        return line[:-1], "\n"
+    return line, ""
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Update every shared Rust workspace version placeholder in Cargo.toml."
@@ -35,7 +43,7 @@ def main() -> int:
         return 1
     if not SEMVER_PATTERN.fullmatch(version):
         print(
-            f"::error::Invalid release version '{args.version}'.",
+            f"::error::Invalid release version '{version}'.",
             file=sys.stderr,
         )
         return 1
@@ -59,10 +67,10 @@ def main() -> int:
             break
 
         if in_workspace_package:
-            match = VERSION_LINE_PATTERN.match(line.rstrip("\r\n"))
+            line_content, line_ending = split_line_ending(line)
+            match = VERSION_LINE_PATTERN.match(line_content)
             if match:
-                newline = "\r\n" if line.endswith("\r\n") else "\n" if line.endswith("\n") else ""
-                lines[index] = f'{match.group(1)}version = "{version}"{newline}'
+                lines[index] = f'{match.group(1)}version = "{version}"{line_ending}'
                 version_updated = True
                 break
 

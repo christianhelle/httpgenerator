@@ -72,6 +72,29 @@ class SetRustWorkspaceVersionTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("must not be empty", result.stderr)
 
+    def test_preserves_manifest_without_trailing_newline(self) -> None:
+        manifest = "[workspace.package]\nversion = \"0.1.0\""
+        with tempfile.TemporaryDirectory() as temp_dir:
+            manifest_path = Path(temp_dir) / "Cargo.toml"
+            manifest_path.write_text(manifest, encoding="utf-8")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(SCRIPT_PATH),
+                    "--version",
+                    "1.2.3",
+                    "--manifest",
+                    str(manifest_path),
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            rewritten = manifest_path.read_text(encoding="utf-8")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(rewritten, "[workspace.package]\nversion = \"1.2.3\"")
+
     def test_fails_when_workspace_package_is_missing(self) -> None:
         manifest = "[workspace]\nmembers = []\n"
         result = self._run_script("1.2.3", manifest)
