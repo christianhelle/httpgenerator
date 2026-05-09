@@ -65,7 +65,7 @@ jobs:
   cli-macos:
     name: Rust CLI (macOS)
     needs: validate-version
-    runs-on: macos-13
+    runs-on: macos-15
     env:
       RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     steps:
@@ -94,7 +94,7 @@ jobs:
   cli-macos-arm64:
     name: Rust CLI (macOS ARM64)
     needs: validate-version
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     steps:
@@ -203,7 +203,7 @@ jobs:
   vscode-macos:
     name: VS Code Extension (macOS)
     needs: validate-version
-    runs-on: macos-13
+    runs-on: macos-15
     env:
       RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     steps:
