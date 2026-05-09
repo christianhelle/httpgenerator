@@ -91,6 +91,35 @@ jobs:
           name: Rust CLI macOS
           path: artifacts/*
 
+  cli-macos-arm64:
+    name: Rust CLI (macOS ARM64)
+    needs: validate-version
+    runs-on: macos-14
+    env:
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Update Rust version
+        run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
+
+      - name: Build Rust CLI
+        run: cargo build --release -p httpgenerator
+
+      - name: Stage artifact
+        run: |
+          mkdir -p artifacts
+          tar -czf "artifacts/httpgenerator-${RELEASE_VERSION}-darwin-arm64.tar.gz" -C target/release httpgenerator
+
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Rust CLI macOS ARM64
+          path: artifacts/*
+
   cli-windows:
     name: Rust CLI (Windows)
     needs: validate-version
@@ -325,6 +354,7 @@ jobs:
       - validate-version
       - cli-linux
       - cli-macos
+      - cli-macos-arm64
       - cli-windows
       - vscode-linux
       - vscode-macos
@@ -401,6 +431,7 @@ jobs:
       - validate-version
       - cli-linux
       - cli-macos
+      - cli-macos-arm64
       - cli-windows
       - vscode-linux
       - vscode-macos
@@ -417,6 +448,7 @@ jobs:
         needs.validate-version.result == 'success' &&
         needs.cli-linux.result == 'success' &&
         needs.cli-macos.result == 'success' &&
+        needs.cli-macos-arm64.result == 'success' &&
         needs.cli-windows.result == 'success' &&
         needs.vscode-linux.result == 'success' &&
         needs.vscode-macos.result == 'success' &&
@@ -431,9 +463,91 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: `refs/tags/${process.env.RELEASE_VERSION}`,
-              sha: context.sha
-            })
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const ref = `tags/${process.env.RELEASE_VERSION}`;
+
+            try {
+              await github.rest.git.getRef({ owner, repo, ref });
+              core.info(`Tag ${process.env.RELEASE_VERSION} already exists; skipping creation.`);
+            } catch (error) {
+              if (error.status !== 404) {
+                throw error;
+              }
+
+              await github.rest.git.createRef({
+                owner,
+                repo,
+                ref: `refs/${ref}`,
+                sha: context.sha
+              });
+            }
+
+  create-release:
+    name: Create GitHub release
+    needs:
+      - validate-version
+      - cli-linux
+      - cli-macos
+      - cli-macos-arm64
+      - cli-windows
+      - vscode-linux
+      - vscode-macos
+      - vscode-windows
+      - vsix
+      - validate-publish
+      - publish-crates
+      - create-tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
+    if: >-
+      ${{
+        always() &&
+        needs.validate-version.result == 'success' &&
+        needs.cli-linux.result == 'success' &&
+        needs.cli-macos.result == 'success' &&
+        needs.cli-macos-arm64.result == 'success' &&
+        needs.cli-windows.result == 'success' &&
+        needs.vscode-linux.result == 'success' &&
+        needs.vscode-macos.result == 'success' &&
+        needs.vscode-windows.result == 'success' &&
+        needs.vsix.result == 'success' &&
+        needs.create-tag.result == 'success' &&
+        (needs.validate-publish.result == 'success' || needs.validate-publish.result == 'skipped') &&
+        (needs.publish-crates.result == 'success' || needs.publish-crates.result == 'skipped')
+      }}
+    steps:
+      - name: Download workflow artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Create or update GitHub release
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t release_files < <(find artifacts -type f | sort)
+
+          if [[ "${#release_files[@]}" -eq 0 ]]; then
+            echo "::error::No release artifacts were downloaded."
+            exit 1
+          fi
+
+          if gh release view "$RELEASE_VERSION" >/dev/null 2>&1; then
+            echo "GitHub release $RELEASE_VERSION already exists. Re-uploading assets."
+          else
+            create_args=("$RELEASE_VERSION" "--verify-tag" "--title" "Release v$RELEASE_VERSION" "--generate-notes")
+
+            if [[ "$RELEASE_VERSION" == *-* ]]; then
+              create_args+=("--prerelease")
+            fi
+
+            gh release create "${create_args[@]}"
+          fi
+
+          gh release upload "$RELEASE_VERSION" "${release_files[@]}" --clobber

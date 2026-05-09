@@ -28,10 +28,15 @@ HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 - **crates.io**: `cargo install httpgenerator`
   - Best when you already have Rust and Cargo (Rust 1.95+) on your machine and want the canonical Rust ecosystem install path for published releases.
   - The public crates.io surface is the end-user CLI crate `httpgenerator` plus the reusable library crate `httpgenerator-core`.
-- **Standalone CLI**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
-  - Best when you want a prebuilt binary without installing the Rust toolchain.
+- **One-line installer (macOS/Linux)**: `curl -fsSL https://christianhelle.com/httpgenerator/install | bash`
+  - Best when you want the prebuilt CLI without installing the Rust toolchain.
+  - Use `curl -fsSL https://christianhelle.com/httpgenerator/install | INSTALL_DIR=$HOME/.local/bin bash` to install into a user-writable directory, or pass `--version <tag>` to pin a specific release.
+- **One-line installer (Windows PowerShell)**: `irm https://christianhelle.com/httpgenerator/install.ps1 | iex`
+  - Use `-InstallDir <path>` to choose a custom directory or `-Version <tag>` to pin a specific release.
+- **Standalone CLI archives**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
   - `httpgenerator-<version>-linux-x64.tar.gz`
   - `httpgenerator-<version>-darwin-x64.tar.gz`
+  - `httpgenerator-<version>-darwin-arm64.tar.gz`
   - `httpgenerator-<version>-win-x64.zip`
 - **Build locally**: `cargo build --release -p httpgenerator`
 - **Workspace testing**: `cargo test --workspace`
@@ -40,7 +45,9 @@ HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
 The legacy `.NET` CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.
 
-crates.io complements rather than replaces the existing release channels. Use crates.io for Rust-native installation and library consumption, use GitHub Releases for prebuilt CLI archives, and use the VS Code / Visual Studio Marketplace packages when you want the editor hosts with their bundled binaries.
+crates.io complements rather than replaces the existing release channels. Use crates.io for Rust-native installation and library consumption, use the install scripts or GitHub Releases for prebuilt standalone CLI binaries, and use the VS Code / Visual Studio Marketplace packages when you want the editor hosts with their bundled binaries.
+
+The standalone release matrix currently covers Linux x64, macOS x64, macOS ARM64, and Windows x64. Windows on ARM currently uses the x64 standalone install path.
 
 ### Repository layout
 

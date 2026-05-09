@@ -37,6 +37,8 @@ jobs:
         run: |
           mkdir docs/images
           cp images/* docs/images/
+      - name: Expose installer aliases
+        run: cp docs/install.sh docs/install
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
