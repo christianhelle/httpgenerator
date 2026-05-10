@@ -9,7 +9,6 @@ on:
       - ".github/workflows/build.yml"
       - ".github/workflows/release.yml"
       - ".github/workflows/release-template.yml"
-      - ".github/scripts/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "src/rust/**"
@@ -23,7 +22,6 @@ on:
       - ".github/workflows/build.yml"
       - ".github/workflows/release.yml"
       - ".github/workflows/release-template.yml"
-      - ".github/scripts/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - "src/rust/**"
@@ -92,7 +90,20 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Inject workspace release version
-        run: python .github/scripts/set-rust-workspace-version.py --version "$RELEASE_VERSION"
+        shell: pwsh
+        run: |
+          $path = 'Cargo.toml'
+          $content = Get-Content -Path $path -Raw
+          $workspacePattern = '(?m)^version = "0\.1\.0"$'
+          $dependencyPattern = 'httpgenerator-core = \{ version = "0\.1\.0", path = "src/rust/core" \}'
+          $workspaceMatches = [regex]::Matches($content, $workspacePattern).Count
+          $dependencyMatches = [regex]::Matches($content, $dependencyPattern).Count
+          if ($workspaceMatches -ne 1 -or $dependencyMatches -ne 1) {
+            throw "Expected one workspace version anchor and one httpgenerator-core dependency anchor in $path."
+          }
+          $content = $content -replace $workspacePattern, ('version = "' + $env:RELEASE_VERSION + '"')
+          $content = $content -replace $dependencyPattern, ('httpgenerator-core = { version = "' + $env:RELEASE_VERSION + '", path = "src/rust/core" }')
+          Set-Content -Path $path -Value $content
 
       - name: "Dry run: publish core"
         run: cargo publish --dry-run --allow-dirty -p httpgenerator-core
