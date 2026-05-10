@@ -66,21 +66,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Inject workspace release version
+      - name: Update Version
         shell: pwsh
         run: |
-          $path = 'Cargo.toml'
-          $content = Get-Content -Path $path -Raw
-          $workspacePattern = '(?m)^version = "0\.1\.0"$'
-          $dependencyPattern = 'httpgenerator-core = \{ version = "0\.1\.0", path = "src/rust/core" \}'
-          $workspaceMatches = [regex]::Matches($content, $workspacePattern).Count
-          $dependencyMatches = [regex]::Matches($content, $dependencyPattern).Count
-          if ($workspaceMatches -ne 1 -or $dependencyMatches -ne 1) {
-            throw "Expected one workspace version anchor and one httpgenerator-core dependency anchor in $path."
-          }
-          $content = $content -replace $workspacePattern, ('version = "' + $env:RELEASE_VERSION + '"')
-          $content = $content -replace $dependencyPattern, ('httpgenerator-core = { version = "' + $env:RELEASE_VERSION + '", path = "src/rust/core" }')
-          Set-Content -Path $path -Value $content
+          # Update workspace version
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ env.VERSION }}"'
+          $rootToml | Set-Content -Path Cargo.toml
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -127,51 +118,30 @@ jobs:
             target: x86_64-unknown-linux-gnu
             binary_name: httpgenerator
             vsce_target: linux-x64
-            upload_name: vscode-linux-x64
           - name: VS Code Extension (macOS x64)
             os: macos-13
             target: x86_64-apple-darwin
             binary_name: httpgenerator
             vsce_target: darwin-x64
-            upload_name: vscode-darwin-x64
           - name: VS Code Extension (Windows)
             os: windows-latest
             target: x86_64-pc-windows-msvc
             binary_name: httpgenerator.exe
             vsce_target: win32-x64
-            upload_name: vscode-win-x64
     steps:
       - uses: actions/checkout@v6
 
-      - name: Inject workspace release version
+      - name: Update Version
         shell: pwsh
         run: |
-          $path = 'Cargo.toml'
-          $content = Get-Content -Path $path -Raw
-          $workspacePattern = '(?m)^version = "0\.1\.0"$'
-          $dependencyPattern = 'httpgenerator-core = \{ version = "0\.1\.0", path = "src/rust/core" \}'
-          $workspaceMatches = [regex]::Matches($content, $workspacePattern).Count
-          $dependencyMatches = [regex]::Matches($content, $dependencyPattern).Count
-          if ($workspaceMatches -ne 1 -or $dependencyMatches -ne 1) {
-            throw "Expected one workspace version anchor and one httpgenerator-core dependency anchor in $path."
-          }
-          $content = $content -replace $workspacePattern, ('version = "' + $env:RELEASE_VERSION + '"')
-          $content = $content -replace $dependencyPattern, ('httpgenerator-core = { version = "' + $env:RELEASE_VERSION + '", path = "src/rust/core" }')
-          Set-Content -Path $path -Value $content
+          # Update workspace version
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ env.VERSION }}"'
+          $rootToml | Set-Content -Path Cargo.toml
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-
-      - name: Update VS Code extension version
-        run: |
-          node -e "const fs=require('fs'); const path='src/vscode/package.json'; const json=JSON.parse(fs.readFileSync(path, 'utf8')); json.version=process.env.RELEASE_VERSION; fs.writeFileSync(path, JSON.stringify(json, null, 2) + '\n');"
 
       - name: Build Rust CLI
         run: cargo build --release --target ${{ matrix.target }} -p httpgenerator
@@ -191,24 +161,6 @@ jobs:
           New-Item -ItemType Directory -Path src\vscode\bin -Force | Out-Null
           Copy-Item "target\${{ matrix.target }}\release\${{ matrix.binary_name }}" "src\vscode\bin\${{ matrix.binary_name }}" -Force
 
-      - name: Install dependencies
-        working-directory: src/vscode
-        run: npm ci --ignore-scripts
-
-      - name: Compile extension
-        working-directory: src/vscode
-        run: npm run compile
-
-      - name: Package extension
-        working-directory: src/vscode
-        run: npx --no-install vsce package --target ${{ matrix.vsce_target }}
-
-      - name: Publish artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: ${{ matrix.upload_name }}
-          path: src/vscode/*.vsix
-
   vsix:
     name: Visual Studio extension
     needs: validate-version
@@ -218,21 +170,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Inject workspace release version
+      - name: Update Version
         shell: pwsh
         run: |
-          $path = 'Cargo.toml'
-          $content = Get-Content -Path $path -Raw
-          $workspacePattern = '(?m)^version = "0\.1\.0"$'
-          $dependencyPattern = 'httpgenerator-core = \{ version = "0\.1\.0", path = "src/rust/core" \}'
-          $workspaceMatches = [regex]::Matches($content, $workspacePattern).Count
-          $dependencyMatches = [regex]::Matches($content, $dependencyPattern).Count
-          if ($workspaceMatches -ne 1 -or $dependencyMatches -ne 1) {
-            throw "Expected one workspace version anchor and one httpgenerator-core dependency anchor in $path."
-          }
-          $content = $content -replace $workspacePattern, ('version = "' + $env:RELEASE_VERSION + '"')
-          $content = $content -replace $dependencyPattern, ('httpgenerator-core = { version = "' + $env:RELEASE_VERSION + '", path = "src/rust/core" }')
-          Set-Content -Path $path -Value $content
+          # Update workspace version
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ env.VERSION }}"'
+          $rootToml | Set-Content -Path Cargo.toml
 
       - name: Update Visual Studio VSIX version
         shell: pwsh
@@ -306,21 +249,12 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Inject workspace release version
+      - name: Update Version
         shell: pwsh
         run: |
-          $path = 'Cargo.toml'
-          $content = Get-Content -Path $path -Raw
-          $workspacePattern = '(?m)^version = "0\.1\.0"$'
-          $dependencyPattern = 'httpgenerator-core = \{ version = "0\.1\.0", path = "src/rust/core" \}'
-          $workspaceMatches = [regex]::Matches($content, $workspacePattern).Count
-          $dependencyMatches = [regex]::Matches($content, $dependencyPattern).Count
-          if ($workspaceMatches -ne 1 -or $dependencyMatches -ne 1) {
-            throw "Expected one workspace version anchor and one httpgenerator-core dependency anchor in $path."
-          }
-          $content = $content -replace $workspacePattern, ('version = "' + $env:RELEASE_VERSION + '"')
-          $content = $content -replace $dependencyPattern, ('httpgenerator-core = { version = "' + $env:RELEASE_VERSION + '", path = "src/rust/core" }')
-          Set-Content -Path $path -Value $content
+          # Update workspace version
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ env.VERSION }}"'
+          $rootToml | Set-Content -Path Cargo.toml
 
       - name: Fail if release version already exists on crates.io
         shell: bash
@@ -368,21 +302,11 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Inject workspace release version
+      - name: Update Version
         shell: pwsh
         run: |
-          $path = 'Cargo.toml'
-          $content = Get-Content -Path $path -Raw
-          $workspacePattern = '(?m)^version = "0\.1\.0"$'
-          $dependencyPattern = 'httpgenerator-core = \{ version = "0\.1\.0", path = "src/rust/core" \}'
-          $workspaceMatches = [regex]::Matches($content, $workspacePattern).Count
-          $dependencyMatches = [regex]::Matches($content, $dependencyPattern).Count
-          if ($workspaceMatches -ne 1 -or $dependencyMatches -ne 1) {
-            throw "Expected one workspace version anchor and one httpgenerator-core dependency anchor in $path."
-          }
-          $content = $content -replace $workspacePattern, ('version = "' + $env:RELEASE_VERSION + '"')
-          $content = $content -replace $dependencyPattern, ('httpgenerator-core = { version = "' + $env:RELEASE_VERSION + '", path = "src/rust/core" }')
-          Set-Content -Path $path -Value $content
+          $toml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ env.VERSION }}"'
+          $toml | Set-Content -Path Cargo.toml
 
       - name: Publish httpgenerator-core
         run: cargo publish --allow-dirty -p httpgenerator-core
