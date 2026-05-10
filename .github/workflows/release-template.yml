@@ -70,7 +70,7 @@ jobs:
         shell: pwsh
         run: |
           # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ input.version }}"'
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
           $rootToml | Set-Content -Path Cargo.toml
 
       - name: Setup Rust
@@ -135,7 +135,7 @@ jobs:
         shell: pwsh
         run: |
           # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ input.version }}"'
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
           $rootToml | Set-Content -Path Cargo.toml
 
       - name: Setup Rust
@@ -174,7 +174,7 @@ jobs:
         shell: pwsh
         run: |
           # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ input.version }}"'
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
           $rootToml | Set-Content -Path Cargo.toml
 
       - name: Update Visual Studio VSIX version
@@ -253,7 +253,7 @@ jobs:
         shell: pwsh
         run: |
           # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ input.version }}"'
+          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
           $rootToml | Set-Content -Path Cargo.toml
 
       - name: Fail if release version already exists on crates.io
@@ -305,7 +305,7 @@ jobs:
       - name: Update Version
         shell: pwsh
         run: |
-          $toml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ input.version }}"'
+          $toml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
           $toml | Set-Content -Path Cargo.toml
 
       - name: Publish httpgenerator-core
