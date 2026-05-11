@@ -15,9 +15,47 @@ on:
         required: false
 
 jobs:
-  build-cli:
+  tag:
+    name: Tag Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Create tag
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ inputs.version }}",
+              sha: context.sha
+            })
+
+      - name: Update snapcraft.yaml version
+        run: |
+          sed -i "s/^version: .*/version: ${{ inputs.version }}/" snapcraft.yaml
+
+      - name: Commit snapcraft.yaml version update
+        run: |
+          git config --global user.name "Continuous Integration"
+          git config --global user.email "username@users.noreply.github.com"
+          git add snapcraft.yaml
+          git commit -m "Bump up snapcraft version to version ${{ inputs.version }}"
+          git push origin HEAD:main
+
+  build:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
+    needs: tag
     strategy:
       fail-fast: false
       matrix:
@@ -82,11 +120,39 @@ jobs:
           name: ${{ matrix.upload_name }}
           path: artifacts
 
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ inputs.version }}
+          name: Release v${{ inputs.version }}
+          generate_release_notes: true
+          files: |
+            artifacts/**/*
+          draft: false
+          prerelease: ${{ contains(inputs.version, '-') }}
+
   publish-crates:
     name: Publish crates.io packages
     runs-on: ubuntu-latest
-    needs:
-      - build-cli
+    needs: release
     env:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
@@ -103,88 +169,3 @@ jobs:
 
       - name: Publish httpgenerator
         run: cargo publish --allow-dirty
-
-  create-tag:
-    name: Create tag
-    needs:
-      - publish-crates
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: >-
-      ${{
-        always() &&
-        needs.build-cli.result == 'success' &&
-        needs.build-vscode.result == 'success' &&
-        needs.vsix.result == 'success' &&
-        (needs.validate-publish.result == 'success' || needs.validate-publish.result == 'skipped') &&
-        (needs.publish-crates.result == 'success' || needs.publish-crates.result == 'skipped')
-      }}
-    steps:
-      - name: Create tag
-        uses: actions/github-script@v9
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            const owner = context.repo.owner;
-            const repo = context.repo.repo;
-            const ref = `tags/${process.env.{ inputs.version }}`;
-
-            try {
-              await github.rest.git.getRef({ owner, repo, ref });
-              core.info(`Tag ${process.env.{ inputs.version }} already exists; skipping creation.`);
-            } catch (error) {
-              if (error.status !== 404) {
-                throw error;
-              }
-
-              await github.rest.git.createRef({
-                owner,
-                repo,
-                ref: `refs/${ref}`,
-                sha: context.sha
-              });
-            }
-
-  create-release:
-    name: Create GitHub release
-    needs:
-      - create-tag
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: >-
-      ${{
-        always() &&
-        needs.build-cli.result == 'success' &&
-        needs.build-vscode.result == 'success' &&
-        needs.vsix.result == 'success' &&
-        needs.create-tag.result == 'success' &&
-        (needs.validate-publish.result == 'success' || needs.validate-publish.result == 'skipped') &&
-        (needs.publish-crates.result == 'success' || needs.publish-crates.result == 'skipped')
-      }}
-    steps:
-      - name: Download workflow artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-
-      - name: Ensure release assets were downloaded
-        shell: bash
-        run: |
-          set -euo pipefail
-          if ! find artifacts -type f -print -quit | grep -q .; then
-            echo "::error::No release artifacts were downloaded."
-            exit 1
-          fi
-
-      - name: Create or update GitHub release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ env.{ inputs.version } }}
-          name: Release v${{ env.{ inputs.version } }}
-          generate_release_notes: true
-          files: |
-            artifacts/**/*
-          draft: false
-          prerelease: ${{ contains(env.{ inputs.version }, '-') }}
