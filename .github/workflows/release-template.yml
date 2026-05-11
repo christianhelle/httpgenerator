@@ -15,30 +15,9 @@ on:
         required: false
 
 jobs:
-  validate-version:
-    name: Validate release version
-    runs-on: ubuntu-latest
-    outputs:
-      release-version: ${{ steps.validate.outputs.release-version }}
-    steps:
-      - name: Validate version format
-        env:
-          RELEASE_VERSION: ${{ inputs.version }}
-        shell: bash
-        run: |
-          if [[ ! "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then
-            echo "::error::Invalid release version '$RELEASE_VERSION'."
-            exit 1
-          fi
-
-          echo "release-version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
-
   build-cli:
     name: ${{ matrix.name }}
-    needs: validate-version
     runs-on: ${{ matrix.os }}
-    env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     strategy:
       fail-fast: false
       matrix:
@@ -105,10 +84,7 @@ jobs:
 
   build-vscode:
     name: ${{ matrix.name }}
-    needs: validate-version
     runs-on: ${{ matrix.os }}
-    env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     strategy:
       fail-fast: false
       matrix:
@@ -163,10 +139,7 @@ jobs:
 
   vsix:
     name: Visual Studio extension
-    needs: validate-version
     runs-on: windows-latest
-    env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     steps:
       - uses: actions/checkout@v6
 
@@ -227,13 +200,11 @@ jobs:
     name: Validate crate publishing
     if: ${{ inputs.publish-crates }}
     needs:
-      - validate-version
       - build-cli
       - build-vscode
       - vsix
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v6
@@ -290,11 +261,9 @@ jobs:
     name: Publish crates.io packages
     if: ${{ inputs.publish-crates }}
     needs:
-      - validate-version
       - validate-publish
     runs-on: ubuntu-latest
     env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
     steps:
       - uses: actions/checkout@v6
@@ -342,7 +311,6 @@ jobs:
   create-tag:
     name: Create tag
     needs:
-      - validate-version
       - build-cli
       - build-vscode
       - vsix
@@ -351,12 +319,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     if: >-
       ${{
         always() &&
-        needs.validate-version.result == 'success' &&
         needs.build-cli.result == 'success' &&
         needs.build-vscode.result == 'success' &&
         needs.vsix.result == 'success' &&
@@ -392,7 +357,6 @@ jobs:
   create-release:
     name: Create GitHub release
     needs:
-      - validate-version
       - build-cli
       - build-vscode
       - vsix
@@ -402,12 +366,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    env:
-      RELEASE_VERSION: ${{ needs.validate-version.outputs.release-version }}
     if: >-
       ${{
         always() &&
-        needs.validate-version.result == 'success' &&
         needs.build-cli.result == 'success' &&
         needs.build-vscode.result == 'success' &&
         needs.vsix.result == 'success' &&
