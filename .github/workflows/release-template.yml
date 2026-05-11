@@ -64,22 +64,22 @@ jobs:
             os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             archive_suffix: linux-x64.tar.gz
-            upload_name: rust-cli-linux-x64
+            upload_name: httpgenerator-linux-x64
           - name: Rust CLI (macOS x64)
             os: macos-15-intel
             target: x86_64-apple-darwin
             archive_suffix: darwin-x64.tar.gz
-            upload_name: rust-cli-darwin-x64
+            upload_name: httpgenerator-darwin-x64
           - name: Rust CLI (macOS ARM64)
             os: macos-15
             target: aarch64-apple-darwin
             archive_suffix: darwin-arm64.tar.gz
-            upload_name: rust-cli-darwin-arm64
+            upload_name: httpgenerator-darwin-arm64
           - name: Rust CLI (Windows)
             os: windows-latest
             target: x86_64-pc-windows-msvc
             archive_suffix: win-x64.zip
-            upload_name: rust-cli-win-x64
+            upload_name: httpgenerator-win-x64
     steps:
       - uses: actions/checkout@v6
 
@@ -111,7 +111,7 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Path artifacts -Force | Out-Null
-          $artifactPath = "artifacts\httpgenerator-$env:{ inputs.version }-${{ matrix.archive_suffix }}"
+          $artifactPath = "artifacts\httpgenerator-${{ inputs.version }}-${{ matrix.archive_suffix }}"
           Compress-Archive -Path "target\${{ matrix.target }}\release\httpgenerator.exe" -DestinationPath $artifactPath -Force
 
       - name: Publish artifacts
