@@ -15,47 +15,9 @@ on:
         required: false
 
 jobs:
-  tag:
-    name: Tag Release
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          fetch-tags: true
-
-      - name: Create tag
-        uses: actions/github-script@v9
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            github.rest.git.createRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: "refs/tags/${{ inputs.version }}",
-              sha: context.sha
-            })
-
-      - name: Update snapcraft.yaml version
-        run: |
-          sed -i "s/^version: .*/version: ${{ inputs.version }}/" snapcraft.yaml
-
-      - name: Commit snapcraft.yaml version update
-        run: |
-          git config --global user.name "Continuous Integration"
-          git config --global user.email "username@users.noreply.github.com"
-          git add snapcraft.yaml
-          git commit -m "Bump up snapcraft version to version ${{ inputs.version }}"
-          git push origin HEAD:main
-
   build:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    needs: tag
     strategy:
       fail-fast: false
       matrix:
@@ -133,6 +95,29 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      - name: Create tag
+        uses: actions/github-script@v9
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ inputs.version }}",
+              sha: context.sha
+            })
+
+      - name: Update snapcraft.yaml version
+        run: |
+          sed -i "s/^version: .*/version: ${{ inputs.version }}/" snapcraft.yaml
+
+      - name: Commit snapcraft.yaml version update
+        run: |
+          git config --global user.name "Continuous Integration"
+          git config --global user.email "username@users.noreply.github.com"
+          git add snapcraft.yaml
+          git commit -m "Bump up snapcraft version to version ${{ inputs.version }}"
+          git push origin HEAD:main
       - name: Download all artifacts
         uses: actions/download-artifact@v8
         with:
