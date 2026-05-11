@@ -1,6 +1,6 @@
 name: httpgenerator
 base: core24
-version: 0.1.0
+version: 1.1.0
 adopt-info: httpgenerator
 summary: Generate .http files from OpenAPI specifications
 description: |
