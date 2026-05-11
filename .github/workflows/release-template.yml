@@ -28,7 +28,7 @@ jobs:
             archive_suffix: linux-x64.tar.gz
             upload_name: rust-cli-linux-x64
           - name: Rust CLI (macOS x64)
-            os: macos-13
+            os: macos-15-intel
             target: x86_64-apple-darwin
             archive_suffix: darwin-x64.tar.gz
             upload_name: rust-cli-darwin-x64
@@ -82,186 +82,8 @@ jobs:
           name: ${{ matrix.upload_name }}
           path: artifacts
 
-  build-vscode:
-    name: ${{ matrix.name }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: VS Code Extension (Linux)
-            os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            binary_name: httpgenerator
-            vsce_target: linux-x64
-          - name: VS Code Extension (macOS x64)
-            os: macos-13
-            target: x86_64-apple-darwin
-            binary_name: httpgenerator
-            vsce_target: darwin-x64
-          - name: VS Code Extension (Windows)
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            binary_name: httpgenerator.exe
-            vsce_target: win32-x64
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Update Version
-        shell: pwsh
-        run: |
-          # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
-          $rootToml | Set-Content -Path Cargo.toml
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
-      - name: Build Rust CLI
-        run: cargo build --release --target ${{ matrix.target }} -p httpgenerator
-
-      - name: Bundle Rust CLI (Linux/macOS)
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p src/vscode/bin
-          cp "target/${{ matrix.target }}/release/${{ matrix.binary_name }}" "src/vscode/bin/${{ matrix.binary_name }}"
-
-      - name: Bundle Rust CLI (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          New-Item -ItemType Directory -Path src\vscode\bin -Force | Out-Null
-          Copy-Item "target\${{ matrix.target }}\release\${{ matrix.binary_name }}" "src\vscode\bin\${{ matrix.binary_name }}" -Force
-
-  vsix:
-    name: Visual Studio extension
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Update Version
-        shell: pwsh
-        run: |
-          # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
-          $rootToml | Set-Content -Path Cargo.toml
-
-      - name: Update Visual Studio VSIX version
-        shell: pwsh
-        run: |
-          $path = 'src/dotnet/HttpGenerator.VSIX/source.extension.vsixmanifest'
-          $content = Get-Content -Path $path -Raw
-          $pattern = 'Version="1\.0\.0"'
-          $matches = [regex]::Matches($content, $pattern).Count
-          if ($matches -ne 1) {
-            throw "Expected one VSIX version anchor in $path."
-          }
-          $content = $content -replace $pattern, ('Version="' + $env:RELEASE_VERSION + '"')
-          Set-Content -Path $path -Value $content
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: x86_64-pc-windows-msvc
-
-      - name: Build Rust CLI
-        run: cargo build --release --target x86_64-pc-windows-msvc -p httpgenerator
-
-      - name: Bundle Rust CLI
-        run: Copy-Item target\x86_64-pc-windows-msvc\release\httpgenerator.exe src/dotnet/HttpGenerator.VSIX/httpgenerator.exe -Force
-        shell: pwsh
-
-      - name: Setup MSBuild.exe
-        uses: microsoft/setup-msbuild@v3
-
-      - name: Restore
-        run: msbuild src/dotnet/VSIX.slnx -t:Restore
-
-      - name: Build
-        run: msbuild src/dotnet/VSIX.slnx /property:Configuration=Release /p:DeployExtension=false
-
-      - name: Move build output
-        run: Move-Item src/dotnet/HttpGenerator.VSIX/bin\Release\HttpGenerator.VSIX.vsix ("HttpGenerator-" + $env:RELEASE_VERSION + ".vsix")
-        shell: pwsh
-
-      - name: Publish artifacts
-        uses: actions/upload-artifact@v7
-        with:
-          name: Visual Studio Extension
-          path: |
-            *.vsix
-            docs/Marketplace*.md
-
-  validate-publish:
-    name: Validate crate publishing
-    if: ${{ inputs.publish-crates }}
-    needs:
-      - build-cli
-      - build-vscode
-      - vsix
-    runs-on: ubuntu-latest
-    env:
-      CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Ensure crates.io token is configured
-        shell: bash
-        run: |
-          if [[ -z "${CARGO_REGISTRY_TOKEN:-}" ]]; then
-            echo "::error::CARGO_REGISTRY_TOKEN secret is required when publish-crates is enabled."
-            exit 1
-          fi
-
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Update Version
-        shell: pwsh
-        run: |
-          # Update workspace version
-          $rootToml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
-          $rootToml | Set-Content -Path Cargo.toml
-
-      - name: Fail if release version already exists on crates.io
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          check_absent() {
-            local crate="$1"
-            local status
-            status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "https://crates.io/api/v1/crates/${crate}/${RELEASE_VERSION}" || true)"
-
-            if [[ "$status" == "200" ]]; then
-              echo "::error::${crate} ${RELEASE_VERSION} already exists on crates.io."
-              exit 1
-            fi
-
-            if [[ "$status" != "404" ]]; then
-              echo "::error::Unexpected HTTP status ${status} while checking ${crate} ${RELEASE_VERSION} on crates.io."
-              exit 1
-            fi
-          }
-
-          check_absent httpgenerator-core
-          check_absent httpgenerator
-
-      - name: Run package validation and dry run - publish core
-        run: |
-          # Validate dependents packages locally for manifest issues
-          cargo package --allow-dirty -p httpgenerator
-          cargo publish --dry-run --allow-dirty -p httpgenerator-core
-
   publish-crates:
     name: Publish crates.io packages
-    if: ${{ inputs.publish-crates }}
-    needs:
-      - validate-publish
     runs-on: ubuntu-latest
     env:
       CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -277,44 +99,12 @@ jobs:
           $toml = (Get-Content -Path Cargo.toml -Raw) -replace 'version = "0.1.0"', 'version = "${{ inputs.version }}"'
           $toml | Set-Content -Path Cargo.toml
 
-      - name: Publish httpgenerator-core
-        run: cargo publish --allow-dirty -p httpgenerator-core
-
-      - name: Wait for httpgenerator-core on crates.io
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          for attempt in $(seq 1 60); do
-            status="$(curl --silent --show-error --output /dev/null --write-out '%{http_code}' "https://crates.io/api/v1/crates/httpgenerator-core/${RELEASE_VERSION}" || true)"
-
-            if [[ "$status" == "200" ]]; then
-              echo "httpgenerator-core ${RELEASE_VERSION} is visible on crates.io after ${attempt} check(s)."
-              exit 0
-            fi
-
-            if [[ "$attempt" -lt 60 ]]; then
-              echo "Waiting for httpgenerator-core ${RELEASE_VERSION} to become visible on crates.io (attempt ${attempt}/60, status ${status})."
-              sleep 10
-            fi
-          done
-
-          echo "::error::httpgenerator-core ${RELEASE_VERSION} was not visible on crates.io after 60 check(s)."
-          exit 1
-
-      - name: Dry run - publish httpgenerator
-        run: cargo publish --dry-run --allow-dirty -p httpgenerator
-
       - name: Publish httpgenerator
-        run: cargo publish --allow-dirty -p httpgenerator
+        run: cargo publish --allow-dirty
 
   create-tag:
     name: Create tag
     needs:
-      - build-cli
-      - build-vscode
-      - vsix
-      - validate-publish
       - publish-crates
     runs-on: ubuntu-latest
     permissions:
@@ -357,11 +147,6 @@ jobs:
   create-release:
     name: Create GitHub release
     needs:
-      - build-cli
-      - build-vscode
-      - vsix
-      - validate-publish
-      - publish-crates
       - create-tag
     runs-on: ubuntu-latest
     permissions:
