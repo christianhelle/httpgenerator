@@ -8,7 +8,7 @@ on:
         type: string
       production:
         required: false
-        type: bool
+        type: boolean
         default: true
 
 jobs:
