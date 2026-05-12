@@ -15,43 +15,101 @@ Generate .http files from OpenAPI specifications
 
 HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
-- **crates.io**: `cargo install httpgenerator`
-  - Best when you already have Rust and Cargo (Rust 1.95+) on your machine and want the canonical Rust ecosystem install path for published releases.
-  - The public crates.io surface is the end-user CLI crate `httpgenerator` plus the reusable library crate `httpgenerator-core`.
-- **One-line installer (macOS/Linux)**: `curl -fsSL https://christianhelle.com/httpgenerator/install | bash`
-  - Best when you want the prebuilt CLI without installing the Rust toolchain.
-  - Use `curl -fsSL https://christianhelle.com/httpgenerator/install | INSTALL_DIR=$HOME/.local/bin bash` to install into a user-writable directory, or pass `--version <tag>` to pin a specific release.
-- **One-line installer (Windows PowerShell)**: `irm https://christianhelle.com/httpgenerator/install.ps1 | iex`
-  - Use `-InstallDir <path>` to choose a custom directory or `-Version <tag>` to pin a specific release.
-- **Standalone CLI archives**: download the platform-specific archive from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases) and place `httpgenerator` / `httpgenerator.exe` on `PATH`.
-  - `httpgenerator-<version>-linux-x64.tar.gz`
-  - `httpgenerator-<version>-darwin-x64.tar.gz`
-  - `httpgenerator-<version>-darwin-arm64.tar.gz`
-  - `httpgenerator-<version>-win-x64.zip`
-- **Build locally**: `cargo build --release -p httpgenerator`
-- **Workspace testing**: `cargo test --workspace`
-- **VS Code**: install the platform-specific `.vsix` for your OS and architecture. Each package bundles the native Rust CLI, and you can override it with `http-file-generator.executablePath`.
-- **Visual Studio 2022**: install the Visual Studio `.vsix`, which bundles `httpgenerator.exe`.
+### Quick install
 
-The legacy `.NET` CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.
+#### Cargo
 
-crates.io complements rather than replaces the existing release channels. Use crates.io for Rust-native installation and library consumption, use the install scripts or GitHub Releases for prebuilt standalone CLI binaries, and use the VS Code / Visual Studio Marketplace packages when you want the editor hosts with their bundled binaries.
+```bash
+cargo install httpgenerator
+```
 
-The standalone release matrix currently covers Linux x64, macOS x64, macOS ARM64, and Windows x64. Windows on ARM currently uses the x64 standalone install path.
+Use this when you already have Rust and Cargo and want the canonical
+Rust ecosystem install path. Requires Rust 1.95+.
 
-### Repository layout
+#### macOS/Linux
 
-- `src\rust` contains the two Rust workspace projects: `src/rust/cli` for the `httpgenerator` CLI package and `src/rust/core` for the `httpgenerator-core` library package.
-- `src\dotnet` contains the legacy .NET CLI, core library, test suite, and Visual Studio VSIX host.
-- `src\vscode` contains the VS Code extension.
-- Root-level entrypoints are preserved: run Cargo commands from the repository root via `Cargo.toml`, target the moved .NET solutions with `src/dotnet/*.slnx`, and invoke VS Code packaging with `src\vscode\build.ps1`.
-- Plain `cargo publish --dry-run --allow-dirty` from the repo root attempts both Rust packages: `httpgenerator-core` and `httpgenerator`. CI still checks publish readiness in dependency order with `cargo publish --dry-run -p httpgenerator-core` plus `cargo check -p httpgenerator`.
+```bash
+curl -fsSL https://christianhelle.com/httpgenerator/install | bash
+```
 
-### Public vs private Rust crates
+Use this when you want the prebuilt CLI without installing the Rust
+toolchain.
 
-- `httpgenerator` is the public CLI crate and the package normal users install with `cargo install httpgenerator`.
-- `httpgenerator-core` is the public library crate for the normalized model, `.http` rendering pipeline, and the `httpgenerator_core::openapi::*` loading/inspection/normalization API.
-- Differential compatibility coverage remains in the repository as test-only support under `src/rust/cli/tests`.
+#### Windows PowerShell
+
+```powershell
+irm https://christianhelle.com/httpgenerator/install.ps1 | iex
+```
+
+Use this when you want the prebuilt CLI on Windows.
+
+### Advanced install options
+
+#### macOS/Linux options
+
+Install to a user-writable directory:
+
+```bash
+curl -fsSL https://christianhelle.com/httpgenerator/install \
+  | INSTALL_DIR="$HOME/.local/bin" bash
+```
+
+Pin a specific release:
+
+```bash
+curl -fsSL https://christianhelle.com/httpgenerator/install \
+  | VERSION="<tag>" bash
+```
+
+#### Windows PowerShell options
+
+Install to a custom directory:
+
+```powershell
+$install = irm https://christianhelle.com/httpgenerator/install.ps1
+& ([scriptblock]::Create($install)) `
+  -InstallDir "$env:USERPROFILE\bin"
+```
+
+Pin a specific release:
+
+```powershell
+$install = irm https://christianhelle.com/httpgenerator/install.ps1
+& ([scriptblock]::Create($install)) `
+  -Version "<tag>"
+```
+
+### Other ways to install
+
+#### Standalone CLI archives
+
+Download prebuilt archives from [GitHub Releases](https://github.com/christianhelle/httpgenerator/releases).
+Archives are available for Linux x64, macOS x64, macOS ARM64, and
+Windows x64. Windows on ARM currently uses the x64 standalone install
+path.
+
+#### Editor extensions
+
+Install the VS Code extension from
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.http-file-generator).
+Install the Visual Studio 2022 extension from
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.httpgenerator).
+Detailed VS Code and Visual Studio usage is covered below.
+
+### Legacy .NET tool
+
+Install the legacy compatibility CLI from NuGet when you need the
+pre-Rust .NET tool surface:
+
+```bash
+dotnet tool install --global httpgenerator
+```
+
+The legacy `.NET` CLI remains in the repository as the migration oracle
+and compatibility host. It is no longer the primary release path.
+
+For development setup, build commands, and repository layout, see
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Usage
 
@@ -266,13 +324,16 @@ No **support key** is generated when you opt out with `--no-logging`.
 
 ### VS Code Extension
 
-The VS Code extension is now packaged per platform because it bundles the native Rust CLI.
+Install the VS Code extension from
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.http-file-generator).
+It is packaged per platform because it bundles the native Rust CLI.
 
 When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, repo-root workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`. That means a Cargo-installed `httpgenerator` binary can also satisfy the extension if you prefer to manage the CLI yourself.
 
 ### Visual Studio 2022 Extension
 
-This tool is also available as a [Visual Studio 2022 extension](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.HttpGenerator)
+Install the Visual Studio 2022 extension from
+[Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.httpgenerator).
 
 From the **Tools** menu select **Generate .http files**
 
