@@ -1,0 +1,50 @@
+name: Release (.NET Tool)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "release"
+env:
+  NUGET_REPO_URL: "https://api.nuget.org/v3/index.json"
+  VESRION: "1.1.0"
+
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+
+jobs:
+  dotnet:
+    name: 🚚 Prepare new release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+      - name: Sets environment variables - branch-name
+        uses: nelonoel/branch-name@v1.0.1
+      - name: Sets environment variables - Nerdbank.GitVersioning
+        uses: dotnet/nbgv@master
+        with:
+          setAllVars: true
+      - name: Build
+        run: dotnet build -c Release src/dotnet/HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VESRION }}"
+      - name: Move packages
+        shell: pwsh
+        run: Get-ChildItem -Filter *.nupkg -Recurse | ForEach-Object { Move-Item -Path $_ -Destination . }
+      - name: Publish artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: Packages
+          path: |
+            **/*.nupkg
+            README.md
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: christian.helle
+      - name: Push packages to NuGet
+        run: dotnet nuget push **/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source ${{ env.NUGET_REPO_URL }} --no-symbols
