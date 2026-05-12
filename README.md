@@ -14,6 +14,8 @@
 [![Smoke Tests](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=christianhelle_httpgenerator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=christianhelle_httpgenerator)
 [![codecov](https://codecov.io/gh/christianhelle/httpgenerator/graph/badge.svg?token=YeSFnn0bH6)](https://codecov.io/gh/christianhelle/httpgenerator)
+[![crates.io](https://img.shields.io/crates/v/httpgenerator?label=crates.io)](https://crates.io/crates/httpgenerator)
+[![nuget](https://img.shields.io/nuget/v/HttpGenerator?logo=nuget)](https://www.nuget.org/packages/HttpGenerator)
 
 # HTTP File Generator
 
