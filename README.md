@@ -1,15 +1,3 @@
-<!--toc:start-->
-
-- [HTTP File Generator](#http-file-generator)
-  - [Installation](#installation)
-  - [Usage](#usage)
-  - [Error Logging, Telemetry, and Privacy](#error-logging-telemetry-and-privacy)
-  - [VS Code Extension](#vs-code-extension)
-  - [Visual Studio 2022 Extension](#visual-studio-2022-extension)
-  <!--toc:end-->
-
-#
-
 [![Build](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/build.yml)
 [![Smoke Tests](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml/badge.svg)](https://github.com/christianhelle/httpgenerator/actions/workflows/smoke-tests.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=christianhelle_httpgenerator&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=christianhelle_httpgenerator)
