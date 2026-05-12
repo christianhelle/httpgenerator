@@ -47,4 +47,4 @@ jobs:
         with:
           user: christian.helle
       - name: Push packages to NuGet
-        run: dotnet nuget push **/*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source ${{ env.NUGET_REPO_URL }} --no-symbols
+        run: dotnet nuget push ./*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source ${{ env.NUGET_REPO_URL }} --no-symbols
