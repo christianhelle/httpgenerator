@@ -30,7 +30,7 @@ jobs:
         with:
           setAllVars: true
       - name: Build
-        run: dotnet build -c Release src/dotnet/HttpGenerator.sln -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VESRION }}"
+        run: dotnet build -c Release src/dotnet/HttpGenerator.slnx  -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VESRION }}"
       - name: Move packages
         shell: pwsh
         run: Get-ChildItem -Filter *.nupkg -Recurse | ForEach-Object { Move-Item -Path $_ -Destination . }
