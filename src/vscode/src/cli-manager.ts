@@ -12,6 +12,8 @@ const GITHUB_REPO = 'christianhelle/httpgenerator';
 const BINARY_BASENAME = process.platform === 'win32' ? 'httpgenerator.exe' : 'httpgenerator';
 const VERSION_FILE = 'cli-version.json';
 const CACHE_READY_FILE = '.cache-ready';
+const GITHUB_API_TIMEOUT_MS = 15000;
+const DOWNLOAD_TIMEOUT_MS = 30000;
 
 interface CachedVersion {
     version: string;
@@ -161,7 +163,7 @@ function requestJson<T>(url: string): Promise<T> {
                     'Accept': 'application/vnd.github+json',
                     'User-Agent': 'http-file-generator-vscode'
                 },
-                timeout: 15000
+                timeout: GITHUB_API_TIMEOUT_MS
             },
             response => {
                 if (response.statusCode && response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
@@ -200,7 +202,7 @@ function downloadFile(url: string, destination: string, onProgress?: (message: s
             url,
             {
                 headers: { 'User-Agent': 'http-file-generator-vscode' },
-                timeout: 30000
+                timeout: DOWNLOAD_TIMEOUT_MS
             },
             response => {
                 if (response.statusCode && response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
@@ -250,17 +252,27 @@ function isArchive(assetName: string): boolean {
     return assetName.endsWith('.zip') || assetName.endsWith('.tar.gz') || assetName.endsWith('.tgz');
 }
 
+function normalizeArchiveEntry(entry: string): string {
+    return path.posix.normalize(entry.replace(/\\/g, '/'));
+}
+
+function isSafeArchiveEntry(entry: string): boolean {
+    const normalized = normalizeArchiveEntry(entry);
+    return normalized.length > 0
+        && normalized !== '..'
+        && !normalized.startsWith('../')
+        && !path.posix.isAbsolute(normalized)
+        && !path.win32.isAbsolute(entry);
+}
+
 async function extractTarGz(archivePath: string, destinationDirectory: string): Promise<string> {
     const { stdout } = await execFile('tar', ['-tzf', archivePath]);
     const entries = stdout.split(/\r?\n/).filter(entry => entry.length > 0);
-    if (entries.some(entry => {
-        const parts = entry.split(/[\\/]+/);
-        return path.posix.isAbsolute(entry) || path.win32.isAbsolute(entry) || parts.includes('..');
-    })) {
+    if (entries.some(entry => !isSafeArchiveEntry(entry))) {
         throw new Error('Downloaded archive contains unsafe paths');
     }
 
-    const binaryEntry = entries.find(entry => path.basename(entry) === 'httpgenerator');
+    const binaryEntry = entries.find(entry => path.posix.basename(normalizeArchiveEntry(entry)) === 'httpgenerator');
     if (!binaryEntry) {
         throw new Error('Downloaded archive does not contain httpgenerator');
     }
@@ -379,7 +391,8 @@ export async function downloadCLI(
     const tempDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'httpgenerator-download-'));
     const downloadPath = path.join(tempDirectory, asset.name);
     const targetPath = cachedBinaryPath(context);
-    const tempTargetPath = `${targetPath}.${crypto.randomUUID()}.tmp`;
+    const tempTargetDirectory = await fs.promises.mkdtemp(path.join(context.globalStorageUri.fsPath, '.download-'));
+    const tempTargetPath = path.join(tempTargetDirectory, `${BINARY_BASENAME}.${crypto.randomUUID()}.tmp`);
 
     try {
         onProgress?.('Downloading CLI');
@@ -390,13 +403,14 @@ export async function downloadCLI(
             throw new Error('Downloaded CLI is not executable');
         }
 
+        await fs.promises.rm(targetPath, { force: true }).catch(() => undefined);
         await fs.promises.rename(tempTargetPath, targetPath);
         await setCachedCLIVersion(context, releaseVersion.replace(/^v/, ''));
         await fs.promises.writeFile(cachePath(context, CACHE_READY_FILE), new Date().toISOString(), 'utf8');
         return vscode.Uri.file(targetPath);
     } finally {
         await fs.promises.rm(tempDirectory, { force: true, recursive: true });
-        await fs.promises.rm(tempTargetPath, { force: true }).catch(() => undefined);
+        await fs.promises.rm(tempTargetDirectory, { force: true, recursive: true }).catch(() => undefined);
     }
 }
 
