@@ -7,14 +7,14 @@ import { showProgress } from './progress';
 let currentContext: vscode.ExtensionContext;
 let cliPath: string | undefined;
 let cliStatusBarItem: vscode.StatusBarItem | undefined;
-let resolvePromise: Promise<string | undefined> | undefined;
+let cliResolutionPromise: Promise<string | undefined> | undefined;
 
 async function resolveAndEnsureCLI(context: vscode.ExtensionContext): Promise<string | undefined> {
-    if (resolvePromise) {
-        return resolvePromise;
+    if (cliResolutionPromise) {
+        return cliResolutionPromise;
     }
 
-    resolvePromise = showProgress('HTTP File Generator CLI', progress =>
+    cliResolutionPromise = showProgress('HTTP File Generator CLI', progress =>
         resolveCLIPath(context, message => progress.report({ message }))
     )
         .then(resolvedPath => {
@@ -35,7 +35,7 @@ async function resolveAndEnsureCLI(context: vscode.ExtensionContext): Promise<st
             );
 
             if (choice === retry) {
-                resolvePromise = undefined;
+                cliResolutionPromise = undefined;
                 return resolveAndEnsureCLI(context);
             }
 
@@ -49,10 +49,10 @@ async function resolveAndEnsureCLI(context: vscode.ExtensionContext): Promise<st
             return undefined;
         })
         .finally(() => {
-            resolvePromise = undefined;
+            cliResolutionPromise = undefined;
         });
 
-    return resolvePromise;
+    return cliResolutionPromise;
 }
 
 function showCLIStatusBar(resolvedPath: string): void {

@@ -3,7 +3,11 @@ import * as vscode from 'vscode';
 let terminal: vscode.Terminal | undefined;
 
 function quoteArgument(value: string): string {
-    return `"${value.replace(/"/g, '\\"')}"`;
+    if (process.platform === 'win32') {
+        return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    }
+
+    return `'${value.replace(/'/g, `'\\''`)}'`;
 }
 
 export function getOrCreateTerminal(name = 'HTTP File Generator'): vscode.Terminal {

@@ -83,7 +83,7 @@ async function findOnPath(commandName = BINARY_BASENAME): Promise<string | undef
     const pathExts = process.platform === 'win32'
         ? (process.env.PATHEXT ?? '.EXE;.CMD;.BAT;.COM').split(';')
         : [''];
-    const candidates = process.platform === 'win32' && path.extname(commandName).length === 0
+    const executableCandidates = process.platform === 'win32' && path.extname(commandName).length === 0
         ? pathExts.map(ext => `${commandName}${ext.toLowerCase()}`)
         : [commandName];
 
@@ -92,7 +92,7 @@ async function findOnPath(commandName = BINARY_BASENAME): Promise<string | undef
             continue;
         }
 
-        for (const candidate of candidates) {
+        for (const candidate of executableCandidates) {
             const fullPath = path.join(directory, candidate);
             if (await verifyCLI(fullPath)) {
                 return fullPath;
@@ -253,7 +253,10 @@ function isArchive(assetName: string): boolean {
 async function extractTarGz(archivePath: string, destinationDirectory: string): Promise<string> {
     const { stdout } = await execFile('tar', ['-tzf', archivePath]);
     const entries = stdout.split(/\r?\n/).filter(entry => entry.length > 0);
-    if (entries.some(entry => path.isAbsolute(entry) || entry.split('/').includes('..'))) {
+    if (entries.some(entry => {
+        const parts = entry.split(/[\\/]+/);
+        return path.posix.isAbsolute(entry) || path.win32.isAbsolute(entry) || parts.includes('..');
+    })) {
         throw new Error('Downloaded archive contains unsafe paths');
     }
 
