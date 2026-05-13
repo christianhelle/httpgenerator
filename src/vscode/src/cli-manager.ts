@@ -14,6 +14,7 @@ const VERSION_FILE = 'cli-version.json';
 const CACHE_READY_FILE = '.cache-ready';
 const GITHUB_API_TIMEOUT_MS = 15000;
 const DOWNLOAD_TIMEOUT_MS = 30000;
+const MAX_DOWNLOAD_BYTES = 100 * 1024 * 1024;
 
 interface CachedVersion {
     version: string;
@@ -23,6 +24,7 @@ interface CachedVersion {
 interface ReleaseAsset {
     name: string;
     browser_download_url: string;
+    size?: number;
 }
 
 interface GitHubRelease {
@@ -222,10 +224,22 @@ function downloadFile(url: string, destination: string, onProgress?: (message: s
                 }
 
                 const totalBytes = Number(response.headers['content-length'] ?? 0);
+                if (totalBytes > MAX_DOWNLOAD_BYTES) {
+                    response.resume();
+                    file.close();
+                    reject(new Error('CLI download is larger than expected'));
+                    return;
+                }
+
                 let downloadedBytes = 0;
 
                 response.on('data', chunk => {
                     downloadedBytes += Buffer.byteLength(chunk);
+                    if (downloadedBytes > MAX_DOWNLOAD_BYTES) {
+                        response.destroy(new Error('CLI download is larger than expected'));
+                        return;
+                    }
+
                     if (totalBytes > 0) {
                         const percent = Math.round((downloadedBytes / totalBytes) * 100);
                         onProgress?.(`Downloading CLI (${percent}%)`);
@@ -335,6 +349,11 @@ async function prepareDownloadedBinary(downloadPath: string, assetName: string, 
         }
     }
 
+    const stats = await fs.promises.stat(targetPath);
+    if (stats.size > MAX_DOWNLOAD_BYTES) {
+        throw new Error('Extracted CLI is larger than expected');
+    }
+
     if (process.platform !== 'win32') {
         await fs.promises.chmod(targetPath, 0o755);
     }
@@ -349,6 +368,10 @@ async function getReleaseAsset(version: string): Promise<{ version: string; asse
             const asset = release.assets.find(item => candidates.includes(item.name));
             if (!asset) {
                 throw new Error(`No ${getPlatformArch()} asset found in release ${candidateVersion}`);
+            }
+
+            if (asset.size && asset.size > MAX_DOWNLOAD_BYTES) {
+                throw new Error(`Release asset ${asset.name} is larger than expected`);
             }
 
             return { version: candidateVersion, asset };
