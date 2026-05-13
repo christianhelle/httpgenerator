@@ -403,8 +403,8 @@ test/GeneratedCode
 test/openapi.json
 test/openapi.yaml
 *.http
-src/VSCode/out
-src/VSCode/*.vsix
+src/vscode/out
+src/vscode/*.vsix
 
 # nvim 
 .ignore

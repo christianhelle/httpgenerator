@@ -3,7 +3,7 @@ name: VS Code
 on:
   push:
     paths:
-      - "src/VSCode/**"
+      - "src/vscode/**"
       - ".github/workflows/vscode.yml"
   workflow_dispatch:
 
@@ -11,41 +11,76 @@ env:
   VERSION: 1.1.${{ github.run_number }}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  package:
+    name: VS Code (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            binary_name: httpgenerator
+          - os: windows-latest
+            target: win32-x64
+            binary_name: httpgenerator.exe
+          - os: macos-15-intel
+            target: darwin-x64
+            binary_name: httpgenerator
+          - os: macos-15
+            target: darwin-arm64
+            binary_name: httpgenerator
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Update Version
-        run: |
-          cd src/VSCode
-          # Use sed to replace the version in package.json
-          sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ env.VERSION }}"/' package.json
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24"
 
-      - name: Install dependencies
-        working-directory: src/VSCode
+      - name: Update extension version
+        shell: bash
         run: |
-          npm install
+          node -e "const fs=require('fs');const p='src/vscode/package.json';const pkg=JSON.parse(fs.readFileSync(p,'utf8'));pkg.version=process.env.VERSION;fs.writeFileSync(p, JSON.stringify(pkg, null, 2)+'\\n');"
+
+      - name: Build Rust CLI
+        run: cargo build --release -p httpgenerator
+
+      - name: Stage bundled Rust CLI (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $destination = "src/vscode/bin/${{ matrix.target }}"
+          New-Item -Path $destination -ItemType Directory -Force | Out-Null
+          Copy-Item "target/release/${{ matrix.binary_name }}" "$destination/${{ matrix.binary_name }}" -Force
+
+      - name: Stage bundled Rust CLI (Linux/macOS)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          destination="src/vscode/bin/${{ matrix.target }}"
+          mkdir -p "$destination"
+          cp "target/release/${{ matrix.binary_name }}" "$destination/${{ matrix.binary_name }}"
+          chmod +x "$destination/${{ matrix.binary_name }}"
+
+      - name: Install extension dependencies
+        working-directory: src/vscode
+        run: npm ci --ignore-scripts
 
       - name: Compile extension
-        working-directory: src/VSCode
-        run: |
-          npm run compile
+        working-directory: src/vscode
+        run: npm run compile
 
       - name: Package extension
-        working-directory: src/VSCode
-        run: |
-          npm install -g @vscode/vsce
-          vsce package
+        working-directory: src/vscode
+        run: npx @vscode/vsce package --target ${{ matrix.target }} --out http-file-generator-${{ env.VERSION }}-${{ matrix.target }}.vsix
 
       - name: Upload VSIX as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: VSCode Extension
-          path: src/VSCode/*.vsix
+          name: VSCode Extension (${{ matrix.target }})
+          path: src/vscode/http-file-generator-${{ env.VERSION }}-${{ matrix.target }}.vsix

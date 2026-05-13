@@ -10,7 +10,7 @@
     "url": "https://github.com/christianhelle/httpgenerator"
   },
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.61.0"
   },
   "categories": [
     "Other"
@@ -23,6 +23,16 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "HTTP File Generator",
+      "properties": {
+        "http-file-generator.executablePath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute path to the `httpgenerator` executable. When set, this path is used directly and must point to a runnable file."
+        }
+      }
+    },
     "commands": [
       {
         "command": "http-file-generator.generateSingleHttpFile",
@@ -86,10 +96,10 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@vscode/vsce": "^3.6.2",
     "@types/glob": "^8.1.0",
     "@types/node": "^24.0.0",
-    "@types/vscode": "^1.50.0",
-    "typescript": "^5.0.0",
-    "vsce": "^2.15.0"
+    "@types/vscode": "^1.61.0",
+    "typescript": "^5.0.0"
   }
 }
