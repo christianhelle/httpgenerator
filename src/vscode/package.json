@@ -23,6 +23,16 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "HTTP File Generator",
+      "properties": {
+        "http-file-generator.executablePath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the httpgenerator executable. When set, this path is used directly and the extension fails fast if the file does not exist. When not set, the extension resolves the executable automatically: bundled binary → repo-root development build (target/release then target/debug) → PATH."
+        }
+      }
+    },
     "commands": [
       {
         "command": "http-file-generator.generateSingleHttpFile",
@@ -90,6 +100,6 @@
     "@types/node": "^24.0.0",
     "@types/vscode": "^1.50.0",
     "typescript": "^5.0.0",
-    "vsce": "^2.15.0"
+    "@vscode/vsce": "^3.0.0"
   }
 }

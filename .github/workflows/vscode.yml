@@ -3,7 +3,7 @@ name: VS Code
 on:
   push:
     paths:
-      - "src/VSCode/**"
+      - "src/vscode/**"
       - ".github/workflows/vscode.yml"
   workflow_dispatch:
 
@@ -12,40 +12,84 @@ env:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.vsce_target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - vsce_target: linux-x64
+            os: ubuntu-latest
+            rust_target: x86_64-unknown-linux-gnu
+            exe_name: httpgenerator
+          - vsce_target: darwin-x64
+            os: macos-15-intel
+            rust_target: x86_64-apple-darwin
+            exe_name: httpgenerator
+          - vsce_target: darwin-arm64
+            os: macos-15
+            rust_target: aarch64-apple-darwin
+            exe_name: httpgenerator
+          - vsce_target: win32-x64
+            os: windows-latest
+            rust_target: x86_64-pc-windows-msvc
+            exe_name: httpgenerator.exe
 
     steps:
       - uses: actions/checkout@v6
 
       - name: Update Version
+        shell: pwsh
         run: |
-          cd src/VSCode
-          # Use sed to replace the version in package.json
-          sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ env.VERSION }}"/' package.json
+          $content = Get-Content src/vscode/package.json -Raw
+          $content = $content -replace '"version": "[^"]*"', '"version": "${{ env.VERSION }}"'
+          $content | Set-Content src/vscode/package.json
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_target }}
+
+      - name: Build Rust CLI
+        run: cargo build --release --target ${{ matrix.rust_target }} -p httpgenerator
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24"
 
-      - name: Install dependencies
-        working-directory: src/VSCode
+      - name: Stage Rust binary (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
-          npm install
+          rm -rf src/vscode/bin
+          mkdir -p src/vscode/bin
+          cp "target/${{ matrix.rust_target }}/release/${{ matrix.exe_name }}" "src/vscode/bin/${{ matrix.exe_name }}"
+          chmod +x "src/vscode/bin/${{ matrix.exe_name }}"
+
+      - name: Stage Rust binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path src/vscode/bin) { Remove-Item -Recurse -Force src/vscode/bin }
+          New-Item -ItemType Directory -Path src/vscode/bin | Out-Null
+          Copy-Item "target/${{ matrix.rust_target }}/release/${{ matrix.exe_name }}" "src/vscode/bin/${{ matrix.exe_name }}"
+
+      - name: Install dependencies
+        working-directory: src/vscode
+        run: npm ci
 
       - name: Compile extension
-        working-directory: src/VSCode
-        run: |
-          npm run compile
+        working-directory: src/vscode
+        run: npm run compile
 
       - name: Package extension
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: |
           npm install -g @vscode/vsce
-          vsce package
+          vsce package --target ${{ matrix.vsce_target }}
 
       - name: Upload VSIX as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: VSCode Extension
-          path: src/VSCode/*.vsix
+          name: VSCode-${{ matrix.vsce_target }}
+          path: src/vscode/*.vsix

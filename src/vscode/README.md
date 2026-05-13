@@ -8,12 +8,13 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 - Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
-- Automatically installs the required .NET Tool if not present
+- Bundles the native [httpgenerator](https://github.com/christianhelle/httpgenerator) Rust CLI — no additional runtime required
 
 ## Requirements
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
-- [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
+No additional runtime installation required. The extension ships with a bundled native `httpgenerator` binary for each supported platform.
+
+For development or to use a custom build, set the `http-file-generator.executablePath` setting to point to any `httpgenerator` binary.
 
 ## Usage
 
@@ -27,9 +28,26 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 3. If running from the Command Palette, you'll be prompted to select an OpenAPI file from your workspace.
 
-4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
+4. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file.
 
-5. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
+## Executable Resolution
+
+The extension resolves the `httpgenerator` binary using the following priority order:
+
+1. **`http-file-generator.executablePath` setting** — when set, this path is used directly. If the file does not exist, the extension shows an error and stops instead of falling back silently.
+2. **Bundled binary** — the native binary included in the platform-targeted `.vsix` package.
+3. **Repo development build** — `target/release/httpgenerator` or `target/debug/httpgenerator` relative to the extension directory (covers the `src/vscode` → repo root layout when running from source).
+4. **PATH** — `httpgenerator` resolved from your system `PATH`.
+
+## Development
+
+When running or debugging the extension from source:
+
+1. Build the Rust CLI: `cargo build -p httpgenerator`
+2. Open `src/vscode` in VS Code and press **F5** to launch the Extension Development Host.
+3. The extension will automatically discover `target/debug/httpgenerator` from the repo root.
+
+Alternatively, set `http-file-generator.executablePath` in your VS Code settings to point to a specific `httpgenerator` binary.
 
 ## About HTTP Files
 
@@ -37,7 +55,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Related Projects
 
-This extension is a VS Code wrapper around the [httpgenerator](https://github.com/christianhelle/httpgenerator) .NET Tool.
+This extension is a VS Code host for the [httpgenerator](https://github.com/christianhelle/httpgenerator) Rust CLI.
 
 For more information, visit the [httpgenerator GitHub repository](https://github.com/christianhelle/httpgenerator).
 
