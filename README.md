@@ -43,6 +43,14 @@ irm https://christianhelle.com/httpgenerator/install.ps1 | iex
 
 Use this when you want the prebuilt CLI on Windows.
 
+#### Snap
+
+```bash
+snap install httpgenerator
+```
+
+Use this on Linux systems with snapd available.
+
 ### Advanced install options
 
 #### macOS/Linux options
