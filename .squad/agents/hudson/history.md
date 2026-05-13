@@ -67,3 +67,9 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 - Document the extension as a platform-targeted bundled `.vsix` flow with executable resolution `http-file-generator.executablePath` → bundled binary → repo-root `target\debug` / `target\release` → `PATH`.
 - Do not point extension users at `.NET Tool` or crates.io installs; those are separate product channels from the bundled VS Code runtime.
 - Prefer the canonical lowercase `src\vscode` path when describing the current extension host.
+
+### VS Code packaged Rust host final approval (2026-05-13T21:06:43Z)
+- Bishop approved the revised artifact after Hudson's packaging/build revision.
+- The lasting packaging/docs contract is that the packaged binary must match the requested VS Code target, with local win32-arm64 packaging failing fast rather than silently reusing a host-built executable.
+- Remaining closeout is manual-only: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke Command Palette and Explorer menu generation flows.
+

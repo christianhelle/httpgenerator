@@ -53,3 +53,9 @@
 - The highest-risk public seams are the Rust facades in `src\rust\core\src\lib.rs`, `src\rust\core\src\openapi\mod.rs`, and `src\rust\cli\src\lib.rs`, plus CLI entrypoint wiring in `src\rust\cli\src\main.rs`.
 - `src\rust\cli\tests\differential_petstore.rs` and `test\smoke-tests.ps1` intentionally mirror the same output-mode and option permutations, so refactors that move execution or argument wiring should update both together.
 - New tester-owned coverage for future bounded module splits should emphasize facade/re-export contract checks and seam-local unit tests for extracted folders instead of widening the fixture matrix when behavior is unchanged.
+
+### VS Code packaged Rust host final approval (2026-05-13T21:06:43Z)
+- Final verdict: approved the revised artifact after Hudson's packaging/build revision.
+- Approval basis stayed narrow: win32-x64 now ships the matching x64 Rust binary, win32-arm64 fails fast locally instead of bundling a host-built binary, CI exercises real win32-arm64 packaging under the matching MSVC environment, and resolver/fail-fast explicit-path behavior remained intact.
+- Only residual coverage gap is manual: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke the Command Palette plus Explorer menu generation flows end-to-end.
+

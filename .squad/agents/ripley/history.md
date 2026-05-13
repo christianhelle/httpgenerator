@@ -79,3 +79,9 @@
 - Keep the executable contract locked to `http-file-generator.executablePath` → bundled binary in the installed extension → repo-root `target\debug` / `target\release` outputs → `httpgenerator` on `PATH`.
 - An invalid explicit setting must fail fast instead of falling through, and the conflicting `src\vscode\PRD.md` draft should be treated as stale unless Ripley explicitly re-approves it.
 - Reviewer watch-outs for this stream: stale `src\VSCode` path references and the broken package test script.
+
+### VS Code packaged Rust host final approval (2026-05-13T21:06:43Z)
+- Final reviewer closeout held once the packaged Rust binary matched the requested VS Code target and the explicit executable-path fail-fast contract stayed intact.
+- Approval basis to remember: win32-x64 ships the matching x64 binary, local win32-arm64 packaging now fails fast instead of shipping the wrong binary, and CI covers real win32-arm64 packaging with the matching MSVC environment.
+- Only remaining follow-up is manual host validation on native x64 and ARM64 VS Code installs.
+

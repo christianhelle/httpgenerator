@@ -243,3 +243,9 @@ Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, faca
 **By:** Hudson (DevRel/Docs)
 **What:** Keep VS Code documentation aligned on the Rust-host contract across `src\vscode\README.md`, `README.md`, `CONTRIBUTING.md`, `docs\README.md`, `docs\index.html`, and `.github\copilot-instructions.md`: platform-targeted bundled `.vsix` packages, executable resolution order `http-file-generator.executablePath` → bundled binary → repo-root workspace `target\debug` / `target\release` → `PATH`, and no `.NET Tool` or crates.io installer guidance for extension users.
 **Why:** The extension ships as a bundled-binary experience, so docs must not drift back into legacy install flows or imply crates.io is the extension delivery channel.
+
+### 2026-05-13T23:06:43.790+02:00: VS Code target drives bundled Rust target
+**By:** Vasquez
+**What:** VS Code packaging must derive the Rust compilation target from the requested VS Code target and stage the executable from `target\<rust-target>\release`, while PR CI gates the same shipped VSIX target matrix before merge.
+**Why:** The VSIX target name is the packaging contract reviewers locked for this migration. Reusing a host-built binary from `target\release` can silently mislabel the bundled CLI, so the build path must either produce the matching Rust binary or fail.
+
