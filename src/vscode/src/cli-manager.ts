@@ -464,7 +464,7 @@ export async function resolveCLIPath(
         return configuredPath;
     }
 
-    const pathBinary = await findOnPath('httpgenerator');
+    const pathBinary = await findOnPath();
     if (pathBinary) {
         return pathBinary;
     }
