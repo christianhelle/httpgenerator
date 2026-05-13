@@ -73,3 +73,9 @@
 - Reusable `httprunner` patterns worth porting: directory-per-domain layout (`parser\`, `types\`, `cli\`, `upgrade\`), thin `mod.rs` re-export surfaces, colocated `README.md` files for significant modules, and cfg/platform splits as leaf files rather than inline branching.
 - Planning preference from Christian Helle: investigate only and deliver staged refactor guidance before implementation; do not modify production Rust code during this pass.
 - Key review paths for the future refactor: `src\rust\core\src\lib.rs`, `src\rust\core\src\generator.rs`, `src\rust\core\src\normalized.rs`, `src\rust\core\src\model.rs`, `src\rust\core\src\openapi\normalize.rs`, `src\rust\cli\src\lib.rs`, `src\rust\cli\src\execution.rs`, `src\rust\cli\src\ui.rs`, plus `christianhelle/httprunner` reference modules under `src/core/src/{parser,types}` and `src/cli/src/{cli,shutdown,upgrade}`.
+
+### VS Code Rust Host Review Gate (2026-05-13T21:06:43Z)
+- Treat the VS Code Rust-host migration as one coordinated cutover across `src\vscode\src\extension.ts`, bundled packaging, workflow targeting, and extension validation; do not approve a runtime-only rewrite.
+- Keep the executable contract locked to `http-file-generator.executablePath` → bundled binary in the installed extension → repo-root `target\debug` / `target\release` outputs → `httpgenerator` on `PATH`.
+- An invalid explicit setting must fail fast instead of falling through, and the conflicting `src\vscode\PRD.md` draft should be treated as stale unless Ripley explicitly re-approves it.
+- Reviewer watch-outs for this stream: stale `src\VSCode` path references and the broken package test script.

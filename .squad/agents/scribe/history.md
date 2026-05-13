@@ -21,3 +21,9 @@ Scribe maintains `.squad` memory: orchestration logs, session logs, decision mer
 ### Crates.io Publishing Session Closeout (2026-05-05)
 - Recorded orchestration outcomes for Ripley, Hicks, Hudson, and Bishop under `.squad\orchestration-log\` using UTC ISO-style timestamps.
 - Logged the session, merged the current decision inbox into `decisions.md`, cleared `.squad\decisions\inbox\`, and captured the GPT-5.5 session directive plus the crates.io packaging/workflow/docs/validation/release-readiness decisions.
+
+### VS Code Rust-host Session Closeout (2026-05-13T21:06:43Z)
+- Logged the Ripley, Hudson, and Hicks workstreams under `.squad\orchestration-log\` with UTC ISO-style timestamps.
+- Merged four inbox decisions into `decisions.md`, cleared `.squad\decisions\inbox\`, and captured the Claude Opus 4.7 session directive for this session only.
+- Summarized Hicks' oversized `history.md` into a compact live history and preserved the full prior record in `agents\hicks\history-archive.md`.
+- Health report pattern for this session: record decisions.md before/after size, inbox count processed, and which histories were summarized inside the session log.

@@ -61,3 +61,9 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 ### Team Closeout — crates.io publishing (2026-05-05)
 - Ripley approved the public/private crate split and release-readiness gate, while Hicks encoded ordered crates.io publication in the reusable workflow.
 - Bishop's validation closeout means the docs can safely describe crates.io as first-class while still calling out the expected pre-publish dry-run limitation.
+
+### VS Code Rust-host Docs Contract (2026-05-13T21:06:43Z)
+- Keep the VS Code extension story aligned across `src\vscode\README.md`, `README.md`, `CONTRIBUTING.md`, `docs\README.md`, `docs\index.html`, and `.github\copilot-instructions.md`.
+- Document the extension as a platform-targeted bundled `.vsix` flow with executable resolution `http-file-generator.executablePath` → bundled binary → repo-root `target\debug` / `target\release` → `PATH`.
+- Do not point extension users at `.NET Tool` or crates.io installs; those are separate product channels from the bundled VS Code runtime.
+- Prefer the canonical lowercase `src\vscode` path when describing the current extension host.
