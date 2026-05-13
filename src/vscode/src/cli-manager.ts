@@ -207,11 +207,17 @@ function downloadFile(url: string, destination: string, onProgress?: (message: s
                 timeout: DOWNLOAD_TIMEOUT_MS
             },
             response => {
-                if (response.statusCode && response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                if (response.statusCode && response.statusCode >= 300 && response.statusCode < 400) {
+                    const redirectUrl = response.headers.location;
                     response.resume();
                     file.close();
+                    if (!redirectUrl) {
+                        reject(new Error('Download redirect did not include a location'));
+                        return;
+                    }
+
                     fs.promises.unlink(destination).catch(() => undefined).finally(() => {
-                        downloadFile(response.headers.location!, destination, onProgress).then(resolve, reject);
+                        downloadFile(redirectUrl, destination, onProgress).then(resolve, reject);
                     });
                     return;
                 }
@@ -286,9 +292,9 @@ async function extractTarGz(archivePath: string, destinationDirectory: string): 
         throw new Error('Downloaded archive contains unsafe paths');
     }
 
-    const binaryEntry = entries.find(entry => path.posix.basename(normalizeArchiveEntry(entry)) === 'httpgenerator');
+    const binaryEntry = entries.find(entry => path.posix.basename(normalizeArchiveEntry(entry)) === BINARY_BASENAME);
     if (!binaryEntry) {
-        throw new Error('Downloaded archive does not contain httpgenerator');
+        throw new Error(`Downloaded archive does not contain ${BINARY_BASENAME}`);
     }
 
     await execFile('tar', ['-xzf', archivePath, '-C', destinationDirectory, binaryEntry]);

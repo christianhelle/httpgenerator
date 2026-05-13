@@ -4,7 +4,7 @@ import { executeInTerminal } from './cli-executor';
 import { resolveCLIPath, resetCLI } from './cli-manager';
 import { showProgress } from './progress';
 
-let currentContext: vscode.ExtensionContext;
+let extensionContext: vscode.ExtensionContext;
 let cliPath: string | undefined;
 let cliStatusBarItem: vscode.StatusBarItem | undefined;
 let cliResolutionPromise: Promise<string | undefined> | undefined;
@@ -59,7 +59,7 @@ function showCLIStatusBar(resolvedPath: string): void {
     if (!cliStatusBarItem) {
         cliStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
         cliStatusBarItem.command = 'http-file-generator.showCLIPath';
-        currentContext.subscriptions.push(cliStatusBarItem);
+        extensionContext.subscriptions.push(cliStatusBarItem);
     }
 
     cliStatusBarItem.text = '$(check) HTTP Generator CLI';
@@ -84,7 +84,7 @@ async function resetCachedCLI(context: vscode.ExtensionContext): Promise<void> {
 }
 
 async function executeHttpGenerator(filePath: string, outputType: string): Promise<void> {
-    const resolvedPath = await resolveAndEnsureCLI(currentContext);
+    const resolvedPath = await resolveAndEnsureCLI(extensionContext);
     if (!resolvedPath) {
         vscode.window.showErrorMessage(
             'Unable to locate or download the httpgenerator CLI. Try "HTTP File Generator: Reset CLI" or set "http-file-generator.executablePath".'
@@ -109,10 +109,13 @@ async function executeHttpGenerator(filePath: string, outputType: string): Promi
 }
 
 export function activate(context: vscode.ExtensionContext) {
-    currentContext = context;
+    extensionContext = context;
     console.log('HTTP File Generator extension is now active!');
 
-    resolveAndEnsureCLI(context).then(() => undefined, () => undefined);
+    resolveAndEnsureCLI(context).then(
+        () => undefined,
+        error => console.error('HTTP File Generator CLI resolution failed:', error)
+    );
 
     async function promptForOpenApiFile(): Promise<vscode.Uri | undefined> {
         const openApiFiles = await vscode.workspace.findFiles('**/*.{json,yaml,yml}');
