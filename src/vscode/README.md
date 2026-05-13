@@ -8,12 +8,25 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 - Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
-- Automatically installs the required .NET Tool if not present
+- Uses the Rust `httpgenerator` CLI without requiring the .NET SDK or .NET tool
+- Automatically downloads and caches the CLI when it is not configured or available on `PATH`
 
 ## Requirements
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
+
+The extension downloads the platform-specific Rust CLI from GitHub Releases on first use. It works offline after the CLI has been downloaded once.
+
+## Configuration
+
+- `http-file-generator.executablePath`: Optional path to a custom `httpgenerator` executable. Leave empty to search `PATH` and then use the extension-managed cached CLI.
+
+## Commands
+
+- `HTTP File Generator: Generate single HTTP file`
+- `HTTP File Generator: Generate multiple HTTP files (one request per file)`
+- `HTTP File Generator: Reset CLI` deletes the cached extension-managed CLI so it can be downloaded again.
+- `HTTP File Generator: Show CLI Path` displays the executable currently used by the extension.
 
 ## Usage
 
@@ -27,9 +40,11 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 3. If running from the Command Palette, you'll be prompted to select an OpenAPI file from your workspace.
 
-4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
+4. The extension resolves the CLI by checking `http-file-generator.executablePath`, then `PATH`, then the cached binary in VS Code global storage. If needed, it downloads the Rust CLI from GitHub Releases and shows progress while downloading.
 
 5. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
+
+If automatic download fails, use `HTTP File Generator: Reset CLI` to retry or set `http-file-generator.executablePath` to a manually installed `httpgenerator` binary.
 
 ## About HTTP Files
 
@@ -37,7 +52,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Related Projects
 
-This extension is a VS Code wrapper around the [httpgenerator](https://github.com/christianhelle/httpgenerator) .NET Tool.
+This extension is a VS Code wrapper around the Rust [httpgenerator](https://github.com/christianhelle/httpgenerator) CLI.
 
 For more information, visit the [httpgenerator GitHub repository](https://github.com/christianhelle/httpgenerator).
 

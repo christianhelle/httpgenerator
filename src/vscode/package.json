@@ -10,16 +10,19 @@
     "url": "https://github.com/christianhelle/httpgenerator"
   },
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [
+    "onStartupFinished",
     "onCommand:http-file-generator.generateSingleHttpFile",
     "onCommand:http-file-generator.generateMultipleHttpFiles",
     "onCommand:http-file-generator.generateSingleHttpFileMenu",
-    "onCommand:http-file-generator.generateMultipleHttpFilesMenu"
+    "onCommand:http-file-generator.generateMultipleHttpFilesMenu",
+    "onCommand:http-file-generator.resetCLI",
+    "onCommand:http-file-generator.showCLIPath"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -39,6 +42,14 @@
       {
         "command": "http-file-generator.generateMultipleHttpFilesMenu",
         "title": "Generate multiple HTTP files (one request per file)"
+      },
+      {
+        "command": "http-file-generator.resetCLI",
+        "title": "HTTP File Generator: Reset CLI"
+      },
+      {
+        "command": "http-file-generator.showCLIPath",
+        "title": "HTTP File Generator: Show CLI Path"
       }
     ],
     "menus": {
@@ -61,7 +72,7 @@
       "commandPalette": [
         {
           "command": "http-file-generator.generateSingleHttpFileMenu",
-          "when": "false" 
+          "when": "false"
         },
         {
           "command": "http-file-generator.generateMultipleHttpFilesMenu",
@@ -74,7 +85,17 @@
         "id": "http-file-generator.menu",
         "label": "HTTP File Generator"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "HTTP File Generator",
+      "properties": {
+        "http-file-generator.executablePath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Path to the httpgenerator CLI executable. Leave empty to search PATH and auto-download the Rust CLI when needed."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
