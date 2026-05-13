@@ -244,7 +244,7 @@ fn openapi30_local_documents_without_servers_do_not_use_parent_directory_server(
 }
 
 #[test]
-fn webhook_only_v31_documents_normalize_without_operations() {
+fn webhook_only_v31_documents_normalize_into_webhook_operations() {
     let raw = decode_raw_document(
         OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
         include_str!("../../../../../../test/OpenAPI/v3.1/webhook-example.json"),
@@ -258,7 +258,92 @@ fn webhook_only_v31_documents_normalize_without_operations() {
         NormalizedSpecificationVersion::OpenApi31
     );
     assert!(normalized.servers.is_empty());
-    assert!(normalized.operations.is_empty());
+    assert_eq!(normalized.operations.len(), 1);
+    assert_eq!(normalized.operations[0].path, "/newPet");
+    assert_eq!(normalized.operations[0].method, NormalizedHttpMethod::Post);
+    assert_eq!(
+        normalized.operations[0].operation_id.as_deref(),
+        Some("newPet")
+    );
+    assert_eq!(normalized.operations[0].tags, vec!["Webhooks"]);
+    assert!(matches!(
+        normalized.operations[0].request_body,
+        Some(NormalizedRequestBody::Inline(_))
+    ));
+}
+
+#[test]
+fn openapi31_documents_collect_paths_and_webhooks_together() {
+    let raw = decode_raw_document(
+        OpenApiSource::Path(PathBuf::from("inline.json")),
+        r#"{
+                "openapi": "3.1.0",
+                "info": { "title": "Example", "version": "1.0.0" },
+                "paths": {
+                    "/pets": {
+                        "get": {
+                            "responses": {
+                                "200": {
+                                    "description": "ok"
+                                }
+                            }
+                        }
+                    }
+                },
+                "webhooks": {
+                    "newPet": {
+                        "post": {
+                            "responses": {
+                                "200": {
+                                    "description": "ok"
+                                }
+                            }
+                        }
+                    }
+                }
+            }"#,
+    )
+    .unwrap();
+    let loaded = load_document_from_raw(raw).unwrap();
+    let normalized = normalize_loaded_document(&loaded).unwrap();
+
+    assert_eq!(normalized.operations.len(), 2);
+    assert!(normalized.operations.iter().any(
+        |operation| operation.path == "/pets" && operation.method == NormalizedHttpMethod::Get
+    ));
+    assert!(normalized.operations.iter().any(|operation| {
+        operation.path == "/newPet"
+            && operation.method == NormalizedHttpMethod::Post
+            && operation.tags == ["Webhooks"]
+            && operation.operation_id.as_deref() == Some("newPet")
+    }));
+}
+
+#[test]
+fn webhook_path_item_refs_fail_explicitly_during_normalization() {
+    let raw = decode_raw_document(
+        OpenApiSource::Path(PathBuf::from("inline.json")),
+        r##"{
+                "openapi": "3.1.0",
+                "info": { "title": "Example", "version": "1.0.0" },
+                "webhooks": {
+                    "newPet": {
+                        "$ref": "#/components/pathItems/NewPet"
+                    }
+                }
+            }"##,
+    )
+    .unwrap();
+    let loaded = load_document_from_raw(raw).unwrap();
+    let error = normalize_loaded_document(&loaded).unwrap_err();
+
+    assert_eq!(
+        error,
+        OpenApiNormalizationError::UnsupportedPathItemReference {
+            path: "webhooks.newPet".to_string(),
+            reference: "#/components/pathItems/NewPet".to_string(),
+        }
+    );
 }
 
 #[test]

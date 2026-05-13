@@ -60,6 +60,27 @@ fn inspects_callback_examples_with_callbacks() {
 }
 
 #[test]
+fn inspects_webhook_only_examples_as_operations() {
+    let raw = decode_raw_document(
+        OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
+        include_str!("../../../../../../test/OpenAPI/v3.1/webhook-example.json"),
+    )
+    .unwrap();
+
+    let inspection = inspect_raw_document(&raw).unwrap();
+
+    assert_eq!(
+        inspection.specification_version,
+        OpenApiSpecificationVersion::OpenApi31
+    );
+    assert_eq!(inspection.stats.path_item_count, 0);
+    assert_eq!(inspection.stats.operation_count, 1);
+    assert_eq!(inspection.stats.request_body_count, 1);
+    assert_eq!(inspection.stats.response_count, 1);
+    assert!(inspection.stats.schema_count > 0);
+}
+
+#[test]
 fn empty_stats_start_at_zero() {
     let stats = OpenApiStats::default();
 

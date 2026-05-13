@@ -16,51 +16,58 @@ pub(super) fn collect_path_stats(root: &Value) -> OpenApiStats {
 
     if let Some(paths) = root.get("paths").and_then(Value::as_object) {
         stats.path_item_count = paths.len();
+        collect_operation_stats(paths, &mut stats);
+    }
 
-        for path_item in paths.values() {
-            let Some(path_item) = path_item.as_object() else {
+    if let Some(webhooks) = root.get("webhooks").and_then(Value::as_object) {
+        collect_operation_stats(webhooks, &mut stats);
+    }
+
+    stats
+}
+
+fn collect_operation_stats(path_items: &Map<String, Value>, stats: &mut OpenApiStats) {
+    for path_item in path_items.values() {
+        let Some(path_item) = path_item.as_object() else {
+            continue;
+        };
+
+        if let Some(parameters) = path_item.get("parameters").and_then(Value::as_array) {
+            stats.parameter_count += count_parameter_entries(parameters);
+            stats.request_body_count += count_swagger2_body_parameters(parameters);
+            stats.schema_count += count_parameter_schemas(parameters);
+        }
+
+        for method in SUPPORTED_METHODS {
+            let Some(operation) = path_item.get(*method).and_then(Value::as_object) else {
                 continue;
             };
 
-            if let Some(parameters) = path_item.get("parameters").and_then(Value::as_array) {
+            stats.operation_count += 1;
+
+            if let Some(parameters) = operation.get("parameters").and_then(Value::as_array) {
                 stats.parameter_count += count_parameter_entries(parameters);
                 stats.request_body_count += count_swagger2_body_parameters(parameters);
                 stats.schema_count += count_parameter_schemas(parameters);
             }
 
-            for method in SUPPORTED_METHODS {
-                let Some(operation) = path_item.get(*method).and_then(Value::as_object) else {
-                    continue;
-                };
+            if let Some(request_body) = operation.get("requestBody") {
+                stats.request_body_count += count_request_body_entries(request_body);
+                stats.schema_count += count_request_body_schemas(request_body);
+            }
 
-                stats.operation_count += 1;
+            if let Some(responses) = operation.get("responses").and_then(Value::as_object) {
+                stats.response_count += 1;
+                stats.schema_count += count_response_schemas(responses);
+                stats.schema_count += count_response_header_schemas(responses);
+                stats.link_count += count_response_links(responses);
+            }
 
-                if let Some(parameters) = operation.get("parameters").and_then(Value::as_array) {
-                    stats.parameter_count += count_parameter_entries(parameters);
-                    stats.request_body_count += count_swagger2_body_parameters(parameters);
-                    stats.schema_count += count_parameter_schemas(parameters);
-                }
-
-                if let Some(request_body) = operation.get("requestBody") {
-                    stats.request_body_count += count_request_body_entries(request_body);
-                    stats.schema_count += count_request_body_schemas(request_body);
-                }
-
-                if let Some(responses) = operation.get("responses").and_then(Value::as_object) {
-                    stats.response_count += 1;
-                    stats.schema_count += count_response_schemas(responses);
-                    stats.schema_count += count_response_header_schemas(responses);
-                    stats.link_count += count_response_links(responses);
-                }
-
-                if let Some(callbacks) = operation.get("callbacks").and_then(Value::as_object) {
-                    stats.callback_count += count_callback_entries(callbacks);
-                }
+            if let Some(callbacks) = operation.get("callbacks").and_then(Value::as_object) {
+                stats.callback_count += count_callback_entries(callbacks);
             }
         }
     }
-
-    stats
 }
 
 pub(super) fn count_callback_entries(callbacks: &Map<String, Value>) -> usize {
