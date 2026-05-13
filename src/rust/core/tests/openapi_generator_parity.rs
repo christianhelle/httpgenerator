@@ -168,10 +168,14 @@ fn webhook_example_renders_expected_one_request_per_file_output() {
     let document = load_and_normalize_document_with_options(&webhook_input(), true).unwrap();
 
     let result = generate_http_files(&webhook_settings(), &document);
-    let content = &result.files[0].content;
-
     assert_eq!(result.files.len(), 1);
-    assert_eq!(result.files[0].filename, "PostNewPet.http");
+    let file = result
+        .files
+        .first()
+        .expect("expected generated webhook output");
+    let content = &file.content;
+
+    assert_eq!(file.filename, "PostNewPet.http");
     assert!(content.starts_with(&format!(
         "@baseUrl = {nl}@contentType = application/json{nl}{nl}",
         nl = newline()
