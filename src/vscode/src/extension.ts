@@ -10,7 +10,7 @@ interface ResolvedExecutable {
 }
 
 function quoteForShell(value: string): string {
-    return `"${value.replace(/"/g, '\\"')}"`;
+    return `"${value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 }
 
 function isExecutable(candidatePath: string): boolean {
@@ -132,9 +132,10 @@ function resolveExecutableOnPath(commandName: string): string | undefined {
 function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext): ResolvedExecutable {
     const configuredPath = getConfiguredExecutablePath();
     if (configuredPath) {
+        const configuredBasePath = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? context.extensionPath;
         const resolvedConfiguredPath = path.isAbsolute(configuredPath)
             ? configuredPath
-            : path.resolve(configuredPath);
+            : path.resolve(configuredBasePath, configuredPath);
 
         if (!isExecutable(resolvedConfiguredPath)) {
             throw new Error(

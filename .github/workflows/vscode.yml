@@ -10,6 +10,9 @@ on:
 env:
   VERSION: 1.1.${{ github.run_number }}
 
+permissions:
+  contents: read
+
 jobs:
   package:
     name: VS Code (${{ matrix.target }})

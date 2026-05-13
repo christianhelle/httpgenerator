@@ -37,7 +37,7 @@ Pop-Location
 New-Item -ItemType Directory -Path $bundleDir -Force | Out-Null
 Copy-Item -Path $sourceBinary -Destination $bundleBinary -Force
 
-if (-not ($Target -like "win32-*")) {
+if ((-not $IsWindows) -and (-not ($Target -like "win32-*"))) {
     chmod +x $bundleBinary
 }
 
