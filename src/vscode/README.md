@@ -4,32 +4,47 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Features
 
-- Right-click on OpenAPI specification files (.json, .yaml, .yml) in the Explorer
+- Right-click on OpenAPI specification files (`.json`, `.yaml`, `.yml`) in the Explorer
 - Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
-- Automatically installs the required .NET Tool if not present
+- Resolve the Rust `httpgenerator` executable through a documented fallback chain
+
+## Installation
+
+Install the VS Code extension from the Visual Studio Marketplace or from a platform-targeted `.vsix` package. VS Code extension packages bundle the native Rust CLI for their target platform.
 
 ## Requirements
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
+
+## Executable Resolution
+
+The extension resolves the `httpgenerator` executable in this order:
+
+1. `http-file-generator.executablePath`
+2. The bundled binary inside the installed extension
+3. Repo-root workspace `target\debug` / `target\release` outputs during local development
+4. `httpgenerator` on `PATH`
+
+If `http-file-generator.executablePath` is set but invalid, the extension stops and asks you to fix that setting instead of falling back silently.
+
+The VS Code extension is a bundled-binary distribution. It does not install the CLI from crates.io or the legacy `.NET Tool`. A Cargo-installed or release-downloaded `httpgenerator` binary is only used when you point `http-file-generator.executablePath` to it or make it discoverable on `PATH`.
 
 ## Usage
 
-1. You can use HTTP File Generator in two ways:
-   - Right-click on an OpenAPI specification file (.json, .yaml, or .yml) in the VS Code Explorer and select "HTTP File Generator" from the context menu
-   - Open the Command Palette (Ctrl+Shift+P or Cmd+Shift+P) and search for "HTTP File Generator"
-
+1. Use HTTP File Generator in one of these ways:
+   - Right-click an OpenAPI specification file (`.json`, `.yaml`, or `.yml`) in the VS Code Explorer and select **HTTP File Generator**
+   - Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`) and search for **HTTP File Generator**
 2. Choose either:
-   - "Generate single HTTP file"
-   - "Generate multiple HTTP files (one request per file)"
+   - **Generate single HTTP file**
+   - **Generate multiple HTTP files (one request per file)**
+3. If you start from the Command Palette, select an OpenAPI file from your workspace.
+4. Choose an output folder. By default, the extension suggests an `HttpFiles` subfolder beside the input file.
 
-3. If running from the Command Palette, you'll be prompted to select an OpenAPI file from your workspace.
+## Local Development
 
-4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
-
-5. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
+For local extension development, you can either set `http-file-generator.executablePath` explicitly or build the Rust CLI from the repository root so the extension can discover the repo-root workspace `target\debug` / `target\release` outputs.
 
 ## About HTTP Files
 
@@ -37,7 +52,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Related Projects
 
-This extension is a VS Code wrapper around the [httpgenerator](https://github.com/christianhelle/httpgenerator) .NET Tool.
+This extension is a thin VS Code host for the Rust-native [httpgenerator](https://github.com/christianhelle/httpgenerator) CLI.
 
 For more information, visit the [httpgenerator GitHub repository](https://github.com/christianhelle/httpgenerator).
 
