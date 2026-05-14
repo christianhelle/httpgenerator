@@ -3,18 +3,8 @@ name: VS Code
 on:
   push:
     paths:
-      - ".github/workflows/vscode.yml"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "src/rust/**"
       - "src/vscode/**"
-  pull_request:
-    paths:
       - ".github/workflows/vscode.yml"
-      - "Cargo.toml"
-      - "Cargo.lock"
-      - "src/rust/**"
-      - "src/vscode/**"
   workflow_dispatch:
 
 env:
@@ -22,68 +12,40 @@ env:
 
 jobs:
   build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux-x64
-            shell: bash
-          - os: windows-latest
-            target: win32-x64
-            msvc_arch: amd64
-            shell: pwsh
-          - os: windows-latest
-            target: win32-arm64
-            msvc_arch: amd64_arm64
-            shell: pwsh
-          - os: macos-13
-            target: darwin-x64
-            shell: bash
-          - os: macos-14
-            target: darwin-arm64
-            shell: bash
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v6
 
-      - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
-
       - name: Update Version
-        working-directory: src/vscode
         run: |
-          node -e "const fs=require('fs'); const path='package.json'; const pkg=JSON.parse(fs.readFileSync(path,'utf8')); pkg.version=process.env.VERSION; fs.writeFileSync(path, JSON.stringify(pkg, null, 2) + '\n');"
+          cd src/vscode
+          # Use sed to replace the version in package.json
+          sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ env.VERSION }}"/' package.json
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24"
 
-      - name: Configure MSVC developer command prompt
-        if: runner.os == 'Windows'
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          arch: ${{ matrix.msvc_arch }}
-
-      - name: Build and package extension
-        if: runner.os != 'Windows'
+      - name: Install dependencies
         working-directory: src/vscode
-        shell: bash
         run: |
-          chmod +x ./build.sh
-          ./build.sh "${VERSION}" "${{ matrix.target }}"
+          npm install
 
-      - name: Build and package extension
-        if: runner.os == 'Windows'
+      - name: Compile extension
         working-directory: src/vscode
-        shell: pwsh
         run: |
-          .\build.ps1 -Version $env:VERSION -Target '${{ matrix.target }}'
+          npm run compile
+
+      - name: Package extension
+        working-directory: src/vscode
+        run: |
+          npm install -g @vscode/vsce
+          vsce package
 
       - name: Upload VSIX as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: vscode-${{ matrix.target }}
+          name: VSCode Extension
           path: src/vscode/*.vsix
