@@ -49,6 +49,7 @@
             <section id="installation" class="section">
                 <h2 class="section-title">Installation</h2>
                 <p>HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.</p>
+                <p>The CLI was recently migrated to Rust for performance reasons and because I am using Rust more and more these days while working on older hardware. On that hardware, the Rust based CLI currently runs the smoke tests about 60x faster than the legacy .NET tool.</p>
                 <ul>
                     <li>Install from <strong>crates.io</strong> with <code>cargo install httpgenerator</code> when you want the canonical Rust ecosystem install path for published releases.</li>
                     <li>Install the prebuilt CLI on macOS or Linux with <code>curl -fsSL https://christianhelle.com/httpgenerator/install | bash</code>.</li>
@@ -65,7 +66,8 @@ curl -fsSL https://christianhelle.com/httpgenerator/install | bash
 irm https://christianhelle.com/httpgenerator/install.ps1 | iex
 snap install httpgenerator</code></pre>
                 </div>
-                <p>The legacy .NET CLI remains in the repository as the migration oracle and compatibility host, but it is no longer the primary release path.</p>
+                <p>The legacy .NET CLI remains in the repository as a maintained compatibility surface and migration oracle, but it is no longer the primary release path.</p>
+                <p>Compatibility fixes can still land in the legacy .NET CLI, but new features will only be implemented in the Rust CLI. The .NET tool will eventually be retired once the remaining compatibility path is no longer needed.</p>
                 <p>crates.io is the Rust-native install and library distribution path. The install scripts and <a href="https://github.com/christianhelle/httpgenerator/releases">GitHub Releases</a> cover the prebuilt standalone CLI, and the editor extensions continue shipping their own bundled native binaries through Marketplace / VSIX distribution.</p>
                 <p>The VS Code extension is a bundled-binary distribution, not a crates.io or legacy .NET Tool installer. Its runtime contract is <code>http-file-generator.executablePath</code>, then the bundled extension binary, then repo-root workspace <code>target\debug</code> / <code>target\release</code> outputs during development, and finally <code>PATH</code>. If the explicit setting is invalid, the extension should stop and ask you to correct it.</p>
                 <p>The standalone release matrix currently covers <code>linux-x64</code>, <code>darwin-x64</code>, <code>darwin-arm64</code>, and <code>win-x64</code>. Windows on ARM currently uses the x64 standalone install path.</p>

@@ -79,7 +79,7 @@ function PrepareLocalDotNetCli {
     }
 
     $sourceDir = [System.IO.Path]::GetFullPath(
-        [System.IO.Path]::Combine($PSScriptRoot, "..", "src", "dotnet", "HttpGenerator", "bin", "Release", "net8.0"))
+        [System.IO.Path]::Combine($PSScriptRoot, "..", "src", "dotnet", "HttpGenerator", "bin", "Release", "net10.0"))
     $dotnetBinDir = [System.IO.Path]::GetFullPath(
         [System.IO.Path]::Combine($PSScriptRoot, "bin", "dotnet"))
 

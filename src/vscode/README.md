@@ -8,7 +8,7 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 - Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
-- Resolve the Rust `httpgenerator` executable through a documented fallback chain
+- Use the Rust `httpgenerator` CLI through the bundled native binary, a configured executable path, repo-root development builds, or `PATH`
 
 ## Installation
 
@@ -16,6 +16,7 @@ Install the VS Code extension from the Visual Studio Marketplace or from a platf
 
 ## Requirements
 
+- No .NET SDK is required for normal usage
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
 
 ## Executable Resolution

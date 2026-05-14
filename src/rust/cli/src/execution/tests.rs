@@ -193,7 +193,32 @@ fn execute_allows_openapi31_with_skip_validation() {
 
     assert!(summary.validation.is_none());
     assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
-    assert!(summary.files.is_empty());
+    assert_eq!(summary.files.len(), 1);
+    assert!(summary.files[0].ends_with("PostNewPet.http"));
+    let content = fs::read_to_string(&summary.files[0]).unwrap();
+    assert!(content.contains("### Request: POST /newPet"));
+    assert!(content.contains("POST {{baseUrl}}/newPet"));
+
+    cleanup(&summary);
+}
+
+#[test]
+fn execute_writes_webhook_files_per_tag_for_openapi31_with_skip_validation() {
+    let output_folder = temp_output_dir("openapi31-webhook-per-tag");
+    let summary = execute(CliArgs {
+        skip_validation: true,
+        output_type: OutputTypeArg::OneFilePerTag,
+        ..webhook31_args(output_folder)
+    })
+    .unwrap();
+
+    assert!(summary.validation.is_none());
+    assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
+    assert_eq!(summary.files.len(), 1);
+    assert!(summary.files[0].ends_with("Webhooks.http"));
+    let content = fs::read_to_string(&summary.files[0]).unwrap();
+    assert!(content.contains("### Request: POST /newPet"));
+    assert!(content.contains("POST {{baseUrl}}/newPet"));
 
     cleanup(&summary);
 }
