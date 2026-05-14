@@ -36,7 +36,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Run smoke tests
-        run: ./smoke-tests.ps1
+        run: ./smoke-tests.ps1 -Benchmark
         working-directory: test
         shell: pwsh
 
