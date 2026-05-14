@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as path from 'path';
 import { promisify } from 'util';
 import * as vscode from 'vscode';
+import { createHttpGeneratorCommandForShell, type ShellKind } from './commandBuilder';
 
 const execAsync = promisify(exec);
 
@@ -273,19 +274,23 @@ async function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext):
     );
 }
 
-function quoteArgument(value: string): string {
-    return `${value.replace(/"/g, '\\"')}`;
+function getShellKind(): ShellKind {
+    const shellPath = vscode.env.shell?.toLowerCase() ?? '';
+    const shellName = path.basename(shellPath);
+
+    if (shellName.includes('pwsh') || shellName.includes('powershell')) {
+        return 'powershell';
+    }
+
+    if (shellName === 'cmd.exe') {
+        return 'cmd';
+    }
+
+    return 'posix';
 }
 
 function createHttpGeneratorCommand(executablePath: string, filePath: string, outputFolder: string, outputType: string): string {
-    return [
-        quoteArgument(executablePath),
-        quoteArgument(filePath),
-        '--output',
-        quoteArgument(outputFolder),
-        '--output-type',
-        outputType
-    ].join(' ');
+    return createHttpGeneratorCommandForShell(executablePath, filePath, outputFolder, outputType, getShellKind());
 }
 
 function getOrCreateHttpGeneratorTerminal(): vscode.Terminal {
