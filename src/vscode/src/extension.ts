@@ -11,6 +11,9 @@ const CONFIGURATION_SECTION = 'http-file-generator';
 const EXECUTABLE_SETTING = 'executablePath';
 const CLI_COMMAND = 'httpgenerator';
 const EXECUTABLE_NAME = process.platform === 'win32' ? `${CLI_COMMAND}.exe` : CLI_COMMAND;
+const TERMINAL_NAME = 'HTTP File Generator';
+
+let httpGeneratorTerminal: vscode.Terminal | undefined;
 
 type ResolvedExecutable = {
     path: string;
@@ -285,6 +288,21 @@ function createHttpGeneratorCommand(executablePath: string, filePath: string, ou
     ].join(' ');
 }
 
+function getOrCreateHttpGeneratorTerminal(): vscode.Terminal {
+    if (httpGeneratorTerminal && vscode.window.terminals.includes(httpGeneratorTerminal)) {
+        return httpGeneratorTerminal;
+    }
+
+    const existingTerminal = vscode.window.terminals.find(terminal => terminal.name === TERMINAL_NAME);
+    if (existingTerminal) {
+        httpGeneratorTerminal = existingTerminal;
+        return existingTerminal;
+    }
+
+    httpGeneratorTerminal = vscode.window.createTerminal(TERMINAL_NAME);
+    return httpGeneratorTerminal;
+}
+
 /**
  * Execute the httpgenerator tool
  */
@@ -313,7 +331,7 @@ async function executeHttpGenerator(context: vscode.ExtensionContext, filePath: 
         return;
     }
 
-    const terminal = vscode.window.createTerminal('HTTP File Generator');
+    const terminal = getOrCreateHttpGeneratorTerminal();
     terminal.show();
     terminal.sendText(createHttpGeneratorCommand(executable.path, filePath, outputFolder, outputType));
 }
