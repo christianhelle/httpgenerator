@@ -2,14 +2,29 @@
 
 ## [Unreleased](https://github.com/christianhelle/httpgenerator/tree/HEAD)
 
-[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.1.0-preview.18...HEAD)
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.1.0...HEAD)
 
 **Implemented enhancements:**
 
+- Fix webhook output generation in Rust CLI [\#396](https://github.com/christianhelle/httpgenerator/pull/396) ([christianhelle](https://github.com/christianhelle))
+
+## [1.1.0](https://github.com/christianhelle/httpgenerator/tree/1.1.0) (2026-05-11)
+
+[Full Changelog](https://github.com/christianhelle/httpgenerator/compare/1.1.0-preview.18...1.1.0)
+
+**Implemented enhancements:**
+
+- Merge Rust libraries into a single Core library [\#387](https://github.com/christianhelle/httpgenerator/pull/387) ([christianhelle](https://github.com/christianhelle))
+- Snapcraft distribution [\#379](https://github.com/christianhelle/httpgenerator/pull/379) ([christianhelle](https://github.com/christianhelle))
 - Experimental CLI app re-write in Rust [\#374](https://github.com/christianhelle/httpgenerator/pull/374) ([christianhelle](https://github.com/christianhelle))
 
 **Merged pull requests:**
 
+- Update version from workflow directly [\#393](https://github.com/christianhelle/httpgenerator/pull/393) ([christianhelle](https://github.com/christianhelle))
+- Add installer scripts and release assets [\#390](https://github.com/christianhelle/httpgenerator/pull/390) ([christianhelle](https://github.com/christianhelle))
+- Restructure Rust codebase [\#389](https://github.com/christianhelle/httpgenerator/pull/389) ([christianhelle](https://github.com/christianhelle))
+- Publish Rust app to crates.io [\#380](https://github.com/christianhelle/httpgenerator/pull/380) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update dependency macos to v15 [\#378](https://github.com/christianhelle/httpgenerator/pull/378) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency microsoft.net.test.sdk to 18.5.1 [\#370](https://github.com/christianhelle/httpgenerator/pull/370) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency ruby to v4.0.3 [\#369](https://github.com/christianhelle/httpgenerator/pull/369) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update dependency coverlet.collector to v10 [\#368](https://github.com/christianhelle/httpgenerator/pull/368) ([renovate[bot]](https://github.com/apps/renovate))
