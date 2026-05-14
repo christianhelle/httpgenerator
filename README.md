@@ -15,6 +15,11 @@ Generate .http files from OpenAPI specifications
 
 HTTP File Generator now ships as a Rust CLI plus thin IDE hosts.
 
+The CLI was recently migrated to Rust for performance reasons and because
+I am using Rust more and more these days while working on older
+hardware. On a 10 year old laptop, the Rust based CLI currently runs the smoke tests
+about 60x faster than the legacy .NET tool.
+
 ### Quick install
 
 #### Cargo
@@ -113,8 +118,14 @@ pre-Rust .NET tool surface:
 dotnet tool install --global httpgenerator
 ```
 
-The legacy `.NET` CLI remains in the repository as the migration oracle
-and compatibility host. It is no longer the primary release path.
+The legacy `.NET` CLI remains in the repository as a maintained
+compatibility surface and migration oracle. It is no longer the primary
+release path.
+
+Compatibility fixes can still land in the legacy `.NET` CLI, but new
+features will only be implemented in the Rust CLI. The .NET tool will be
+retired at some point once the remaining compatibility story is no
+longer needed.
 
 For development setup, build commands, and repository layout, see
 [CONTRIBUTING.md](CONTRIBUTING.md).

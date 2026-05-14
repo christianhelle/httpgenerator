@@ -8,11 +8,11 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 - Access commands from the VS Code Command Palette
 - Generate a single HTTP file containing all requests
 - Generate multiple HTTP files (one request per file)
-- Automatically installs the required .NET Tool if not present
+- Use the Rust `httpgenerator` CLI through the bundled native binary, a configured executable path, repo-root development builds, or `PATH`
 
 ## Requirements
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later
+- No .NET SDK is required for normal usage
 - [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) extension (recommended but not required)
 
 ## Usage
@@ -27,9 +27,15 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 3. If running from the Command Palette, you'll be prompted to select an OpenAPI file from your workspace.
 
-4. If the `httpgenerator` .NET tool is not installed, you'll be prompted to install it.
+4. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
 
-5. You'll be prompted to select an output folder. By default, it will suggest creating a "HttpFiles" subfolder in the same directory as your input file, but you can choose any location.
+5. The extension resolves `httpgenerator` in this order:
+   - `http-file-generator.executablePath`
+   - the bundled native binary
+   - repo-root workspace `target\debug` / `target\release` outputs during development
+   - `httpgenerator` on `PATH`
+
+6. If the executable cannot be found, reinstall the extension to restore the bundled CLI or point `http-file-generator.executablePath` to an existing `httpgenerator` binary.
 
 ## About HTTP Files
 
@@ -37,7 +43,11 @@ Generate `.http` files from OpenAPI specifications to work with VS Code's REST C
 
 ## Related Projects
 
-This extension is a VS Code wrapper around the [httpgenerator](https://github.com/christianhelle/httpgenerator) .NET Tool.
+This extension is a VS Code host for the Rust [httpgenerator](https://github.com/christianhelle/httpgenerator) CLI.
+
+The CLI in this project was recently migrated to Rust for performance reasons and because I am using Rust more and more these days while working on older hardware. On that hardware, the Rust based CLI currently runs the smoke tests about 60x faster than the legacy .NET tool.
+
+The legacy .NET CLI will still be maintained for compatibility, but new features will only be implemented in the Rust CLI and the .NET tool will eventually be retired.
 
 For more information, visit the [httpgenerator GitHub repository](https://github.com/christianhelle/httpgenerator).
 
