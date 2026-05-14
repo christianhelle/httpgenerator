@@ -1,7 +1,11 @@
+import { exec } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { promisify } from 'util';
 import * as vscode from 'vscode';
+
+const execAsync = promisify(exec);
 
 const CONFIGURATION_SECTION = 'http-file-generator';
 const EXECUTABLE_SETTING = 'executablePath';
@@ -187,7 +191,29 @@ function resolvePathExecutable(): ResolvedExecutable | undefined {
     return undefined;
 }
 
-function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext): ResolvedExecutable {
+async function installCLIViaScript(): Promise<void> {
+    await vscode.window.withProgress(
+        {
+            location: vscode.ProgressLocation.Notification,
+            title: 'HTTP File Generator',
+            cancellable: false
+        },
+        async (progress) => {
+            progress.report({ message: 'Installing httpgenerator CLI...' });
+            if (process.platform === 'win32') {
+                await execAsync(
+                    'powershell -NoProfile -Command "irm https://christianhelle.com/httpgenerator/install.ps1 | iex"'
+                );
+            } else {
+                await execAsync(
+                    'bash -c "curl -fsSL https://christianhelle.com/httpgenerator/install | bash"'
+                );
+            }
+        }
+    );
+}
+
+async function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext): Promise<ResolvedExecutable> {
     const configuredExecutablePath = getConfiguredExecutablePath(context);
     if (configuredExecutablePath) {
         if (!isExecutableFile(configuredExecutablePath)) {
@@ -218,9 +244,29 @@ function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext): Resol
         return pathExecutable;
     }
 
+    // Not found anywhere — attempt automatic installation via the platform install script
+    try {
+        await installCLIViaScript();
+    } catch (installError) {
+        throw new Error(
+            'httpgenerator was not found and automatic installation failed. ' +
+            'Install manually:\n' +
+            (process.platform === 'win32'
+                ? '  irm https://christianhelle.com/httpgenerator/install.ps1 | iex'
+                : '  curl -fsSL https://christianhelle.com/httpgenerator/install | bash') +
+            `\n\nInstallation error: ${installError instanceof Error ? installError.message : installError}`
+        );
+    }
+
+    // Re-check PATH after installation
+    const pathExecutableAfterInstall = resolvePathExecutable();
+    if (pathExecutableAfterInstall) {
+        return pathExecutableAfterInstall;
+    }
+
     throw new Error(
-        'Unable to locate the httpgenerator executable. Set http-file-generator.executablePath, reinstall the extension to restore the bundled CLI, ' +
-        'build the Rust CLI into repo-root target\\debug or target\\release during development, or add httpgenerator to PATH.'
+        'httpgenerator was installed but could not be found on PATH. ' +
+        'You may need to restart VS Code or set http-file-generator.executablePath manually.'
     );
 }
 
@@ -246,7 +292,7 @@ async function executeHttpGenerator(context: vscode.ExtensionContext, filePath: 
     let executable: ResolvedExecutable;
 
     try {
-        executable = resolveHttpGeneratorExecutable(context);
+        executable = await resolveHttpGeneratorExecutable(context);
     } catch (error) {
         const message = error instanceof Error ? error.message : `Failed to resolve httpgenerator: ${error}`;
         vscode.window.showErrorMessage(message);
