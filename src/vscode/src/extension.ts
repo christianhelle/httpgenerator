@@ -225,7 +225,7 @@ function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext): Resol
 }
 
 function quoteArgument(value: string): string {
-    return `"${value.replace(/"/g, '\\"')}"`;
+    return `${value.replace(/"/g, '\\"')}`;
 }
 
 function createHttpGeneratorCommand(executablePath: string, filePath: string, outputFolder: string, outputType: string): string {
