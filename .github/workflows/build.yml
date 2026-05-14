@@ -58,24 +58,46 @@ jobs:
         run: dotnet test src/dotnet/HttpGenerator.slnx -c Release
 
   vscode:
-    name: VS Code extension
-    runs-on: ubuntu-latest
+    name: VS Code extension (${{ matrix.target }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+          - os: windows-latest
+            target: win32-x64
+          - os: macos-13
+            target: darwin-x64
+          - os: macos-14
+            target: darwin-arm64
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
           node-version: "24"
 
-      - name: Install dependencies
+      - name: Package extension
+        if: runner.os != 'Windows'
         working-directory: src/vscode
-        run: npm ci --ignore-scripts
+        shell: bash
+        run: |
+          chmod +x ./build.sh
+          ./build.sh "${{ env.VERSION }}" "${{ matrix.target }}"
 
-      - name: Compile extension
+      - name: Package extension
+        if: runner.os == 'Windows'
         working-directory: src/vscode
-        run: npm run compile
+        shell: pwsh
+        run: |
+          .\build.ps1 -Version $env:VERSION -Target '${{ matrix.target }}'
 
   publish-readiness:
     name: crates.io publish readiness
@@ -126,4 +148,3 @@ jobs:
 
       - name: Build
         run: msbuild src/dotnet/VSIX.slnx /property:Configuration=Release /p:DeployExtension=false
-
