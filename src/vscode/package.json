@@ -10,7 +10,7 @@
     "url": "https://github.com/christianhelle/httpgenerator"
   },
   "engines": {
-    "vscode": "^1.50.0"
+    "vscode": "^1.61.0"
   },
   "categories": [
     "Other"
@@ -41,6 +41,16 @@
         "title": "Generate multiple HTTP files (one request per file)"
       }
     ],
+    "configuration": {
+      "title": "HTTP File Generator",
+      "properties": {
+        "http-file-generator.executablePath": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Absolute or workspace-relative path to the `httpgenerator` executable. When empty, the extension resolves the bundled binary first, then repo-root `target\\\\debug` / `target\\\\release` outputs during development, and finally `httpgenerator` on `PATH`."
+        }
+      }
+    },
     "menus": {
       "explorer/context": [
         {
@@ -61,7 +71,7 @@
       "commandPalette": [
         {
           "command": "http-file-generator.generateSingleHttpFileMenu",
-          "when": "false" 
+          "when": "false"
         },
         {
           "command": "http-file-generator.generateMultipleHttpFilesMenu",
@@ -84,12 +94,11 @@
     "test": "node ./out/test/runTest.js",
     "package": "vsce package"
   },
-  "dependencies": {},
   "devDependencies": {
     "@types/glob": "^8.1.0",
     "@types/node": "^24.0.0",
-    "@types/vscode": "^1.50.0",
-    "typescript": "^5.0.0",
-    "vsce": "^2.15.0"
+    "@types/vscode": "^1.61.0",
+    "@vscode/vsce": "^3.6.2",
+    "typescript": "^5.0.0"
   }
 }
