@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::openapi::load_and_normalize_document;
+use httpgenerator_core::openapi::{
+    load_and_normalize_document, load_and_normalize_document_with_options,
+};
 use httpgenerator_core::{GeneratorSettings, OutputType, generate_http_files};
 
 fn petstore_input() -> String {
@@ -19,6 +21,26 @@ fn petstore_input() -> String {
 fn petstore_settings() -> GeneratorSettings {
     GeneratorSettings {
         open_api_path: petstore_input(),
+        ..GeneratorSettings::default()
+    }
+}
+
+fn webhook_input() -> String {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("..")
+        .join("test")
+        .join("OpenAPI")
+        .join("v3.1")
+        .join("webhook-example.json")
+        .to_string_lossy()
+        .into_owned()
+}
+
+fn webhook_settings() -> GeneratorSettings {
+    GeneratorSettings {
+        open_api_path: webhook_input(),
         ..GeneratorSettings::default()
     }
 }
@@ -139,4 +161,45 @@ fn petstore_preserves_skip_headers_and_base_url_override_quirks() {
         "@baseUrl = https://api.example.com/api/v3{nl}@contentType = application/json{nl}{nl}",
         nl = newline()
     )));
+}
+
+#[test]
+fn webhook_example_renders_expected_one_request_per_file_output() {
+    let document = load_and_normalize_document_with_options(&webhook_input(), true).unwrap();
+
+    let result = generate_http_files(&webhook_settings(), &document);
+    assert_eq!(result.files.len(), 1);
+    let file = result
+        .files
+        .first()
+        .expect("expected generated webhook output");
+    let content = &file.content;
+
+    assert_eq!(file.filename, "PostNewPet.http");
+    assert!(content.starts_with(&format!(
+        "@baseUrl = {nl}@contentType = application/json{nl}{nl}",
+        nl = newline()
+    )));
+    assert!(content.contains("### Request: POST /newPet"));
+    assert!(content.contains("POST {{baseUrl}}/newPet"));
+}
+
+#[test]
+fn webhook_example_renders_expected_one_file_per_tag_output() {
+    let document = load_and_normalize_document_with_options(&webhook_input(), true).unwrap();
+    let settings = GeneratorSettings {
+        output_type: OutputType::OneFilePerTag,
+        ..webhook_settings()
+    };
+
+    let result = generate_http_files(&settings, &document);
+
+    assert_eq!(result.files.len(), 1);
+    assert_eq!(result.files[0].filename, "Webhooks.http");
+    assert!(
+        result.files[0]
+            .content
+            .contains("### Request: POST /newPet")
+    );
+    assert!(result.files[0].content.contains("POST {{baseUrl}}/newPet"));
 }
