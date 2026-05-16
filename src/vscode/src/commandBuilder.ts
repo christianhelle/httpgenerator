@@ -5,7 +5,7 @@ function quoteArgument(value: string, shellKind: ShellKind): string {
         case 'powershell':
             return `'${value.replace(/'/g, "''")}'`;
         case 'cmd':
-            return `"${value.replace(/"/g, '\\"')}"`;
+            return `"${value.replace(/"/g, '""')}"`;
         case 'posix':
         default:
             return `'${value.replace(/'/g, `'"'"'`)}'`;
