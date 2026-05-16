@@ -8,8 +8,15 @@ cd "$(dirname "$0")"
 # Ensure the extension is built
 ./build.sh
 
+VSIX_PATH="$(ls -t http-file-generator-*.vsix | head -n 1)"
+
+if [[ -z "$VSIX_PATH" ]]; then
+  echo "No VSIX package was produced by build.sh." >&2
+  exit 1
+fi
+
 # Start VS Code with the extension
-code --install-extension http-file-generator-*.vsix --force
+code --install-extension "$VSIX_PATH" --force
 
 # Open the test folder that contains OpenAPI specs
 code "$(dirname "$0")/../../test"

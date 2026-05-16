@@ -66,6 +66,7 @@ Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI
 
 - Rust CLI entry point: `src/rust/cli/src/lib.rs`
 - VS Code executable setting: `http-file-generator.executablePath`
+- VS Code host resolves `httpgenerator` from `http-file-generator.executablePath`, the bundled extension binary, repo-root workspace `target\debug` / `target\release`, or `PATH`; an invalid explicit setting should fail fast instead of silently falling back
 - Visual Studio host resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release`, or `PATH`
 
 ### Packaging and release

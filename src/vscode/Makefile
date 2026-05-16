@@ -1,15 +1,15 @@
 .PHONY: install build package test
 
 install:
-	cd src/VSCode && npm install
+	cd src/vscode && npm ci
 
 build:
-	cd src/VSCode && npm run compile
+	cd src/vscode && npm run compile
 
 package:
-	cd src/VSCode && npm run package
+	cd src/vscode && ./build.sh
 
 test: package
-	cd src/VSCode && code --install-extension http-file-generator-*.vsix --force
+	cd src/vscode && code --install-extension http-file-generator-*.vsix --force
 
 all: install build package

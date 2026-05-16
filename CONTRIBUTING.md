@@ -58,6 +58,8 @@ Before contributing, please:
    src\vscode\build.ps1
    ```
 
+For local VS Code host testing, keep the runtime contract aligned with the user docs: the extension checks `http-file-generator.executablePath` first, then its bundled binary, then repo-root workspace `target\debug` / `target\release` outputs, and finally `PATH`. Use the explicit setting when you want to pin a specific CLI, or build `httpgenerator` from the repo root when you want development fallback discovery. The VS Code extension no longer depends on the legacy `.NET Tool` flow.
+
 ### Project Structure
 
 ```

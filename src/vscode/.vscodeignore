@@ -6,3 +6,10 @@ src/**
 **/.eslintrc.json
 **/*.map
 **/*.ts
+build.ps1
+build.sh
+test.ps1
+test.sh
+Makefile
+PRD.md
+!bin/**

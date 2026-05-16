@@ -345,9 +345,11 @@ No **support key** is generated when you opt out with `--no-logging`.
 
 Install the VS Code extension from
 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.http-file-generator).
-It is packaged per platform because it bundles the native Rust CLI.
+It is shipped as platform-targeted `.vsix` packages because each extension package bundles the native Rust CLI for its target platform.
 
-When `http-file-generator.executablePath` is empty, the extension looks for a bundled binary, repo-root workspace `target\debug` / `target\release` outputs, and finally `httpgenerator` on `PATH`. That means a Cargo-installed `httpgenerator` binary can also satisfy the extension if you prefer to manage the CLI yourself.
+The extension resolves `httpgenerator` in this order: `http-file-generator.executablePath`, bundled extension binary, repo-root workspace `target\debug` / `target\release` outputs during development, then `httpgenerator` on `PATH`.
+If `http-file-generator.executablePath` is set but invalid, the extension should fail fast and prompt you to fix the setting instead of silently continuing to the fallback chain.
+This is a bundled-binary extension distribution, not a crates.io or legacy `.NET Tool` installer, although a Cargo-installed or release-downloaded CLI can still be reused through the explicit setting or `PATH`.
 
 ### Visual Studio 2022 Extension
 

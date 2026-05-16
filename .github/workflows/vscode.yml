@@ -3,7 +3,7 @@ name: VS Code
 on:
   push:
     paths:
-      - "src/VSCode/**"
+      - "src/vscode/**"
       - ".github/workflows/vscode.yml"
   workflow_dispatch:
 
@@ -19,7 +19,7 @@ jobs:
 
       - name: Update Version
         run: |
-          cd src/VSCode
+          cd src/vscode
           # Use sed to replace the version in package.json
           sed -i 's/"version": "[0-9]*\.[0-9]*\.[0-9]*"/"version": "${{ env.VERSION }}"/' package.json
 
@@ -29,17 +29,17 @@ jobs:
           node-version: "24"
 
       - name: Install dependencies
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: |
           npm install
 
       - name: Compile extension
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: |
           npm run compile
 
       - name: Package extension
-        working-directory: src/VSCode
+        working-directory: src/vscode
         run: |
           npm install -g @vscode/vsce
           vsce package
@@ -48,4 +48,4 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: VSCode Extension
-          path: src/VSCode/*.vsix
+          path: src/vscode/*.vsix
