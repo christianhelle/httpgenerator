@@ -297,7 +297,10 @@ function getShellKind(): ShellKind {
     }
 
     if (process.platform === 'win32') {
-        return 'powershell';
+        if (shellPath.includes('powershell') || shellPath.includes('pwsh')) {
+            return 'powershell';
+        }
+        return 'posix';
     }
 
     return 'posix';
