@@ -274,9 +274,9 @@ async function resolveHttpGeneratorExecutable(context: vscode.ExtensionContext):
     );
 }
 
-function getShellKind(): ShellKind {
-    const shellPath = vscode.env.shell?.toLowerCase() ?? '';
-    const shellName = path.basename(shellPath);
+function getShellKindFromPath(shellPath: string): ShellKind {
+    const normalized = shellPath.toLowerCase();
+    const shellName = path.basename(normalized);
 
     if (shellName.includes('pwsh') || shellName.includes('powershell')) {
         return 'powershell';
@@ -284,6 +284,20 @@ function getShellKind(): ShellKind {
 
     if (shellName === 'cmd.exe') {
         return 'cmd';
+    }
+
+    return 'posix';
+}
+
+function getShellKind(): ShellKind {
+    const shellPath = vscode.env.shell?.toLowerCase() ?? '';
+    const kind = getShellKindFromPath(shellPath);
+    if (kind !== 'posix') {
+        return kind;
+    }
+
+    if (process.platform === 'win32') {
+        return 'powershell';
     }
 
     return 'posix';
