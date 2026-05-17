@@ -1,22 +1,13 @@
-using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.Threading;
-using Microsoft.Win32;
 
 namespace HttpGenerator.VSIX;
 
 internal static class HttpGeneratorCli
 {
     private const string DefaultPinnedVersion = "1.1.0";
-    private const string RemoteVersionUrl = "https://christianhelle.com/httpgenerator/latest-version";
-    private const string GitHubReleaseUrl = "https://github.com/christianhelle/httpgenerator/releases/download/{0}/httpgenerator-{0}-win-x64.zip";
-    private const string InstallScriptResourceName = "HttpGenerator.VSIX.install.ps1";
     private const string OutputSectionMarker = "Files written successfully:";
-    private const string OutputFolder = "HttpFiles";
 
     public static async Task<GenerateResult> ExecuteAsync(
         string openApiPath,
@@ -37,18 +28,17 @@ internal static class HttpGeneratorCli
             Directory.CreateDirectory(tempDir);
 
             var installScriptPath = Path.Combine(tempDir, "install.ps1");
-            await ExtractEmbeddedResourceAsync(InstallScriptResourceName, installScriptPath, cancellationToken).ConfigureAwait(false);
+            var installScript = await GetEmbeddedResourceAsync("install.ps1", cancellationToken);
+
+            await File.WriteAllTextAsync(installScriptPath, installScript, cancellationToken);
 
             var installDir = GetInstallDirectory(pinnedVersion);
             Directory.CreateDirectory(installDir);
 
-            var installDirArg = EscapePsArgument(installDir);
-            var versionArg = EscapePsArgument(pinnedVersion);
-
             var psi = new ProcessStartInfo
             {
                 FileName = "powershell",
-                Arguments = $"-NoProfile -ExecutionPolicy Bypass -File {installScriptPath} -Version {DefaultPinnedVersion}",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{installScriptPath}\" -Version {pinnedVersion}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -57,8 +47,8 @@ internal static class HttpGeneratorCli
 
             using var installProcess = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start PowerShell.");
 
-            var installOutput = installProcess.StandardOutput.ReadToEnd();
-            var installError = installProcess.StandardError.ReadToEnd();
+            var installOutput = await installProcess.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
+            var installError = await installProcess.StandardError.ReadToEndAsync().ConfigureAwait(false);
 
             await installProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
@@ -186,17 +176,22 @@ internal static class HttpGeneratorCli
         }
     }
 
-    private static async Task ExtractEmbeddedResourceAsync(string resourceName, string outputPath, CancellationToken cancellationToken)
+    private static async Task<string> GetEmbeddedResourceAsync(string resourceName, CancellationToken cancellationToken)
     {
-        using var stream = typeof(HttpGeneratorCli).Assembly.GetManifestResourceStream(resourceName)
+        var assembly = typeof(HttpGeneratorCli).Assembly;
+        var resourceNames = assembly.GetManifestResourceNames();
+
+        var matchingResource = resourceNames.FirstOrDefault(r => r.EndsWith(resourceName));
+
+        if (matchingResource == null)
+        {
+            throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
+        }
+
+        using var stream = assembly.GetManifestResourceStream(matchingResource)
             ?? throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
 
-        using var fileStream = File.Create(outputPath);
-        await stream.CopyToAsync(fileStream, 81920, cancellationToken).ConfigureAwait(false);
-    }
-
-    private static string EscapePsArgument(string arg)
-    {
-        return "'" + arg.Replace("'", "'\"'\"'") + "'";
+        using var reader = new StreamReader(stream);
+        return await reader.ReadToEndAsync().ConfigureAwait(false);
     }
 }
