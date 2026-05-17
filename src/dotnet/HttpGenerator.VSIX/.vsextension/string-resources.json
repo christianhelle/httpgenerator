@@ -1,0 +1,9 @@
+{
+  "HttpGenerator.GroupDisplayName": "HTTP File Generator",
+  "AddNewCommand.GroupDisplayName": "Add New HTTP File",
+  "AboutCommand.DisplayName": "About HTTP File Generator",
+  "GenerateCommand.DisplayName": "Generate HTTP File",
+  "Settings.Root.DisplayName": "HTTP File Generator",
+  "Settings.TelemetryOptOut.DisplayName": "Disable Telemetry",
+  "Settings.TelemetryOptOut.Description": "Opt-out of telemetry collection"
+}

@@ -18,8 +18,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <None Include="source.extension.vsixmanifest" Pack="true" />
+    <Compile Include="**\\*.cs" />
+    <None Include=".vsextension\\**\\*" Pack="true" />
   </ItemGroup>
 
   <ItemGroup>

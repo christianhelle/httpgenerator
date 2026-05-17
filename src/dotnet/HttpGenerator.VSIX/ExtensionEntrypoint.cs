@@ -6,16 +6,16 @@ namespace HttpGenerator.VSIX;
 [VisualStudioContribution]
 internal class ExtensionEntrypoint : Extension
 {
-    const string ExtensionName = "HTTP File Generator";
+    const string ExtensionName = "HTTP File Generator for Visual Studio (PREVIEW)";
 
     public override ExtensionConfiguration ExtensionConfiguration => new()
     {
         Metadata = new(
-            id: "e8a3f2b4-3b6d-4f0b-9c2a-1a2b3c4d5e6f",
+            id: "f87f2d98-94ee-4bd1-86a6-aba346499100",
             version: typeof(ExtensionEntrypoint).Assembly.GetName().Version?.ToString() ?? "1.0.0",
             publisherName: "Christian Resma Helle",
             displayName: ExtensionName,
-            description: "Generate HTTP files from REST API specifications")
+            description: "Generate .http files from OpenAPI (Swagger) specifications")
         {
             Icon = "icon.png",
             License = "License.txt",
@@ -30,7 +30,7 @@ internal class ExtensionEntrypoint : Extension
 
     protected override Task OnInitializedAsync(VisualStudioExtensibility extensibility, CancellationToken cancellationToken)
     {
-        // Initialization logic can be added here. Keep minimal for compatibility with existing code while we migrate commands.
+        // Initialization logic can be added here. Keep minimal for compatibility while migrating commands.
         return base.OnInitializedAsync(extensibility, cancellationToken);
     }
 }
