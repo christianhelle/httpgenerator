@@ -5,6 +5,8 @@ namespace HttpGenerator.VSIX;
 
 internal static class GenerateDialogHost
 {
+    private static int visualStylesInitialized;
+
     public static Task ShowDialogAsync(string outputFolder, CancellationToken cancellationToken)
     {
         var completion = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -14,8 +16,7 @@ internal static class GenerateDialogHost
             try
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
+                InitializeVisualStyles();
 
                 using var dialog = new GenerateDialog(outputFolder);
                 dialog.ShowDialog();
@@ -35,5 +36,14 @@ internal static class GenerateDialogHost
         thread.Start();
 
         return completion.Task;
+    }
+
+    private static void InitializeVisualStyles()
+    {
+        if (Interlocked.Exchange(ref visualStylesInitialized, 1) == 0)
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+        }
     }
 }

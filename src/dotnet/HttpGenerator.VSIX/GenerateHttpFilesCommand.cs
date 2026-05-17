@@ -27,7 +27,7 @@ public sealed class GenerateHttpFilesCommand : Command
         var project = await context.GetActiveProjectAsync(cancellationToken);
         var projectPath = project?.Path;
         var projectDirectory = !string.IsNullOrWhiteSpace(projectPath)
-            ? Path.GetDirectoryName(projectPath)
+            ? Path.GetDirectoryName(projectPath) ?? projectPath
             : null;
 
         if (string.IsNullOrWhiteSpace(projectDirectory))
