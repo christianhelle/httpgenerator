@@ -10,7 +10,7 @@ internal static class CliInstaller
     private const string InstallScriptCommand = "irm https://christianhelle.com/httpgenerator/install.ps1 | iex";
     private const string PathOverrideEnvironmentVariable = "HTTPGENERATOR_PATH";
 
-    private static readonly object InstallLock = new();
+    private static readonly object installLock = new();
     private static Task<string>? installTask;
 
     public static void EnsureInstalledInBackground()
@@ -37,7 +37,7 @@ internal static class CliInstaller
         }
 
         Task<string> currentInstallTask;
-        lock (InstallLock)
+        lock (installLock)
         {
             installTask ??= InstallAsync(cancellationToken);
             currentInstallTask = installTask;
@@ -49,7 +49,7 @@ internal static class CliInstaller
         }
         catch
         {
-            lock (InstallLock)
+            lock (installLock)
             {
                 if (installTask == currentInstallTask)
                 {
@@ -65,7 +65,7 @@ internal static class CliInstaller
     {
         var startInfo = new ProcessStartInfo("powershell.exe")
         {
-            Arguments = $"-NoProfile -ExecutionPolicy Bypass -Command \"{InstallScriptCommand}\"",
+            Arguments = $"-NoProfile -Command \"{InstallScriptCommand}\"",
             CreateNoWindow = true,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
@@ -77,7 +77,7 @@ internal static class CliInstaller
 
         var outputTask = process.StandardOutput.ReadToEndAsync();
         var errorTask = process.StandardError.ReadToEndAsync();
-        await Task.Run(process.WaitForExit, cancellationToken);
+        await Task.Run(() => ProcessRunner.WaitForExit(process, cancellationToken), cancellationToken);
 
         var output = await outputTask;
         var error = await errorTask;

@@ -119,7 +119,7 @@ public partial class GenerateDialog : Form
 
         var outputTask = process.StandardOutput.ReadToEndAsync();
         var errorTask = process.StandardError.ReadToEndAsync();
-        await Task.Run(process.WaitForExit);
+        await Task.Run(() => ProcessRunner.WaitForExit(process, CancellationToken.None, TimeSpan.FromMinutes(10)));
 
         var output = await outputTask;
         var error = await errorTask;
