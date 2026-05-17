@@ -35,7 +35,9 @@ internal class ExtensionEntrypoint : Extension
             Children =
             [
                 MenuChild.Command<Commands.GenerateTestPlansCommandExt>(),
+                MenuChild.Command<Commands.AddNewOpenApiCommand>(),
                 MenuChild.Separator,
+                MenuChild.Command<Commands.SettingsCommand>(),
                 MenuChild.Command<Commands.AboutCommand>(),
             ],
         };
