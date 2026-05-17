@@ -157,8 +157,8 @@ internal static class HttpGeneratorCli
 
     private static string GetInstallDirectory(string version)
     {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        return Path.Combine(appData, "httpgenerator", version);
+        var appData = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        return Path.Combine(appData, ".local", "bin");
     }
 
     private static async Task<string?> GetRemoteVersionAsync(CancellationToken cancellationToken)
