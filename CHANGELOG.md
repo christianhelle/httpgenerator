@@ -6,7 +6,12 @@
 
 **Implemented enhancements:**
 
+- Migrate VS Code extension to use the Rust base CLI [\#399](https://github.com/christianhelle/httpgenerator/pull/399) ([christianhelle](https://github.com/christianhelle))
 - Fix webhook output generation in Rust CLI [\#396](https://github.com/christianhelle/httpgenerator/pull/396) ([christianhelle](https://github.com/christianhelle))
+
+**Merged pull requests:**
+
+- Migrate Visual Studio extension to use the Rust-based CLI [\#401](https://github.com/christianhelle/httpgenerator/pull/401) ([christianhelle](https://github.com/christianhelle))
 
 ## [1.1.0](https://github.com/christianhelle/httpgenerator/tree/1.1.0) (2026-05-11)
 
