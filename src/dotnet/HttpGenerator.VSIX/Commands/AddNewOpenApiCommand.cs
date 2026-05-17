@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
 using Community.VisualStudio.Toolkit;
+using Microsoft.VisualStudio.Shell;
 using System.Net.Http;
 using System.IO;
 using System.Windows.Forms;
