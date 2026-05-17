@@ -1,10 +1,12 @@
-﻿using HttpGenerator.Core;
-using System;
+﻿using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace HttpGenerator.VSIX;
 
@@ -63,30 +65,101 @@ public partial class GenerateDialog : Form
 
     private async Task GenerateFilesAsync()
     {
-        var result = await HttpFileGenerator.Generate(
-            new GeneratorSettings
+        var executablePath = await CliInstaller.ResolveOrInstallAsync(CancellationToken.None);
+        var arguments = BuildArguments();
+        await RunHttpGeneratorAsync(executablePath, arguments);
+    }
+
+    private string[] BuildArguments()
+    {
+        var outputType = chkMultipleFiles.Checked
+            ? "OneRequestPerFile"
+            : "OneFile";
+
+        var arguments = new List<string>
+        {
+            txtOpenApiFile.Text,
+            "--output",
+            txtOutputFolder.Text,
+            "--output-type",
+            outputType,
+        };
+
+        AddOption(arguments, "--base-url", txtBaseUrl.Text);
+        AddOption(arguments, "--content-type", txtContentType.Text);
+        AddOption(arguments, "--authorization-header", txtAuthorizationHeader.Text);
+
+        return arguments.ToArray();
+    }
+
+    private static void AddOption(List<string> arguments, string option, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        arguments.Add(option);
+        arguments.Add(value);
+    }
+
+    private static async Task RunHttpGeneratorAsync(string executablePath, string[] arguments)
+    {
+        var startInfo = new ProcessStartInfo(executablePath)
+        {
+            Arguments = string.Join(" ", arguments.Select(QuoteArgument)),
+            CreateNoWindow = true,
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+        };
+
+        using var process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException("Failed to start httpgenerator.");
+
+        var outputTask = process.StandardOutput.ReadToEndAsync();
+        var errorTask = process.StandardError.ReadToEndAsync();
+        await Task.Run(process.WaitForExit);
+
+        var output = await outputTask;
+        var error = await errorTask;
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"httpgenerator failed with exit code {process.ExitCode}.{Environment.NewLine}{output}{Environment.NewLine}{error}");
+        }
+    }
+
+    private static string QuoteArgument(string argument)
+    {
+        var quoted = "\"";
+        var backslashes = 0;
+
+        foreach (var character in argument)
+        {
+            if (character == '\\')
             {
-                OpenApiPath = txtOpenApiFile.Text,
-                BaseUrl = txtBaseUrl.Text,
-                ContentType = txtContentType.Text,
-                AuthorizationHeader = txtAuthorizationHeader.Text,
-                OutputType = chkMultipleFiles.Checked
-                    ? OutputType.OneRequestPerFile
-                    : OutputType.OneFile,
-            });
+                backslashes++;
+                continue;
+            }
 
-        var output = txtOutputFolder.Text;
-        if (!Directory.Exists(output))
-            Directory.CreateDirectory(output);
+            if (character == '"')
+            {
+                quoted += new string('\\', (backslashes * 2) + 1);
+                quoted += character;
+                backslashes = 0;
+                continue;
+            }
 
-        var tasks = result
-            .Files
-            .Select(file => Task.Run(
-                () => File.WriteAllText(
-                    Path.Combine(output, file.Filename),
-                    file.Content)));
+            quoted += new string('\\', backslashes);
+            quoted += character;
+            backslashes = 0;
+        }
 
-        await Task.WhenAll(tasks);
+        quoted += new string('\\', backslashes * 2);
+        quoted += "\"";
+
+        return quoted;
     }
 
     private void btnAzureAccessToken_Click(object sender, EventArgs e)

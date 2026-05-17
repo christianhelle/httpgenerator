@@ -1,9 +1,11 @@
 ﻿using Azure.Core.Diagnostics;
-using HttpGenerator.Core;
+using Azure.Core;
+using Azure.Identity;
 using System;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace HttpGenerator.VSIX
@@ -50,7 +52,7 @@ namespace HttpGenerator.VSIX
 
                 var token = cancellationTokenSource.Token;
                 using var listener = AzureEventSourceListener.CreateConsoleLogger();
-                AccessToken = await AzureEntraID.TryGetAccessTokenAsync(tenantId, scope, token);
+                AccessToken = await TryGetAccessTokenAsync(tenantId, scope, token);
                 Close();
             }
             catch (OperationCanceledException)
@@ -73,6 +75,29 @@ namespace HttpGenerator.VSIX
                 txtScope.Enabled = true;
                 btnOk.Enabled = true;
             }
+        }
+
+        private static async Task<string> TryGetAccessTokenAsync(
+            string? tenantId,
+            string scope,
+            CancellationToken cancellationToken)
+        {
+            var request = new TokenRequestContext([scope], tenantId: tenantId);
+            var credentials = new ChainedTokenCredential(
+                new AzureCliCredential(),
+                new VisualStudioCredential(),
+                new DefaultAzureCredential(
+                    new DefaultAzureCredentialOptions
+                    {
+                        ExcludeWorkloadIdentityCredential = true,
+                        ExcludeManagedIdentityCredential = true,
+                        ExcludeVisualStudioCredential = true,
+                        ExcludeEnvironmentCredential = true,
+                        ExcludeAzureCliCredential = true,
+                    }));
+
+            var token = await credentials.GetTokenAsync(request, cancellationToken);
+            return token.Token;
         }
     }
 }
