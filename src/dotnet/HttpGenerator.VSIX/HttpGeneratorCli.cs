@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.VisualStudio.Threading;
 using Microsoft.Win32;
 
 namespace HttpGenerator.VSIX;
@@ -170,7 +171,7 @@ internal static class HttpGeneratorCli
 
             if (response.IsSuccessStatusCode)
             {
-                var version = await response.Content.ReadAsStringAsync().ConfigureAwait(false).Trim();
+                var version = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
                 if (!string.IsNullOrWhiteSpace(version))
                 {
                     return version;
