@@ -1,0 +1,4 @@
+{
+  "HttpGenerator.GroupDisplayName": "HTTP File Generator",
+  "HttpGenerator.GenerateCommand.DisplayName": "Generate .http files"
+}
