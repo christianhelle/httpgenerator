@@ -14,7 +14,7 @@ public sealed class GenerateHttpCommand(TraceSource traceSource) : Command
         Icon = new(ImageMoniker.KnownValues.GenerateFile, IconSettings.IconAndText),
         VisibleWhen = ActivationConstraint.ClientContext(
             ClientContextKey.Shell.ActiveSelectionFileName,
-            ".(json|ya?ml)"),
+            "\\.(json|ya?ml)$"),
     };
 
     public override async Task ExecuteCommandAsync(
