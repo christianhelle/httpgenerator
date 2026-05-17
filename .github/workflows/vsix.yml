@@ -43,7 +43,7 @@ jobs:
 
       - name: Move build output
         run: |
-          mv src/dotnet/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
+          mv src/dotnet/HttpGenerator.VSIX/bin/Release/net8.0/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v7
