@@ -57,8 +57,8 @@ internal static class HttpGeneratorCli
 
             using var installProcess = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start PowerShell.");
 
-            var installOutput = installProcess.StandardOutput.ReadToEnd();
-            var installError = installProcess.StandardError.ReadToEnd();
+            var installOutput = await installProcess.StandardOutput.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+            var installError = await installProcess.StandardError.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
 
             await installProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 

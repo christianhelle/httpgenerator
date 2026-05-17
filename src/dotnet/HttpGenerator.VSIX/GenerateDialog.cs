@@ -17,7 +17,7 @@ public partial class GenerateDialog : Form
     public GenerateDialog(string projectPath) : this()
     {
         txtOutputFolder.Text = projectPath;
-        folderBrowserDialog.SelectedPath = Path.GetDirectoryName(projectPath);
+        folderBrowserDialog.SelectedPath = Path.GetDirectoryName(projectPath) ?? projectPath;
     }
 
     private void OnSelectOpenApiFile_Click(object sender, EventArgs e)

@@ -17,7 +17,7 @@ namespace HttpGenerator.VSIX
 
         }
 
-        public string AccessToken { get; private set; }
+        public string AccessToken { get; private set; } = string.Empty;
 
         protected override void OnClosing(CancelEventArgs e)
         {
@@ -49,7 +49,7 @@ namespace HttpGenerator.VSIX
 
                 var token = cancellationTokenSource.Token;
                 using var listener = AzureEventSourceListener.CreateConsoleLogger();
-                AccessToken = await AzureEntraID.TryGetAccessTokenAsync(tenantId, scope, token);
+                AccessToken = await AzureEntraID.TryGetAccessTokenAsync(tenantId, scope, token) ?? string.Empty;
                 Close();
             }
             catch (OperationCanceledException)
