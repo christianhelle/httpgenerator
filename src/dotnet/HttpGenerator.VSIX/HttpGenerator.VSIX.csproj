@@ -7,6 +7,7 @@
     <AssemblyName>HttpGenerator.VSIX</AssemblyName>
     <VssdkCompatibleExtension>true</VssdkCompatibleExtension>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <IsPackable>false</IsPackable>
     <IncludeDebugSymbolsInVSIXContainer>false</IncludeDebugSymbolsInVSIXContainer>
     <IncludeDebugSymbolsInLocalVSIXDeployment>false</IncludeDebugSymbolsInLocalVSIXDeployment>

@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
 using Microsoft.VisualStudio.Extensibility.VSSdkCompatibility;
 using Microsoft.VisualStudio.Shell;
+using Command = Microsoft.VisualStudio.Extensibility.Commands.Command;
 
 namespace HttpGenerator.VSIX;
 
@@ -17,7 +18,7 @@ internal sealed class GenerateHttpFilesCommand : Command
         this.dte = dte;
     }
 
-    public override CommandConfiguration CommandConfiguration => new("Generate .http files")
+    public override CommandConfiguration CommandConfiguration => new("%HttpGenerator.GenerateHttpFiles.DisplayName%")
     {
         Placements = [CommandPlacement.KnownPlacements.ToolsMenu],
         Icon = new(ImageMoniker.KnownValues.Document, IconSettings.IconAndText),

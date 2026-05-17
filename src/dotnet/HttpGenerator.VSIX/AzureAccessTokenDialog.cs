@@ -20,7 +20,7 @@ namespace HttpGenerator.VSIX
 
         }
 
-        public string AccessToken { get; private set; }
+        public string AccessToken { get; private set; } = string.Empty;
 
         protected override void OnClosing(CancelEventArgs e)
         {
