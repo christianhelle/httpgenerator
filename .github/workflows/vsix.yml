@@ -26,8 +26,7 @@ jobs:
 
       - name: Update Version
         run: |
-          ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
-          ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
+          ((Get-Content -Path HttpGenerator.VSIX\HttpGenerator.VSIX.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\HttpGenerator.VSIX.csproj
         working-directory: src/dotnet
         shell: pwsh
 
