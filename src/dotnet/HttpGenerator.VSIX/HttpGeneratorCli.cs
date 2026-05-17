@@ -11,7 +11,7 @@ namespace HttpGenerator.VSIX;
 
 internal static class HttpGeneratorCli
 {
-    private const string DefaultPinnedVersion = "v1.0.0";
+    private const string DefaultPinnedVersion = "1.1.0";
     private const string RemoteVersionUrl = "https://christianhelle.com/httpgenerator/latest-version";
     private const string GitHubReleaseUrl = "https://github.com/christianhelle/httpgenerator/releases/download/{0}/httpgenerator-{0}-win-x64.zip";
     private const string InstallScriptResourceName = "HttpGenerator.VSIX.install.ps1";
@@ -33,29 +33,22 @@ internal static class HttpGeneratorCli
 
         if (executablePath == null)
         {
-            var latestVersion = await GetRemoteVersionAsync(cancellationToken).ConfigureAwait(false);
-            if (latestVersion == null)
-            {
-                latestVersion = pinnedVersion;
-            }
-
             var tempDir = Path.Combine(Path.GetTempPath(), "httpgenerator-install-" + Guid.NewGuid().ToString("N"));
             Directory.CreateDirectory(tempDir);
 
             var installScriptPath = Path.Combine(tempDir, "install.ps1");
             await ExtractEmbeddedResourceAsync(InstallScriptResourceName, installScriptPath, cancellationToken).ConfigureAwait(false);
 
-            var installDir = GetInstallDirectory(latestVersion);
+            var installDir = GetInstallDirectory(pinnedVersion);
             Directory.CreateDirectory(installDir);
 
             var installDirArg = EscapePsArgument(installDir);
-            var versionArg = EscapePsArgument(latestVersion);
-            var scriptArg = EscapePsArgument(installScriptPath);
+            var versionArg = EscapePsArgument(pinnedVersion);
 
             var psi = new ProcessStartInfo
             {
                 FileName = "powershell",
-                Arguments = $"-NoProfile -ExecutionPolicy Bypass -File {scriptArg} -Version {versionArg} -InstallDir {installDirArg} -AddToPath $false",
+                Arguments = $"-NoProfile -ExecutionPolicy Bypass -File {installScriptPath} -Version {DefaultPinnedVersion}",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
@@ -83,7 +76,7 @@ internal static class HttpGeneratorCli
                     $"The installed binary was not found at {executablePath}.");
             }
 
-            var success = await VerifyExecutableAsync(executablePath, latestVersion, cancellationToken).ConfigureAwait(false);
+            var success = await VerifyExecutableAsync(executablePath, pinnedVersion, cancellationToken).ConfigureAwait(false);
             if (!success)
             {
                 throw new InvalidOperationException(
@@ -159,31 +152,6 @@ internal static class HttpGeneratorCli
     {
         var appData = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         return Path.Combine(appData, ".local", "bin");
-    }
-
-    private static async Task<string?> GetRemoteVersionAsync(CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var handler = new System.Net.Http.HttpClient();
-            handler.Timeout = TimeSpan.FromSeconds(10);
-            var response = await handler.GetAsync(RemoteVersionUrl, cancellationToken).ConfigureAwait(false);
-
-            if (response.IsSuccessStatusCode)
-            {
-                var version = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-                if (!string.IsNullOrWhiteSpace(version))
-                {
-                    return version;
-                }
-            }
-        }
-        catch
-        {
-            // If we can't check for updates, use the pinned version
-        }
-
-        return null;
     }
 
     private static async Task<bool> VerifyExecutableAsync(string path, string expectedVersion, CancellationToken cancellationToken)

@@ -45,12 +45,6 @@ public partial class GenerateDialog : Form
     {
         try
         {
-            btnOk.Enabled = false;
-            btnCancel.Enabled = false;
-            btnSelectOpenApiFile.Enabled = false;
-            btnSelectOutputFolder.Enabled = false;
-            Text = "Generating...";
-
             var progress = new Progress<string>(message =>
             {
                 Text = message;
@@ -72,17 +66,7 @@ public partial class GenerateDialog : Form
                 progress,
                 CancellationToken.None).ConfigureAwait(false);
 
-            if (result.Success && result.FileCount > 0)
-            {
-                var message = $"Successfully generated {result.FileCount} file(s) in {outputFolder}";
-                MessageBox.Show(
-                    message,
-                    "Generation Complete",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Information,
-                    MessageBoxDefaultButton.Button1);
-            }
-            else
+            if (!result.Success || result.FileCount <= 0)
             {
                 MessageBox.Show(
                     $"Generation completed but the result could not be verified. Check the output folder: {outputFolder}",
@@ -155,16 +139,8 @@ public partial class GenerateDialog : Form
                     MessageBoxDefaultButton.Button1);
             }
         }
-        finally
-        {
-            btnOk.Enabled = true;
-            btnCancel.Enabled = true;
-            btnSelectOpenApiFile.Enabled = true;
-            btnSelectOutputFolder.Enabled = true;
-            Text = "HTTP File Generator";
-        }
 
-        Close();
+        Invoke(Close);
     }
 
     private void btnAzureAccessToken_Click(object sender, EventArgs e)
