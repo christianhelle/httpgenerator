@@ -1,4 +1,5 @@
 using Microsoft.VisualStudio.Extensibility;
+using Microsoft.VisualStudio.Extensibility.Commands;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HttpGenerator.VSIX;
@@ -22,15 +23,67 @@ internal class ExtensionEntrypoint : Extension
         },
     };
 
+    [VisualStudioContribution]
+    public static MenuConfiguration GenerateMenu
+        => new("%HttpGenerator.GroupDisplayName%")
+        {
+            Placements =
+            [
+                KnownPlacements.ItemNode,
+                KnownPlacements.Node_IncludeExcludeGroup
+            ],
+            Children =
+            [
+                MenuChild.Command<Commands.GenerateTestPlansCommandExt>(),
+                MenuChild.Separator,
+                MenuChild.Command<Commands.AboutCommand>(),
+            ],
+        };
+
+    [VisualStudioContribution]
+    public static MenuConfiguration AddNewMenu
+        => new("%AddNewCommand.GroupDisplayName%")
+        {
+            Placements =
+            [
+                KnownPlacements.ProjectNode_AddGroup_Submenu_ItemsGroup,
+            ],
+            Children =
+            [
+                MenuChild.Group(new CommandGroupConfiguration{
+                    Children =
+                    [
+                        GroupChild.Command<Commands.GenerateTestPlansCommandExt>(),
+                    ]
+                })
+            ],
+        };
+
     protected override void InitializeServices(IServiceCollection serviceCollection)
     {
-        // Register any services here if needed
+        serviceCollection.AddSingleton<Settings.ExtensionSettingsProvider>();
         base.InitializeServices(serviceCollection);
     }
 
-    protected override Task OnInitializedAsync(VisualStudioExtensibility extensibility, CancellationToken cancellationToken)
+    protected override async Task OnInitializedAsync(
+        VisualStudioExtensibility extensibility,
+        CancellationToken cancellationToken)
     {
-        // Initialization logic can be added here. Keep minimal for compatibility while migrating commands.
-        return base.OnInitializedAsync(extensibility, cancellationToken);
+        await base.OnInitializedAsync(extensibility, cancellationToken);
+
+        // Check telemetry opt-out and other initialization logic
+        try
+        {
+            var settingsProvider = this.Services.GetRequiredService<Settings.ExtensionSettingsProvider>();
+            var opts = await settingsProvider.GetTelemetryOptionsAsync(cancellationToken);
+            if (opts.TelemetryOptOut)
+            {
+                // If telemetry is opted out, rely on no-op analytics (not implemented here)
+            }
+        }
+        catch
+        {
+            // Ignore initialization failures; extension should still function
+        }
     }
 }
