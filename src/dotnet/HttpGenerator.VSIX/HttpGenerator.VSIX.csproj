@@ -23,6 +23,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\\HttpGenerator.Core\\HttpGenerator.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
