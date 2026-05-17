@@ -4,8 +4,7 @@
     <Platform Name="arm64" />
     <Platform Name="x86" />
   </Configurations>
-  <Project Path="HttpGenerator.Core/HttpGenerator.Core.csproj" />
-  <Project Path="HttpGenerator.VSIX/HttpGenerator.VSIX.csproj">
+  <Project Path="HttpGenerator.VSIX/HttpGenerator.VSIX.csproj" Id="02778a1a-254c-4434-a3c7-10c5b047c776">
     <Platform Solution="*|arm64" Project="arm64" />
     <Platform Solution="*|x86" Project="x86" />
   </Project>

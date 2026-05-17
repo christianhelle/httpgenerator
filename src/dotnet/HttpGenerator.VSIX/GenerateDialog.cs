@@ -1,10 +1,9 @@
-﻿using HttpGenerator.Core;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Linq;
 
 namespace HttpGenerator.VSIX;
 
@@ -46,47 +45,112 @@ public partial class GenerateDialog : Form
     {
         try
         {
-            await GenerateFilesAsync();
+            await ExecuteAsync();
         }
         catch (Exception ex)
         {
+            var shouldOfferDownload = ex.Message.Contains("httpgenerator") ||
+                                      ex.Message.Contains("install") ||
+                                      ex.Message.Contains("download");
+
+            if (shouldOfferDownload)
+            {
+                PromptToDownload(ex);
+            }
+            else
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Operation failed",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error,
+                    MessageBoxDefaultButton.Button1);
+            }
+        }
+
+        Invoke(Close);
+    }
+
+    private async Task ExecuteAsync()
+    {
+        var progress = new Progress<string>(message =>
+        {
+            Text = message;
+        });
+
+        var outputFolder = txtOutputFolder.Text;
+        if (!Directory.Exists(outputFolder))
+        {
+            Directory.CreateDirectory(outputFolder);
+        }
+
+        var result = await HttpGeneratorCli.ExecuteAsync(
+            txtOpenApiFile.Text,
+            outputFolder,
+            string.IsNullOrWhiteSpace(txtBaseUrl.Text) ? null : txtBaseUrl.Text,
+            txtContentType.Text,
+            string.IsNullOrWhiteSpace(txtAuthorizationHeader.Text) ? null : txtAuthorizationHeader.Text,
+            chkMultipleFiles.Checked,
+            progress,
+            CancellationToken.None).ConfigureAwait(false);
+
+        if (!result.Success || result.FileCount <= 0)
+        {
             MessageBox.Show(
-                ex.Message,
-                "Operation failed",
+                $"Generation completed but the result could not be verified. Check the output folder: {outputFolder}",
+                "Generation Complete",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information,
+                MessageBoxDefaultButton.Button1);
+        }
+    }
+
+    private static void PromptToDownload(Exception ex)
+    {
+        var dialogResult = MessageBox.Show(
+                            ex.Message + "\n\nWould you like to download the latest version of httpgenerator?",
+                            "Download httpgenerator",
+                            MessageBoxButtons.YesNoCancel,
+                            MessageBoxIcon.Warning,
+                            MessageBoxDefaultButton.Button1);
+
+        if (dialogResult == DialogResult.Yes)
+        {
+            try
+            {
+                var psi = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "powershell",
+                    Arguments = "-NoProfile -Command \"irm https://christianhelle.com/httpgenerator/install.ps1 | iex\"",
+                    UseShellExecute = true,
+                };
+                System.Diagnostics.Process.Start(psi);
+                MessageBox.Show(
+                    "Please complete the installation, then try again.",
+                    "Installation",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information,
+                    MessageBoxDefaultButton.Button1);
+            }
+            catch (Exception innerEx)
+            {
+                MessageBox.Show(
+                    innerEx.Message,
+                    "Failed to launch installer",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error,
+                    MessageBoxDefaultButton.Button1);
+            }
+        }
+        else if (dialogResult == DialogResult.No)
+        {
+            MessageBox.Show(
+                "Please install httpgenerator manually from https://github.com/christianhelle/httpgenerator/releases\n\n" + ex.Message,
+                "Installation Required",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error,
                 MessageBoxDefaultButton.Button1);
         }
-
-        Close();
-    }
-
-    private async Task GenerateFilesAsync()
-    {
-        var result = await HttpFileGenerator.Generate(
-            new GeneratorSettings
-            {
-                OpenApiPath = txtOpenApiFile.Text,
-                BaseUrl = txtBaseUrl.Text,
-                ContentType = txtContentType.Text,
-                AuthorizationHeader = txtAuthorizationHeader.Text,
-                OutputType = chkMultipleFiles.Checked
-                    ? OutputType.OneRequestPerFile
-                    : OutputType.OneFile,
-            });
-
-        var output = txtOutputFolder.Text;
-        if (!Directory.Exists(output))
-            Directory.CreateDirectory(output);
-
-        var tasks = result
-            .Files
-            .Select(file => Task.Run(
-                () => File.WriteAllText(
-                    Path.Combine(output, file.Filename),
-                    file.Content)));
-
-        await Task.WhenAll(tasks);
     }
 
     private void btnAzureAccessToken_Click(object sender, EventArgs e)
