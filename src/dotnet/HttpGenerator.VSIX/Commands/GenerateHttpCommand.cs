@@ -1,7 +1,8 @@
-using System.Diagnostics;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
 using Microsoft.VisualStudio.Extensibility.Shell;
+using Microsoft.VisualStudio.RpcContracts.ProgressReporting;
+using System.Diagnostics;
 
 namespace HttpGenerator.VSIX.Commands;
 
@@ -20,6 +21,13 @@ public sealed class GenerateHttpCommand(TraceSource traceSource) : Command
         IClientContext context,
         CancellationToken cancellationToken)
     {
+        using var progress = await Extensibility
+            .Shell()
+            .StartProgressReportingAsync(
+                "Generating .http files",
+                new ProgressReporterOptions(true), // true = indeterminate/cancellable
+                cancellationToken);
+
         var selectedPath = await context.GetSelectedPathAsync(cancellationToken);
 
         if (string.IsNullOrEmpty(selectedPath))
@@ -37,6 +45,7 @@ public sealed class GenerateHttpCommand(TraceSource traceSource) : Command
                 Directory.CreateDirectory(outputFolder);
             }
 
+            progress.Report(new(10, $"Starting code generation"));
             var generateResult = await HttpGeneratorCli.ExecuteAsync(
                 selectedPath,
                 outputFolder,
@@ -44,7 +53,7 @@ public sealed class GenerateHttpCommand(TraceSource traceSource) : Command
                 contentType: "application/json",
                 authorizationHeader: null,
                 generateMultipleFiles: true,
-                progress: null,
+                progress,
                 cancellationToken).ConfigureAwait(false);
 
             if (generateResult.Success && generateResult.FileCount > 0)

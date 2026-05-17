@@ -1,3 +1,4 @@
+using Microsoft.VisualStudio.Extensibility.Shell;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -16,7 +17,7 @@ internal static class HttpGeneratorCli
         string contentType,
         string? authorizationHeader,
         bool generateMultipleFiles,
-        IProgress<string>? progress,
+        ProgressReporter progress,
         CancellationToken cancellationToken)
     {
         var pinnedVersion = DefaultPinnedVersion;
@@ -75,7 +76,7 @@ internal static class HttpGeneratorCli
         }
         else
         {
-            progress?.Report($"Using cached httpgenerator: {executablePath}");
+            progress.Report(new(40, $"Using cached httpgenerator: {executablePath}"));
         }
 
         var args = CliArgumentBuilder.BuildArguments(
@@ -86,7 +87,7 @@ internal static class HttpGeneratorCli
             authorizationHeader,
             generateMultipleFiles);
 
-        progress?.Report("Generating .http files...");
+        progress.Report(new(70, "Generating .http files..."));
 
         var psi2 = new ProcessStartInfo
         {
@@ -115,11 +116,11 @@ internal static class HttpGeneratorCli
 
         if (result.Success)
         {
-            progress?.Report($"Successfully generated {result.FileCount} file(s).");
+            progress.Report(new(100, $"Successfully generated {result.FileCount} file(s)."));
         }
         else
         {
-            progress?.Report("Generation completed but could not parse output. Files may have been generated in the output folder.");
+            progress.Report(new(100, "Generation completed but could not parse output. Files may have been generated in the output folder."));
         }
 
         return result;
