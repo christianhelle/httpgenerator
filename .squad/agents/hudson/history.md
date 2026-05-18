@@ -78,3 +78,7 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 - Updated the docs story to match the approved Visual Studio first slice after Ripley's revision and Bishop's revalidation.
 - Keep future docs aligned on the background workflow, deterministic executable lookup, tool-window activity/details surface, and the approved entry-point/fallback story.
 
+
+### VSIX async docs commit closeout (2026-05-18T11:14:38Z)
+- Ripley split the pending VSIX follow-up into a dedicated docs commit, 8d33949 docs(vsix): align async workflow, after first landing the squad-rule and implementation slices separately.
+- Keep future docs updates grouped as their own logical commit when they only align workflow wording or host guidance; do not fold them back into implementation slices.

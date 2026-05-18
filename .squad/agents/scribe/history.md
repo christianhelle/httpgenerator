@@ -38,3 +38,8 @@ Scribe maintains `.squad` memory: orchestration logs, session logs, decision mer
 - Pre-check recorded decisions.md at 19124 bytes with 7 inbox files before merge.
 - Merged the full VSIX async implementation inbox into decisions.md, wrote four orchestration logs plus the session log, refreshed Hicks/Ripley/Bishop/Hudson histories, and cleared the processed inbox files.
 
+
+### Commit-policy session closeout (2026-05-18T11:14:38Z)
+- Pre-check measured decisions.md at 28298 bytes with 0 inbox file(s); archive gate was checked because the file exceeded 20 KB, but there were no entries older than 30 days to move.
+- Wrote the Ripley orchestration log plus the session log, then refreshed Ripley/Bishop/Hudson/Scribe histories with the standing small-commit rule and validation baseline.
+- Health report pattern for this closeout: record unchanged decisions size, zero inbox merges, and whether any history summarization was needed.

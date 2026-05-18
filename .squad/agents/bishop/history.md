@@ -64,3 +64,8 @@
 - Rejected the first VSIX redesign wave until the approved notification contract and placement seam were actually present.
 - Approved the revised state after dotnet build src\dotnet\VSIX.slnx --configuration Release, dotnet build src\dotnet\HttpGenerator.slnx --configuration Release, and dotnet test src\dotnet\HttpGenerator.slnx --configuration Release passed again.
 
+
+### Standing commit-policy validation baseline (2026-05-18T11:14:38Z)
+- The commit-policy follow-up reused the full regression path: cargo test --workspace, dotnet build src\dotnet\HttpGenerator.slnx -c Release, dotnet test src\dotnet\HttpGenerator.slnx -c Release, and dotnet build src\dotnet\VSIX.slnx -c Release.
+- test\smoke-tests.ps1 still reproduces the pre-existing release-path/ANSI failure, so this signature remains baseline noise rather than a new regression for the VSIX async stream.
+

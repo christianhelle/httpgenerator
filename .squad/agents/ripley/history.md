@@ -90,3 +90,9 @@
 - Rejected Hicks' first implementation wave because it missed the approved non-blocking notification contract and used an unreviewed Solution Explorer placement seam.
 - Revised the artifact under lockout by using ShellExtensibility.ShowPromptAsync(...) for Open Folder, View Details, and Open Activity, restored VsctParent(... id: 521 ...), and reran the .NET validation path before approval.
 
+
+### Standing small-commit rule closeout (2026-05-18T11:14:38Z)
+- Encoded small logical commits as a standing rule across the squad instruction surfaces so future sessions do not depend on stale memory or session-only directives.
+- Split the pending VSIX follow-up into three exact commits: c30d0b5 chore(squad): enforce small commits, 84103cc feat(vsix): async generation flow, and 8d33949 docs(vsix): align async workflow.
+- Validation rerun to remember for this stream: cargo test --workspace, dotnet build src\dotnet\HttpGenerator.slnx -c Release, dotnet test src\dotnet\HttpGenerator.slnx -c Release, and dotnet build src\dotnet\VSIX.slnx -c Release; test\smoke-tests.ps1 still ends in the known release-path/ANSI baseline failure.
+
