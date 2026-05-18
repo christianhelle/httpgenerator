@@ -1,14 +1,13 @@
-using Microsoft.VisualStudio.Extensibility.Shell;
 using System.Diagnostics;
-using System.IO;
-using System.Threading;
+
+using Microsoft.VisualStudio.Extensibility.Shell;
 
 namespace HttpGenerator.VSIX;
 
 internal static class HttpGeneratorCli
 {
-    private const string DefaultPinnedVersion = "1.1.0";
-    private const string OutputSectionMarker = "Files written successfully:";
+    private const string HttpGeneratorExecutableName = "httpgenerator.exe";
+    private const string HttpGeneratorPathEnvironmentVariable = "HTTPGENERATOR_PATH";
 
     public static async Task<GenerateResult> ExecuteAsync(
         string openApiPath,
@@ -20,66 +19,14 @@ internal static class HttpGeneratorCli
         ProgressReporter progress,
         CancellationToken cancellationToken)
     {
-        var pinnedVersion = DefaultPinnedVersion;
-        var executablePath = ResolveExecutable(pinnedVersion);
+        progress.Report(new(15, "Resolving httpgenerator.exe..."));
 
-        if (executablePath == null)
-        {
-            var tempDir = Path.Combine(Path.GetTempPath(), "httpgenerator-install-" + Guid.NewGuid().ToString("N"));
-            Directory.CreateDirectory(tempDir);
+        var executablePath = ResolveExecutablePath();
+        progress.Report(new(30, $"Using httpgenerator: {executablePath}"));
 
-            var installScriptPath = Path.Combine(tempDir, "install.ps1");
-            var installScript = await GetEmbeddedResourceAsync("install.ps1", cancellationToken);
+        Directory.CreateDirectory(outputFolder);
 
-            await File.WriteAllTextAsync(installScriptPath, installScript, cancellationToken);
-
-            var installDir = GetInstallDirectory(pinnedVersion);
-            Directory.CreateDirectory(installDir);
-
-            var psi = new ProcessStartInfo
-            {
-                FileName = "powershell",
-                Arguments = $"-NoProfile -ExecutionPolicy Bypass -File \"{installScriptPath}\" -Version {pinnedVersion}",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-            };
-
-            using var installProcess = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start PowerShell.");
-
-            var installOutput = await installProcess.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-            var installError = await installProcess.StandardError.ReadToEndAsync().ConfigureAwait(false);
-
-            await installProcess.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-
-            if (installProcess.ExitCode != 0)
-            {
-                throw new InvalidOperationException(
-                    $"Failed to install httpgenerator CLI.\n\n{installError}");
-            }
-
-            executablePath = Path.Combine(installDir, "httpgenerator.exe");
-
-            if (!File.Exists(executablePath))
-            {
-                throw new InvalidOperationException(
-                    $"The installed binary was not found at {executablePath}.");
-            }
-
-            var success = await VerifyExecutableAsync(executablePath, pinnedVersion, cancellationToken).ConfigureAwait(false);
-            if (!success)
-            {
-                throw new InvalidOperationException(
-                    "The installed httpgenerator binary failed version verification. Please try downloading the latest version manually from https://github.com/christianhelle/httpgenerator/releases.");
-            }
-        }
-        else
-        {
-            progress.Report(new(40, $"Using cached httpgenerator: {executablePath}"));
-        }
-
-        var args = CliArgumentBuilder.BuildArguments(
+        var arguments = CliArgumentBuilder.BuildArguments(
             openApiPath,
             outputFolder,
             baseUrl,
@@ -87,112 +34,218 @@ internal static class HttpGeneratorCli
             authorizationHeader,
             generateMultipleFiles);
 
-        progress.Report(new(70, "Generating .http files..."));
+        progress.Report(new(60, "Generating .http files..."));
 
-        var psi2 = new ProcessStartInfo
+        var processResult = await RunProcessAsync(
+            executablePath,
+            arguments,
+            workingDirectory: Path.GetDirectoryName(openApiPath) ?? Environment.CurrentDirectory,
+            cancellationToken).ConfigureAwait(false);
+
+        if (processResult.Cancelled)
         {
-            FileName = executablePath,
-            Arguments = args,
+            progress.Report(new(100, "Generation cancelled."));
+            return CliOutputParser.CreateCancelled(
+                processResult.StandardOutput,
+                processResult.StandardError,
+                outputFolder,
+                executablePath);
+        }
+
+        if (processResult.ExitCode != 0)
+        {
+            var failure = CliOutputParser.CreateFailure(
+                processResult.ExitCode,
+                processResult.StandardOutput,
+                processResult.StandardError,
+                outputFolder,
+                executablePath);
+
+            throw new HttpGeneratorCliException(failure);
+        }
+
+        var parsedResult = CliOutputParser.CreateSuccess(
+            processResult.StandardOutput,
+            processResult.StandardError,
+            outputFolder,
+            executablePath);
+
+        progress.Report(new(100, parsedResult.Summary));
+        return parsedResult;
+    }
+
+    private static string ResolveExecutablePath()
+    {
+        var configuredPath = Environment.GetEnvironmentVariable(HttpGeneratorPathEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(configuredPath))
+        {
+            var explicitPath = NormalizeConfiguredPath(configuredPath);
+
+            if (!File.Exists(explicitPath))
+            {
+                throw new FileNotFoundException(
+                    $"The {HttpGeneratorPathEnvironmentVariable} setting points to '{explicitPath}', but httpgenerator.exe was not found.");
+            }
+
+            return explicitPath;
+        }
+
+        foreach (var candidate in GetBundledExecutableCandidates())
+        {
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        var repositoryRoot = TryFindRepositoryRoot(AppContext.BaseDirectory);
+        if (repositoryRoot is not null)
+        {
+            foreach (var candidate in GetRepositoryExecutableCandidates(repositoryRoot))
+            {
+                if (File.Exists(candidate))
+                {
+                    return candidate;
+                }
+            }
+        }
+
+        var pathCandidate = ResolveFromPath();
+        if (!string.IsNullOrWhiteSpace(pathCandidate))
+        {
+            return pathCandidate;
+        }
+
+        throw new FileNotFoundException(
+            "Could not locate httpgenerator.exe. Checked HTTPGENERATOR_PATH, bundled VSIX payload, repository target\\debug and target\\release outputs, and PATH.");
+    }
+
+    private static IEnumerable<string> GetBundledExecutableCandidates()
+    {
+        var baseDirectory = AppContext.BaseDirectory;
+
+        yield return Path.Combine(baseDirectory, HttpGeneratorExecutableName);
+        yield return Path.Combine(baseDirectory, "bin", HttpGeneratorExecutableName);
+    }
+
+    private static IEnumerable<string> GetRepositoryExecutableCandidates(string repositoryRoot)
+    {
+        yield return Path.Combine(repositoryRoot, "target", "debug", HttpGeneratorExecutableName);
+        yield return Path.Combine(repositoryRoot, "target", "release", HttpGeneratorExecutableName);
+    }
+
+    private static string? ResolveFromPath()
+    {
+        var pathValue = Environment.GetEnvironmentVariable("PATH");
+        if (string.IsNullOrWhiteSpace(pathValue))
+        {
+            return null;
+        }
+
+        foreach (var segment in pathValue.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var candidate = Path.Combine(segment.Trim('"'), HttpGeneratorExecutableName);
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+        }
+
+        return null;
+    }
+
+    private static string NormalizeConfiguredPath(string configuredPath)
+    {
+        var expanded = Environment.ExpandEnvironmentVariables(configuredPath.Trim().Trim('"'));
+
+        if (Directory.Exists(expanded))
+        {
+            return Path.Combine(expanded, HttpGeneratorExecutableName);
+        }
+
+        return Path.GetFullPath(expanded);
+    }
+
+    private static string? TryFindRepositoryRoot(string startDirectory)
+    {
+        var current = new DirectoryInfo(startDirectory);
+
+        while (current is not null)
+        {
+            var cargoToml = Path.Combine(current.FullName, "Cargo.toml");
+            var vsixProject = Path.Combine(current.FullName, "src", "dotnet", "HttpGenerator.VSIX", "HttpGenerator.VSIX.csproj");
+
+            if (File.Exists(cargoToml) && File.Exists(vsixProject))
+            {
+                return current.FullName;
+            }
+
+            current = current.Parent;
+        }
+
+        return null;
+    }
+
+    private static async Task<ProcessExecutionResult> RunProcessAsync(
+        string fileName,
+        IReadOnlyList<string> arguments,
+        string workingDirectory,
+        CancellationToken cancellationToken)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = fileName,
+            WorkingDirectory = workingDirectory,
             UseShellExecute = false,
             RedirectStandardOutput = true,
             RedirectStandardError = true,
             CreateNoWindow = true,
         };
 
-        using var process = Process.Start(psi2) ?? throw new InvalidOperationException("Failed to start httpgenerator.");
-
-        var stdout = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-        var stderr = await process.StandardError.ReadToEndAsync().ConfigureAwait(false);
-
-        await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-
-        if (process.ExitCode != 0)
+        foreach (var argument in arguments)
         {
-            var message = $"httpgenerator exited with code {process.ExitCode}.\n\n{stderr}";
-            throw new InvalidOperationException(message);
+            startInfo.ArgumentList.Add(argument);
         }
 
-        var result = CliOutputParser.ParseOutput(stdout, outputFolder);
+        using var process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException($"Failed to start '{fileName}'.");
 
-        if (result.Success)
+        var stdoutTask = process.StandardOutput.ReadToEndAsync();
+        var stderrTask = process.StandardError.ReadToEndAsync();
+
+        var cancelled = false;
+        using var registration = cancellationToken.Register(() =>
         {
-            progress.Report(new(100, $"Successfully generated {result.FileCount} file(s)."));
-        }
-        else
-        {
-            progress.Report(new(100, "Generation completed but could not parse output. Files may have been generated in the output folder."));
-        }
-
-        return result;
-    }
-
-    private static string? ResolveExecutable(string version)
-    {
-        var installDir = GetInstallDirectory(version);
-        var executablePath = Path.Combine(installDir, "httpgenerator.exe");
-
-        if (File.Exists(executablePath))
-        {
-            return executablePath;
-        }
-
-        return null;
-    }
-
-    private static string GetInstallDirectory(string version)
-    {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        return Path.Combine(appData, ".local", "bin");
-    }
-
-    private static async Task<bool> VerifyExecutableAsync(string path, string expectedVersion, CancellationToken cancellationToken)
-    {
-        try
-        {
-            var psi = new ProcessStartInfo
+            try
             {
-                FileName = path,
-                Arguments = "--version",
-                UseShellExecute = false,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                CreateNoWindow = true,
-            };
+                if (process.HasExited)
+                {
+                    return;
+                }
 
-            using var process = Process.Start(psi) ?? throw new InvalidOperationException("Failed to start httpgenerator.");
-
-            var output = await process.StandardOutput.ReadToEndAsync().ConfigureAwait(false);
-            await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
-
-            if (process.ExitCode == 0 && output.Contains(expectedVersion))
-            {
-                return true;
+                cancelled = true;
+                process.Kill(entireProcessTree: true);
             }
+            catch
+            {
+                // Best-effort cancellation cleanup.
+            }
+        });
 
-            return false;
-        }
-        catch
-        {
-            return false;
-        }
+        await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
+        var stdout = await stdoutTask.ConfigureAwait(false);
+        var stderr = await stderrTask.ConfigureAwait(false);
+
+        return new ProcessExecutionResult(
+            process.ExitCode,
+            stdout,
+            stderr,
+            cancelled);
     }
 
-    private static async Task<string> GetEmbeddedResourceAsync(string resourceName, CancellationToken cancellationToken)
-    {
-        var assembly = typeof(HttpGeneratorCli).Assembly;
-        var resourceNames = assembly.GetManifestResourceNames();
-
-        var matchingResource = resourceNames.FirstOrDefault(r => r.EndsWith(resourceName));
-
-        if (matchingResource == null)
-        {
-            throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
-        }
-
-        using var stream = assembly.GetManifestResourceStream(matchingResource)
-            ?? throw new FileNotFoundException($"Embedded resource '{resourceName}' not found.");
-
-        using var reader = new StreamReader(stream);
-        return await reader.ReadToEndAsync().ConfigureAwait(false);
-    }
+    private readonly record struct ProcessExecutionResult(
+        int ExitCode,
+        string StandardOutput,
+        string StandardError,
+        bool Cancelled);
 }

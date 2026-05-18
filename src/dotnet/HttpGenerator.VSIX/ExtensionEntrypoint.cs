@@ -1,7 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.Extensibility;
 using Microsoft.VisualStudio.Extensibility.Commands;
-using Microsoft.VisualStudio.Extensibility.Shell;
 
 namespace HttpGenerator.VSIX;
 
@@ -26,14 +25,23 @@ internal class ExtensionEntrypoint : Extension
     public static MenuConfiguration GenerateMenu
         => new("%HttpGenerator.GroupDisplayName%")
         {
+            Placements =
+            [
+                CommandPlacement.KnownPlacements.ToolsMenu,
+            ],
             Children =
             [
                 MenuChild.Command<Commands.GenerateHttpCommand>(),
+                MenuChild.Command<Commands.ShowHttpGeneratorToolWindowCommand>(),
             ],
         };
 
     protected override void InitializeServices(IServiceCollection serviceCollection)
     {
+        serviceCollection.AddSettingsObservers();
+        serviceCollection.AddSingleton<HttpGeneratorSettingsProvider>();
+        serviceCollection.AddSingleton<HttpGeneratorToolWindowState>();
+        serviceCollection.AddSingleton<BackgroundGenerationCoordinator>();
         base.InitializeServices(serviceCollection);
     }
 

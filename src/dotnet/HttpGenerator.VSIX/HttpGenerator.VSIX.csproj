@@ -27,7 +27,14 @@
     <Content Include=".vsextension\string-resources.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="..\..\..\docs\install.ps1" />
+    <EmbeddedResource Include="ToolWindows\HttpGeneratorToolWindowControl.xaml">
+      <LogicalName>HttpGenerator.VSIX.HttpGeneratorToolWindowControl.xaml</LogicalName>
+    </EmbeddedResource>
+    <Page Remove="ToolWindows\HttpGeneratorToolWindowControl.xaml" />
+    <Content Include="..\..\..\target\release\httpgenerator.exe" Condition="Exists('..\..\..\target\release\httpgenerator.exe')">
+      <Link>httpgenerator.exe</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

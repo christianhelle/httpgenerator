@@ -2,7 +2,7 @@ namespace HttpGenerator.VSIX;
 
 internal static class CliArgumentBuilder
 {
-    public static string BuildArguments(
+    public static IReadOnlyList<string> BuildArguments(
         string openApiPath,
         string outputFolder,
         string? baseUrl,
@@ -10,38 +10,34 @@ internal static class CliArgumentBuilder
         string? authorizationHeader,
         bool generateMultipleFiles)
     {
-        var args = Escape(openApiPath) + " --output " + Escape(outputFolder);
+        var args = new List<string>
+        {
+            openApiPath,
+            "--output",
+            outputFolder,
+        };
 
         if (!string.IsNullOrWhiteSpace(baseUrl))
         {
-            args += " --base-url " + Escape(baseUrl);
+            args.Add("--base-url");
+            args.Add(baseUrl);
         }
 
-        if (!string.IsNullOrWhiteSpace(contentType) && contentType != "application/json")
+        if (!string.IsNullOrWhiteSpace(contentType) && !contentType.Equals("application/json", StringComparison.OrdinalIgnoreCase))
         {
-            args += " --content-type " + Escape(contentType);
+            args.Add("--content-type");
+            args.Add(contentType);
         }
 
         if (!string.IsNullOrWhiteSpace(authorizationHeader))
         {
-            args += " --authorization-header " + Escape(authorizationHeader);
+            args.Add("--authorization-header");
+            args.Add(authorizationHeader);
         }
 
-        if (generateMultipleFiles)
-        {
-            args += " --output-type OneRequestPerFile";
-        }
-        else
-        {
-            args += " --output-type OneFile";
-        }
+        args.Add("--output-type");
+        args.Add(generateMultipleFiles ? "OneRequestPerFile" : "OneFile");
 
         return args;
-    }
-
-    private static string Escape(string value)
-    {
-        var escaped = value.Replace("\\", "\\\\").Replace(" ", "\\ ");
-        return "\"" + escaped + "\"";
     }
 }

@@ -1,81 +1,190 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Text;
 
 namespace HttpGenerator.VSIX;
 
-internal class GenerateResult
+internal sealed class GenerateResult
 {
-    public bool Success { get; }
-    public int FileCount { get; }
-    public IReadOnlyList<string> Files { get; }
-
-    private GenerateResult(bool success, int fileCount, IReadOnlyList<string> files)
-    {
-        Success = success;
-        FileCount = fileCount;
-        Files = files;
-    }
-
-    public static GenerateResult SuccessResult(int fileCount, IReadOnlyList<string> files)
-    {
-        return new GenerateResult(true, fileCount, files);
-    }
-
-    public static GenerateResult UnknownResult()
-    {
-        return new GenerateResult(false, 0, Array.Empty<string>());
-    }
+    public bool Success { get; init; }
+    public bool Cancelled { get; init; }
+    public int ExitCode { get; init; }
+    public int FileCount => Files.Count;
+    public string OutputFolder { get; init; } = string.Empty;
+    public string ExecutablePath { get; init; } = string.Empty;
+    public IReadOnlyList<string> Files { get; init; } = Array.Empty<string>();
+    public string Summary { get; init; } = string.Empty;
+    public string Details { get; init; } = string.Empty;
+    public string StandardOutput { get; init; } = string.Empty;
+    public string StandardError { get; init; } = string.Empty;
 }
 
 internal static class CliOutputParser
 {
     private const string OutputSectionMarker = "Files written successfully:";
 
-    public static GenerateResult ParseOutput(string stdout, string outputFolder)
+    public static GenerateResult CreateSuccess(
+        string stdout,
+        string stderr,
+        string outputFolder,
+        string executablePath)
     {
-        var lines = stdout.Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+        var files = ParseFiles(stdout);
+        var summary = files.Count > 0
+            ? $"Generated {files.Count} .http file(s)."
+            : "Generation completed. Output parsing was inconclusive.";
+
+        return new GenerateResult
+        {
+            Success = true,
+            ExitCode = 0,
+            OutputFolder = outputFolder,
+            ExecutablePath = executablePath,
+            Files = files,
+            Summary = summary,
+            Details = BuildDetails(
+                summary,
+                executablePath,
+                outputFolder,
+                stdout,
+                stderr,
+                files),
+            StandardOutput = stdout,
+            StandardError = stderr,
+        };
+    }
+
+    public static GenerateResult CreateFailure(
+        int exitCode,
+        string stdout,
+        string stderr,
+        string outputFolder,
+        string executablePath)
+    {
+        var summary = $"httpgenerator exited with code {exitCode}.";
+
+        return new GenerateResult
+        {
+            Success = false,
+            ExitCode = exitCode,
+            OutputFolder = outputFolder,
+            ExecutablePath = executablePath,
+            Files = ParseFiles(stdout),
+            Summary = summary,
+            Details = BuildDetails(
+                summary,
+                executablePath,
+                outputFolder,
+                stdout,
+                stderr),
+            StandardOutput = stdout,
+            StandardError = stderr,
+        };
+    }
+
+    public static GenerateResult CreateCancelled(
+        string stdout,
+        string stderr,
+        string outputFolder,
+        string executablePath)
+    {
+        const string summary = "Generation was cancelled.";
+
+        return new GenerateResult
+        {
+            Success = false,
+            Cancelled = true,
+            ExitCode = -1,
+            OutputFolder = outputFolder,
+            ExecutablePath = executablePath,
+            Files = ParseFiles(stdout),
+            Summary = summary,
+            Details = BuildDetails(
+                summary,
+                executablePath,
+                outputFolder,
+                stdout,
+                stderr),
+            StandardOutput = stdout,
+            StandardError = stderr,
+        };
+    }
+
+    private static IReadOnlyList<string> ParseFiles(string stdout)
+    {
+        var lines = stdout.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
         var fileLines = new List<string>();
         var inOutputSection = false;
 
-        for (var i = 0; i < lines.Length; i++)
+        foreach (var rawLine in lines)
         {
-            var line = lines[i].Trim();
+            var line = rawLine.Trim();
 
-            if (line.Contains(OutputSectionMarker))
+            if (line.Contains(OutputSectionMarker, StringComparison.Ordinal))
             {
                 inOutputSection = true;
                 continue;
             }
 
-            if (inOutputSection)
+            if (!inOutputSection)
             {
-                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("---") || line.StartsWith("╭") || line.StartsWith("╰"))
-                {
-                    inOutputSection = false;
-                    continue;
-                }
+                continue;
+            }
 
-                var trimmed = line.TrimStart().TrimEnd();
-                if (!string.IsNullOrWhiteSpace(trimmed))
-                {
-                    fileLines.Add(trimmed);
-                }
+            if (string.IsNullOrWhiteSpace(line)
+                || line.StartsWith("Generation completed successfully!", StringComparison.Ordinal)
+                || line.StartsWith("Duration:", StringComparison.Ordinal)
+                || line.StartsWith("---", StringComparison.Ordinal)
+                || line.StartsWith("╭", StringComparison.Ordinal)
+                || line.StartsWith("╰", StringComparison.Ordinal))
+            {
+                inOutputSection = false;
+                continue;
+            }
+
+            fileLines.Add(line);
+        }
+
+        return fileLines;
+    }
+
+    private static string BuildDetails(
+        string summary,
+        string executablePath,
+        string outputFolder,
+        string stdout,
+        string stderr,
+        IReadOnlyList<string>? files = null)
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine(summary);
+        builder.AppendLine();
+        builder.AppendLine($"Executable: {executablePath}");
+        builder.AppendLine($"Output folder: {outputFolder}");
+
+        if (files is { Count: > 0 })
+        {
+            builder.AppendLine();
+            builder.AppendLine("Generated files:");
+
+            foreach (var file in files)
+            {
+                builder.AppendLine(file);
             }
         }
 
-        if (fileLines.Count > 0)
+        if (!string.IsNullOrWhiteSpace(stderr))
         {
-            return GenerateResult.SuccessResult(fileLines.Count, fileLines);
+            builder.AppendLine();
+            builder.AppendLine("stderr:");
+            builder.AppendLine(stderr.Trim());
         }
 
-        return GenerateResult.UnknownResult();
-    }
+        if (!string.IsNullOrWhiteSpace(stdout))
+        {
+            builder.AppendLine();
+            builder.AppendLine("stdout:");
+            builder.AppendLine(stdout.Trim());
+        }
 
-    public static string ParseErrorOutput(string stderr)
-    {
-        return string.IsNullOrWhiteSpace(stderr)
-            ? "No error details available."
-            : stderr.Trim();
+        return builder.ToString().TrimEnd();
     }
 }
