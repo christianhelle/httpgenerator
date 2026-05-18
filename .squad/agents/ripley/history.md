@@ -85,3 +85,8 @@
 - Approval basis to remember: win32-x64 ships the matching x64 binary, local win32-arm64 packaging now fails fast instead of shipping the wrong binary, and CI covers real win32-arm64 packaging with the matching MSVC environment.
 - Only remaining follow-up is manual host validation on native x64 and ARM64 VS Code installs.
 
+
+### VSIX async first-slice review/revision closeout (2026-05-18T09:53:21Z)
+- Rejected Hicks' first implementation wave because it missed the approved non-blocking notification contract and used an unreviewed Solution Explorer placement seam.
+- Revised the artifact under lockout by using ShellExtensibility.ShowPromptAsync(...) for Open Folder, View Details, and Open Activity, restored VsctParent(... id: 521 ...), and reran the .NET validation path before approval.
+

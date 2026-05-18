@@ -249,3 +249,143 @@ Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, faca
 **What:** VS Code packaging must derive the Rust compilation target from the requested VS Code target and stage the executable from `target\<rust-target>\release`, while PR CI gates the same shipped VSIX target matrix before merge.
 **Why:** The VSIX target name is the packaging contract reviewers locked for this migration. Reusing a host-built binary from `target\release` can silently mislabel the bundled CLI, so the build path must either produce the matching Rust binary or fail.
 
+
+---
+recorded_at: 2026-05-18T11:53:21.547+02:00
+author: Bishop
+topic: VSIX first-slice revalidation
+status: approved
+---
+
+# VSIX first-slice revalidation
+
+## Verdict
+
+- **Approve**
+
+## Why
+
+1. The revised implementation now lands the previously missing first-slice notification contract: duplicate runs raise a non-blocking `Open Activity` prompt, successful runs raise a non-blocking `Open Folder` prompt, and failures raise a non-blocking `View Details` prompt that routes to the activity/tool window.
+2. The Solution Explorer entry point is now aligned with the approved seam by using `VsctParent(... id: 521 ...)` for file-context placement while preserving the Tools menu fallback.
+3. The revised state produced credible validation signal in this environment: `dotnet build src\dotnet\VSIX.slnx --configuration Release`, `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, and `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release` all passed.
+
+## Notes
+
+- I did not find a remaining blocker in the previously rejected areas.
+- This is still a headless tester verdict; the manual Visual Studio interaction checks from the approved plan remain valuable follow-up coverage outside this pass.
+
+# Bishop VSIX validation inbox
+
+- **Recorded at:** 2026-05-18T11:53:21.547+02:00
+- **Scope:** First Visual Studio extension implementation wave in `src\dotnet\HttpGenerator.VSIX`
+- **Verdict:** Reject
+
+## Blocking findings
+
+1. The approved slice requires non-blocking success/failure notifications with actions (`Open Folder` on success, details/log on failure, duplicate-run notice). The current implementation routes those outcomes only into the tool window state and `ShowToolWindowAsync(...)`, so the approved notification UX is not implemented yet.
+2. Because the notification/action contract is missing, the duplicate-run policy is only partially implemented: same-spec runs are blocked in the coordinator, but the user does not get the approved notification signal that generation is already in progress.
+
+## Validation signal
+
+- `cargo test --workspace` ✅
+- `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release` ✅
+- `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release` ✅
+- `dotnet build src\dotnet\VSIX.slnx --configuration Release` ✅
+- `test\smoke-tests.ps1` ✅
+
+## Coverage note
+
+- I did not add automated coverage. There is no existing low-risk VSIX test seam in the repo for the new coordinator/tool-window flow, and creating a new harness would exceed the tester-only scope for this validation pass.
+
+### 2026-05-18T11:53:21.547+02:00: User directive
+**By:** Christian Helle (via Copilot)
+**What:** Have all agents use Claude Opus 4.7 for the rest of this session only.
+**Why:** User request — captured for team memory
+
+# 2026-05-18T11:53:21.547+02:00 — VSIX async flow detail surface
+
+- The first VSIX redesign slice uses the preview settings API plus a custom Remote UI tool window for persisted defaults.
+- Background generation uses Task Status Center progress for lifecycle and cancellation, while success/failure follow-up actions live in the same non-blocking tool window instead of a blocking prompt.
+- Executable resolution is deterministic and fail-fast: `HTTPGENERATOR_PATH` → bundled `httpgenerator.exe` payload when present → repo `target\debug|release` outputs → `PATH`.
+
+---
+recorded_at: 2026-05-18T11:53:21.547+02:00
+author: Ripley
+topic: VSIX first-slice review verdict
+status: rejected
+---
+
+# VSIX first-slice review verdict
+
+## Artifact scope rejected
+
+- Hicks' current VSIX implementation wave under `src\dotnet\HttpGenerator.VSIX\`
+
+## Verdict
+
+- **Reject**
+
+## Why
+
+1. The implementation does not land the approved notification contract for the first slice. The current coordinator/tool-window flow records status in the tool window, but it does not surface the required non-blocking success/failure notifications, the success-side `Open Folder` action, or the failure-side details/log action.
+2. The Solution Explorer placement seam is not locked to the reviewed SDK guidance. The approved seam check called for the documented `VsctParent(... id: 521 ...)` file-context placement path plus Tools fallback; the current implementation introduces `KnownVsctIds.ItemNodeContextMenu = 0x0430`, which is a risky unreviewed assumption for the primary entry point.
+
+## Notes
+
+- The architectural direction is otherwise aligned: request snapshotting, a background coordinator, persisted settings, a Remote UI tool window, duplicate-run blocking, and fail-fast CLI lookup all move in the approved direction.
+- Headless validation in this environment passed for `dotnet build src\dotnet\VSIX.slnx --configuration Release` and `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, so the rejection is scope/contract based rather than a compile failure.
+
+---
+recorded_at: 2026-05-18T11:53:21.547+02:00
+author: Ripley
+topic: VSIX revision notification seam
+status: applied
+---
+
+# VSIX revision notification seam
+
+## Decision
+
+- Use the current `ShellExtensibility.ShowPromptAsync(...)` prompt surface for the first-slice non-blocking success/failure/duplicate-run notifications.
+- Keep the Remote UI tool window as the richer details/activity surface behind notification actions such as `View Details` and `Open Activity`.
+
+## Why
+
+- The approved first slice requires action-bearing notifications now, while the current SDK surface available in this repo already exposes prompt choices without forcing a return to modal dialog-era command flow.
+- The tool window remains the approved home for persisted settings and richer failure/activity details, so notification actions can stay lightweight while preserving the non-blocking background coordinator shape.
+
+## Applied scope
+
+- Success prompt offers `Open Folder`.
+- Failure prompt offers `View Details` and routes to the activity/tool window.
+- Duplicate-run prompt offers `Open Activity`.
+- Solution Explorer primary placement is locked to the documented file-context-menu `VsctParent(... id: 521 ...)` seam, while the Tools menu fallback remains intact.
+
+---
+recorded_at: 2026-05-18T11:53:21.547+02:00
+author: Ripley
+topic: VSIX SDK seams
+status: proposed
+---
+
+# VSIX SDK seam check
+
+## What Ripley is locking for this implementation pass
+
+1. **Primary entry point:** place the generate command on the Solution Explorer file context menu with `CommandPlacement.VsctParent(...)`, using the documented/new-model command placement path rather than dialog-era command plumbing.
+2. **Fallback entry point:** keep a `CommandPlacement.KnownPlacements.ToolsMenu` placement on the same command for discoverability and fallback targeting.
+3. **Settings editing:** use a dedicated non-blocking `ToolWindow` with Remote UI as the first supported settings editor surface.
+4. **Failure/details surface:** use a non-modal `ToolWindow` for rich details/logs; do not make the initial slice depend on the preview Output Window API.
+
+## Why
+
+- In the current SDK generation, built-in known placements cover top-level menu locations like Tools, but Solution Explorer placement still requires `VsctParent(...)`.
+- Microsoft sample code for the new extensibility model uses `VsctParent(... id: 521 ...)` for file-in-project context menu placement and uses tool windows for richer extension UI.
+- The settings API exists but is still preview/experimental, and the SDK does not provide a production-ready built-in extension settings UI.
+- Dialogs and prompts are modal, which conflicts with the approved non-blocking flow.
+
+## Guardrails for Hicks
+
+- Safe now: add explicit command placements, add a tool-window-based settings surface, and add a tool-window-based details/log surface.
+- Avoid now: relying on Output Window preview APIs as the primary details UX, or expecting built-in Options/settings pages to cover the approved editor experience.
+- Adjustment for the next wave: tighten selection resolution before wiring Tools fallback, because the current helper resolves the active project path instead of the selected spec file.

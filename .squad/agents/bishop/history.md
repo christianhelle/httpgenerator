@@ -59,3 +59,8 @@
 - Approval basis stayed narrow: win32-x64 now ships the matching x64 Rust binary, win32-arm64 fails fast locally instead of bundling a host-built binary, CI exercises real win32-arm64 packaging under the matching MSVC environment, and resolver/fail-fast explicit-path behavior remained intact.
 - Only residual coverage gap is manual: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke the Command Palette plus Explorer menu generation flows end-to-end.
 
+
+### VSIX async first-slice validation closeout (2026-05-18T09:53:21Z)
+- Rejected the first VSIX redesign wave until the approved notification contract and placement seam were actually present.
+- Approved the revised state after dotnet build src\dotnet\VSIX.slnx --configuration Release, dotnet build src\dotnet\HttpGenerator.slnx --configuration Release, and dotnet test src\dotnet\HttpGenerator.slnx --configuration Release passed again.
+

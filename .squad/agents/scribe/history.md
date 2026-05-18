@@ -33,3 +33,8 @@ Scribe maintains `.squad` memory: orchestration logs, session logs, decision mer
 - Logged the final approval basis in a dedicated orchestration log and refreshed the affected Bishop, Hudson, and Ripley histories.
 - This closeout stayed below the archive/summarization thresholds after updates, so the health report only needed to record the measurements and the manual-only residual smoke check.
 
+
+### VSIX async implementation session closeout (2026-05-18T09:53:21Z)
+- Pre-check recorded decisions.md at 19124 bytes with 7 inbox files before merge.
+- Merged the full VSIX async implementation inbox into decisions.md, wrote four orchestration logs plus the session log, refreshed Hicks/Ripley/Bishop/Hudson histories, and cleared the processed inbox files.
+

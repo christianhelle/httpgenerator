@@ -73,3 +73,8 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 - The lasting packaging/docs contract is that the packaged binary must match the requested VS Code target, with local win32-arm64 packaging failing fast rather than silently reusing a host-built executable.
 - Remaining closeout is manual-only: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke Command Palette and Explorer menu generation flows.
 
+
+### VSIX async first-slice docs alignment (2026-05-18T09:53:21Z)
+- Updated the docs story to match the approved Visual Studio first slice after Ripley's revision and Bishop's revalidation.
+- Keep future docs aligned on the background workflow, deterministic executable lookup, tool-window activity/details surface, and the approved entry-point/fallback story.
+

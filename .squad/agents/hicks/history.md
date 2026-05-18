@@ -44,3 +44,8 @@
 - Runtime lookup must stay aligned with packaging: `http-file-generator.executablePath` → bundled binary → repo-root `target\debug` / `target\release` development outputs → `PATH`.
 - Keep the extension host documentation and code on the canonical lowercase `src\vscode` path; treat stale `src\VSCode` references as cleanup opportunities when they block this workflow.
 - Validation evidence for the migration: `cargo test --locked --workspace`, `dotnet build`, `dotnet test`, `test\smoke-tests.ps1`, and `src\vscode\build.ps1 -Version 0.1.0 -Target win32-x64`.
+
+### VSIX async first-slice implementation closeout (2026-05-18T09:53:21Z)
+- Landed the first Visual Studio extension redesign wave with a background coordinator, persisted defaults in the tool window, deterministic CLI lookup, cancellation, and right-click plus Tools fallback entry points.
+- Ripley rejected the first cut for missing notifications and the wrong placement seam; the revised state was approved after the notification contract and VsctParent(... id: 521 ...) placement were restored.
+
