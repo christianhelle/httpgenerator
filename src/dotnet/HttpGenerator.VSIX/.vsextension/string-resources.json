@@ -1,0 +1,32 @@
+{
+  "HttpGenerator.GroupDisplayName": "HTTP File Generator (PREVIEW)",
+  "GenerateHttpCommand.DisplayName": "Generate .http files",
+  "GenerateDialog.Title": "HTTP File Generator",
+  "GenerateDialog.OpenApiFile.Label": "OpenAPI Specifications",
+  "GenerateDialog.OpenApiFile.BrowseButton": "...",
+  "GenerateDialog.OutputFolder.Label": "Output folder",
+  "GenerateDialog.OutputFolder.BrowseButton": "...",
+  "GenerateDialog.BaseUrl.Label": "Base URL",
+  "GenerateDialog.ContentType.Label": "Content type",
+  "GenerateDialog.AuthorizationHeader.Label": "Authorization Header",
+  "GenerateDialog.AuthorizationHeader.BrowseButton": "...",
+  "GenerateDialog.MultipleFiles.Label": "Generate .http file per request",
+  "GenerateDialog.OkButton": "OK",
+  "GenerateDialog.CancelButton": "Cancel",
+  "GenerateDialog.Progress.Generating": "Generating .http files...",
+  "GenerateDialog.Progress.Success": "Successfully generated {0} file(s).",
+  "GenerateDialog.Error.Failed": "Operation failed",
+  "GenerateDialog.Error.PromptDownload": "Would you like to download the latest version of httpgenerator?",
+  "GenerateDialog.Error.PromptDownload.Title": "Download httpgenerator",
+  "GenerateDialog.Error.Installation.Title": "Installation",
+  "GenerateDialog.Error.InstallationRequired.Title": "Installation Required",
+
+  "Settings.HttpGenerator.DisplayName": "HTTP File Generator",
+
+  "AzureToken.Title": "Azure Entra ID Token",
+  "AzureToken.TenantId.Label": "Tenant ID (optional)",
+  "AzureToken.Scope.Label": "Scope",
+  "AzureToken.Scope.Default": "https://management.azure.com/.default",
+  "AzureToken.OkButton": "OK",
+  "AzureToken.CancelButton": "Cancel"
+}

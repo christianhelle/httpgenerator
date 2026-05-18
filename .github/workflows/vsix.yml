@@ -26,8 +26,7 @@ jobs:
 
       - name: Update Version
         run: |
-          ((Get-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.Core\HttpGenerator.Core.csproj
-          ((Get-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\source.extension.vsixmanifest
+          ((Get-Content -Path HttpGenerator.VSIX\HttpGenerator.VSIX.csproj -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path HttpGenerator.VSIX\HttpGenerator.VSIX.csproj
         working-directory: src/dotnet
         shell: pwsh
 
@@ -44,7 +43,7 @@ jobs:
 
       - name: Move build output
         run: |
-          mv src/dotnet/HttpGenerator.VSIX/bin/Release/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
+          mv src/dotnet/HttpGenerator.VSIX/bin/Release/net8.0/HttpGenerator.VSIX.vsix HttpGenerator-${{ env.VERSION }}.vsix
 
       - name: Publish artifacts
         uses: actions/upload-artifact@v7
