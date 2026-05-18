@@ -6,6 +6,7 @@
 
 **Implemented enhancements:**
 
+- Migrate to new Visual Studio Extensibility SDK [\#402](https://github.com/christianhelle/httpgenerator/pull/402) ([christianhelle](https://github.com/christianhelle))
 - Migrate VS Code extension to use the Rust base CLI [\#399](https://github.com/christianhelle/httpgenerator/pull/399) ([christianhelle](https://github.com/christianhelle))
 - Fix webhook output generation in Rust CLI [\#396](https://github.com/christianhelle/httpgenerator/pull/396) ([christianhelle](https://github.com/christianhelle))
 
