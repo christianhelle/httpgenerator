@@ -6,23 +6,34 @@ Generate .http files from OpenAPI specifications
 
 ## Usage
 
-From the **Tools** menu select **Generate .http files**
+Right-click an OpenAPI `.json`, `.yaml`, or `.yml` file in **Solution Explorer** and choose **Generate .http files**.
 
-![Tools menu](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_tools.png?raw=true)
+The **Tools** menu keeps the same command as a fallback, but it only runs when the current Solution Explorer selection is a supported OpenAPI file.
 
-This opens the main dialog which has similar input fields as the CLI tool and shells out to the Rust `httpgenerator.exe` executable.
+Generation continues in the background after the command starts. Visual Studio stays responsive, progress is reported through the shell progress UI, and cancellation is available from the running progress item.
 
-The extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, or `PATH`.
+Non-blocking prompts handle the result:
 
-![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
-
-You can supply Azure Entra ID tenant and scope settings by clicking on the `...` button beside the **Authorization Headers** input field. The Rust CLI acquires the access token during generation.
-
-![Acquire Azure Entra ID access token](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_azure_entra_id.png?raw=true)
-
-By default, the **Output folder** is pre-filled with the path of the currently active C# Project in the Solution Explorer, suffixed with **\HttpFiles**
+- **Open Folder** after success
+- **Open Activity** when the same spec is already generating
+- **View Details** after failures
 
 ![Solution explorer](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_solution_explorer.png?raw=true)
+
+Use **Tools** → **HTTP File Generator (PREVIEW)** → **Generation settings and activity** to open the non-blocking tool window. It lets you edit global defaults for:
+
+- sibling `HttpFiles` output folder policy
+- base URL override
+- content type override
+- one-file-per-request generation
+
+The same tool window also shows the latest activity details for queued, running, cancelled, successful, and failed background runs.
+
+By default, generated files go to a sibling `HttpFiles` folder beside the selected OpenAPI document. You can switch the output policy to the spec's own folder in the settings tool window.
+
+The extension resolves `httpgenerator.exe` in this order: `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, then `PATH`. If an explicit path is invalid or no candidate is found, generation fails fast.
+
+This first implementation slice does not expose persisted authorization header or Azure Entra ID settings in the Visual Studio UI.
 
 Once the .http files are generated you can easily open and inspect them
 

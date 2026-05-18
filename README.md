@@ -356,21 +356,23 @@ This is a bundled-binary extension distribution, not a crates.io or legacy `.NET
 Install the Visual Studio 2022 extension from
 [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ChristianResmaHelle.httpgenerator).
 
-From the **Tools** menu select **Generate .http files**
+The approved first slice is a command-first experience:
 
-![Tools menu](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_tools.png?raw=true)
+- Right-click an OpenAPI `.json`, `.yaml`, or `.yml` file in **Solution Explorer** and choose **Generate .http files**
+- The **Tools** menu keeps the same command as a fallback, but it only runs against the current valid Solution Explorer selection
+- Generation starts in the background, reports progress through Visual Studio, and supports cancellation without blocking the IDE
+- Success shows a non-blocking **Open Folder** prompt, duplicate runs show **Open Activity**, and failures show **View Details**
 
-This opens the main dialog which has similar input fields as the CLI tool and now shells out to the Rust `httpgenerator` executable.
+Use **Tools** → **HTTP File Generator (PREVIEW)** → **Generation settings and activity** to open the non-blocking tool window for:
 
-The Visual Studio extension resolves `httpgenerator.exe` from `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, or `PATH`. A Cargo-installed CLI can therefore be reused here as long as the binary is discoverable on `PATH` or via `HTTPGENERATOR_PATH`.
+- Global extension defaults for output folder policy, base URL override, content type override, and one-file-per-request generation
+- Activity details for the latest queued, running, cancelled, successful, or failed generation
 
-![Main dialog](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_httpgenerator_dialog.png?raw=true)
+By default, generated files are written to a sibling `HttpFiles` folder beside the selected OpenAPI document. You can switch that to the spec's own folder from the settings tool window.
 
-You can supply Azure Entra ID tenant and scope settings by clicking on the `...` button beside the **Authorization Headers** input field. The Rust CLI acquires the access token during generation.
+The Visual Studio extension resolves `httpgenerator.exe` in this order: `HTTPGENERATOR_PATH`, the bundled VSIX payload, repo-root workspace `target\debug` / `target\release` outputs during development, then `PATH`. If an explicit path is invalid or no candidate is found, generation fails fast instead of trying an on-demand install.
 
-![Acquire Azure Entra ID access token](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_azure_entra_id.png?raw=true)
-
-By default, the **Output folder** is pre-filled with the path of the currently active C# Project in the Solution Explorer, suffixed with **\HttpFiles**
+This first slice does **not** light up persisted authorization header or Azure Entra ID settings in the Visual Studio UI yet.
 
 ![Solution explorer](https://github.com/christianhelle/httpgenerator/blob/main/images/vsix_solution_explorer.png?raw=true)
 
