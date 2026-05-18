@@ -12,6 +12,7 @@
 
 **Merged pull requests:**
 
+- chore\(deps\): update dependency coverlet.collector to 10.0.1 [\#404](https://github.com/christianhelle/httpgenerator/pull/404) ([renovate[bot]](https://github.com/apps/renovate))
 - Migrate Visual Studio extension to use the Rust-based CLI [\#401](https://github.com/christianhelle/httpgenerator/pull/401) ([christianhelle](https://github.com/christianhelle))
 
 ## [1.1.0](https://github.com/christianhelle/httpgenerator/tree/1.1.0) (2026-05-11)
