@@ -143,20 +143,19 @@ cd ../worktrees/{issue-number}
 
 **Actions:**
 1. Agent makes code changes
-2. Commits reference the issue number
-3. Pushes branch to remote
+2. Commit each completed logical slice immediately; do not wait to batch unrelated work at the end
+3. Commits reference the issue number
+4. Pushes branch to remote
+
+**Commit cadence:**
+- As soon as a slice is coherent and reviewable, stage only that slice and commit it before continuing
+- Keep commit subjects terse and exact; add a body only when the why is not obvious
+- Never add `Co-authored-by` trailers or any other co-author attribution lines
 
 **Commit message format:**
 ```
 {type}({scope}): {description} (#{issue-number})
-
-{detailed explanation if needed}
-
-{breaking change notice if applicable}
-
-Closes #{issue-number}
-
-Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>
+{optional body only when needed}
 ```
 
 **Commit types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `perf`, `style`, `build`, `ci`

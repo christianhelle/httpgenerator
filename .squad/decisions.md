@@ -113,6 +113,11 @@ Add `src\vscode\build.ps1` and VSIX validation only if the refactor moves execut
 **What:** Keep a detailed progress history by committing changes as often as possible in small logical groups, without a co-author trailer.
 **Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability, and ensures commit message format consistency.
 
+### 2026-05-18T13:14:38.236+02:00: Standing Commit Cadence Enforcement
+**By:** Ripley (Lead)
+**What:** Treat small logical commits as a standing squad workflow rule, not a session-only preference. Future sessions must commit each completed logical slice immediately using terse exact Conventional Commit messages, stage only the files for that slice, never amend or rewrite existing commits to regroup work, and never add `Co-authored-by` or other attribution trailers. Encode this rule in `.squad/copilot-instructions.md`, `.github/agents/squad.agent.md`, `.squad/templates/squad.agent.md`, `.squad/issue-lifecycle.md`, and `.squad/templates/issue-lifecycle.md`.
+**Why:** The prior decision captured the intent, but future sessions still had stale instruction surfaces. The rule now lives in the coordinator and issue workflow prompts that agents actually read, so detailed progress history survives across sessions instead of depending on memory.
+
 ### 2026-05-08: Hicks — generator extraction
 
 **By:** Hicks (Core Dev)

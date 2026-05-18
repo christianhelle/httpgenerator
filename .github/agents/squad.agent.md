@@ -806,6 +806,7 @@ prompt: |
   Check .copilot/skills/ for copilot-level skills (process, workflow, protocol).
   Check .squad/skills/ for team-level skills (patterns discovered during work).
   Read any relevant SKILL.md files before working.
+  Commit in small logical groups as you work. After each completed slice that is coherent and reasonably validated, stage only that slice and create a terse exact Conventional Commit. Do not batch unrelated work into one commit, do not amend or rewrite existing commits, and never add `Co-authored-by` or other attribution trailers.
   
   {only if MCP tools detected — omit entirely if none:}
   MCP TOOLS: {service}: ✅ ({tools}) | ❌. Fall back to CLI when unavailable.

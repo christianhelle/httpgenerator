@@ -29,6 +29,14 @@ squad/{issue-number}-{kebab-case-slug}
 ```
 Example: `squad/42-fix-login-validation`
 
+## Commit Discipline
+
+- Commit as often as practical in **small logical groups**. Do not wait until the end if a slice is already coherent and reviewable.
+- Stage only the files for the current slice before committing.
+- Use terse exact **Conventional Commit** subjects. Add a body only when the why is not obvious.
+- Do **not** amend, squash, or rewrite existing commits just to regroup work unless the user explicitly asks.
+- Never add `Co-authored-by` trailers or any other co-author attribution lines.
+
 ## PR Guidelines
 
 When opening a PR:

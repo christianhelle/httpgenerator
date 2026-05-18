@@ -1,6 +1,6 @@
 ---
-updated_at: 2026-05-01T11:49:02Z
-focus_area: Source layout migration closeout for src/rust + src/dotnet + src/VSCode
+updated_at: 2026-05-18T11:53:21.547+02:00
+focus_area: VSIX async right-click generation implementation in src/dotnet/HttpGenerator.VSIX
 completed_issues:
   - Planning complete: target topology locked and implementation plan saved
   - relocate-rust-workspace: moved crates/ to src/rust while preserving repo-root cargo entrypoints
@@ -9,26 +9,22 @@ completed_issues:
   - sweep-path-dependencies: updated CI, docs, smoke tests, release scripts, and instructions
   - validate-migration: cargo, dotnet, smoke, and VS Code validation completed against the new layout
 active_issues:
-  - squad-followup: continue reducing stale old-path references inside .squad notes and skills as they surface
+  - implement-vsix-async-flow: migrate the Visual Studio extension to Solution Explorer right-click generation with background execution, settings UI, deterministic CLI lookup, and non-blocking progress/results
 ---
 
 # What We're Focused On
 
-## Current Focus: Source Layout Migration Closeout
+## Current Focus: VSIX Async Right-Click Generation
 
-The team has completed the repo reorganization that moves product source under `src` while preserving root-level commands. The canonical layout is now `src/rust`, `src/dotnet`, and existing `src/VSCode`; tests, docs, and fixtures remain outside `src`.
+The team is now implementing the Visual Studio extension redesign in `src/dotnet/HttpGenerator.VSIX`: right-click invocation from Solution Explorer, background generation after the initiating UI closes, persisted settings edited through a non-blocking UI, and deterministic `httpgenerator.exe` resolution.
 
 ## Status Summary
 
-- ✅ Ripley: reviewer gates cleared and final approval recorded
-- ✅ Hicks: source relocation and runtime/path rewrites completed
-- ✅ Bishop: validation and workflow retargeting completed
-- ✅ Hudson: docs and instruction surfaces updated
-- 📌 Session directive: use GPT-5.4 for all agents during this session only
+- 📌 Session directive: use Claude Opus 4.7 for all agents during this session only
+- 🎯 Active implementation target: VSIX async background generation plan approved and ready for execution
 
 ## Next Steps
 
-1. Keep internal `.squad` guidance converged on `src/rust` and `src/dotnet`
-2. Carry the preserved repo-root entrypoint contract into future docs and workflow edits
-3. Treat the pre-existing VS Code packaging metadata issue as separate follow-up work
-
+1. Confirm the exact SDK seams for context-menu placement, settings UI, and non-modal details
+2. Implement the VSIX request/coordinator/settings refactor
+3. Validate the new command flow, CLI lookup, cancellation, and notifications
