@@ -16,6 +16,7 @@ internal sealed class GenerateHttpCommand(
             "\\.(json|ya?ml)$"),
         Placements =
         [
+            CommandPlacement.KnownPlacements.ToolsMenu,
             CommandPlacement.VsctParent(KnownVsctIds.ShellMainMenu, KnownVsctIds.SolutionExplorerFileContextMenu, priority: 0x0100),
         ],
     };

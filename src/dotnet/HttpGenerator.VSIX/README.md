@@ -8,7 +8,7 @@ Generate .http files from OpenAPI specifications
 
 Right-click an OpenAPI `.json`, `.yaml`, or `.yml` file in **Solution Explorer** and choose **Generate .http files**.
 
-The **Tools** menu keeps the same command as a fallback, but it only runs when the current Solution Explorer selection is a supported OpenAPI file.
+The **Tools** menu also exposes a direct **Generate .http files** command as a fallback, but it only runs when the current Solution Explorer selection is a supported OpenAPI file.
 
 Generation continues in the background after the command starts. Visual Studio stays responsive, progress is reported through the shell progress UI, and cancellation is available from the running progress item.
 
