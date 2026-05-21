@@ -71,3 +71,11 @@
 - Kept examples on boundary APIs only: raw decode/load, inspection entry points, typed front-door parsing, source classification, content-format detection, and specification-version detection.
 - Used reference-style docs for stats fields, version enums, and public error variants so the remaining OpenAPI pages stay scan-friendly instead of repeating workflow prose.
 - Validation for this batch: `cargo test --workspace`.
+
+### docs.rs closeout — final consolidated validation (2026-05-21T13:00:01Z)
+- All three documentation batches (commits `7e5125d`, `5d16a45`, `70f5975`) completed and validated.
+- `cargo test --workspace` passed including 38/38 httpgenerator_core doctests.
+- Ripley final audit confirmed: no meaningful public docs.rs gaps remain outside this batch.
+- Bishop final validation confirmed: full repository matrix green (cargo test, dotnet build, dotnet test, smoke tests).
+- Feature-gate signaling for `openapi` module now explicitly visible on docs.rs.
+- httpgenerator-core public documentation complete; `author-rustdoc-batches` closed as DONE.

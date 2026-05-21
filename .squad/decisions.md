@@ -283,3 +283,48 @@ Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, faca
 **What:** For incremental docs-only batches in `src\rust\core\src`, use `cargo test -p httpgenerator-core --doc` as the first validation gate. Before docs batch is locally stable, run `cargo test -p httpgenerator-core` to keep doctests and unit/integration coverage aligned. Final approval for documentation passes still uses the repo-standard sequence: (1) `cargo test --workspace`; (2) `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`; (3) `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`; (4) `test\smoke-tests.ps1`. Prefer runnable doctests for pure helpers and inline raw-document loading; reserve `no_run` for fixture paths, local files, remote URLs, or environment-sensitive setup.
 **Why:** `cargo test -p httpgenerator-core --doc` is the quickest signal for broken code fences, bad imports, and rustdoc drift while authors iterate. Full repository sequence remains necessary because even docs-only edits in public Rust modules can break compilation, packaging, or smoke-test assumptions.
 
+### 2026-05-21T15:00:01.518+02:00: Bishop final docs validation
+**By:** Bishop (Tester)
+**Decision:** Treat the docs.rs closeout validation as complete based on the standard root sequence passing, and treat the earlier nested Windows PowerShell smoke-script failure as an invocation artifact rather than a product regression.
+**Why:**
+- `cargo test --workspace` passed, including the new/updated `httpgenerator_core` doctests.
+- `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release` passed.
+- `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release` passed with 246/246 tests green.
+- `test\smoke-tests.ps1` passed when run directly in the active PowerShell 7 session from the repo root.
+- The failed nested run used Windows PowerShell 5.1 semantics, which left `$IsWindows` falsey inside `test\smoke-tests.ps1`, causing it to look for `target\release\httpgenerator` instead of `target\release\httpgenerator.exe`; that does not implicate Hicks's docs changes.
+**Consequence:** `validate-docs-pass` can be closed as done. No production-file rollback or follow-up is justified from this validation pass alone.
+
+### 2026-05-21T15:00:01.518+02:00: Hicks openapi docs batch
+**By:** Hicks (Core Dev)
+**Decision:** Surface the optional `openapi` API explicitly on docs.rs by enabling `docsrs` rustdoc cfg metadata and annotating the public module with `doc(cfg(feature = "openapi"))`.
+**Context:** The `openapi` feature is default-on today, which makes the optional surface easy to miss on docs.rs even though downstream consumers can disable default features.
+**Consequence:** The generated docs keep the current API shape, but readers now see the feature gate and the `openapi` module overview can explain the ingestion pipeline and current raw-fallback behavior.
+
+### 2026-05-21T15:00:01.518+02:00: Hudson openapi reference copy guidance
+**By:** Hudson (DevRel/Docs)
+**Decision:** Document the remaining `httpgenerator_core::openapi` reference surface as five docs.rs-oriented layers: raw loading, inspection, typed parsing/version detection, source/format classification, and errors. Keep the main workflow story at the module level, put concrete examples only on the boundary APIs readers are likely to call directly, and keep structs/enums that mainly carry state or variants reference-first.
+**Implementation guidance:**
+1. **Raw loading** (`raw.rs`): Explain the raw stage once covering local path and HTTP URL loading, format detection, and source preservation. Examples: `load_raw_document`, `decode_raw_document`. Reference-only: accessors and format fields.
+2. **Inspection** (`inspect\mod.rs`, `inspect\model.rs`): Frame as lightweight inventory pass. Example: `inspect_raw_document` or `inspect_document`. Reference-only: `OpenApiInspection`, `OpenApiStats`.
+3. **Typed parsing and version detection** (`typed.rs`, `version.rs`): Bridge from raw JSON to version-specific models. Examples: `parse_typed_document`, `detect_specification_version`. Reference-only: `TypedOpenApiDocument`, `OpenApiSpecificationVersion`.
+4. **Source and format classification** (`source.rs`, `format.rs`): Classify input and infer format. Examples: `classify_source`, `detect_content_format`, `sniff_content_format`. Reference-only: enums and accessors.
+5. **Errors** (`error.rs`): Orient by pipeline stage. Reference-style: mostly self-documenting enums mapping failures to stages.
+
+### 2026-05-21T15:00:01.518+02:00: Ripley docs.rs follow-up
+**By:** Ripley (Lead)
+**Decision:** Keep the next rustdoc implementation batch focused on the `normalized` surface before expanding the `openapi` surface.
+**Required follow-up:**
+1. Finish the normalized handoff docs: `src\rust\core\src\normalized\parameter.rs`, `src\rust\core\src\normalized\request_body.rs`, `src\rust\core\src\normalized\schema.rs`.
+2. In the same batch, add docs.rs-visible feature-gate signaling for `openapi`.
+3. After that, land the `openapi` narrative pass starting with `src\rust\core\src\openapi\mod.rs`, then load/inspect/normalize entry pages.
+**Why:** Commits `2f6faad` and `2925ddf` made the crate root, generator, model, and helper surfaces meaningfully better. The weakest remaining reader path is the normalized bridge. `openapi` already has richer item-level pages but needs proper overview and feature-gate visibility.
+
+### 2026-05-21T15:00:01.518+02:00: Ripley final docs audit
+**By:** Ripley (Lead)
+**Decision:** Hicks's current `openapi-reference-batch` should be the final meaningful rustdoc authoring slice for the remaining `httpgenerator-core` docs.rs surface, provided it explicitly covers the still-thin OpenAPI reference pages for raw loading, inspection, typed parsing, version detection, source classification, format detection, and errors.
+**Why:** Landed batches already cover crate root, generator/model/root helpers, normalized handoff types, and openapi module plus load/normalize entry points. The remaining weak docs.rs pages cluster in `src\rust\core\src\openapi\{raw.rs,typed.rs,version.rs,source.rs,format.rs,error.rs}` plus `inspect\mod.rs` and `inspect\model.rs`. No other public docs.rs-visible surface outside that batch justifies a separate authoring pass once those reference pages are documented.
+**Reviewer guidance:**
+- Keep `version.rs` in the current reference batch.
+- Treat `OpenApiStats`, `OpenApiInspection`, `RawOpenApiDocument`, `OpenApiSource`, `OpenApiContentFormat`, `TypedOpenApiDocument`, `OpenApiSpecificationVersion`, and error enums as the remaining "blank page" risk.
+- Leave `author-rustdoc-batches` in progress until Hicks lands that batch; after landing, final validation should be enough unless review finds prose-quality issues.
+

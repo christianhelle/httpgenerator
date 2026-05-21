@@ -85,3 +85,7 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 - Structure emphasizes workflow-based navigation: crate root → pipeline modules → stable model → output contract → helpers.
 - Ready for implementation by Hicks on normalized and OpenAPI documentation.
 
+### OpenAPI reference copy guidance (2026-05-21T15:00:01.518+02:00)
+- Hudson drafted docs.rs-oriented copy guidance for the remaining `openapi` reference pages: raw loading, inspection, typed/version detection, source/format classification, and errors.
+- Decision artifact written to `.squad\decisions\inbox\hudson-openapi-reference-copy.md` so Hicks can implement module docs, examples, and reference-only pages without repeating the `openapi` overview.
+- Recommended implementation order is module overviews first, then high-value examples on boundary APIs, then concise field/variant docs on structs and error enums.

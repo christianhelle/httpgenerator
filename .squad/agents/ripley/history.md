@@ -102,3 +102,21 @@
 - Final reviewer closeout held once the packaged Rust binary matched the requested VS Code target and the explicit executable-path fail-fast contract stayed intact.
 - Approval basis to remember: win32-x64 ships the matching x64 binary, local win32-arm64 packaging now fails fast instead of shipping the wrong binary, and CI covers real win32-arm64 packaging with the matching MSVC environment.
 - Only remaining follow-up is manual host validation on native x64 and ARM64 VS Code installs.
+
+### Final docs.rs surface audit (2026-05-21T15:00:01.518+02:00)
+- Audited the current `httpgenerator-core` docs.rs-facing surface after commits `2f6faad`, `2925ddf`, `7e5125d`, and `5d16a45`, focusing on `src\rust\core\src\lib.rs`, `normalized\**\*.rs`, and `openapi\**\*.rs`.
+- The remaining meaningful rustdoc gaps are still concentrated inside the planned `openapi-reference-batch`: `openapi\raw.rs`, `openapi\inspect\mod.rs`, `openapi\inspect\model.rs`, `openapi\typed.rs`, `openapi\version.rs`, `openapi\source.rs`, `openapi\format.rs`, and `openapi\error.rs`.
+- I did not find another public docs.rs-visible cluster outside that batch that still clearly needs its own authoring slice; after Hicks lands that reference pass, final validation should be enough unless review finds quality issues rather than missing pages.
+- `author-rustdoc-batches` should remain in progress for now because the reference pages above are still thin or blank today, and `openapi-reference-batch` is not yet complete.
+
+### docs.rs closeout — final consolidated audit (2026-05-21T13:00:01Z)
+- Final audit after Hicks completed commits `7e5125d`, `5d16a45`, `70f5975`: confirmed no meaningful public docs.rs gaps remain outside the completed batches.
+- All OpenAPI reference surfaces now documented (raw, inspect, typed, version, format, source, error) with proper workflow vocabulary and minimal duplication.
+- Feature-gate signaling for `openapi` module now explicitly visible on docs.rs with doc(cfg) metadata.
+- `author-rustdoc-batches` CLOSED as DONE; no further rustdoc authoring passes needed unless APIs expand.
+- httpgenerator-core public documentation complete and validated by full repository sequence.
+
+### docs.rs PR framing handoff (2026-05-21T16:00:41.737+02:00)
+- Recommended reviewer-facing PR framing should foreground docs.rs usability gains over file-by-file rustdoc churn: crate-root workflow, normalized handoff docs, OpenAPI entrypoint docs, and final reference-page completion.
+- The commit story is clean enough to call out directly in the PR body as five small logical commits: `2f6faad`, `2925ddf`, `7e5125d`, `5d16a45`, and `70f5975`.
+- Reviewer validation signal to highlight is the final repository-standard green matrix plus docs-specific detail: `cargo test --workspace` (including 38/38 `httpgenerator_core` doctests), `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release` (246/246), and `test\smoke-tests.ps1`.

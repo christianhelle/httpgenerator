@@ -71,3 +71,17 @@
 - Final verdict: approved the revised artifact after Hudson's packaging/build revision.
 - Approval basis stayed narrow: win32-x64 now ships the matching x64 Rust binary, win32-arm64 fails fast locally instead of bundling a host-built binary, CI exercises real win32-arm64 packaging under the matching MSVC environment, and resolver/fail-fast explicit-path behavior remained intact.
 - Only residual coverage gap is manual: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke the Command Palette plus Explorer menu generation flows end-to-end.
+
+### Full docs-pass closeout validation (2026-05-21T15:00:01.518+02:00)
+- Final closeout validation for Hicks's rustdoc/docs.rs pass is green on the standard repo-root sequence: `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`, and `test\smoke-tests.ps1`.
+- `cargo test --workspace` passed including `httpgenerator_core` doctests (38/38), which is the highest-signal regression gate for the docs-only surface.
+- `dotnet build` passed, and `dotnet test` passed with 246/246 tests green; the historically known external-URL restriction did not surface in this closeout run.
+- On Windows, the smoke script should be invoked directly from the active PowerShell 7 session; a nested Windows PowerShell 5.1 launch misclassified the platform and produced a false-negative missing-binary failure before the direct run passed.
+
+### docs.rs closeout — final validation approval (2026-05-21T13:00:01Z)
+- Final validation for Hicks's three completed documentation batches (`7e5125d`, `5d16a45`, `70f5975`): repository validation matrix fully green.
+- `cargo test --workspace` passed (38/38 doctests).
+- `.NET build and test` passed (246/246 tests).
+- `test\smoke-tests.ps1` passed on direct PowerShell 7 invocation.
+- `validate-docs-pass` CLOSED; no production-file rollback or follow-up justified.
+- httpgenerator-core docs.rs surface complete and released for publication.
