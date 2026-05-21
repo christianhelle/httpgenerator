@@ -1,3 +1,8 @@
+//! OpenAPI source classification for local paths and HTTP(S) URLs.
+//!
+//! These helpers turn the original CLI input into a structured source value that later stages can
+//! use for file reads, HTTP fetches, and extension-based format hints.
+
 use std::{
     fmt,
     path::{Path, PathBuf},
@@ -7,21 +12,27 @@ use url::Url;
 
 use super::{OpenApiContentFormat, SourceClassificationError};
 
+/// A classified OpenAPI source location.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OpenApiSource {
+    /// A local filesystem path.
     Path(PathBuf),
+    /// A remote HTTP or HTTPS URL.
     Url(Url),
 }
 
 impl OpenApiSource {
+    /// Returns `true` when the source is a local filesystem path.
     pub fn is_local_path(&self) -> bool {
         matches!(self, Self::Path(_))
     }
 
+    /// Returns `true` when the source is a remote URL.
     pub fn is_url(&self) -> bool {
         matches!(self, Self::Url(_))
     }
 
+    /// Returns a best-effort format hint derived from the path or URL extension.
     pub fn format_hint(&self) -> Option<OpenApiContentFormat> {
         match self {
             Self::Path(path) => OpenApiContentFormat::from_path(path),
@@ -39,6 +50,27 @@ impl fmt::Display for OpenApiSource {
     }
 }
 
+/// Classifies a CLI-style OpenAPI input as either a local path or an HTTP(S) URL.
+///
+/// Inputs that contain `://` are only treated as URLs when the prefix is a valid URL scheme, which
+/// keeps Windows paths such as `C:\specs\petstore.yaml` on the local-path branch.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{OpenApiContentFormat, OpenApiSource, classify_source};
+/// use std::path::PathBuf;
+///
+/// let path_source = classify_source("test/OpenAPI/v3.0/petstore.json").unwrap();
+/// assert_eq!(
+///     path_source,
+///     OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/petstore.json"))
+/// );
+/// assert_eq!(path_source.format_hint(), Some(OpenApiContentFormat::Json));
+///
+/// let url_source = classify_source("https://example.com/openapi.yaml").unwrap();
+/// assert!(url_source.is_url());
+/// ```
 pub fn classify_source(input: &str) -> Result<OpenApiSource, SourceClassificationError> {
     let trimmed = input.trim();
 

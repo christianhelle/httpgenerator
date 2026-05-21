@@ -1,13 +1,22 @@
+//! Specification-version detection for raw OpenAPI JSON values.
+//!
+//! The helpers in this module distinguish Swagger 2.0, OpenAPI 3.0.x, and OpenAPI 3.1.x by
+//! reading the top-level `swagger` or `openapi` field from a decoded document.
+
 use std::fmt;
 
 use serde_json::Value;
 
 use super::SpecificationVersionDetectionError;
 
+/// Supported specification families recognized by the OpenAPI loading pipeline.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpenApiSpecificationVersion {
+    /// A Swagger 2.0 document.
     Swagger2,
+    /// An OpenAPI 3.0.x document.
     OpenApi30,
+    /// An OpenAPI 3.1.x document.
     OpenApi31,
 }
 
@@ -21,6 +30,25 @@ impl fmt::Display for OpenApiSpecificationVersion {
     }
 }
 
+/// Detects the OpenAPI specification version from a decoded JSON value.
+///
+/// The detector accepts top-level `swagger` and `openapi` string fields and matches the major/minor
+/// portions used by the crate's loading pipeline.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{OpenApiSpecificationVersion, detect_specification_version};
+/// use serde_json::json;
+///
+/// let version = detect_specification_version(&json!({
+///     "openapi": "3.1.0",
+///     "info": { "title": "Example" }
+/// }))
+/// .unwrap();
+///
+/// assert_eq!(version, OpenApiSpecificationVersion::OpenApi31);
+/// ```
 pub fn detect_specification_version(
     value: &Value,
 ) -> Result<OpenApiSpecificationVersion, SpecificationVersionDetectionError> {

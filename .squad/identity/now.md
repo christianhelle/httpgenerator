@@ -1,34 +1,28 @@
 ---
-updated_at: 2026-05-01T11:49:02Z
-focus_area: Source layout migration closeout for src/rust + src/dotnet + src/VSCode
+updated_at: 2026-05-21T14:35:15.308+02:00
+focus_area: Plan a comprehensive rustdoc pass for httpgenerator-core on docs.rs
 completed_issues:
-  - Planning complete: target topology locked and implementation plan saved
-  - relocate-rust-workspace: moved crates/ to src/rust while preserving repo-root cargo entrypoints
-  - relocate-legacy-dotnet: moved legacy/ to src/dotnet and updated solution/project/package paths
-  - normalize-ide-host-layout: kept src/VSCode in place and repointed dependent scripts and hosts
-  - sweep-path-dependencies: updated CI, docs, smoke tests, release scripts, and instructions
-  - validate-migration: cargo, dotnet, smoke, and VS Code validation completed against the new layout
+  - Source layout migration closeout remains complete across src/rust, src/dotnet, and src/vscode
 active_issues:
-  - squad-followup: continue reducing stale old-path references inside .squad notes and skills as they surface
+  - docs-rs-rustdoc-pass: define scope and execute a comprehensive inline documentation pass for httpgenerator-core
+  - session-directive: use GPT-5.5 for spawned agents during this session only
+  - session-directive: preserve detailed history with small logical commits and no co-author during implementation
 ---
 
 # What We're Focused On
 
-## Current Focus: Source Layout Migration Closeout
+## Current Focus: httpgenerator-core docs.rs documentation plan
 
-The team has completed the repo reorganization that moves product source under `src` while preserving root-level commands. The canonical layout is now `src/rust`, `src/dotnet`, and existing `src/VSCode`; tests, docs, and fixtures remain outside `src`.
+The team is planning a documentation-focused pass over the public `httpgenerator-core` Rust API so docs.rs becomes useful for external consumers. The repo topology work is complete; the active concern is documentation quality and discoverability.
 
 ## Status Summary
 
-- ✅ Ripley: reviewer gates cleared and final approval recorded
-- ✅ Hicks: source relocation and runtime/path rewrites completed
-- ✅ Bishop: validation and workflow retargeting completed
-- ✅ Hudson: docs and instruction surfaces updated
-- 📌 Session directive: use GPT-5.4 for all agents during this session only
+- 📌 Session directive: use GPT-5.5 for all spawned agents during this session only
+- 📌 Session directive: prefer small logical commits without a co-author during implementation
+- 🔎 Planning question: docs-only rustdoc pass versus docs-surface cleanup on docs.rs
 
 ## Next Steps
 
-1. Keep internal `.squad` guidance converged on `src/rust` and `src/dotnet`
-2. Carry the preserved repo-root entrypoint contract into future docs and workflow edits
-3. Treat the pre-existing VS Code packaging metadata issue as separate follow-up work
-
+1. Confirm the acceptable scope for the documentation pass
+2. Fan out inventory and authoring work across the Rust core public surface
+3. Validate the docs changes with the standard Rust, .NET, and smoke commands

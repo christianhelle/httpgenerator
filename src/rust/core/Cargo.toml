@@ -12,6 +12,10 @@ readme = "README.md"
 keywords = ["openapi", "http", "generator", "codegen", "rest"]
 categories = ["development-tools", "web-programming"]
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 default = ["openapi"]
 openapi = [

@@ -249,3 +249,82 @@ Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, faca
 **What:** VS Code packaging must derive the Rust compilation target from the requested VS Code target and stage the executable from `target\<rust-target>\release`, while PR CI gates the same shipped VSIX target matrix before merge.
 **Why:** The VSIX target name is the packaging contract reviewers locked for this migration. Reusing a host-built binary from `target\release` can silently mislabel the bundled CLI, so the build path must either produce the matching Rust binary or fail.
 
+### 2026-05-20T14:40:47.144+02:00: User directive — Agents use GPT-5.5
+**By:** Christian Helle (via Copilot)
+**What:** Have all agents use GPT-5.5 for the rest of the session.
+**Why:** User request — captured for team memory.
+
+### 2026-05-20T15:37:38.935+02:00: VSIX command visibility fix
+**By:** Hicks (Core Dev), Ripley (Lead), Bishop (Tester)
+**What:** Restore `Generate .http files` as a direct Tools-menu command placement on `GenerateHttpCommand` while keeping the Solution Explorer context-menu placement intact. Add `CommandPlacement.KnownPlacements.ToolsMenu` directly to `GenerateHttpCommand.Placements` alongside the existing `VsctParent(... id: 521 ...)` placement. Remove `MenuChild.Command<Commands.GenerateHttpCommand>()` from `ExtensionEntrypoint.GenerateMenu`. Keep `GenerateMenu` in Tools for `ShowHttpGeneratorToolWindowCommand` only.
+**Validation:** Headless validation passed with `dotnet build src\dotnet\VSIX.slnx --configuration Release`.
+**Caveat:** Manual IDE smoke check recommended: verify `Generate .http files` appears directly under **Tools** and on the Solution Explorer context menu.
+**Why:** The Tools menu route is the stable visibility contract. The extension needs both the Solution Explorer file-context entry and the Tools fallback without displacing either contribution path.
+
+### 2026-05-21T14:35:15.308+02:00: User directive — Commit format and scope
+**By:** Christian Helle (via Copilot)
+**What:** When implementing, commit changes in small logical groups as often as practical, without a co-author trailer, to preserve detailed progress history.
+**Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability.
+
+### 2026-05-21T14:35:15.308+02:00: docs.rs structure for httpgenerator-core
+**By:** Hudson (DevRel/Docs)
+**What:** Treat the first `httpgenerator-core` rustdoc pass as a guide-and-reference docs.rs structure. Crate root should explain the library, feature gating, and end-to-end workflow. `openapi` module documents the ingestion pipeline. `normalized` explains the stable intermediate model. `generator` and `model` document the output contract. Helper modules stay short and purpose-first. Concentrate longer examples at workflow boundaries.
+**Pitfalls to avoid:** Duplicating workflow prose across crate/module/item docs, treating re-export modules as pure symbol indexes, overusing helper examples while leaving core workflows unexplained, documenting intent vs. current behavior.
+**Why:** A public library docs.rs surface feels fragmented when the crate never explains the main path through its APIs. This structure keeps navigation centered on the user journey.
+
+### 2026-05-21T14:35:15.308+02:00: docs.rs batching guardrails for httpgenerator-core
+**By:** Ripley (Lead)
+**What:** Approve the docs-first implementation order as the canonical batching plan. Do not leave docs.rs-specific feature-gate guidance and minimal normalized-model docs to a later sweep. Expected commit batches: (1) Crate root + feature-gate signaling; (2) Generator/model docs + minimal normalized types; (3) Root helpers; (4) Remaining normalized reference types; (5) openapi/mod.rs + workflow docs; (6) Inspection/error/reference detail pages.
+**Why:** The first batch covers crate root, generation entry points, model types, and root-level helpers, giving docs.rs a usable front door quickly. Crate-root example and `generate_http_files` signature both depend on normalized model types. The public `openapi` module is feature-gated, so docs.rs should make that explicit.
+**Review guardrails:** Keep docs-only (no API cleanup or hiding). Prefer runnable doctests for deterministic helpers. Reuse workflow vocabulary: `raw` → `typed` → `normalized` → `generated`.
+
+### 2026-05-21T14:35:15.308+02:00: Rustdoc validation sequence for docs.rs work
+**By:** Bishop (Tester)
+**What:** For incremental docs-only batches in `src\rust\core\src`, use `cargo test -p httpgenerator-core --doc` as the first validation gate. Before docs batch is locally stable, run `cargo test -p httpgenerator-core` to keep doctests and unit/integration coverage aligned. Final approval for documentation passes still uses the repo-standard sequence: (1) `cargo test --workspace`; (2) `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`; (3) `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`; (4) `test\smoke-tests.ps1`. Prefer runnable doctests for pure helpers and inline raw-document loading; reserve `no_run` for fixture paths, local files, remote URLs, or environment-sensitive setup.
+**Why:** `cargo test -p httpgenerator-core --doc` is the quickest signal for broken code fences, bad imports, and rustdoc drift while authors iterate. Full repository sequence remains necessary because even docs-only edits in public Rust modules can break compilation, packaging, or smoke-test assumptions.
+
+### 2026-05-21T15:00:01.518+02:00: Bishop final docs validation
+**By:** Bishop (Tester)
+**Decision:** Treat the docs.rs closeout validation as complete based on the standard root sequence passing, and treat the earlier nested Windows PowerShell smoke-script failure as an invocation artifact rather than a product regression.
+**Why:**
+- `cargo test --workspace` passed, including the new/updated `httpgenerator_core` doctests.
+- `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release` passed.
+- `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release` passed with 246/246 tests green.
+- `test\smoke-tests.ps1` passed when run directly in the active PowerShell 7 session from the repo root.
+- The failed nested run used Windows PowerShell 5.1 semantics, which left `$IsWindows` falsey inside `test\smoke-tests.ps1`, causing it to look for `target\release\httpgenerator` instead of `target\release\httpgenerator.exe`; that does not implicate Hicks's docs changes.
+**Consequence:** `validate-docs-pass` can be closed as done. No production-file rollback or follow-up is justified from this validation pass alone.
+
+### 2026-05-21T15:00:01.518+02:00: Hicks openapi docs batch
+**By:** Hicks (Core Dev)
+**Decision:** Surface the optional `openapi` API explicitly on docs.rs by enabling `docsrs` rustdoc cfg metadata and annotating the public module with `doc(cfg(feature = "openapi"))`.
+**Context:** The `openapi` feature is default-on today, which makes the optional surface easy to miss on docs.rs even though downstream consumers can disable default features.
+**Consequence:** The generated docs keep the current API shape, but readers now see the feature gate and the `openapi` module overview can explain the ingestion pipeline and current raw-fallback behavior.
+
+### 2026-05-21T15:00:01.518+02:00: Hudson openapi reference copy guidance
+**By:** Hudson (DevRel/Docs)
+**Decision:** Document the remaining `httpgenerator_core::openapi` reference surface as five docs.rs-oriented layers: raw loading, inspection, typed parsing/version detection, source/format classification, and errors. Keep the main workflow story at the module level, put concrete examples only on the boundary APIs readers are likely to call directly, and keep structs/enums that mainly carry state or variants reference-first.
+**Implementation guidance:**
+1. **Raw loading** (`raw.rs`): Explain the raw stage once covering local path and HTTP URL loading, format detection, and source preservation. Examples: `load_raw_document`, `decode_raw_document`. Reference-only: accessors and format fields.
+2. **Inspection** (`inspect\mod.rs`, `inspect\model.rs`): Frame as lightweight inventory pass. Example: `inspect_raw_document` or `inspect_document`. Reference-only: `OpenApiInspection`, `OpenApiStats`.
+3. **Typed parsing and version detection** (`typed.rs`, `version.rs`): Bridge from raw JSON to version-specific models. Examples: `parse_typed_document`, `detect_specification_version`. Reference-only: `TypedOpenApiDocument`, `OpenApiSpecificationVersion`.
+4. **Source and format classification** (`source.rs`, `format.rs`): Classify input and infer format. Examples: `classify_source`, `detect_content_format`, `sniff_content_format`. Reference-only: enums and accessors.
+5. **Errors** (`error.rs`): Orient by pipeline stage. Reference-style: mostly self-documenting enums mapping failures to stages.
+
+### 2026-05-21T15:00:01.518+02:00: Ripley docs.rs follow-up
+**By:** Ripley (Lead)
+**Decision:** Keep the next rustdoc implementation batch focused on the `normalized` surface before expanding the `openapi` surface.
+**Required follow-up:**
+1. Finish the normalized handoff docs: `src\rust\core\src\normalized\parameter.rs`, `src\rust\core\src\normalized\request_body.rs`, `src\rust\core\src\normalized\schema.rs`.
+2. In the same batch, add docs.rs-visible feature-gate signaling for `openapi`.
+3. After that, land the `openapi` narrative pass starting with `src\rust\core\src\openapi\mod.rs`, then load/inspect/normalize entry pages.
+**Why:** Commits `2f6faad` and `2925ddf` made the crate root, generator, model, and helper surfaces meaningfully better. The weakest remaining reader path is the normalized bridge. `openapi` already has richer item-level pages but needs proper overview and feature-gate visibility.
+
+### 2026-05-21T15:00:01.518+02:00: Ripley final docs audit
+**By:** Ripley (Lead)
+**Decision:** Hicks's current `openapi-reference-batch` should be the final meaningful rustdoc authoring slice for the remaining `httpgenerator-core` docs.rs surface, provided it explicitly covers the still-thin OpenAPI reference pages for raw loading, inspection, typed parsing, version detection, source classification, format detection, and errors.
+**Why:** Landed batches already cover crate root, generator/model/root helpers, normalized handoff types, and openapi module plus load/normalize entry points. The remaining weak docs.rs pages cluster in `src\rust\core\src\openapi\{raw.rs,typed.rs,version.rs,source.rs,format.rs,error.rs}` plus `inspect\mod.rs` and `inspect\model.rs`. No other public docs.rs-visible surface outside that batch justifies a separate authoring pass once those reference pages are documented.
+**Reviewer guidance:**
+- Keep `version.rs` in the current reference batch.
+- Treat `OpenApiStats`, `OpenApiInspection`, `RawOpenApiDocument`, `OpenApiSource`, `OpenApiContentFormat`, `TypedOpenApiDocument`, `OpenApiSpecificationVersion`, and error enums as the remaining "blank page" risk.
+- Leave `author-rustdoc-batches` in progress until Hicks lands that batch; after landing, final validation should be enough unless review finds prose-quality issues.
+

@@ -25,6 +25,11 @@
 
 ## Learnings
 
+### Rustdoc landed-commit review (2026-05-21T15:00:01.518+02:00)
+- The rustdoc work in commits `2f6faad` and `2925ddf` materially improves docs.rs usability on the crate root, generator entry point, model surface, and root helper APIs; `cargo doc -p httpgenerator-core --no-deps` and doctests both cleared.
+- The remaining docs.rs-quality gaps are now about navigation and feature clarity, not broken examples: `openapi` is feature-gated but not surfaced with docs.rs-visible gating metadata, `src\rust\core\src\openapi\mod.rs` still lacks a module overview, and the remaining normalized handoff pages (`parameter.rs`, `request_body.rs`, `schema.rs`) are still thinner than the crate-root workflow now implies.
+- Reviewer follow-up stays ordered as normalized docs first, then openapi docs, with the docs.rs feature-gate hint pulled in early so readers understand why the `openapi` surface is conditional.
+
 ### Source Layout Migration Approval (2026-05-01)
 - Treat repo-wide source moves as coordinated path migrations, not folder renames. The review surface splits naturally into four buckets: repo-root entrypoints, CI/release filters, runtime host lookup code, and imported relative asset paths.
 - The highest-risk implementation misses were the hidden plumbing files: `.github\workflows\codecov.yml`, `.github\workflows\release-template.yml`, `.github\workflows\release-vsix.yml`, `.gitignore`, `src\dotnet\publish-manifest.json`, `src\dotnet\Directory.Build.props`, and `src\dotnet\HttpGenerator.VSIX\HttpGeneratorCli.cs`.
@@ -50,6 +55,19 @@
 - Accepted public crate set: `httpgenerator` (CLI crate name for `cargo install httpgenerator`), `httpgenerator-core`, and `httpgenerator-openapi`. `src\rust\httpgenerator-compat` remains internal only with `publish = false`.
 - Canonical URL split for crates: `homepage = https://christianhelle.github.io/httpgenerator/` for the human-facing product surface, and `documentation = https://docs.rs/<crate>` for API docs on each public crate.
 - Direct decision-encoding paths touched: `Cargo.toml`, `src\rust\httpgenerator-{core,openapi,cli,compat}\Cargo.toml`, workflow/package-call surfaces that build by package name, and the merged decision record in `.squad\decisions.md`.
+
+### docs.rs batching review gate (2026-05-21T14:35:15.308+02:00)
+- The current first rustdoc batch in `src\rust\core\src\{lib.rs,generator\mod.rs,generator\modes.rs,model\mod.rs,model\output_type.rs,model\result.rs,model\settings.rs,base_url.rs,file_naming.rs,operation_name.rs,privacy.rs,string_extensions.rs,support_information.rs}` is the right starting slice for docs.rs because it establishes the crate narrative, the generation entry points, and the root-level helper surface.
+- Two high-priority items should be pulled into the same early wave instead of waiting: docs.rs feature-gate signaling for `openapi` (`lib.rs` plus docs.rs `doc(cfg)` wiring) and rustdoc on the minimal normalized types used by the crate-root example and generator signature (`normalized\document.rs`, `normalized\http.rs`).
+- Recommended granular follow-up order for reviewable commits: (1) crate root + docs.rs gating metadata, (2) generator/model plus minimal normalized types, (3) root helpers, (4) remaining `normalized\{parameter,request_body,schema}.rs`, (5) `openapi\mod.rs` plus ingestion/loading/normalization guides, (6) OpenAPI inspection/error/reference pages.
+- Reviewer note: docs-only passes still need to keep terminology consistent across pages (`raw`, `typed`, `normalized`, `generated`) so docs.rs reads like one workflow rather than disconnected module tabs.
+
+### docs.rs batching plan approval (2026-05-21T13:00:01Z)
+- Approved canonical batching guardrails for `httpgenerator-core` docs.rs pass as decision artifact: `2026-05-21T14:35:15.308+02:00: docs.rs batching guardrails for httpgenerator-core` (now in decisions.md).
+- Plan ensures feature-gate signaling and minimal normalized-model docs ship in early wave with crate root, not deferred.
+- Review guardrails emphasize docs-only scope and runnable/`no_run` example distinction.
+- Plan supports Hicks's normalized-docs-batch as batch 2 implementation.
+
 
 ### Final Crates.io Publishing Reviewer Gate (2026-05-05)
 - Final verdict: **approved / release-ready** for the crates.io implementation. No blocker-level defects found against the approved plan or the supplied validation evidence.
@@ -85,3 +103,20 @@
 - Approval basis to remember: win32-x64 ships the matching x64 binary, local win32-arm64 packaging now fails fast instead of shipping the wrong binary, and CI covers real win32-arm64 packaging with the matching MSVC environment.
 - Only remaining follow-up is manual host validation on native x64 and ARM64 VS Code installs.
 
+### Final docs.rs surface audit (2026-05-21T15:00:01.518+02:00)
+- Audited the current `httpgenerator-core` docs.rs-facing surface after commits `2f6faad`, `2925ddf`, `7e5125d`, and `5d16a45`, focusing on `src\rust\core\src\lib.rs`, `normalized\**\*.rs`, and `openapi\**\*.rs`.
+- The remaining meaningful rustdoc gaps are still concentrated inside the planned `openapi-reference-batch`: `openapi\raw.rs`, `openapi\inspect\mod.rs`, `openapi\inspect\model.rs`, `openapi\typed.rs`, `openapi\version.rs`, `openapi\source.rs`, `openapi\format.rs`, and `openapi\error.rs`.
+- I did not find another public docs.rs-visible cluster outside that batch that still clearly needs its own authoring slice; after Hicks lands that reference pass, final validation should be enough unless review finds quality issues rather than missing pages.
+- `author-rustdoc-batches` should remain in progress for now because the reference pages above are still thin or blank today, and `openapi-reference-batch` is not yet complete.
+
+### docs.rs closeout — final consolidated audit (2026-05-21T13:00:01Z)
+- Final audit after Hicks completed commits `7e5125d`, `5d16a45`, `70f5975`: confirmed no meaningful public docs.rs gaps remain outside the completed batches.
+- All OpenAPI reference surfaces now documented (raw, inspect, typed, version, format, source, error) with proper workflow vocabulary and minimal duplication.
+- Feature-gate signaling for `openapi` module now explicitly visible on docs.rs with doc(cfg) metadata.
+- `author-rustdoc-batches` CLOSED as DONE; no further rustdoc authoring passes needed unless APIs expand.
+- httpgenerator-core public documentation complete and validated by full repository sequence.
+
+### docs.rs PR framing handoff (2026-05-21T16:00:41.737+02:00)
+- Recommended reviewer-facing PR framing should foreground docs.rs usability gains over file-by-file rustdoc churn: crate-root workflow, normalized handoff docs, OpenAPI entrypoint docs, and final reference-page completion.
+- The commit story is clean enough to call out directly in the PR body as five small logical commits: `2f6faad`, `2925ddf`, `7e5125d`, `5d16a45`, and `70f5975`.
+- Reviewer validation signal to highlight is the final repository-standard green matrix plus docs-specific detail: `cargo test --workspace` (including 38/38 `httpgenerator_core` doctests), `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release` (246/246), and `test\smoke-tests.ps1`.

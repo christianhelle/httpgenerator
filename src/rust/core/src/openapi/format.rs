@@ -1,14 +1,23 @@
+//! Content-format helpers for raw OpenAPI text.
+//!
+//! These helpers combine source hints and lightweight sniffing so raw loaders can decide whether to
+//! decode an input as JSON or YAML before version detection and normalization.
+
 use std::{fmt, path::Path};
 
 use super::{ContentFormatDetectionError, OpenApiSource};
 
+/// The raw serialization format used by an OpenAPI document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpenApiContentFormat {
+    /// JavaScript Object Notation.
     Json,
+    /// YAML Ain't Markup Language.
     Yaml,
 }
 
 impl OpenApiContentFormat {
+    /// Returns a human-readable name for the format.
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Json => "JSON",
@@ -16,6 +25,7 @@ impl OpenApiContentFormat {
         }
     }
 
+    /// Infers a format hint from a file path extension.
     pub fn from_path(path: impl AsRef<Path>) -> Option<Self> {
         let extension = path.as_ref().extension()?.to_str()?;
 
@@ -37,6 +47,21 @@ impl fmt::Display for OpenApiContentFormat {
     }
 }
 
+/// Detects the content format for a raw document using source hints first, then content sniffing.
+///
+/// This is the recommended boundary helper for loaders because it preserves known extensions from
+/// [`OpenApiSource`] while still supporting extensionless inputs.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{classify_source, detect_content_format};
+///
+/// let source = classify_source("https://example.com/openapi.yaml?download=1").unwrap();
+/// let format = detect_content_format(Some(&source), "{\"openapi\":\"3.1.0\"}").unwrap();
+///
+/// assert_eq!(format.to_string(), "YAML");
+/// ```
 pub fn detect_content_format(
     source: Option<&OpenApiSource>,
     content: &str,
@@ -52,6 +77,19 @@ pub fn detect_content_format(
     sniff_content_format(content)
 }
 
+/// Detects the content format from raw text alone.
+///
+/// Use this when the caller does not have a reliable file path or URL extension to use as a hint.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{OpenApiContentFormat, sniff_content_format};
+///
+/// let format = sniff_content_format("openapi: 3.0.0\ninfo:\n  title: Example").unwrap();
+///
+/// assert_eq!(format, OpenApiContentFormat::Yaml);
+/// ```
 pub fn sniff_content_format(
     content: &str,
 ) -> Result<OpenApiContentFormat, ContentFormatDetectionError> {
