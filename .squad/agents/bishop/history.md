@@ -23,6 +23,19 @@
 
 ## Learnings
 
+### docs.rs mixed-example validation (2026-05-21T14:35:15.308+02:00)
+- For docs.rs-facing rustdoc work in `src\rust\core\src`, the safest runnable examples are pure helpers plus `httpgenerator_core::openapi::load_document_from_raw` with inline JSON or YAML; file-path and URL loaders should usually be `no_run`.
+- The `openapi` feature is enabled by default in `src\rust\core\Cargo.toml`, but cross-feature-safe crate docs should still hide feature-gated examples behind `#[cfg(feature = "openapi")]`.
+- The fastest incremental tester gate for docs batches is `cargo test -p httpgenerator-core --doc`, while final sign-off still uses `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`, and `test\smoke-tests.ps1`.
+- Key docs-facing files in this pass: `src\rust\core\src\lib.rs`, `src\rust\core\src\base_url.rs`, `src\rust\core\src\operation_name.rs`, `src\rust\core\src\string_extensions.rs`, `src\rust\core\src\generator\modes.rs`, and `src\rust\core\src\openapi\loader.rs`.
+
+### Rustdoc validation sequence approval (2026-05-21T13:00:01Z)
+- Approved incremental validation strategy for docs.rs work as decision artifact: `2026-05-21T14:35:15.308+02:00: Rustdoc validation sequence for docs.rs work` (now in decisions.md).
+- Sequence establishes fast incremental gate (`cargo test -p httpgenerator-core --doc`) for doctest/code-fence validation during iteration.
+- Full repository sequence remains final approval gate (no docs-only exception).
+- Hicks's batches 1-2 passed fast incremental gate; ready for final validation on completion of normalized-docs-batch.
+
+
 ### Facade contract test slice (2026-05-08T13:19:39.287+02:00)
 - For the first Rust module-refactor safety slice, the smallest durable guard is an integration test that imports `httpgenerator_core::{generator, model, normalized, openapi}` directly and exercises those facades together.
 - Existing Rust CLI binary-contract coverage in `src\rust\cli\tests\help_contract.rs` already pins help, version, no-args, stderr warning, and validation-guidance behavior, so this slice should avoid widening that matrix unless a concrete public gap appears.
@@ -58,4 +71,3 @@
 - Final verdict: approved the revised artifact after Hudson's packaging/build revision.
 - Approval basis stayed narrow: win32-x64 now ships the matching x64 Rust binary, win32-arm64 fails fast locally instead of bundling a host-built binary, CI exercises real win32-arm64 packaging under the matching MSVC environment, and resolver/fail-fast explicit-path behavior remained intact.
 - Only residual coverage gap is manual: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke the Command Palette plus Explorer menu generation flows end-to-end.
-

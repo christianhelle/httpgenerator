@@ -73,3 +73,15 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 - The lasting packaging/docs contract is that the packaged binary must match the requested VS Code target, with local win32-arm64 packaging failing fast rather than silently reusing a host-built executable.
 - Remaining closeout is manual-only: install the produced VSIX on native x64 and ARM64 VS Code hosts and smoke Command Palette and Explorer menu generation flows.
 
+### docs.rs information architecture pass (2026-05-21T14:35:15.308+02:00)
+- `httpgenerator-core` currently exposes a broad public Rust API with effectively no inline rustdoc in `src\rust\core\src`, so docs.rs needs a workflow guide at the crate root plus module-level narratives instead of item docs alone.
+- The preferred docs.rs shape for this crate is guide-and-reference: crate root explains the library purpose and the load/normalize/generate flow; `openapi` explains ingest, inspection, typed loading, and normalization; `normalized` explains the stable generator-ready model; `generator` and `model` explain output contracts and settings; helper modules stay concise and task-oriented.
+- Examples add the most value on boundary APIs such as `generate_http_files`, `GeneratorSettings`, `load_and_normalize_document`, `load_document`, `RawOpenApiDocument`, and helper functions with simple deterministic inputs.
+- User/plan constraints for this pass: keep it docs-only, use mixed runnable and `no_run` examples, keep documented behavior aligned with current public APIs, and avoid fragmenting docs.rs with isolated helper trivia.
+- Key first-batch files for rustdoc planning are `src\rust\core\src\lib.rs`, `src\rust\core\src\generator\mod.rs`, `src\rust\core\src\generator\modes.rs`, `src\rust\core\src\model\mod.rs`, `src\rust\core\src\model\settings.rs`, `src\rust\core\src\model\result.rs`, `src\rust\core\src\openapi\mod.rs`, `src\rust\core\src\normalized\mod.rs`, and the helper modules at the crate root.
+
+### docs.rs structure guidance completion (2026-05-21T13:00:01Z)
+- Hudson completed docs.rs guide-and-reference structure guidance as decision artifact: `2026-05-21T14:35:15.308+02:00: docs.rs structure for httpgenerator-core` (now in decisions.md).
+- Structure emphasizes workflow-based navigation: crate root → pipeline modules → stable model → output contract → helpers.
+- Ready for implementation by Hicks on normalized and OpenAPI documentation.
+

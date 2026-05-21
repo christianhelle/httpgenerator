@@ -51,3 +51,11 @@
 - Prefer runnable doctests for self-contained helpers and normalized-model generation examples, but keep heavier flows as narrative or `no_run` examples so docs.rs stays practical without introducing brittle setup.
 - User preference for this stream: keep commits in small logical groups and do not include a co-author trailer.
 - Hudson's docs.rs structure guidance fits this crate well: crate root should explain purpose, feature gating, and the load -> normalize -> generate workflow, while `generator` and `model` docs should lead with when-to-use, then current behavior/limits, then a minimal example.
+- Ripley's next docs priority is the normalized handoff layer: document the minimal public `normalized` types that sit between crate-level workflows and `generate_http_files` before expanding broader OpenAPI coverage.
+
+### docs.rs batching and validation gates (2026-05-21T13:00:01Z)
+- Completed commits 2f6faad (`docs: expand core rustdoc entrypoints`) and 2925ddf (`docs: align core rustdoc structure`); both validate locally with `cargo test -p httpgenerator-core --doc` passed (doctests and code fences).
+- Ripley's canonical batching plan approved for implementation: (1) crate root + docs.rs feature-gate signaling, (2) generator/model + minimal normalized types, (3) root helpers, (4) remaining normalized types, (5) openapi/mod.rs + workflow docs, (6) inspection/error/reference detail pages.
+- Bishop approved incremental doctests validation (fast signal: `cargo test -p httpgenerator-core --doc`) plus full repository sequence for final approval.
+- Current work in progress: normalized-docs-batch (batch 2 per Ripley's plan).
+- Final validation gate remains full matrix: `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`, `test\smoke-tests.ps1`.

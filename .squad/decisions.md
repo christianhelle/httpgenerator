@@ -249,3 +249,37 @@ Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, faca
 **What:** VS Code packaging must derive the Rust compilation target from the requested VS Code target and stage the executable from `target\<rust-target>\release`, while PR CI gates the same shipped VSIX target matrix before merge.
 **Why:** The VSIX target name is the packaging contract reviewers locked for this migration. Reusing a host-built binary from `target\release` can silently mislabel the bundled CLI, so the build path must either produce the matching Rust binary or fail.
 
+### 2026-05-20T14:40:47.144+02:00: User directive — Agents use GPT-5.5
+**By:** Christian Helle (via Copilot)
+**What:** Have all agents use GPT-5.5 for the rest of the session.
+**Why:** User request — captured for team memory.
+
+### 2026-05-20T15:37:38.935+02:00: VSIX command visibility fix
+**By:** Hicks (Core Dev), Ripley (Lead), Bishop (Tester)
+**What:** Restore `Generate .http files` as a direct Tools-menu command placement on `GenerateHttpCommand` while keeping the Solution Explorer context-menu placement intact. Add `CommandPlacement.KnownPlacements.ToolsMenu` directly to `GenerateHttpCommand.Placements` alongside the existing `VsctParent(... id: 521 ...)` placement. Remove `MenuChild.Command<Commands.GenerateHttpCommand>()` from `ExtensionEntrypoint.GenerateMenu`. Keep `GenerateMenu` in Tools for `ShowHttpGeneratorToolWindowCommand` only.
+**Validation:** Headless validation passed with `dotnet build src\dotnet\VSIX.slnx --configuration Release`.
+**Caveat:** Manual IDE smoke check recommended: verify `Generate .http files` appears directly under **Tools** and on the Solution Explorer context menu.
+**Why:** The Tools menu route is the stable visibility contract. The extension needs both the Solution Explorer file-context entry and the Tools fallback without displacing either contribution path.
+
+### 2026-05-21T14:35:15.308+02:00: User directive — Commit format and scope
+**By:** Christian Helle (via Copilot)
+**What:** When implementing, commit changes in small logical groups as often as practical, without a co-author trailer, to preserve detailed progress history.
+**Why:** User request — enables clean, reviewable git history with clear checkpoints for team accountability.
+
+### 2026-05-21T14:35:15.308+02:00: docs.rs structure for httpgenerator-core
+**By:** Hudson (DevRel/Docs)
+**What:** Treat the first `httpgenerator-core` rustdoc pass as a guide-and-reference docs.rs structure. Crate root should explain the library, feature gating, and end-to-end workflow. `openapi` module documents the ingestion pipeline. `normalized` explains the stable intermediate model. `generator` and `model` document the output contract. Helper modules stay short and purpose-first. Concentrate longer examples at workflow boundaries.
+**Pitfalls to avoid:** Duplicating workflow prose across crate/module/item docs, treating re-export modules as pure symbol indexes, overusing helper examples while leaving core workflows unexplained, documenting intent vs. current behavior.
+**Why:** A public library docs.rs surface feels fragmented when the crate never explains the main path through its APIs. This structure keeps navigation centered on the user journey.
+
+### 2026-05-21T14:35:15.308+02:00: docs.rs batching guardrails for httpgenerator-core
+**By:** Ripley (Lead)
+**What:** Approve the docs-first implementation order as the canonical batching plan. Do not leave docs.rs-specific feature-gate guidance and minimal normalized-model docs to a later sweep. Expected commit batches: (1) Crate root + feature-gate signaling; (2) Generator/model docs + minimal normalized types; (3) Root helpers; (4) Remaining normalized reference types; (5) openapi/mod.rs + workflow docs; (6) Inspection/error/reference detail pages.
+**Why:** The first batch covers crate root, generation entry points, model types, and root-level helpers, giving docs.rs a usable front door quickly. Crate-root example and `generate_http_files` signature both depend on normalized model types. The public `openapi` module is feature-gated, so docs.rs should make that explicit.
+**Review guardrails:** Keep docs-only (no API cleanup or hiding). Prefer runnable doctests for deterministic helpers. Reuse workflow vocabulary: `raw` → `typed` → `normalized` → `generated`.
+
+### 2026-05-21T14:35:15.308+02:00: Rustdoc validation sequence for docs.rs work
+**By:** Bishop (Tester)
+**What:** For incremental docs-only batches in `src\rust\core\src`, use `cargo test -p httpgenerator-core --doc` as the first validation gate. Before docs batch is locally stable, run `cargo test -p httpgenerator-core` to keep doctests and unit/integration coverage aligned. Final approval for documentation passes still uses the repo-standard sequence: (1) `cargo test --workspace`; (2) `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`; (3) `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`; (4) `test\smoke-tests.ps1`. Prefer runnable doctests for pure helpers and inline raw-document loading; reserve `no_run` for fixture paths, local files, remote URLs, or environment-sensitive setup.
+**Why:** `cargo test -p httpgenerator-core --doc` is the quickest signal for broken code fences, bad imports, and rustdoc drift while authors iterate. Full repository sequence remains necessary because even docs-only edits in public Rust modules can break compilation, packaging, or smoke-test assumptions.
+
