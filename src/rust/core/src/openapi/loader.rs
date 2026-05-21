@@ -1,27 +1,79 @@
+//! Loading helpers that bridge raw input into typed or raw-fallback OpenAPI documents.
+//!
+//! For doctests and other self-contained examples, prefer [`load_document_from_raw`] with
+//! [`super::decode_raw_document`] so the example stays independent from fixture paths or network
+//! access. Use [`load_document`] or [`load_document_from_source`] for real file paths and URLs.
+
 use super::{
     OpenApiContentFormat, OpenApiDocumentLoadError, OpenApiSource, OpenApiSpecificationVersion,
     RawOpenApiDocument, TypedOpenApiDocument, TypedOpenApiParseError, load_raw_document,
     load_raw_document_from_source, parse_typed_document,
 };
 
+/// Represents a successfully loaded OpenAPI document.
+///
+/// The loader keeps the original [`RawOpenApiDocument`] for every variant so callers can preserve
+/// source and format metadata even when a typed model is unavailable. OpenAPI 3.1 input may land
+/// in [`LoadedOpenApiDocument::OpenApi31Raw`] when the document is webhook-only or when tolerant
+/// loading is explicitly enabled for invalid-but-still-useful specs.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{
+///     LoadedOpenApiDocument, OpenApiSource, OpenApiSpecificationVersion, decode_raw_document,
+///     load_document_from_raw,
+/// };
+/// use std::path::PathBuf;
+///
+/// let raw = decode_raw_document(
+///     OpenApiSource::Path(PathBuf::from("openapi.json")),
+///     r#"{
+///         "openapi": "3.0.2",
+///         "info": { "title": "Example", "version": "1.0.0" },
+///         "paths": {}
+///     }"#,
+/// )
+/// .unwrap();
+///
+/// let loaded = load_document_from_raw(raw).unwrap();
+///
+/// assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
+/// assert_eq!(
+///     loaded.specification_version(),
+///     OpenApiSpecificationVersion::OpenApi30
+/// );
+/// assert!(loaded.as_openapi30().is_some());
+/// ```
 pub enum LoadedOpenApiDocument {
+    /// A Swagger 2.0 document preserved as raw input until a typed bridge exists.
     Swagger2 {
+        /// The decoded source document and its metadata.
         raw: RawOpenApiDocument,
     },
+    /// An OpenAPI 3.0 document with both raw and typed representations.
     OpenApi30 {
+        /// The decoded source document and its metadata.
         raw: RawOpenApiDocument,
+        /// The parsed OpenAPI 3.0 model.
         document: openapiv3::OpenAPI,
     },
+    /// An OpenAPI 3.1 document with both raw and typed representations.
     OpenApi31 {
+        /// The decoded source document and its metadata.
         raw: RawOpenApiDocument,
+        /// The parsed OpenAPI 3.1 model.
         document: openapiv3_1::OpenApi,
     },
+    /// An OpenAPI 3.1 document kept as raw input because typed parsing was intentionally skipped.
     OpenApi31Raw {
+        /// The decoded source document and its metadata.
         raw: RawOpenApiDocument,
     },
 }
 
 impl LoadedOpenApiDocument {
+    /// Returns the raw document, regardless of which typed variant was produced.
     pub fn raw(&self) -> &RawOpenApiDocument {
         match self {
             Self::Swagger2 { raw }
@@ -31,14 +83,17 @@ impl LoadedOpenApiDocument {
         }
     }
 
+    /// Returns the source the document was loaded from.
     pub fn source(&self) -> &OpenApiSource {
         self.raw().source()
     }
 
+    /// Returns the detected content format for the loaded document.
     pub fn format(&self) -> OpenApiContentFormat {
         self.raw().format()
     }
 
+    /// Returns the detected specification version.
     pub fn specification_version(&self) -> OpenApiSpecificationVersion {
         match self {
             Self::Swagger2 { .. } => OpenApiSpecificationVersion::Swagger2,
@@ -49,6 +104,7 @@ impl LoadedOpenApiDocument {
         }
     }
 
+    /// Returns the typed OpenAPI 3.0 document when that representation is available.
     pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
         match self {
             Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => None,
@@ -56,6 +112,7 @@ impl LoadedOpenApiDocument {
         }
     }
 
+    /// Returns the typed OpenAPI 3.1 document when that representation is available.
     pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
         match self {
             Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => None,
@@ -64,6 +121,20 @@ impl LoadedOpenApiDocument {
     }
 }
 
+/// Loads a document from a file path or URL string.
+///
+/// This is the most convenient entry point when the caller already has the original string input
+/// from the CLI or another host surface.
+///
+/// # Examples
+///
+/// ```no_run
+/// use httpgenerator_core::openapi::{LoadedOpenApiDocument, load_document};
+///
+/// let loaded = load_document("test/OpenAPI/v3.0/petstore.json").unwrap();
+///
+/// assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
+/// ```
 pub fn load_document(input: &str) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     load_document_with_options(input, false)
 }
@@ -76,6 +147,26 @@ pub(crate) fn load_document_with_options(
     load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
 }
 
+/// Loads a document from a pre-classified [`OpenApiSource`].
+///
+/// Use this when the calling layer has already decided whether the input is a path or URL.
+///
+/// # Examples
+///
+/// ```no_run
+/// use httpgenerator_core::openapi::{LoadedOpenApiDocument, OpenApiSource, load_document_from_source};
+/// use std::path::PathBuf;
+///
+/// let loaded = load_document_from_source(OpenApiSource::Path(PathBuf::from(
+///     "test/OpenAPI/v3.1/webhook-example.json",
+/// )))
+/// .unwrap();
+///
+/// assert!(matches!(
+///     loaded,
+///     LoadedOpenApiDocument::OpenApi31 { .. } | LoadedOpenApiDocument::OpenApi31Raw { .. }
+/// ));
+/// ```
 pub fn load_document_from_source(
     source: OpenApiSource,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
@@ -90,6 +181,30 @@ pub(crate) fn load_document_from_source_with_options(
     load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
 }
 
+/// Loads a document from a previously decoded raw representation.
+///
+/// This is the most rustdoc-friendly entry point because the caller can embed the document content
+/// directly in code without relying on files or network access.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{
+///     LoadedOpenApiDocument, OpenApiSource, decode_raw_document, load_document_from_raw,
+/// };
+/// use std::path::PathBuf;
+///
+/// let raw = decode_raw_document(
+///     OpenApiSource::Path(PathBuf::from("openapi.yaml")),
+///     "openapi: 3.1.0\ninfo:\n  title: Example\n  version: 1.0.0\npaths: {}\n",
+/// )
+/// .unwrap();
+///
+/// let loaded = load_document_from_raw(raw).unwrap();
+///
+/// assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31 { .. }));
+/// assert!(loaded.as_openapi31().is_some());
+/// ```
 pub fn load_document_from_raw(
     raw: RawOpenApiDocument,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {

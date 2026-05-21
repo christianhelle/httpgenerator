@@ -1,3 +1,5 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+
 //! Core library for building HTTP client request files from normalized API descriptions.
 //!
 //! `httpgenerator-core` is the reusable library behind the HTTP File Generator CLI and host
@@ -78,6 +80,7 @@ pub mod generator;
 pub mod model;
 pub mod normalized;
 #[cfg(feature = "openapi")]
+#[cfg_attr(docsrs, doc(cfg(feature = "openapi")))]
 pub mod openapi;
 pub mod operation_name;
 pub mod privacy;
