@@ -1,6 +1,6 @@
 ---
-updated_at: 2026-05-18T11:53:21.547+02:00
-focus_area: VSIX async right-click generation implementation in src/dotnet/HttpGenerator.VSIX
+updated_at: 2026-05-20T14:40:47.144+02:00
+focus_area: VSIX command visibility regression investigation in src/dotnet/HttpGenerator.VSIX
 completed_issues:
   - Planning complete: target topology locked and implementation plan saved
   - relocate-rust-workspace: moved crates/ to src/rust while preserving repo-root cargo entrypoints
@@ -9,22 +9,22 @@ completed_issues:
   - sweep-path-dependencies: updated CI, docs, smoke tests, release scripts, and instructions
   - validate-migration: cargo, dotnet, smoke, and VS Code validation completed against the new layout
 active_issues:
-  - implement-vsix-async-flow: migrate the Visual Studio extension to Solution Explorer right-click generation with background execution, settings UI, deterministic CLI lookup, and non-blocking progress/results
+  - investigate-vsix-command-visibility: determine why the Visual Studio extension no longer shows "Generate .http files" and plan the fix
 ---
 
 # What We're Focused On
 
-## Current Focus: VSIX Async Right-Click Generation
+## Current Focus: VSIX Command Visibility Regression
 
-The team is now implementing the Visual Studio extension redesign in `src/dotnet/HttpGenerator.VSIX`: right-click invocation from Solution Explorer, background generation after the initiating UI closes, persisted settings edited through a non-blocking UI, and deterministic `httpgenerator.exe` resolution.
+The team is investigating a regression in `src/dotnet/HttpGenerator.VSIX`: the `Generate .http files` command is no longer visible, while the main branch still exposes it through the `Tools` menu. The current goal is to identify the cause in the branch changes and plan the corrective fix.
 
 ## Status Summary
 
-- 📌 Session directive: use Claude Opus 4.7 for all agents during this session only
-- 🎯 Active implementation target: VSIX async background generation plan approved and ready for execution
+- 📌 Session directive: use GPT-5.5 for all agents during this session only
+- 🎯 Active investigation target: restore visible VSIX command behavior without regressing the intended redesign
 
 ## Next Steps
 
-1. Confirm the exact SDK seams for context-menu placement, settings UI, and non-modal details
-2. Implement the VSIX request/coordinator/settings refactor
-3. Validate the new command flow, CLI lookup, cancellation, and notifications
+1. Compare current branch command placement and activation rules against `main`
+2. Identify the minimal fix that restores visible command behavior
+3. Save an implementation plan before changing code
