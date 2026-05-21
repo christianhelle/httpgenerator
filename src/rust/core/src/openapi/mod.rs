@@ -3,15 +3,16 @@
 //! This module is available when the default `openapi` feature is enabled. It
 //! provides layered entry points:
 //!
-//! - [`classify_source`] distinguishes local paths from `http` and `https`
-//!   URLs.
-//! - [`load_raw_document`] reads and decodes JSON or YAML into a
-//!   [`RawOpenApiDocument`].
-//! - [`load_document`] additionally parses supported versions into typed
-//!   OpenAPI structures where available.
-//! - [`inspect_document`] collects lightweight statistics for UI or telemetry.
-//! - [`load_and_normalize_document`] converts an OpenAPI document into the
-//!   renderer-friendly [`crate::NormalizedOpenApiDocument`].
+//! - [`crate::openapi::classify_source`] distinguishes local paths from `http`
+//!   and `https` URLs.
+//! - [`crate::openapi::load_raw_document`] reads and decodes JSON or YAML into a
+//!   [`crate::openapi::RawOpenApiDocument`].
+//! - [`crate::openapi::load_document`] additionally parses supported versions
+//!   into typed OpenAPI structures where available.
+//! - [`crate::openapi::inspect_document`] collects lightweight statistics for UI
+//!   or telemetry.
+//! - [`crate::openapi::load_and_normalize_document`] converts an OpenAPI
+//!   document into the renderer-friendly [`crate::NormalizedOpenApiDocument`].
 
 mod error;
 mod format;
