@@ -1,8 +1,14 @@
+//! Helpers for producing anonymous support identifiers.
+
 use std::{env, ffi::OsString};
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use sha2::{Digest, Sha256};
 
+/// Returns a stable anonymous identity derived from the current user and machine.
+///
+/// The value is SHA-256 hashed and Base64 encoded so support workflows can correlate reports
+/// without storing the raw user or host name.
 pub fn anonymous_identity() -> String {
     let user_name = current_user_name();
     let machine_name = current_machine_name();
@@ -10,6 +16,21 @@ pub fn anonymous_identity() -> String {
     anonymous_identity_from_parts(&user_name, machine_name.as_deref())
 }
 
+/// Returns the anonymous support identity for explicit user and machine parts.
+///
+/// Empty or missing machine names fall back to `"localhost"` for parity with the legacy .NET
+/// implementation.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::anonymous_identity_from_parts;
+///
+/// assert_eq!(
+///     anonymous_identity_from_parts("alice", Some("build-agent")),
+///     "prihjx2hffzjfsy4vly5/8ynzks7bznfs3wk4b+e+xm="
+/// );
+/// ```
 pub fn anonymous_identity_from_parts(user_name: &str, machine_name: Option<&str>) -> String {
     let machine_name = machine_name
         .map(str::trim)
@@ -21,10 +42,28 @@ pub fn anonymous_identity_from_parts(user_name: &str, machine_name: Option<&str>
     STANDARD.encode(hash).to_ascii_lowercase()
 }
 
+/// Returns the short support key for the current anonymous identity.
+///
+/// This is a convenience wrapper around [`support_key_from_anonymous_identity`] that uses
+/// [`anonymous_identity`].
 pub fn support_key() -> String {
     support_key_from_anonymous_identity(&anonymous_identity())
 }
 
+/// Returns the short support key associated with an anonymous identity.
+///
+/// The support key is simply the first seven characters of the full anonymous identity.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::support_key_from_anonymous_identity;
+///
+/// assert_eq!(
+///     support_key_from_anonymous_identity("prihjx2hffzjfsy4vly5/8ynzks7bznfs3wk4b+e+xm="),
+///     "prihjx2"
+/// );
+/// ```
 pub fn support_key_from_anonymous_identity(anonymous_identity: &str) -> String {
     anonymous_identity.chars().take(7).collect()
 }

@@ -1,5 +1,24 @@
+//! Helpers for generating stable, collision-free output file names.
+
 use std::{collections::HashSet, path::Path};
 
+/// Returns `filename` unless it has already been used, then appends a numeric suffix.
+///
+/// File-name comparisons are case-insensitive so the behavior matches Windows-friendly output.
+///
+/// # Examples
+///
+/// ```
+/// use std::collections::HashSet;
+///
+/// use httpgenerator_core::unique_filename;
+///
+/// let mut seen = HashSet::new();
+///
+/// assert_eq!(unique_filename("DeletePet.http", &mut seen), "DeletePet.http");
+/// assert_eq!(unique_filename("deletepet.http", &mut seen), "deletepet_2.http");
+/// assert_eq!(unique_filename("DeletePet.http", &mut seen), "DeletePet_3.http");
+/// ```
 pub fn unique_filename(filename: &str, seen: &mut HashSet<String>) -> String {
     if seen.insert(filename.to_ascii_lowercase()) {
         return filename.to_string();

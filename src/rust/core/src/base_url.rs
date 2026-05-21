@@ -1,5 +1,41 @@
+//! Helpers for resolving the `@baseUrl` variable written into generated files.
+
 use url::Url;
 
+/// Resolves the base URL used by generated requests.
+///
+/// Resolution prefers an explicit `configured_base_url`, falls back to the OpenAPI server URL,
+/// and prefixes relative server paths with the authority from a remote OpenAPI document URL.
+/// Template-style values such as `{{MY_BASE_URL}}` are preserved so callers can inject runtime
+/// values through HTTP client variables.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::resolve_base_url;
+///
+/// assert_eq!(
+///     resolve_base_url(
+///         "https://petstore.swagger.io/v2/swagger.json",
+///         Some("/api/v3"),
+///         None,
+///     ),
+///     "https://petstore.swagger.io/api/v3"
+/// );
+/// ```
+///
+/// ```
+/// use httpgenerator_core::resolve_base_url;
+///
+/// assert_eq!(
+///     resolve_base_url(
+///         "https://petstore.swagger.io/v2/swagger.json",
+///         Some("/api/v3"),
+///         Some("{{MY_BASE_URL}}"),
+///     ),
+///     "{{MY_BASE_URL}}/api/v3"
+/// );
+/// ```
 pub fn resolve_base_url(
     open_api_path: &str,
     server_url: Option<&str>,

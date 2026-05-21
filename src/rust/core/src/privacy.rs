@@ -1,3 +1,5 @@
+//! Helpers for redacting sensitive command-line arguments before logging them.
+
 use regex::RegexBuilder;
 
 const REPLACEMENT: &str = "--authorization-header [REDACTED]";
@@ -10,6 +12,24 @@ const PATTERNS: &[&str] = &[
     r#"--authorization-header [^ ]+"#,
 ];
 
+/// Replaces `--authorization-header` argument values with a redacted marker.
+///
+/// This is primarily useful when echoing CLI commands or telemetry-friendly diagnostics without
+/// leaking secrets into logs.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::redact_authorization_headers;
+///
+/// let input =
+///     "--authorization-header Bearer secret-token --base-url https://api.example.com";
+///
+/// assert_eq!(
+///     redact_authorization_headers(input),
+///     "--authorization-header [REDACTED] --base-url https://api.example.com"
+/// );
+/// ```
 pub fn redact_authorization_headers(input: &str) -> String {
     PATTERNS.iter().fold(input.to_string(), |current, pattern| {
         RegexBuilder::new(pattern)

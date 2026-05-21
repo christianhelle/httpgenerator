@@ -1,3 +1,54 @@
+//! Core library for building HTTP client request files from normalized API descriptions.
+//!
+//! `httpgenerator-core` is the reusable library behind the HTTP File Generator CLI and host
+//! integrations. It exposes:
+//!
+//! - normalized API model types such as [`NormalizedOpenApiDocument`]
+//! - generation settings and results such as [`GeneratorSettings`] and [`GeneratorResult`]
+//! - `.http` rendering through [`generate_http_files`]
+//! - small helper utilities for naming, URL resolution, redaction, and support identifiers
+//!
+//! The optional `openapi` feature adds document loading, inspection, and normalization helpers
+//! under [`openapi`].
+//!
+//! # Generate a single `.http` file
+//!
+//! ```
+//! use httpgenerator_core::{
+//!     generate_http_files, GeneratorSettings, NormalizedHttpMethod, NormalizedOpenApiDocument,
+//!     NormalizedOperation, NormalizedServer, NormalizedSpecificationVersion, OutputType,
+//! };
+//!
+//! let settings = GeneratorSettings {
+//!     open_api_path: "https://api.example.com/openapi.json".into(),
+//!     output_type: OutputType::OneFile,
+//!     ..Default::default()
+//! };
+//!
+//! let document = NormalizedOpenApiDocument {
+//!     specification_version: NormalizedSpecificationVersion::OpenApi30,
+//!     servers: vec![NormalizedServer {
+//!         url: "https://api.example.com".into(),
+//!     }],
+//!     operations: vec![NormalizedOperation {
+//!         path: "/pets".into(),
+//!         method: NormalizedHttpMethod::Get,
+//!         operation_id: Some("listPets".into()),
+//!         summary: Some("List pets".into()),
+//!         description: None,
+//!         tags: vec!["pets".into()],
+//!         parameters: vec![],
+//!         request_body: None,
+//!     }],
+//! };
+//!
+//! let result = generate_http_files(&settings, &document);
+//!
+//! assert_eq!(result.files.len(), 1);
+//! assert_eq!(result.files[0].filename, "Requests.http");
+//! assert!(result.files[0].content.contains("GET {{baseUrl}}/pets"));
+//! ```
+
 pub mod base_url;
 pub mod file_naming;
 pub mod generator;

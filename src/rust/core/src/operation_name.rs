@@ -1,8 +1,30 @@
+//! Helpers for deriving request-friendly operation names.
+
 use crate::string_extensions::{
     capitalize_first_character, convert_kebab_case_to_pascal_case, convert_route_to_camel_case,
     convert_spaces_to_pascal_case, prefix,
 };
 
+/// Generates a stable operation name for use in file names and parameter prefixes.
+///
+/// The function prefers `operation_id` when present. Otherwise it derives a name from the HTTP
+/// method and route, then normalizes kebab-case, route separators, and spaces into a PascalCase
+/// style with a method prefix.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::generate_operation_name;
+///
+/// assert_eq!(
+///     generate_operation_name("get", "/pet/find-by-status", Some("find-pets")),
+///     "GetFindPets"
+/// );
+/// assert_eq!(
+///     generate_operation_name("post", "/pet/store", None),
+///     "Post_PetStore"
+/// );
+/// ```
 pub fn generate_operation_name(
     http_method: &str,
     path: &str,

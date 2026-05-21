@@ -1,3 +1,20 @@
+//! Small string-shaping helpers used when deriving operation names and rendering comments.
+
+/// Converts a kebab-case string into PascalCase.
+///
+/// Dots are replaced with underscores to keep the result file-name and identifier friendly.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::convert_kebab_case_to_pascal_case;
+///
+/// assert_eq!(
+///     convert_kebab_case_to_pascal_case("find-by-status"),
+///     "FindByStatus"
+/// );
+/// assert_eq!(convert_kebab_case_to_pascal_case("v1.users"), "V1_users");
+/// ```
 pub fn convert_kebab_case_to_pascal_case(value: &str) -> String {
     value
         .split('-')
@@ -7,6 +24,15 @@ pub fn convert_kebab_case_to_pascal_case(value: &str) -> String {
         .join("")
 }
 
+/// Converts a slash-delimited route into camelCase-like segments.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::convert_route_to_camel_case;
+///
+/// assert_eq!(convert_route_to_camel_case("/pet/find"), "petFind");
+/// ```
 pub fn convert_route_to_camel_case(value: &str) -> String {
     let mut parts = value
         .split('/')
@@ -21,6 +47,16 @@ pub fn convert_route_to_camel_case(value: &str) -> String {
     parts.join("")
 }
 
+/// Uppercases the first character of `value` and leaves the remaining text unchanged.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::capitalize_first_character;
+///
+/// assert_eq!(capitalize_first_character("pet"), "Pet");
+/// assert_eq!(capitalize_first_character(""), "");
+/// ```
 pub fn capitalize_first_character(value: &str) -> String {
     let mut chars = value.chars();
     let Some(first) = chars.next() else {
@@ -30,6 +66,18 @@ pub fn capitalize_first_character(value: &str) -> String {
     format!("{}{}", first.to_uppercase(), chars.as_str())
 }
 
+/// Converts a space-delimited phrase into PascalCase.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::convert_spaces_to_pascal_case;
+///
+/// assert_eq!(
+///     convert_spaces_to_pascal_case("find pet by status"),
+///     "FindPetByStatus"
+/// );
+/// ```
 pub fn convert_spaces_to_pascal_case(value: &str) -> String {
     value
         .split(' ')
@@ -39,6 +87,16 @@ pub fn convert_spaces_to_pascal_case(value: &str) -> String {
         .join("")
 }
 
+/// Adds `prefix_value` to `value` unless it already starts with that prefix.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::prefix;
+///
+/// assert_eq!(prefix("Pets", "Get"), "GetPets");
+/// assert_eq!(prefix("GetPets", "Get"), "GetPets");
+/// ```
 pub fn prefix(value: &str, prefix_value: &str) -> String {
     if value.starts_with(prefix_value) {
         return value.to_string();
@@ -47,6 +105,22 @@ pub fn prefix(value: &str, prefix_value: &str) -> String {
     format!("{prefix_value}{value}")
 }
 
+/// Prefixes each line break in `value` with `prefix_value` and a trailing space.
+///
+/// The returned string uses the current platform line ending.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::prefix_line_breaks;
+///
+/// let newline = if cfg!(windows) { "\r\n" } else { "\n" };
+///
+/// assert_eq!(
+///     prefix_line_breaks(Some("line1\nline2"), "###"),
+///     Some(format!("line1{newline}### line2"))
+/// );
+/// ```
 pub fn prefix_line_breaks(value: Option<&str>, prefix_value: &str) -> Option<String> {
     value.map(|value| {
         let newline = if cfg!(windows) { "\r\n" } else { "\n" };

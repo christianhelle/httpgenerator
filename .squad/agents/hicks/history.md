@@ -44,3 +44,9 @@
 - Runtime lookup must stay aligned with packaging: `http-file-generator.executablePath` → bundled binary → repo-root `target\debug` / `target\release` development outputs → `PATH`.
 - Keep the extension host documentation and code on the canonical lowercase `src\vscode` path; treat stale `src\VSCode` references as cleanup opportunities when they block this workflow.
 - Validation evidence for the migration: `cargo test --locked --workspace`, `dotnet build`, `dotnet test`, `test\smoke-tests.ps1`, and `src\vscode\build.ps1 -Version 0.1.0 -Target win32-x64`.
+
+### docs.rs rustdoc batch 1 (2026-05-21T14:35:15.308+02:00)
+- The first `httpgenerator-core` docs pass is intentionally docs-only: improve crate/module/item/field rustdoc without changing public visibility or hiding internals yet.
+- High-value docs entry points for docs.rs live in `src\rust\core\src\lib.rs`, `src\rust\core\src\generator\mod.rs`, `src\rust\core\src\generator\modes.rs`, and `src\rust\core\src\model\*.rs`; helper API narratives belong in the flat leaf modules such as `base_url.rs`, `file_naming.rs`, `operation_name.rs`, `privacy.rs`, `string_extensions.rs`, and `support_information.rs`.
+- Prefer runnable doctests for self-contained helpers and normalized-model generation examples, but keep heavier flows as narrative or `no_run` examples so docs.rs stays practical without introducing brittle setup.
+- User preference for this stream: keep commits in small logical groups and do not include a co-author trailer.

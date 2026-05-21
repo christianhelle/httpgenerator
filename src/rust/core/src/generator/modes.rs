@@ -10,6 +10,54 @@ use super::{
     text::{push_blank_line, push_line},
 };
 
+/// Generates one or more `.http` files from a normalized API document.
+///
+/// The returned files are shaped by [`OutputType`]:
+///
+/// - [`OutputType::OneRequestPerFile`] creates one file per operation
+/// - [`OutputType::OneFile`] appends every operation into `Requests.http`
+/// - [`OutputType::OneFilePerTag`] groups operations by their first tag
+///
+/// The generator also writes shared file headers such as `@baseUrl` and `@contentType` unless
+/// [`GeneratorSettings::skip_headers`] is enabled.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::{
+///     generate_http_files, GeneratorSettings, NormalizedHttpMethod, NormalizedOpenApiDocument,
+///     NormalizedOperation, NormalizedServer, NormalizedSpecificationVersion, OutputType,
+/// };
+///
+/// let settings = GeneratorSettings {
+///     open_api_path: "https://api.example.com/openapi.json".into(),
+///     output_type: OutputType::OneFile,
+///     ..Default::default()
+/// };
+///
+/// let document = NormalizedOpenApiDocument {
+///     specification_version: NormalizedSpecificationVersion::OpenApi30,
+///     servers: vec![NormalizedServer {
+///         url: "https://api.example.com".into(),
+///     }],
+///     operations: vec![NormalizedOperation {
+///         path: "/pets".into(),
+///         method: NormalizedHttpMethod::Get,
+///         operation_id: Some("listPets".into()),
+///         summary: Some("List pets".into()),
+///         description: None,
+///         tags: vec!["pets".into()],
+///         parameters: vec![],
+///         request_body: None,
+///     }],
+/// };
+///
+/// let result = generate_http_files(&settings, &document);
+///
+/// assert_eq!(result.files.len(), 1);
+/// assert_eq!(result.files[0].filename, "Requests.http");
+/// assert!(result.files[0].content.contains("GET {{baseUrl}}/pets"));
+/// ```
 pub fn generate_http_files(
     settings: &GeneratorSettings,
     document: &NormalizedOpenApiDocument,
