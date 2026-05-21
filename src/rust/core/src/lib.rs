@@ -17,7 +17,8 @@
 //! The main library flow is **load -> normalize -> generate**:
 //!
 //! 1. Use [`openapi`] to load or normalize Swagger/OpenAPI input when the feature is enabled.
-//! 2. Use [`normalized`] when you already have a generator-ready [`NormalizedOpenApiDocument`].
+//! 2. Use [`normalized`] when you already have a generator-ready [`NormalizedOpenApiDocument`] and
+//!    related handoff types such as [`NormalizedOperation`] and [`NormalizedSchema`].
 //! 3. Use [`model`] to describe generator settings and collect generated files.
 //! 4. Use [`generator`] or [`generate_http_files`] to render one or more `.http` files.
 //!
