@@ -12,6 +12,9 @@ use super::{
 
 /// Generates one or more `.http` files from a normalized API document.
 ///
+/// Use this when you already have a [`NormalizedOpenApiDocument`] and want the library's standard
+/// `.http` rendering behavior without going through the CLI.
+///
 /// The returned files are shaped by [`OutputType`]:
 ///
 /// - [`OutputType::OneRequestPerFile`] creates one file per operation
@@ -19,7 +22,8 @@ use super::{
 /// - [`OutputType::OneFilePerTag`] groups operations by their first tag
 ///
 /// The generator also writes shared file headers such as `@baseUrl` and `@contentType` unless
-/// [`GeneratorSettings::skip_headers`] is enabled.
+/// [`GeneratorSettings::skip_headers`] is enabled. It expects a normalized document as input, so
+/// document loading, source parsing, and OpenAPI validation happen before this call.
 ///
 /// # Examples
 ///

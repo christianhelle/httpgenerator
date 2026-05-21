@@ -8,8 +8,18 @@
 //! - `.http` rendering through [`generate_http_files`]
 //! - small helper utilities for naming, URL resolution, redaction, and support identifiers
 //!
-//! The optional `openapi` feature adds document loading, inspection, and normalization helpers
-//! under [`openapi`].
+//! By default, the crate enables the `openapi` feature, which adds document loading, inspection,
+//! and normalization helpers under [`openapi`]. Disable default features if you only need the
+//! normalized model, generation pipeline, or helper APIs in a smaller integration.
+//!
+//! # Workflow
+//!
+//! The main library flow is **load -> normalize -> generate**:
+//!
+//! 1. Use [`openapi`] to load or normalize Swagger/OpenAPI input when the feature is enabled.
+//! 2. Use [`normalized`] when you already have a generator-ready [`NormalizedOpenApiDocument`].
+//! 3. Use [`model`] to describe generator settings and collect generated files.
+//! 4. Use [`generator`] or [`generate_http_files`] to render one or more `.http` files.
 //!
 //! # Generate a single `.http` file
 //!
@@ -47,6 +57,18 @@
 //! assert_eq!(result.files.len(), 1);
 //! assert_eq!(result.files[0].filename, "Requests.http");
 //! assert!(result.files[0].content.contains("GET {{baseUrl}}/pets"));
+//! ```
+//!
+//! # Load an OpenAPI document from disk
+//!
+//! ```no_run
+//! # #[cfg(feature = "openapi")] {
+//! use httpgenerator_core::openapi::{load_document, LoadedOpenApiDocument};
+//!
+//! let loaded = load_document("test/OpenAPI/v3.0/petstore.json").unwrap();
+//!
+//! assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
+//! # }
 //! ```
 
 pub mod base_url;

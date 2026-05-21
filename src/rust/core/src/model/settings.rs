@@ -4,8 +4,12 @@ use super::OutputType;
 
 /// Configures how `.http` files are generated from a normalized API document.
 ///
+/// Use this type when you want to control how the generator renders requests, names variables, and
+/// chooses output layout.
+///
 /// Start with [`Default`] and override the fields that affect your output shape, headers, and
-/// document-loading behavior.
+/// document-loading behavior. These settings influence rendering behavior only; they do not load or
+/// validate OpenAPI documents on their own.
 ///
 /// # Examples
 ///
