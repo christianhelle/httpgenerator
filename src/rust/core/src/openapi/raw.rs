@@ -8,6 +8,12 @@ use super::{
     detect_specification_version,
 };
 
+/// Raw OpenAPI document decoded into generic JSON values.
+///
+/// `RawOpenApiDocument` preserves the original source, detected content format,
+/// raw text content, and decoded [`serde_json::Value`]. It is useful when a
+/// caller needs format/version information before choosing a typed parser or
+/// normalizer.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RawOpenApiDocument {
     source: OpenApiSource,
@@ -17,26 +23,32 @@ pub struct RawOpenApiDocument {
 }
 
 impl RawOpenApiDocument {
+    /// Returns the source this document was loaded from.
     pub fn source(&self) -> &OpenApiSource {
         &self.source
     }
 
+    /// Returns the detected JSON/YAML content format.
     pub fn format(&self) -> OpenApiContentFormat {
         self.format
     }
 
+    /// Returns the original document text.
     pub fn content(&self) -> &str {
         &self.content
     }
 
+    /// Returns the decoded document value.
     pub fn value(&self) -> &Value {
         &self.value
     }
 
+    /// Consumes the document and returns the decoded value.
     pub fn into_value(self) -> Value {
         self.value
     }
 
+    /// Detects the OpenAPI specification version for this raw document.
     pub fn specification_version(
         &self,
     ) -> Result<OpenApiSpecificationVersion, SpecificationVersionDetectionError> {
@@ -44,11 +56,24 @@ impl RawOpenApiDocument {
     }
 }
 
+/// Loads and decodes a raw OpenAPI document from a path or URL string.
+///
+/// # Example
+///
+/// ```no_run
+/// use httpgenerator_core::openapi::load_raw_document;
+///
+/// let document = load_raw_document("openapi.yaml")?;
+///
+/// println!("Loaded {} as {}", document.source(), document.format());
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
 pub fn load_raw_document(input: &str) -> Result<RawOpenApiDocument, RawOpenApiLoadError> {
     let source = classify_source(input).map_err(RawOpenApiLoadError::SourceClassification)?;
     load_raw_document_from_source(source)
 }
 
+/// Loads and decodes a raw OpenAPI document from an already classified source.
 pub fn load_raw_document_from_source(
     source: OpenApiSource,
 ) -> Result<RawOpenApiDocument, RawOpenApiLoadError> {
@@ -56,6 +81,27 @@ pub fn load_raw_document_from_source(
     decode_raw_document(source, content)
 }
 
+/// Decodes raw document content from a known source.
+///
+/// This does not read from the filesystem or network. It detects the content
+/// format, decodes JSON or YAML into [`serde_json::Value`], and preserves the
+/// original text.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::openapi::{
+///     decode_raw_document, OpenApiContentFormat, OpenApiSource,
+/// };
+/// use std::path::PathBuf;
+///
+/// let document = decode_raw_document(
+///     OpenApiSource::Path(PathBuf::from("openapi.json")),
+///     r#"{"openapi":"3.0.0","info":{"title":"Example","version":"1.0.0"},"paths":{}}"#,
+/// ).unwrap();
+///
+/// assert_eq!(document.format(), OpenApiContentFormat::Json);
+/// ```
 pub fn decode_raw_document(
     source: OpenApiSource,
     content: impl Into<String>,

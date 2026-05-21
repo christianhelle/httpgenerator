@@ -7,21 +7,27 @@ use url::Url;
 
 use super::{OpenApiContentFormat, SourceClassificationError};
 
+/// OpenAPI document source.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OpenApiSource {
+    /// Local filesystem path.
     Path(PathBuf),
+    /// Remote `http` or `https` URL.
     Url(Url),
 }
 
 impl OpenApiSource {
+    /// Returns `true` when this source is a local path.
     pub fn is_local_path(&self) -> bool {
         matches!(self, Self::Path(_))
     }
 
+    /// Returns `true` when this source is an HTTP(S) URL.
     pub fn is_url(&self) -> bool {
         matches!(self, Self::Url(_))
     }
 
+    /// Returns the content format implied by the path or URL extension.
     pub fn format_hint(&self) -> Option<OpenApiContentFormat> {
         match self {
             Self::Path(path) => OpenApiContentFormat::from_path(path),
@@ -39,6 +45,22 @@ impl fmt::Display for OpenApiSource {
     }
 }
 
+/// Classifies user input as a local path or remote URL.
+///
+/// Only `http` and `https` URLs are accepted. Inputs with other URL-like
+/// schemes return [`SourceClassificationError::UnsupportedUrlScheme`]. Windows
+/// absolute paths such as `C:\specs\openapi.json` are treated as local paths,
+/// not URL schemes.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::openapi::{classify_source, OpenApiSource};
+///
+/// let source = classify_source("https://example.com/openapi.json").unwrap();
+///
+/// assert!(matches!(source, OpenApiSource::Url(_)));
+/// ```
 pub fn classify_source(input: &str) -> Result<OpenApiSource, SourceClassificationError> {
     let trimmed = input.trim();
 

@@ -2,13 +2,25 @@ use std::{fmt, path::Path};
 
 use super::{ContentFormatDetectionError, OpenApiSource};
 
+/// Detected textual representation of an OpenAPI document.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpenApiContentFormat {
+    /// JSON document.
     Json,
+    /// YAML document.
     Yaml,
 }
 
 impl OpenApiContentFormat {
+    /// Returns a human-readable format name.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use httpgenerator_core::openapi::OpenApiContentFormat;
+    ///
+    /// assert_eq!(OpenApiContentFormat::Json.as_str(), "JSON");
+    /// ```
     pub const fn as_str(self) -> &'static str {
         match self {
             Self::Json => "JSON",
@@ -16,6 +28,22 @@ impl OpenApiContentFormat {
         }
     }
 
+    /// Infers the content format from a file path extension.
+    ///
+    /// `.json` maps to [`OpenApiContentFormat::Json`], while `.yaml` and
+    /// `.yml` map to [`OpenApiContentFormat::Yaml`]. Extension matching is
+    /// case-insensitive.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use httpgenerator_core::openapi::OpenApiContentFormat;
+    ///
+    /// assert_eq!(
+    ///     OpenApiContentFormat::from_path("openapi.YML"),
+    ///     Some(OpenApiContentFormat::Yaml)
+    /// );
+    /// ```
     pub fn from_path(path: impl AsRef<Path>) -> Option<Self> {
         let extension = path.as_ref().extension()?.to_str()?;
 
@@ -37,6 +65,11 @@ impl fmt::Display for OpenApiContentFormat {
     }
 }
 
+/// Detects an OpenAPI document's content format.
+///
+/// A known file extension from `source` is preferred. If the source has no
+/// format hint, the content is sniffed after trimming a UTF-8 byte-order mark
+/// and leading whitespace.
 pub fn detect_content_format(
     source: Option<&OpenApiSource>,
     content: &str,
@@ -52,6 +85,20 @@ pub fn detect_content_format(
     sniff_content_format(content)
 }
 
+/// Sniffs JSON or YAML from document content alone.
+///
+/// JSON is detected from leading `{` or `[`. YAML is detected from common YAML
+/// document markers, list items, or mapping syntax.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::openapi::{sniff_content_format, OpenApiContentFormat};
+///
+/// let format = sniff_content_format("openapi: 3.0.0\ninfo:\n  title: Example").unwrap();
+///
+/// assert_eq!(format, OpenApiContentFormat::Yaml);
+/// ```
 pub fn sniff_content_format(
     content: &str,
 ) -> Result<OpenApiContentFormat, ContentFormatDetectionError> {

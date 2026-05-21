@@ -1,11 +1,15 @@
 use super::{OpenApiSpecificationVersion, RawOpenApiDocument, TypedOpenApiParseError};
 
+/// OpenAPI document parsed into a version-specific Rust model.
 pub enum TypedOpenApiDocument {
+    /// OpenAPI 3.0 document parsed by the `openapiv3` crate.
     OpenApi30(openapiv3::OpenAPI),
+    /// OpenAPI 3.1 document parsed by the `openapiv3_1` crate.
     OpenApi31(openapiv3_1::OpenApi),
 }
 
 impl TypedOpenApiDocument {
+    /// Returns the parsed document's specification family.
     pub fn specification_version(&self) -> OpenApiSpecificationVersion {
         match self {
             Self::OpenApi30(_) => OpenApiSpecificationVersion::OpenApi30,
@@ -14,6 +18,10 @@ impl TypedOpenApiDocument {
     }
 }
 
+/// Parses a raw document into its matching typed OpenAPI model.
+///
+/// Swagger 2.0 documents are detected but not parsed into a typed model by this
+/// API; use normalization when you need the compatibility bridge.
 pub fn parse_typed_document(
     document: &RawOpenApiDocument,
 ) -> Result<TypedOpenApiDocument, TypedOpenApiParseError> {
@@ -36,12 +44,14 @@ pub fn parse_typed_document(
     }
 }
 
+/// Parses a raw OpenAPI 3.0 document using the `openapiv3` model.
 pub fn parse_openapi30_document(
     document: &RawOpenApiDocument,
 ) -> Result<openapiv3::OpenAPI, TypedOpenApiParseError> {
     parse_versioned_document(document, OpenApiSpecificationVersion::OpenApi30)
 }
 
+/// Parses a raw OpenAPI 3.1 document using the `openapiv3_1` model.
 pub fn parse_openapi31_document(
     document: &RawOpenApiDocument,
 ) -> Result<openapiv3_1::OpenApi, TypedOpenApiParseError> {

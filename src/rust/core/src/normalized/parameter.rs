@@ -8,7 +8,10 @@ pub enum NormalizedParameter {
     /// Parameter details are available inline.
     Inline(NormalizedInlineParameter),
     /// Parameter was represented by an unresolved OpenAPI `$ref`.
-    Reference { reference: String },
+    Reference {
+        /// Reference value, such as `#/components/parameters/PetId`.
+        reference: String,
+    },
 }
 
 /// Inline parameter details used by request rendering.

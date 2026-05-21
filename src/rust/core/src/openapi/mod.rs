@@ -1,3 +1,18 @@
+//! OpenAPI source loading, parsing, inspection, and normalization.
+//!
+//! This module is available when the default `openapi` feature is enabled. It
+//! provides layered entry points:
+//!
+//! - [`classify_source`] distinguishes local paths from `http` and `https`
+//!   URLs.
+//! - [`load_raw_document`] reads and decodes JSON or YAML into a
+//!   [`RawOpenApiDocument`].
+//! - [`load_document`] additionally parses supported versions into typed
+//!   OpenAPI structures where available.
+//! - [`inspect_document`] collects lightweight statistics for UI or telemetry.
+//! - [`load_and_normalize_document`] converts an OpenAPI document into the
+//!   renderer-friendly [`crate::NormalizedOpenApiDocument`].
+
 mod error;
 mod format;
 mod inspect;

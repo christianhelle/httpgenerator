@@ -4,24 +4,38 @@ use super::{
     load_raw_document_from_source, parse_typed_document,
 };
 
+/// Loaded OpenAPI document with raw metadata and optional typed representation.
 pub enum LoadedOpenApiDocument {
+    /// Swagger 2.0 document retained as raw JSON/YAML for normalization.
     Swagger2 {
+        /// Raw decoded document.
         raw: RawOpenApiDocument,
     },
+    /// OpenAPI 3.0 document with a typed `openapiv3` representation.
     OpenApi30 {
+        /// Raw decoded document.
         raw: RawOpenApiDocument,
+        /// Typed OpenAPI 3.0 document.
         document: openapiv3::OpenAPI,
     },
+    /// OpenAPI 3.1 document with a typed `openapiv3_1` representation.
     OpenApi31 {
+        /// Raw decoded document.
         raw: RawOpenApiDocument,
+        /// Typed OpenAPI 3.1 document.
         document: openapiv3_1::OpenApi,
     },
+    /// OpenAPI 3.1 document kept raw when typed parsing is unavailable.
+    ///
+    /// This is used for webhook-only documents and for tolerant loading paths.
     OpenApi31Raw {
+        /// Raw decoded document.
         raw: RawOpenApiDocument,
     },
 }
 
 impl LoadedOpenApiDocument {
+    /// Returns the raw decoded document.
     pub fn raw(&self) -> &RawOpenApiDocument {
         match self {
             Self::Swagger2 { raw }
@@ -31,14 +45,17 @@ impl LoadedOpenApiDocument {
         }
     }
 
+    /// Returns the original classified source.
     pub fn source(&self) -> &OpenApiSource {
         self.raw().source()
     }
 
+    /// Returns the detected JSON/YAML content format.
     pub fn format(&self) -> OpenApiContentFormat {
         self.raw().format()
     }
 
+    /// Returns the detected specification family.
     pub fn specification_version(&self) -> OpenApiSpecificationVersion {
         match self {
             Self::Swagger2 { .. } => OpenApiSpecificationVersion::Swagger2,
@@ -49,6 +66,7 @@ impl LoadedOpenApiDocument {
         }
     }
 
+    /// Returns the typed OpenAPI 3.0 document when this is an OpenAPI 3.0 load.
     pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
         match self {
             Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => None,
@@ -56,6 +74,9 @@ impl LoadedOpenApiDocument {
         }
     }
 
+    /// Returns the typed OpenAPI 3.1 document when typed parsing succeeded.
+    ///
+    /// This returns `None` for [`LoadedOpenApiDocument::OpenApi31Raw`].
     pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
         match self {
             Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => None,
@@ -64,6 +85,18 @@ impl LoadedOpenApiDocument {
     }
 }
 
+/// Loads a document from a path or URL and parses it as far as supported.
+///
+/// # Example
+///
+/// ```no_run
+/// use httpgenerator_core::openapi::load_document;
+///
+/// let document = load_document("https://example.com/openapi.json")?;
+///
+/// println!("Loaded {}", document.specification_version());
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
 pub fn load_document(input: &str) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     load_document_with_options(input, false)
 }
@@ -76,6 +109,7 @@ pub(crate) fn load_document_with_options(
     load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
 }
 
+/// Loads a document from an already classified source and parses it as far as supported.
 pub fn load_document_from_source(
     source: OpenApiSource,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
@@ -90,6 +124,7 @@ pub(crate) fn load_document_from_source_with_options(
     load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
 }
 
+/// Parses an already decoded raw document as far as supported.
 pub fn load_document_from_raw(
     raw: RawOpenApiDocument,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {

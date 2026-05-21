@@ -4,10 +4,14 @@ use serde_json::Value;
 
 use super::SpecificationVersionDetectionError;
 
+/// Supported OpenAPI specification families.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpenApiSpecificationVersion {
+    /// Swagger/OpenAPI 2.0 document.
     Swagger2,
+    /// OpenAPI 3.0.x document.
     OpenApi30,
+    /// OpenAPI 3.1.x document.
     OpenApi31,
 }
 
@@ -21,6 +25,27 @@ impl fmt::Display for OpenApiSpecificationVersion {
     }
 }
 
+/// Detects a document's OpenAPI specification family from its top-level version.
+///
+/// The detector reads `openapi` for OpenAPI 3.x documents and `swagger` for
+/// Swagger 2.0 documents. Patch versions are accepted, but only the supported
+/// major/minor families are classified.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::openapi::{
+///     detect_specification_version, OpenApiSpecificationVersion,
+/// };
+/// use serde_json::json;
+///
+/// let value = json!({ "openapi": "3.1.0", "info": { "title": "Example" } });
+///
+/// assert_eq!(
+///     detect_specification_version(&value).unwrap(),
+///     OpenApiSpecificationVersion::OpenApi31
+/// );
+/// ```
 pub fn detect_specification_version(
     value: &Value,
 ) -> Result<OpenApiSpecificationVersion, SpecificationVersionDetectionError> {

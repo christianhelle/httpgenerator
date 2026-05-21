@@ -8,7 +8,10 @@ pub enum NormalizedRequestBody {
     /// Request body details are available inline.
     Inline(NormalizedInlineRequestBody),
     /// Request body was represented by an unresolved OpenAPI `$ref`.
-    Reference { reference: String },
+    Reference {
+        /// Reference value, such as `#/components/requestBodies/Pet`.
+        reference: String,
+    },
 }
 
 /// Inline request body details.

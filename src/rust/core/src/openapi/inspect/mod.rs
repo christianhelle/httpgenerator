@@ -11,11 +11,28 @@ use super::{
 };
 pub use model::{OpenApiInspection, OpenApiStats};
 
+/// Loads and inspects an OpenAPI document from a path or URL.
+///
+/// Inspection does not normalize operations for generation. It collects a
+/// lightweight version and statistics summary useful for UI previews and
+/// validation messages.
+///
+/// # Example
+///
+/// ```no_run
+/// use httpgenerator_core::openapi::inspect_document;
+///
+/// let inspection = inspect_document("openapi.json")?;
+///
+/// println!("{} operations", inspection.stats.operation_count);
+/// # Ok::<(), Box<dyn std::error::Error>>(())
+/// ```
 pub fn inspect_document(input: &str) -> Result<OpenApiInspection, OpenApiInspectionError> {
     let raw = load_raw_document(input).map_err(OpenApiInspectionError::Load)?;
     inspect_raw_document(&raw)
 }
 
+/// Inspects an already decoded raw OpenAPI document.
 pub fn inspect_raw_document(
     document: &RawOpenApiDocument,
 ) -> Result<OpenApiInspection, OpenApiInspectionError> {
