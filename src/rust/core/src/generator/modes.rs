@@ -10,6 +10,56 @@ use super::{
     text::{push_blank_line, push_line},
 };
 
+/// Renders `.http` files for every operation in a normalized OpenAPI document.
+///
+/// The shape of the returned file list is controlled by
+/// [`GeneratorSettings::output_type`]:
+///
+/// - [`OutputType::OneRequestPerFile`] creates one `.http` file per operation.
+/// - [`OutputType::OneFile`] creates a single `Requests.http` file.
+/// - [`OutputType::OneFilePerTag`] groups operations by their first tag.
+///
+/// File content is generated in memory. The function does not create
+/// directories, write to disk, or validate the original OpenAPI source.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::{
+///     generate_http_files, GeneratorSettings, NormalizedHttpMethod,
+///     NormalizedOpenApiDocument, NormalizedOperation, NormalizedServer,
+///     NormalizedSpecificationVersion, OutputType,
+/// };
+///
+/// let document = NormalizedOpenApiDocument {
+///     specification_version: NormalizedSpecificationVersion::OpenApi30,
+///     servers: vec![NormalizedServer {
+///         url: "https://api.example.com".to_string(),
+///     }],
+///     operations: vec![NormalizedOperation {
+///         path: "/pets".to_string(),
+///         method: NormalizedHttpMethod::Get,
+///         operation_id: Some("listPets".to_string()),
+///         summary: None,
+///         description: None,
+///         tags: vec!["Pets".to_string()],
+///         parameters: Vec::new(),
+///         request_body: None,
+///     }],
+/// };
+///
+/// let settings = GeneratorSettings {
+///     open_api_path: "openapi.json".to_string(),
+///     output_type: OutputType::OneFile,
+///     ..GeneratorSettings::default()
+/// };
+///
+/// let result = generate_http_files(&settings, &document);
+///
+/// assert_eq!(result.files.len(), 1);
+/// assert_eq!(result.files[0].filename, "Requests.http");
+/// assert!(result.files[0].content.contains("GET {{baseUrl}}/pets"));
+/// ```
 pub fn generate_http_files(
     settings: &GeneratorSettings,
     document: &NormalizedOpenApiDocument,

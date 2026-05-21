@@ -1,3 +1,9 @@
+//! Generation settings and in-memory output types.
+//!
+//! These types are independent of OpenAPI parsing. They describe how normalized
+//! operations should be rendered and how generated `.http` files are returned to
+//! callers.
+
 mod output_type;
 mod result;
 mod settings;
