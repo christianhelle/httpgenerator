@@ -3,6 +3,27 @@ use crate::string_extensions::{
     convert_spaces_to_pascal_case, prefix,
 };
 
+/// Generates a stable request operation name for filenames and placeholders.
+///
+/// `operation_id` is preferred when present and non-empty. Otherwise, the name
+/// is derived from the HTTP method and path. The returned name is normalized
+/// using the compatibility casing rules and is prefixed with the HTTP method
+/// when it does not already start with that prefix.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::generate_operation_name;
+///
+/// assert_eq!(
+///     generate_operation_name("get", "/pet/find-by-status", Some("find-pets")),
+///     "GetFindPets"
+/// );
+/// assert_eq!(
+///     generate_operation_name("post", "/pet/store", None),
+///     "Post_PetStore"
+/// );
+/// ```
 pub fn generate_operation_name(
     http_method: &str,
     path: &str,

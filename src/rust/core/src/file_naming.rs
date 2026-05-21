@@ -1,5 +1,21 @@
 use std::{collections::HashSet, path::Path};
 
+/// Returns a case-insensitively unique filename and records it as used.
+///
+/// The first occurrence is returned unchanged. Subsequent duplicates receive a
+/// numeric suffix before the extension, starting at `_2`.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::unique_filename;
+/// use std::collections::HashSet;
+///
+/// let mut seen = HashSet::new();
+///
+/// assert_eq!(unique_filename("DeletePet.http", &mut seen), "DeletePet.http");
+/// assert_eq!(unique_filename("deletepet.http", &mut seen), "deletepet_2.http");
+/// ```
 pub fn unique_filename(filename: &str, seen: &mut HashSet<String>) -> String {
     if seen.insert(filename.to_ascii_lowercase()) {
         return filename.to_string();

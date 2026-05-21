@@ -10,6 +10,22 @@ const PATTERNS: &[&str] = &[
     r#"--authorization-header [^ ]+"#,
 ];
 
+/// Redacts `--authorization-header` command-line values from text.
+///
+/// This helper is intended for diagnostics, telemetry, and support output. It
+/// recognizes quoted and unquoted values, including common two-part schemes
+/// such as `Bearer <token>`, and replaces the sensitive value with
+/// `[REDACTED]`.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::redact_authorization_headers;
+///
+/// let redacted = redact_authorization_headers("--authorization-header Bearer secret");
+///
+/// assert_eq!(redacted, "--authorization-header [REDACTED]");
+/// ```
 pub fn redact_authorization_headers(input: &str) -> String {
     PATTERNS.iter().fold(input.to_string(), |current, pattern| {
         RegexBuilder::new(pattern)

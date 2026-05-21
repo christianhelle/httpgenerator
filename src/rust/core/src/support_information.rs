@@ -3,6 +3,11 @@ use std::{env, ffi::OsString};
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use sha2::{Digest, Sha256};
 
+/// Returns an anonymous, deterministic support identity for the current machine.
+///
+/// The identity is a lowercased base64-encoded SHA-256 hash of
+/// `user@machine`. It is intended for correlating support diagnostics without
+/// exposing the raw user or host name.
 pub fn anonymous_identity() -> String {
     let user_name = current_user_name();
     let machine_name = current_machine_name();
@@ -10,6 +15,19 @@ pub fn anonymous_identity() -> String {
     anonymous_identity_from_parts(&user_name, machine_name.as_deref())
 }
 
+/// Builds an anonymous support identity from explicit user and machine parts.
+///
+/// Empty or missing machine names are normalized to `localhost`.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::anonymous_identity_from_parts;
+///
+/// let identity = anonymous_identity_from_parts("alice", Some("build-agent"));
+///
+/// assert_eq!(identity.len(), 44);
+/// ```
 pub fn anonymous_identity_from_parts(user_name: &str, machine_name: Option<&str>) -> String {
     let machine_name = machine_name
         .map(str::trim)
@@ -21,10 +39,22 @@ pub fn anonymous_identity_from_parts(user_name: &str, machine_name: Option<&str>
     STANDARD.encode(hash).to_ascii_lowercase()
 }
 
+/// Returns a short support key for the current machine.
+///
+/// The key is the first seven characters of [`anonymous_identity`].
 pub fn support_key() -> String {
     support_key_from_anonymous_identity(&anonymous_identity())
 }
 
+/// Returns a short support key from a previously computed anonymous identity.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::support_key_from_anonymous_identity;
+///
+/// assert_eq!(support_key_from_anonymous_identity("abcdefghi"), "abcdefg");
+/// ```
 pub fn support_key_from_anonymous_identity(anonymous_identity: &str) -> String {
     anonymous_identity.chars().take(7).collect()
 }

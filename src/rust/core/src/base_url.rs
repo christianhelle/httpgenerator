@@ -1,5 +1,29 @@
 use url::Url;
 
+/// Resolves the base URL used for generated request files.
+///
+/// Resolution follows the compatibility rules used by the CLI:
+///
+/// - `configured_base_url` takes precedence when supplied.
+/// - A relative `server_url` is appended to the configured base URL.
+/// - Without a configured base URL, the OpenAPI server URL is used.
+/// - Relative server URLs from remote OpenAPI documents inherit the document's
+///   URL authority.
+/// - Template-style configured values such as `{{MY_BASE_URL}}` are preserved.
+///
+/// # Example
+///
+/// ```
+/// use httpgenerator_core::resolve_base_url;
+///
+/// let base_url = resolve_base_url(
+///     "https://petstore.swagger.io/v2/swagger.json",
+///     Some("/api/v3"),
+///     None,
+/// );
+///
+/// assert_eq!(base_url, "https://petstore.swagger.io/api/v3");
+/// ```
 pub fn resolve_base_url(
     open_api_path: &str,
     server_url: Option<&str>,
