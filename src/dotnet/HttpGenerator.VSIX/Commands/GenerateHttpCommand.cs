@@ -13,7 +13,7 @@ internal sealed class GenerateHttpCommand(
         Icon = new(ImageMoniker.KnownValues.GenerateFile, IconSettings.IconAndText),
         VisibleWhen = ActivationConstraint.ClientContext(
             ClientContextKey.Shell.ActiveSelectionFileName,
-            "\\.(json|ya?ml)$"),
+            @"(?i)\.(json|ya?ml)$"),
         Placements =
         [
             CommandPlacement.KnownPlacements.ToolsMenu,
