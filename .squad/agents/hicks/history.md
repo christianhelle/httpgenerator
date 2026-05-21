@@ -59,3 +59,15 @@
 - Bishop approved incremental doctests validation (fast signal: `cargo test -p httpgenerator-core --doc`) plus full repository sequence for final approval.
 - Current work in progress: normalized-docs-batch (batch 2 per Ripley's plan).
 - Final validation gate remains full matrix: `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx --configuration Release`, `dotnet test src\dotnet\HttpGenerator.slnx --configuration Release`, `test\smoke-tests.ps1`.
+
+### OpenAPI entrypoint docs batch (2026-05-21T15:00:01.518+02:00)
+- Added the `openapi` module overview for docs.rs with a pipeline narrative, a "Which function should I call?" guide, and explicit fallback limits for Swagger 2 and OpenAPI 3.1 raw loading.
+- Documented the public loader and normalization entry points so docs.rs callers can choose between source strings, classified sources, raw decoded documents, and direct normalization.
+- Enabled docs.rs `doc(cfg)` surfacing for the optional `openapi` module by adding crate metadata plus a gated module annotation in `src\rust\core`.
+- Validation for this batch: `cargo test --workspace`.
+
+### OpenAPI reference docs batch (2026-05-21T15:00:01.518+02:00)
+- Documented the remaining public OpenAPI reference surfaces in `raw`, `inspect`, `typed`, `version`, `format`, `source`, and `error`, with short module overviews plus concise item docs for docs.rs navigation.
+- Kept examples on boundary APIs only: raw decode/load, inspection entry points, typed front-door parsing, source classification, content-format detection, and specification-version detection.
+- Used reference-style docs for stats fields, version enums, and public error variants so the remaining OpenAPI pages stay scan-friendly instead of repeating workflow prose.
+- Validation for this batch: `cargo test --workspace`.

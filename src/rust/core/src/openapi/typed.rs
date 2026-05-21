@@ -1,11 +1,21 @@
+//! Typed OpenAPI parsing over a previously loaded raw document.
+//!
+//! This layer converts [`super::RawOpenApiDocument`] values into version-specific Rust models for
+//! OpenAPI 3.0 and 3.1. Swagger 2.0 remains intentionally unsupported here, so callers can decide
+//! whether to stay on the raw bridge or normalize directly.
+
 use super::{OpenApiSpecificationVersion, RawOpenApiDocument, TypedOpenApiParseError};
 
+/// Version-specific typed OpenAPI models exposed by this crate.
 pub enum TypedOpenApiDocument {
+    /// A parsed [`openapiv3::OpenAPI`] document.
     OpenApi30(openapiv3::OpenAPI),
+    /// A parsed [`openapiv3_1::OpenApi`] document.
     OpenApi31(openapiv3_1::OpenApi),
 }
 
 impl TypedOpenApiDocument {
+    /// Returns the specification version represented by this typed document.
     pub fn specification_version(&self) -> OpenApiSpecificationVersion {
         match self {
             Self::OpenApi30(_) => OpenApiSpecificationVersion::OpenApi30,
@@ -14,6 +24,33 @@ impl TypedOpenApiDocument {
     }
 }
 
+/// Parses a raw document into the matching typed OpenAPI model.
+///
+/// Use this as the typed front door when you want the crate to detect the specification version and
+/// select the correct parser automatically.
+///
+/// # Examples
+///
+/// ```
+/// use httpgenerator_core::openapi::{
+///     OpenApiSource, TypedOpenApiDocument, decode_raw_document, parse_typed_document,
+/// };
+/// use std::path::PathBuf;
+///
+/// let raw = decode_raw_document(
+///     OpenApiSource::Path(PathBuf::from("petstore.json")),
+///     r#"{
+///         "openapi": "3.0.2",
+///         "info": { "title": "Example", "version": "1.0.0" },
+///         "paths": {}
+///     }"#,
+/// )
+/// .unwrap();
+///
+/// let typed = parse_typed_document(&raw).unwrap();
+///
+/// assert!(matches!(typed, TypedOpenApiDocument::OpenApi30(_)));
+/// ```
 pub fn parse_typed_document(
     document: &RawOpenApiDocument,
 ) -> Result<TypedOpenApiDocument, TypedOpenApiParseError> {
@@ -36,12 +73,20 @@ pub fn parse_typed_document(
     }
 }
 
+/// Parses a raw document as OpenAPI 3.0.
+///
+/// Returns [`TypedOpenApiParseError::UnsupportedVersion`] when the raw document is not an OpenAPI
+/// 3.0 document.
 pub fn parse_openapi30_document(
     document: &RawOpenApiDocument,
 ) -> Result<openapiv3::OpenAPI, TypedOpenApiParseError> {
     parse_versioned_document(document, OpenApiSpecificationVersion::OpenApi30)
 }
 
+/// Parses a raw document as OpenAPI 3.1.
+///
+/// Returns [`TypedOpenApiParseError::UnsupportedVersion`] when the raw document is not an OpenAPI
+/// 3.1 document.
 pub fn parse_openapi31_document(
     document: &RawOpenApiDocument,
 ) -> Result<openapiv3_1::OpenApi, TypedOpenApiParseError> {
