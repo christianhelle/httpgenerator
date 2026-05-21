@@ -69,3 +69,9 @@
 - The commit-policy follow-up reused the full regression path: cargo test --workspace, dotnet build src\dotnet\HttpGenerator.slnx -c Release, dotnet test src\dotnet\HttpGenerator.slnx -c Release, and dotnet build src\dotnet\VSIX.slnx -c Release.
 - test\smoke-tests.ps1 still reproduces the pre-existing release-path/ANSI failure, so this signature remains baseline noise rather than a new regression for the VSIX async stream.
 
+### VSIX visibility regression validation (2026-05-21T18:18:31Z)
+- Performed three-pass validation on the VSIX visibility regression fix tracking case-sensitivity and Tools fallback completeness.
+- First validation rejected: case-sensitive regex in `GenerateHttpCommand.VisibleWhen` blocked uppercase/mixed-case filenames despite runtime support for them.
+- Second validation rejected: Tools submenu fallback missing; `GenerateCommand` moved to standalone placement and lost always-visible submenu containment.
+- Final validation approved after Ripley's case-insensitive regex fix (`344e49b`) and Hicks' Tools submenu restoration (`7753820`). Full regression matrix passed: `cargo test --workspace`, `dotnet build src\dotnet\HttpGenerator.slnx -c Release`, `dotnet test src\dotnet\HttpGenerator.slnx -c Release`, `dotnet build src\dotnet\VSIX.slnx -c Release`.
+

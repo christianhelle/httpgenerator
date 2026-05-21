@@ -96,3 +96,8 @@
 - Split the pending VSIX follow-up into three exact commits: c30d0b5 chore(squad): enforce small commits, 84103cc feat(vsix): async generation flow, and 8d33949 docs(vsix): align async workflow.
 - Validation rerun to remember for this stream: cargo test --workspace, dotnet build src\dotnet\HttpGenerator.slnx -c Release, dotnet test src\dotnet\HttpGenerator.slnx -c Release, and dotnet build src\dotnet\VSIX.slnx -c Release; test\smoke-tests.ps1 still ends in the known release-path/ANSI baseline failure.
 
+### VSIX visibility regression fix (2026-05-21T18:18:31Z)
+- Identified and fixed case-sensitivity mismatch in `GenerateHttpCommand.VisibleWhen` pattern. Committed `344e49b fix(vsix): match openapi extensions case-insensitively` to apply `(?i)\.(json|ya?ml)$` regex.
+- Coordinated with Hicks' concurrent Tools submenu restoration and Bishop's multi-pass validation.
+- Result: uppercase/mixed-case OpenAPI filenames (e.g., `PETSTORE.JSON`, `spec.YAML`) now pass the visibility gate while maintaining case-insensitive runtime support check in `ClientContextExtensions.IsSupportedOpenApiPath(...)`.
+

@@ -394,3 +394,31 @@ status: proposed
 - Safe now: add explicit command placements, add a tool-window-based settings surface, and add a tool-window-based details/log surface.
 - Avoid now: relying on Output Window preview APIs as the primary details UX, or expecting built-in Options/settings pages to cover the approved editor experience.
 - Adjustment for the next wave: tighten selection resolution before wiring Tools fallback, because the current helper resolves the active project path instead of the selected spec file.
+
+### 2026-05-21T20:11:51.031+02:00: Hicks — VSIX visibility investigation
+**By:** Hicks (Core Dev)
+**What:** The current branch no longer exposes `Generate .http files` through the existing Tools submenu. `ExtensionEntrypoint.GenerateMenu` is still placed on `ToolsMenu`, but after `fix(vsix): restore tools command` it only contains `ShowHttpGeneratorToolWindowCommand`.
+**Finding:** `GenerateHttpCommand` was moved out of `GenerateMenu` and now relies on a standalone `CommandPlacement.KnownPlacements.ToolsMenu` plus `VisibleWhen = ActivationConstraint.ClientContext(ClientContextKey.Shell.ActiveSelectionFileName, ...)`. That makes the command depend on selection context when rendered as a top-level Tools command, so the direct Tools entry is not reliably shown, while the always-visible submenu no longer contains it.
+**Decision proposal:** Treat the Tools fallback as a submenu contract: keep `GenerateHttpCommand` wired under the Tools-hosted `GenerateMenu`, and use the standalone command placements for the Solution Explorer context menu (and any other context-sensitive surfaces), not as the only discoverable Tools path.
+
+### 2026-05-21T20:18:31.147+02:00: Hudson — VSIX Tools fallback menu
+**By:** Hudson (DevRel/Docs)
+**What:** Keep the existing direct `Tools` command and Solution Explorer command unchanged for supported OpenAPI selections. Restore discoverability with an always-visible submenu path at `Tools -> HTTP File Generator (PREVIEW) -> Generate .http files`. When that fallback is invoked without a supported Solution Explorer selection, open the existing settings/activity tool window and show guidance instead of silently doing nothing.
+
+### 2026-05-21T20:18:31.147+02:00: Bishop — VSIX visibility validation
+**By:** Bishop (Tester)
+**What:** Case-insensitive extension matching validation against `src\dotnet\HttpGenerator.VSIX\Commands\GenerateHttpCommand.cs`, `src\dotnet\HttpGenerator.VSIX\ClientContextExtensions.cs`, `src\dotnet\HttpGenerator.VSIX\ExtensionEntrypoint.cs`, `src\dotnet\HttpGenerator.VSIX\KnownVsctIds.cs`.
+**Findings:**
+1. The topology is otherwise correct: `GenerateHttpCommand` is placed directly on `ToolsMenu` and on the Solution Explorer file context menu via `VsctParent(... id: 521 ...)`.
+2. The remaining mismatch is the `VisibleWhen` regex: current gate is `\\.(json|ya?ml)$`, but runtime support check in `ClientContextExtensions.IsSupportedOpenApiPath(...)` is case-insensitive.
+3. Result: selections such as `PETSTORE.JSON`, `Petstore.YAML`, or `spec.YmL` are supported by execution logic but can lose menu entry points because the visibility gate is narrower than the command's own supported-file check.
+**Verdict:** Blocker remains against the desired UX.
+
+### 2026-05-21T20:18:31.147+02:00: Bishop — VSIX visibility revalidation
+**By:** Bishop (Tester)
+**Scope:** `src\dotnet\HttpGenerator.VSIX\Commands\GenerateHttpCommand.cs`, `src\dotnet\HttpGenerator.VSIX\ClientContextExtensions.cs`, `src\dotnet\HttpGenerator.VSIX\ExtensionEntrypoint.cs`.
+**Findings:**
+1. The previous mismatch is fixed: `GenerateHttpCommand.VisibleWhen` now uses `(?i)\.(json|ya?ml)$`, and `ClientContextExtensions.IsSupportedOpenApiPath(...)` accepts `.json`, `.yaml`, and `.yml` with `StringComparison.OrdinalIgnoreCase`. Uppercase and mixed-case OpenAPI filenames no longer fall through the visibility gate.
+2. A separate UX blocker still stands: `ExtensionEntrypoint.GenerateMenu` remains the always-visible Tools submenu, but it still contains only `ShowHttpGeneratorToolWindowCommand`. `GenerateHttpCommand` relies on a direct `ToolsMenu` placement guarded by `ActiveSelectionFileName`, so the branch lacks an always-discoverable Tools-path fallback.
+3. Validation: `dotnet build src\dotnet\VSIX.slnx --configuration Release` passed.
+**Verdict:** Case-insensitive extension fix clears the earlier blocker, but the broader Tools-surface discoverability blocker still remains.

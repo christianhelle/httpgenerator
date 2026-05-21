@@ -82,3 +82,8 @@ CLI tool + VS extensions for generating `.http` files from OpenAPI specs.
 ### VSIX async docs commit closeout (2026-05-18T11:14:38Z)
 - Ripley split the pending VSIX follow-up into a dedicated docs commit, 8d33949 docs(vsix): align async workflow, after first landing the squad-rule and implementation slices separately.
 - Keep future docs updates grouped as their own logical commit when they only align workflow wording or host guidance; do not fold them back into implementation slices.
+
+### VSIX visibility regression decision (2026-05-21T18:18:31Z)
+- Recorded the VSIX Tools fallback menu decision after Hicks and Ripley fixed the underlying visibility regressions.
+- Decision: restore discoverability with an always-visible submenu path at `Tools -> HTTP File Generator (PREVIEW) -> Generate .http files`, keeping the existing direct Tools command and Solution Explorer command for supported selections, and routing spec-less invocations to the settings/activity tool window with guidance.
+

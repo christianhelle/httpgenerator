@@ -49,3 +49,8 @@
 - Landed the first Visual Studio extension redesign wave with a background coordinator, persisted defaults in the tool window, deterministic CLI lookup, cancellation, and right-click plus Tools fallback entry points.
 - Ripley rejected the first cut for missing notifications and the wrong placement seam; the revised state was approved after the notification contract and VsctParent(... id: 521 ...) placement were restored.
 
+### VSIX visibility fix follow-up (2026-05-21T18:18:31Z)
+- Investigated and fixed Tools submenu regression where `GenerateHttpCommand` lost its always-visible fallback path after earlier refactor moved it to a standalone `ToolsMenu` placement guarded by `ActiveSelectionFileName`.
+- Committed `7753820 fix(vsix): restore tools fallback` to restore the `GenerateCommand` as a submenu item under `ExtensionEntrypoint.GenerateMenu` while preserving Solution Explorer file-context placement.
+- Coordinated with Ripley's concurrent case-sensitivity fix (`344e49b`) and Bishop's multi-pass validation to close the regression.
+
