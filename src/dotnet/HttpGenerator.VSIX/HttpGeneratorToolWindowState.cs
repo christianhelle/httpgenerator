@@ -170,6 +170,12 @@ internal sealed class HttpGeneratorToolWindowState : NotifyPropertyChangedObject
         };
     }
 
+    public void RecordSelectionRequired()
+    {
+        StatusHeadline = "Select an OpenAPI file to start generation.";
+        StatusDetails = "Choose a .json, .yaml, or .yml file in Solution Explorer, then use Generate .http files again.";
+    }
+
     private async Task InitializeAsync()
     {
         try

@@ -31,6 +31,7 @@ internal class ExtensionEntrypoint : Extension
             ],
             Children =
             [
+                MenuChild.Command<Commands.GenerateHttpFallbackCommand>(),
                 MenuChild.Command<Commands.ShowHttpGeneratorToolWindowCommand>(),
             ],
         };
