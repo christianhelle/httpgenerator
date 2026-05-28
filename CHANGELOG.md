@@ -12,8 +12,20 @@
 
 **Merged pull requests:**
 
+- build\(deps-dev\): bump tmp from 0.2.5 to 0.2.6 in /src/vscode [\#409](https://github.com/christianhelle/httpgenerator/pull/409) ([dependabot[bot]](https://github.com/apps/dependabot))
+- chore\(deps\): update dependency microsoft.net.test.sdk to 18.6.0 [\#408](https://github.com/christianhelle/httpgenerator/pull/408) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update rust crate serde\_json to v1.0.150 [\#407](https://github.com/christianhelle/httpgenerator/pull/407) ([renovate[bot]](https://github.com/apps/renovate))
+- Improve httpgenerator-core rustdoc [\#406](https://github.com/christianhelle/httpgenerator/pull/406) ([christianhelle](https://github.com/christianhelle))
 - chore\(deps\): update dependency coverlet.collector to 10.0.1 [\#404](https://github.com/christianhelle/httpgenerator/pull/404) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update azure-sdk-for-rust monorepo to v1 - autoclosed [\#403](https://github.com/christianhelle/httpgenerator/pull/403) ([renovate[bot]](https://github.com/apps/renovate))
 - Migrate Visual Studio extension to use the Rust-based CLI [\#401](https://github.com/christianhelle/httpgenerator/pull/401) ([christianhelle](https://github.com/christianhelle))
+- chore\(deps\): update dependency ruby to v4.0.5 [\#394](https://github.com/christianhelle/httpgenerator/pull/394) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/node to v24.12.4 [\#388](https://github.com/christianhelle/httpgenerator/pull/388) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency typescript to v6 [\#386](https://github.com/christianhelle/httpgenerator/pull/386) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update azure azure-sdk-for-net monorepo [\#384](https://github.com/christianhelle/httpgenerator/pull/384) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency @types/vscode to v1.120.0 [\#383](https://github.com/christianhelle/httpgenerator/pull/383) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dependency fluentassertions to 7.2.2 [\#381](https://github.com/christianhelle/httpgenerator/pull/381) ([renovate[bot]](https://github.com/apps/renovate))
+- chore\(deps\): update dotnet monorepo [\#373](https://github.com/christianhelle/httpgenerator/pull/373) ([renovate[bot]](https://github.com/apps/renovate))
 
 ## [1.1.0](https://github.com/christianhelle/httpgenerator/tree/1.1.0) (2026-05-11)
 
