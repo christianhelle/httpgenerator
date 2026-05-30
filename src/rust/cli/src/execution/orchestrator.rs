@@ -1,19 +1,23 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::{generate_http_files, openapi::load_and_normalize_document_with_options};
+use httpgenerator_core::{
+    generate_http_files,
+    openapi::{
+        inspect_document, load_and_normalize_document, LoadOptions, OpenApiInspection,
+        OpenApiSpecificationVersion,
+    },
+    GeneratorSettings,
+};
 
 use crate::{
-    CliError,
     args::CliArgs,
     auth::try_get_access_token,
     observer::{ExecutionObserver, ExecutionSummary, NoopExecutionObserver},
     writer::write_files,
+    CliError,
 };
 
-use super::{
-    authorization::resolve_authorization_header, settings::build_generator_settings,
-    validation::validate_openapi_document,
-};
+use super::authorization::resolve_authorization_header;
 
 pub fn execute(args: CliArgs) -> Result<ExecutionSummary, CliError> {
     let mut observer = NoopExecutionObserver;
@@ -80,8 +84,13 @@ where
         observer.azure_auth_finished(&azure_auth);
     }
 
-    let document = load_and_normalize_document_with_options(&open_api_path, args.skip_validation)
-        .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
+    let document = load_and_normalize_document(
+        &open_api_path,
+        LoadOptions {
+            tolerate_invalid_openapi31: args.skip_validation,
+        },
+    )
+    .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
     let settings = build_generator_settings(&args, open_api_path.clone(), authorization_header);
     let result = generate_http_files(&settings, &document);
     observer.file_writing_started(result.files.len());
@@ -95,4 +104,45 @@ where
         validation,
         azure_auth,
     })
+}
+
+fn build_generator_settings(
+    args: &CliArgs,
+    open_api_path: String,
+    authorization_header: Option<String>,
+) -> GeneratorSettings {
+    GeneratorSettings {
+        open_api_path,
+        authorization_header,
+        authorization_header_from_environment_variable: args
+            .authorization_header_from_environment_variable,
+        authorization_header_variable_name: args.authorization_header_variable_name.clone(),
+        content_type: args.content_type.clone(),
+        base_url: args.base_url.clone(),
+        output_type: args.output_type.into(),
+        timeout: args.timeout,
+        generate_intellij_tests: args.generate_intellij_tests,
+        custom_headers: args.custom_headers.clone(),
+        skip_headers: args.skip_headers,
+    }
+}
+
+fn validate_openapi_document(
+    open_api_path: &str,
+    skip_validation: bool,
+) -> Result<Option<OpenApiInspection>, CliError> {
+    if skip_validation {
+        return Ok(None);
+    }
+
+    let inspection = inspect_document(open_api_path)
+        .map_err(|error| CliError::InspectOpenApi(error.to_string()))?;
+
+    if inspection.specification_version == OpenApiSpecificationVersion::OpenApi31 {
+        return Err(CliError::UnsupportedValidationVersion {
+            version: inspection.specification_version,
+        });
+    }
+
+    Ok(Some(inspection))
 }
