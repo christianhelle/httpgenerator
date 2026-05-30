@@ -328,3 +328,23 @@ Kept `src\rust\cli\src\main.rs` thin by limiting it to argument collection, faca
 - Treat `OpenApiStats`, `OpenApiInspection`, `RawOpenApiDocument`, `OpenApiSource`, `OpenApiContentFormat`, `TypedOpenApiDocument`, `OpenApiSpecificationVersion`, and error enums as the remaining "blank page" risk.
 - Leave `author-rustdoc-batches` in progress until Hicks lands that batch; after landing, final validation should be enough unless review finds prose-quality issues.
 
+
+### 2026-05-30T17:27:00.000+02:00: Loader public-API clean break — `LoadOptions`
+**By:** Christian Helle (via Copilot CLI), implemented during architecture deepening
+**What:** Reshaped the `httpgenerator-core::openapi` loader surface. Removed the paired
+`*_with_options` functions and the no-arg wrappers in favor of single entry points that take a
+new `LoadOptions { tolerate_invalid_openapi31: bool }` (with `Default`):
+`load_document(input, opts)`, `load_document_from_source(source, opts)`,
+`load_document_from_raw(raw, opts)`, and `load_and_normalize_document(input, opts)`. Also removed
+`LoadedOpenApiDocument::as_openapi30` / `as_openapi31` (only consumed by the loader's own tests).
+`load_raw_document` / `load_raw_document_from_source` are unchanged (they had no options twin).
+**Why:** The option-twin pattern doubled the public surface — six exported names plus accessors for
+a single boolean — making the loader interface nearly as wide as its implementation (shallow). One
+options-taking entry per stage deepens the module: a small interface, behaviour concentrated.
+**Decision:** This intentionally REVISES the 2026-05-08 "Rust Modularization Direction" guidance to
+"preserve public crate APIs unless the user explicitly approves API reshaping." The user explicitly
+approved a clean break (no deprecated shims). All in-repo call sites, re-exports, doctests, and the
+`facade_contracts` signature assertion were updated in the same pass.
+**Validation:** `cargo test --workspace` (incl. `differential_petstore`, `openapi_generator_parity`,
+facade contracts, 37 doctests); `cargo clippy --workspace --all-targets` (no new warnings);
+petstore CLI smoke generation.
