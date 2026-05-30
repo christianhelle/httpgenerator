@@ -1,8 +1,6 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::openapi::{
-    load_and_normalize_document, load_and_normalize_document_with_options,
-};
+use httpgenerator_core::openapi::{LoadOptions, load_and_normalize_document};
 use httpgenerator_core::{GeneratorSettings, OutputType, generate_http_files};
 
 fn petstore_input() -> String {
@@ -51,7 +49,7 @@ fn newline() -> &'static str {
 
 #[test]
 fn petstore_renders_expected_one_request_per_file_outputs() {
-    let document = load_and_normalize_document(&petstore_input()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
 
     let result = generate_http_files(&petstore_settings(), &document);
 
@@ -79,7 +77,7 @@ fn petstore_renders_expected_one_request_per_file_outputs() {
 
 #[test]
 fn petstore_renders_expected_one_file_content() {
-    let document = load_and_normalize_document(&petstore_input()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFile,
         ..petstore_settings()
@@ -106,7 +104,7 @@ fn petstore_renders_expected_one_file_content() {
 
 #[test]
 fn petstore_renders_expected_one_file_per_tag_outputs() {
-    let document = load_and_normalize_document(&petstore_input()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFilePerTag,
         ..petstore_settings()
@@ -131,7 +129,7 @@ fn petstore_renders_expected_one_file_per_tag_outputs() {
 
 #[test]
 fn petstore_preserves_skip_headers_and_base_url_override_quirks() {
-    let document = load_and_normalize_document(&petstore_input()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
 
     let skip_header_result = generate_http_files(
         &GeneratorSettings {
@@ -165,7 +163,13 @@ fn petstore_preserves_skip_headers_and_base_url_override_quirks() {
 
 #[test]
 fn webhook_example_renders_expected_one_request_per_file_output() {
-    let document = load_and_normalize_document_with_options(&webhook_input(), true).unwrap();
+    let document = load_and_normalize_document(
+        &webhook_input(),
+        LoadOptions {
+            tolerate_invalid_openapi31: true,
+        },
+    )
+    .unwrap();
 
     let result = generate_http_files(&webhook_settings(), &document);
     assert_eq!(result.files.len(), 1);
@@ -186,7 +190,13 @@ fn webhook_example_renders_expected_one_request_per_file_output() {
 
 #[test]
 fn webhook_example_renders_expected_one_file_per_tag_output() {
-    let document = load_and_normalize_document_with_options(&webhook_input(), true).unwrap();
+    let document = load_and_normalize_document(
+        &webhook_input(),
+        LoadOptions {
+            tolerate_invalid_openapi31: true,
+        },
+    )
+    .unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFilePerTag,
         ..webhook_settings()

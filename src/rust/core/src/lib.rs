@@ -66,9 +66,9 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "openapi")] {
-//! use httpgenerator_core::openapi::{load_document, LoadedOpenApiDocument};
+//! use httpgenerator_core::openapi::{LoadOptions, LoadedOpenApiDocument, load_document};
 //!
-//! let loaded = load_document("test/OpenAPI/v3.0/petstore.json").unwrap();
+//! let loaded = load_document("test/OpenAPI/v3.0/petstore.json", LoadOptions::default()).unwrap();
 //!
 //! assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
 //! # }

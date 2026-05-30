@@ -23,14 +23,17 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
     ) -> model::GeneratorResult = generator::generate_http_files;
     let _: fn(
         &str,
+        openapi::LoadOptions,
     ) -> Result<
         normalized::NormalizedOpenApiDocument,
         openapi::OpenApiDocumentNormalizationError,
     > = openapi::load_and_normalize_document;
 
-    let mut settings = model::GeneratorSettings::default();
-    settings.open_api_path = "petstore.json".to_string();
-    settings.output_type = model::OutputType::OneRequestPerFile;
+    let settings = model::GeneratorSettings {
+        open_api_path: "petstore.json".to_string(),
+        output_type: model::OutputType::OneRequestPerFile,
+        ..Default::default()
+    };
 
     let document = normalized::NormalizedOpenApiDocument {
         specification_version: normalized::NormalizedSpecificationVersion::OpenApi30,
@@ -74,7 +77,8 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
 #[test]
 fn openapi_and_generator_facades_stay_compatible_for_petstore() {
     let input = petstore_input();
-    let document = openapi::load_and_normalize_document(&input).unwrap();
+    let document =
+        openapi::load_and_normalize_document(&input, openapi::LoadOptions::default()).unwrap();
     let settings = model::GeneratorSettings {
         open_api_path: input,
         ..Default::default()

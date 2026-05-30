@@ -10,6 +10,11 @@ use super::{
     load_raw_document_from_source, parse_typed_document,
 };
 
+#[derive(Debug, Clone, Copy, Default)]
+pub struct LoadOptions {
+    pub tolerate_invalid_openapi31: bool,
+}
+
 /// Represents a successfully loaded OpenAPI document.
 ///
 /// The loader keeps the original [`RawOpenApiDocument`] for every variant so callers can preserve
@@ -21,8 +26,8 @@ use super::{
 ///
 /// ```
 /// use httpgenerator_core::openapi::{
-///     LoadedOpenApiDocument, OpenApiSource, OpenApiSpecificationVersion, decode_raw_document,
-///     load_document_from_raw,
+///     LoadOptions, LoadedOpenApiDocument, OpenApiSource, OpenApiSpecificationVersion,
+///     decode_raw_document, load_document_from_raw,
 /// };
 /// use std::path::PathBuf;
 ///
@@ -36,14 +41,13 @@ use super::{
 /// )
 /// .unwrap();
 ///
-/// let loaded = load_document_from_raw(raw).unwrap();
+/// let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
 ///
 /// assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
 /// assert_eq!(
 ///     loaded.specification_version(),
 ///     OpenApiSpecificationVersion::OpenApi30
 /// );
-/// assert!(loaded.as_openapi30().is_some());
 /// ```
 pub enum LoadedOpenApiDocument {
     /// A Swagger 2.0 document preserved as raw input until a typed bridge exists.
@@ -103,22 +107,6 @@ impl LoadedOpenApiDocument {
             }
         }
     }
-
-    /// Returns the typed OpenAPI 3.0 document when that representation is available.
-    pub fn as_openapi30(&self) -> Option<&openapiv3::OpenAPI> {
-        match self {
-            Self::Swagger2 { .. } | Self::OpenApi31 { .. } | Self::OpenApi31Raw { .. } => None,
-            Self::OpenApi30 { document, .. } => Some(document),
-        }
-    }
-
-    /// Returns the typed OpenAPI 3.1 document when that representation is available.
-    pub fn as_openapi31(&self) -> Option<&openapiv3_1::OpenApi> {
-        match self {
-            Self::Swagger2 { .. } | Self::OpenApi30 { .. } | Self::OpenApi31Raw { .. } => None,
-            Self::OpenApi31 { document, .. } => Some(document),
-        }
-    }
 }
 
 /// Loads a document from a file path or URL string.
@@ -129,22 +117,18 @@ impl LoadedOpenApiDocument {
 /// # Examples
 ///
 /// ```no_run
-/// use httpgenerator_core::openapi::{LoadedOpenApiDocument, load_document};
+/// use httpgenerator_core::openapi::{LoadOptions, LoadedOpenApiDocument, load_document};
 ///
-/// let loaded = load_document("test/OpenAPI/v3.0/petstore.json").unwrap();
+/// let loaded = load_document("test/OpenAPI/v3.0/petstore.json", LoadOptions::default()).unwrap();
 ///
 /// assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
 /// ```
-pub fn load_document(input: &str) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
-    load_document_with_options(input, false)
-}
-
-pub(crate) fn load_document_with_options(
+pub fn load_document(
     input: &str,
-    tolerate_invalid_openapi31: bool,
+    options: LoadOptions,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     let raw = load_raw_document(input).map_err(OpenApiDocumentLoadError::RawLoad)?;
-    load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
+    load_document_from_raw(raw, options)
 }
 
 /// Loads a document from a pre-classified [`OpenApiSource`].
@@ -154,12 +138,15 @@ pub(crate) fn load_document_with_options(
 /// # Examples
 ///
 /// ```no_run
-/// use httpgenerator_core::openapi::{LoadedOpenApiDocument, OpenApiSource, load_document_from_source};
+/// use httpgenerator_core::openapi::{
+///     LoadOptions, LoadedOpenApiDocument, OpenApiSource, load_document_from_source,
+/// };
 /// use std::path::PathBuf;
 ///
-/// let loaded = load_document_from_source(OpenApiSource::Path(PathBuf::from(
-///     "test/OpenAPI/v3.1/webhook-example.json",
-/// )))
+/// let loaded = load_document_from_source(
+///     OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
+///     LoadOptions::default(),
+/// )
 /// .unwrap();
 ///
 /// assert!(matches!(
@@ -169,16 +156,10 @@ pub(crate) fn load_document_with_options(
 /// ```
 pub fn load_document_from_source(
     source: OpenApiSource,
-) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
-    load_document_from_source_with_options(source, false)
-}
-
-pub(crate) fn load_document_from_source_with_options(
-    source: OpenApiSource,
-    tolerate_invalid_openapi31: bool,
+    options: LoadOptions,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     let raw = load_raw_document_from_source(source).map_err(OpenApiDocumentLoadError::RawLoad)?;
-    load_document_from_raw_with_options(raw, tolerate_invalid_openapi31)
+    load_document_from_raw(raw, options)
 }
 
 /// Loads a document from a previously decoded raw representation.
@@ -190,7 +171,8 @@ pub(crate) fn load_document_from_source_with_options(
 ///
 /// ```
 /// use httpgenerator_core::openapi::{
-///     LoadedOpenApiDocument, OpenApiSource, decode_raw_document, load_document_from_raw,
+///     LoadOptions, LoadedOpenApiDocument, OpenApiSource, decode_raw_document,
+///     load_document_from_raw,
 /// };
 /// use std::path::PathBuf;
 ///
@@ -200,20 +182,13 @@ pub(crate) fn load_document_from_source_with_options(
 /// )
 /// .unwrap();
 ///
-/// let loaded = load_document_from_raw(raw).unwrap();
+/// let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
 ///
 /// assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31 { .. }));
-/// assert!(loaded.as_openapi31().is_some());
 /// ```
 pub fn load_document_from_raw(
     raw: RawOpenApiDocument,
-) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
-    load_document_from_raw_with_options(raw, false)
-}
-
-pub(crate) fn load_document_from_raw_with_options(
-    raw: RawOpenApiDocument,
-    tolerate_invalid_openapi31: bool,
+    options: LoadOptions,
 ) -> Result<LoadedOpenApiDocument, OpenApiDocumentLoadError> {
     if matches!(
         raw.specification_version(),
@@ -232,7 +207,7 @@ pub(crate) fn load_document_from_raw_with_options(
         Err(TypedOpenApiParseError::Deserialize {
             version: OpenApiSpecificationVersion::OpenApi31,
             ..
-        }) if should_fallback_to_raw_openapi31(&raw, tolerate_invalid_openapi31) => {
+        }) if should_fallback_to_raw_openapi31(&raw, options.tolerate_invalid_openapi31) => {
             Ok(LoadedOpenApiDocument::OpenApi31Raw { raw })
         }
         Err(error) => Err(OpenApiDocumentLoadError::TypedParse(error)),
@@ -274,8 +249,8 @@ mod tests {
     };
 
     use super::{
-        LoadedOpenApiDocument, load_document, load_document_from_raw,
-        load_document_from_raw_with_options, load_document_from_source,
+        LoadOptions, LoadedOpenApiDocument, load_document, load_document_from_raw,
+        load_document_from_source,
     };
 
     static TEST_ARTIFACT_ID: AtomicU64 = AtomicU64::new(0);
@@ -292,15 +267,13 @@ mod tests {
         )
         .unwrap();
 
-        let loaded = load_document_from_raw(raw).unwrap();
+        let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::OpenApi30
         );
-        assert!(loaded.as_openapi30().is_some());
-        assert!(loaded.as_openapi31().is_none());
     }
 
     #[test]
@@ -310,8 +283,11 @@ mod tests {
             "openapi: 3.1.0\ninfo:\n  title: Example\n  version: 1.0.0\npaths: {}\n",
         );
 
-        let loaded =
-            load_document_from_source(OpenApiSource::Path(file.path().to_path_buf())).unwrap();
+        let loaded = load_document_from_source(
+            OpenApiSource::Path(file.path().to_path_buf()),
+            LoadOptions::default(),
+        )
+        .unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31 { .. }));
         assert_eq!(
@@ -332,14 +308,13 @@ mod tests {
         )
         .unwrap();
 
-        let loaded = load_document_from_raw(raw).unwrap();
+        let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31Raw { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::OpenApi31
         );
-        assert!(loaded.as_openapi31().is_none());
     }
 
     #[test]
@@ -350,14 +325,19 @@ mod tests {
         )
         .unwrap();
 
-        let loaded = load_document_from_raw_with_options(raw, true).unwrap();
+        let loaded = load_document_from_raw(
+            raw,
+            LoadOptions {
+                tolerate_invalid_openapi31: true,
+            },
+        )
+        .unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi31Raw { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::OpenApi31
         );
-        assert!(loaded.as_openapi31().is_none());
     }
 
     #[test]
@@ -372,15 +352,13 @@ mod tests {
         )
         .unwrap();
 
-        let loaded = load_document_from_raw(raw).unwrap();
+        let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::Swagger2 { .. }));
         assert_eq!(
             loaded.specification_version(),
             OpenApiSpecificationVersion::Swagger2
         );
-        assert!(loaded.as_openapi30().is_none());
-        assert!(loaded.as_openapi31().is_none());
     }
 
     #[test]
@@ -394,7 +372,7 @@ mod tests {
             }"#,
         );
 
-        let loaded = load_document(file.path().to_str().unwrap()).unwrap();
+        let loaded = load_document(file.path().to_str().unwrap(), LoadOptions::default()).unwrap();
 
         assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
         assert_eq!(loaded.format(), OpenApiContentFormat::Json);
