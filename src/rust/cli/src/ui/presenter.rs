@@ -6,14 +6,15 @@ use std::{
     time::Duration,
 };
 
-use super::{
-    format::{PresentationMode, mode_from_terminal},
-    render::{
-        render_azure_auth_finished, render_azure_auth_started, render_error,
-        render_file_writing_started, render_files_written, render_header, render_success,
-        render_validation_started, render_validation_succeeded,
-    },
+#[path = "render.rs"]
+mod render;
+
+use self::render::{
+    render_azure_auth_finished, render_azure_auth_started, render_error,
+    render_file_writing_started, render_files_written, render_header, render_success,
+    render_validation_started, render_validation_succeeded,
 };
+use super::format::{mode_from_terminal, PresentationMode};
 
 pub(crate) struct CliPresenter {
     stdout_mode: PresentationMode,
@@ -105,9 +106,9 @@ impl ExecutionObserver for CliPresenter {
 
 #[cfg(test)]
 mod tests {
-    use crate::ui::{format::PresentationMode, render::render_plain_header};
+    use crate::ui::format::PresentationMode;
 
-    use super::CliPresenter;
+    use super::{render::render_plain_header, CliPresenter};
 
     #[test]
     fn plain_header_stays_semantic_without_rich_markers() {

@@ -2,9 +2,9 @@ use httpgenerator_cli::{AzureAuthStatus, CliError};
 use httpgenerator_core::openapi::{OpenApiInspection, OpenApiSpecificationVersion, OpenApiStats};
 use std::{env, path::PathBuf, time::Duration};
 
-use super::format::{
-    PresentationMode, format_duration, render_panel, render_rule, style, support_key_line,
-    table_row, text_width,
+use crate::ui::format::{
+    format_duration, render_panel, render_rule, style, support_key_line, table_row, text_width,
+    PresentationMode,
 };
 
 pub(super) fn render_header(mode: PresentationMode, no_logging: bool) -> String {
