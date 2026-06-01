@@ -41,18 +41,24 @@
 //!
 //! ```no_run
 //! use httpgenerator_core::openapi::{
-//!     LoadedOpenApiDocument, OpenApiSource, load_and_normalize_document, load_document_from_source,
+//!     LoadOptions, LoadedOpenApiDocument, OpenApiSource, load_and_normalize_document,
+//!     load_document_from_source,
 //! };
 //! use std::path::PathBuf;
 //!
-//! let loaded = load_document_from_source(OpenApiSource::Path(PathBuf::from(
-//!     "test/OpenAPI/v3.0/petstore.json",
-//! )))
+//! let loaded = load_document_from_source(
+//!     OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/petstore.json")),
+//!     LoadOptions::default(),
+//! )
 //! .unwrap();
 //!
 //! assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
 //!
-//! let normalized = load_and_normalize_document("test/OpenAPI/v3.0/petstore.json").unwrap();
+//! let normalized = load_and_normalize_document(
+//!     "test/OpenAPI/v3.0/petstore.json",
+//!     LoadOptions::default(),
+//! )
+//! .unwrap();
 //! assert!(!normalized.operations.is_empty());
 //! ```
 
@@ -74,12 +80,10 @@ pub use error::{
 pub use format::{OpenApiContentFormat, detect_content_format, sniff_content_format};
 pub use inspect::{OpenApiInspection, OpenApiStats, inspect_document, inspect_raw_document};
 pub use loader::{
-    LoadedOpenApiDocument, load_document, load_document_from_raw, load_document_from_source,
+    LoadOptions, LoadedOpenApiDocument, load_document, load_document_from_raw,
+    load_document_from_source,
 };
-pub use normalize::{
-    load_and_normalize_document, load_and_normalize_document_with_options,
-    normalize_loaded_document,
-};
+pub use normalize::{load_and_normalize_document, normalize_loaded_document};
 pub use raw::{
     RawOpenApiDocument, decode_raw_document, load_raw_document, load_raw_document_from_source,
 };

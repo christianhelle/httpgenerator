@@ -77,75 +77,23 @@ pub fn generate_http_files(
         settings.base_url.as_deref(),
     );
 
-    match settings.output_type {
-        OutputType::OneRequestPerFile => generate_multiple_files(settings, document, &base_url),
-        OutputType::OneFile => generate_single_file(settings, document, &base_url),
-        OutputType::OneFilePerTag => generate_file_per_tag(settings, document, &base_url),
-    }
-}
-
-fn generate_single_file(
-    settings: &GeneratorSettings,
-    document: &NormalizedOpenApiDocument,
-    base_url: &str,
-) -> GeneratorResult {
-    let mut content = String::new();
-    write_file_headers(settings, &mut content, base_url);
-
-    for operation in &document.operations {
-        content.push_str(&render_request(settings, operation));
-        push_blank_line(&mut content);
-    }
-
-    GeneratorResult::new(vec![HttpFile::new("Requests.http", content)])
-}
-
-fn generate_multiple_files(
-    settings: &GeneratorSettings,
-    document: &NormalizedOpenApiDocument,
-    base_url: &str,
-) -> GeneratorResult {
-    let mut files = Vec::with_capacity(document.operations.len());
+    let mut buffers: Vec<HttpFileBuffer> = Vec::new();
     let mut seen_filenames = HashSet::new();
 
     for operation in &document.operations {
-        let operation_name = operation_name(operation);
-        let filename = unique_filename(
-            &format!("{}.http", capitalize_first_character(&operation_name)),
-            &mut seen_filenames,
-        );
-        let mut content = String::new();
-        write_file_headers(settings, &mut content, base_url);
-        content.push_str(&render_request(settings, operation));
-        push_blank_line(&mut content);
-        files.push(HttpFile::new(filename, content));
-    }
-
-    GeneratorResult::new(files)
-}
-
-fn generate_file_per_tag(
-    settings: &GeneratorSettings,
-    document: &NormalizedOpenApiDocument,
-    base_url: &str,
-) -> GeneratorResult {
-    let mut contents: Vec<(String, String)> = Vec::new();
-
-    for operation in &document.operations {
-        let tag = operation
-            .tags
-            .first()
-            .cloned()
-            .unwrap_or_else(|| "Default".to_string());
-
-        let buffer = if let Some((_, content)) = contents.iter_mut().find(|(name, _)| *name == tag)
+        let target = render_target(settings.output_type, operation, &mut seen_filenames);
+        let buffer = if let Some(index) = buffers.iter().position(|buffer| buffer.key == target.key)
         {
-            content
+            &mut buffers[index].content
         } else {
-            contents.push((tag.clone(), String::new()));
-            let (_, content) = contents.last_mut().expect("tag entry was just added");
-            write_file_headers(settings, content, base_url);
-            content
+            buffers.push(HttpFileBuffer {
+                key: target.key,
+                filename: target.filename,
+                content: String::new(),
+            });
+            let buffer = buffers.last_mut().expect("file buffer was just added");
+            write_file_headers(settings, &mut buffer.content, &base_url);
+            &mut buffer.content
         };
 
         buffer.push_str(&render_request(settings, operation));
@@ -153,16 +101,57 @@ fn generate_file_per_tag(
     }
 
     GeneratorResult::new(
-        contents
+        buffers
             .into_iter()
-            .map(|(tag, content)| {
-                HttpFile::new(
-                    format!("{}.http", capitalize_first_character(&tag)),
-                    content,
-                )
-            })
+            .map(|buffer| HttpFile::new(buffer.filename, buffer.content))
             .collect(),
     )
+}
+
+struct HttpFileBuffer {
+    key: String,
+    filename: String,
+    content: String,
+}
+
+struct RenderTarget {
+    key: String,
+    filename: String,
+}
+
+fn render_target(
+    output_type: OutputType,
+    operation: &crate::NormalizedOperation,
+    seen_filenames: &mut HashSet<String>,
+) -> RenderTarget {
+    match output_type {
+        OutputType::OneFile => RenderTarget {
+            key: "Requests.http".to_string(),
+            filename: "Requests.http".to_string(),
+        },
+        OutputType::OneRequestPerFile => {
+            let operation_name = operation_name(operation);
+            let filename = unique_filename(
+                &format!("{}.http", capitalize_first_character(&operation_name)),
+                seen_filenames,
+            );
+            RenderTarget {
+                key: filename.clone(),
+                filename,
+            }
+        }
+        OutputType::OneFilePerTag => {
+            let tag = operation
+                .tags
+                .first()
+                .cloned()
+                .unwrap_or_else(|| "Default".to_string());
+            RenderTarget {
+                filename: format!("{}.http", capitalize_first_character(&tag)),
+                key: tag,
+            }
+        }
+    }
 }
 
 fn write_file_headers(settings: &GeneratorSettings, content: &mut String, base_url: &str) {

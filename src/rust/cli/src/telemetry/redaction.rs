@@ -5,7 +5,7 @@ use std::ffi::OsString;
 
 const REDACTED: &str = "[REDACTED]";
 
-pub(crate) fn feature_usage_names(args: &CliArgs) -> Vec<String> {
+pub(super) fn feature_usage_names(args: &CliArgs) -> Vec<String> {
     let mut features = Vec::new();
 
     if args.skip_validation {
@@ -54,7 +54,7 @@ pub(crate) fn feature_usage_names(args: &CliArgs) -> Vec<String> {
     features
 }
 
-pub(crate) fn redacted_command_line(raw_args: &[OsString]) -> String {
+pub(super) fn redacted_command_line(raw_args: &[OsString]) -> String {
     let mut arguments = raw_args
         .iter()
         .map(|value| value.to_string_lossy().into_owned())
@@ -67,7 +67,7 @@ pub(crate) fn redacted_command_line(raw_args: &[OsString]) -> String {
     redact_authorization_headers(&arguments.join(" "))
 }
 
-pub(crate) fn redacted_settings(args: &CliArgs) -> Map<String, Value> {
+pub(super) fn redacted_settings(args: &CliArgs) -> Map<String, Value> {
     let mut settings = Map::new();
 
     settings.insert(

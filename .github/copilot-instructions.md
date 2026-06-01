@@ -39,6 +39,15 @@ Always validate generator-affecting changes with:
 
 Use local OpenAPI fixtures from `test\OpenAPI\` for manual verification. OpenAPI 3.1 scenarios still require `--skip-validation`.
 
+## Source control
+
+Commit conventions for all agentic work (always apply, no exceptions):
+
+- **Commit in small, logical groups.** Each commit is one coherent change (e.g. a single refactor, one candidate, one fixed bug). Do not bundle unrelated changes.
+- **Commit as often as possible** to produce a detailed, reviewable progress history. Prefer many small commits over a few large ones.
+- **Never add a co-author trailer.** Do not append `Co-authored-by:` (including the Copilot co-author) to commit messages.
+- Write concise, imperative commit subjects that describe the change and its scope.
+
 ## Project Structure
 
 ### Primary implementation

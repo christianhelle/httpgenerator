@@ -9,7 +9,7 @@ mod tests;
 
 use crate::{NormalizedOpenApiDocument, NormalizedSpecificationVersion};
 
-use super::loader::load_document_with_options;
+use super::loader::{LoadOptions, load_document};
 use super::{
     LoadedOpenApiDocument, OpenApiDocumentNormalizationError, OpenApiNormalizationError,
     OpenApiSpecificationVersion,
@@ -24,46 +24,22 @@ use super::{
 /// # Examples
 ///
 /// ```no_run
-/// use httpgenerator_core::openapi::load_and_normalize_document;
+/// use httpgenerator_core::openapi::{LoadOptions, load_and_normalize_document};
 ///
-/// let normalized = load_and_normalize_document("test/OpenAPI/v3.0/petstore.json").unwrap();
+/// let normalized = load_and_normalize_document(
+///     "test/OpenAPI/v3.0/petstore.json",
+///     LoadOptions::default(),
+/// )
+/// .unwrap();
 ///
 /// assert!(!normalized.operations.is_empty());
 /// ```
 pub fn load_and_normalize_document(
     input: &str,
+    options: LoadOptions,
 ) -> Result<NormalizedOpenApiDocument, OpenApiDocumentNormalizationError> {
-    load_and_normalize_document_with_options(input, false)
-}
-
-/// Loads a document and normalizes it, optionally tolerating invalid OpenAPI 3.1 input.
-///
-/// When `tolerate_invalid_openapi31` is `true`, OpenAPI 3.1 documents that fail typed
-/// deserialization can still normalize through the preserved raw representation. This keeps the
-/// generator usable for webhook-only or otherwise partially supported 3.1 inputs.
-///
-/// # Examples
-///
-/// ```no_run
-/// use httpgenerator_core::{NormalizedSpecificationVersion, openapi::load_and_normalize_document_with_options};
-///
-/// let normalized = load_and_normalize_document_with_options(
-///     "test/OpenAPI/v3.1/non-oauth-scopes.json",
-///     true,
-/// )
-/// .unwrap();
-///
-/// assert_eq!(
-///     normalized.specification_version,
-///     NormalizedSpecificationVersion::OpenApi31
-/// );
-/// ```
-pub fn load_and_normalize_document_with_options(
-    input: &str,
-    tolerate_invalid_openapi31: bool,
-) -> Result<NormalizedOpenApiDocument, OpenApiDocumentNormalizationError> {
-    let document = load_document_with_options(input, tolerate_invalid_openapi31)
-        .map_err(OpenApiDocumentNormalizationError::Load)?;
+    let document =
+        load_document(input, options).map_err(OpenApiDocumentNormalizationError::Load)?;
     normalize_loaded_document(&document).map_err(OpenApiDocumentNormalizationError::Normalize)
 }
 
@@ -77,7 +53,8 @@ pub fn load_and_normalize_document_with_options(
 ///
 /// ```
 /// use httpgenerator_core::openapi::{
-///     OpenApiSource, decode_raw_document, load_document_from_raw, normalize_loaded_document,
+///     LoadOptions, OpenApiSource, decode_raw_document, load_document_from_raw,
+///     normalize_loaded_document,
 /// };
 /// use std::path::PathBuf;
 ///
@@ -98,7 +75,7 @@ pub fn load_and_normalize_document_with_options(
 /// )
 /// .unwrap();
 ///
-/// let loaded = load_document_from_raw(raw).unwrap();
+/// let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
 /// let normalized = normalize_loaded_document(&loaded).unwrap();
 ///
 /// assert_eq!(normalized.operations.len(), 1);

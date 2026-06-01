@@ -6,13 +6,11 @@ use crate::{
 };
 
 use crate::openapi::{
-    OpenApiNormalizationError, OpenApiSource, decode_raw_document, load_document_from_raw,
+    LoadOptions, OpenApiNormalizationError, OpenApiSource, decode_raw_document,
+    load_document_from_raw,
 };
 
-use super::{
-    load_and_normalize_document, load_and_normalize_document_with_options,
-    normalize_loaded_document,
-};
+use super::{load_and_normalize_document, normalize_loaded_document};
 
 #[test]
 fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
@@ -21,7 +19,7 @@ fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
         include_str!("../../../../../../test/OpenAPI/v3.0/petstore.json"),
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let normalized = normalize_loaded_document(&loaded).unwrap();
 
     assert_eq!(
@@ -102,7 +100,7 @@ fn normalizes_petstore_v20_fixture_into_generator_facing_operations() {
         include_str!("../../../../../../test/OpenAPI/v2.0/petstore.json"),
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let normalized = normalize_loaded_document(&loaded).unwrap();
 
     assert_eq!(
@@ -206,7 +204,8 @@ fn swagger2_local_documents_without_host_or_base_path_use_parent_directory_serve
         .join("OpenAPI")
         .join("v2.0")
         .join("api-with-examples.json");
-    let normalized = load_and_normalize_document(input.to_str().unwrap()).unwrap();
+    let normalized =
+        load_and_normalize_document(input.to_str().unwrap(), LoadOptions::default()).unwrap();
     let mut expected_directory = std::fs::canonicalize(&input)
         .unwrap()
         .parent()
@@ -238,7 +237,8 @@ fn openapi30_local_documents_without_servers_do_not_use_parent_directory_server(
         .join("OpenAPI")
         .join("v3.0")
         .join("api-with-examples.json");
-    let normalized = load_and_normalize_document(input.to_str().unwrap()).unwrap();
+    let normalized =
+        load_and_normalize_document(input.to_str().unwrap(), LoadOptions::default()).unwrap();
 
     assert!(normalized.servers.is_empty());
 }
@@ -250,7 +250,7 @@ fn webhook_only_v31_documents_normalize_into_webhook_operations() {
         include_str!("../../../../../../test/OpenAPI/v3.1/webhook-example.json"),
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let normalized = normalize_loaded_document(&loaded).unwrap();
 
     assert_eq!(
@@ -304,7 +304,7 @@ fn openapi31_documents_collect_paths_and_webhooks_together() {
             }"#,
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let normalized = normalize_loaded_document(&loaded).unwrap();
 
     assert_eq!(normalized.operations.len(), 2);
@@ -334,7 +334,7 @@ fn webhook_path_item_refs_fail_explicitly_during_normalization() {
             }"##,
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let error = normalize_loaded_document(&loaded).unwrap_err();
 
     assert_eq!(
@@ -348,7 +348,7 @@ fn webhook_path_item_refs_fail_explicitly_during_normalization() {
 
 #[test]
 fn invalid_v31_documents_normalize_when_tolerated() {
-    let normalized = load_and_normalize_document_with_options(
+    let normalized = load_and_normalize_document(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("..")
             .join("..")
@@ -359,7 +359,9 @@ fn invalid_v31_documents_normalize_when_tolerated() {
             .join("non-oauth-scopes.json")
             .to_str()
             .unwrap(),
-        true,
+        LoadOptions {
+            tolerate_invalid_openapi31: true,
+        },
     )
     .unwrap();
 
@@ -409,7 +411,7 @@ fn operation_level_parameters_override_path_level_parameters() {
             }"#,
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let normalized = normalize_loaded_document(&loaded).unwrap();
 
     assert_eq!(normalized.operations.len(), 1);
@@ -446,7 +448,7 @@ fn top_level_request_body_refs_fail_explicitly_during_normalization() {
             }"##,
     )
     .unwrap();
-    let loaded = load_document_from_raw(raw).unwrap();
+    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
     let error = normalize_loaded_document(&loaded).unwrap_err();
 
     assert_eq!(
@@ -472,6 +474,7 @@ fn convenience_loader_normalizes_local_documents() {
             .join("petstore.json")
             .to_str()
             .unwrap(),
+        LoadOptions::default(),
     )
     .unwrap();
 
