@@ -29,6 +29,57 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
         openapi::OpenApiDocumentNormalizationError,
     > = openapi::load_and_normalize_document;
 
+    // Type-level assertions for the remaining public loader entry points.
+    let _: fn(
+        &str,
+        openapi::LoadOptions,
+    ) -> Result<openapi::LoadedOpenApiDocument, openapi::OpenApiDocumentLoadError> =
+        openapi::load_document;
+    let _: fn(
+        openapi::OpenApiSource,
+        openapi::LoadOptions,
+    ) -> Result<openapi::LoadedOpenApiDocument, openapi::OpenApiDocumentLoadError> =
+        openapi::load_document_from_source;
+    let _: fn(
+        openapi::RawOpenApiDocument,
+        openapi::LoadOptions,
+    ) -> Result<openapi::LoadedOpenApiDocument, openapi::OpenApiDocumentLoadError> =
+        openapi::load_document_from_raw;
+    let _: fn(
+        &openapi::LoadedOpenApiDocument,
+    ) -> Result<normalized::NormalizedOpenApiDocument, openapi::OpenApiNormalizationError> =
+        openapi::normalize_loaded_document;
+    let _: fn(
+        &str,
+    ) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
+        openapi::load_raw_document;
+    let _: fn(
+        openapi::OpenApiSource,
+    ) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
+        openapi::load_raw_document_from_source;
+    let _: fn(
+        &str,
+    ) -> Result<openapi::OpenApiInspection, openapi::OpenApiInspectionError> =
+        openapi::inspect_document;
+    let _: fn(
+        &openapi::RawOpenApiDocument,
+    ) -> Result<openapi::OpenApiInspection, openapi::OpenApiInspectionError> =
+        openapi::inspect_raw_document;
+    let _: fn(
+        &str,
+    ) -> Result<openapi::OpenApiSource, openapi::SourceClassificationError> =
+        openapi::classify_source;
+    let _: fn(
+        &serde_json::Value,
+    ) -> Result<
+        openapi::OpenApiSpecificationVersion,
+        openapi::SpecificationVersionDetectionError,
+    > = openapi::detect_specification_version;
+    let _: fn(
+        &openapi::RawOpenApiDocument,
+    ) -> Result<openapi::TypedOpenApiDocument, openapi::TypedOpenApiParseError> =
+        openapi::parse_typed_document;
+
     let settings = model::GeneratorSettings {
         open_api_path: "petstore.json".to_string(),
         output_type: model::OutputType::OneRequestPerFile,
