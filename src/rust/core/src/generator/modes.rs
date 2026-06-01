@@ -1,4 +1,4 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     GeneratorResult, GeneratorSettings, HttpFile, NormalizedOpenApiDocument, OutputType,
@@ -78,26 +78,25 @@ pub fn generate_http_files(
     );
 
     let mut buffers: Vec<HttpFileBuffer> = Vec::new();
+    let mut key_to_index: HashMap<String, usize> = HashMap::new();
     let mut seen_filenames = HashSet::new();
 
     for operation in &document.operations {
         let target = render_target(settings.output_type, operation, &mut seen_filenames);
-        let buffer = if let Some(index) = buffers.iter().position(|buffer| buffer.key == target.key)
-        {
-            &mut buffers[index].content
-        } else {
-            buffers.push(HttpFileBuffer {
-                key: target.key,
-                filename: target.filename,
-                content: String::new(),
+        let key = target.key.clone();
+        let index = key_to_index
+            .entry(key)
+            .or_insert_with(|| {
+                let idx = buffers.len();
+                buffers.push(HttpFileBuffer {
+                    filename: target.filename,
+                    content: String::new(),
+                });
+                write_file_headers(settings, &mut buffers[idx].content, &base_url);
+                idx
             });
-            let buffer = buffers.last_mut().expect("file buffer was just added");
-            write_file_headers(settings, &mut buffer.content, &base_url);
-            &mut buffer.content
-        };
-
-        buffer.push_str(&render_request(settings, operation));
-        push_blank_line(buffer);
+        buffers[*index].content.push_str(&render_request(settings, operation));
+        push_blank_line(&mut buffers[*index].content);
     }
 
     GeneratorResult::new(
@@ -109,7 +108,6 @@ pub fn generate_http_files(
 }
 
 struct HttpFileBuffer {
-    key: String,
     filename: String,
     content: String,
 }
