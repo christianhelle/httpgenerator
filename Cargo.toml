@@ -11,7 +11,7 @@ edition = "2024"
 homepage = "https://christianhelle.com/httpgenerator/"
 license = "MIT"
 repository = "https://github.com/christianhelle/httpgenerator"
-rust-version = "1.95"
+rust-version = "1.96"
 version = "0.1.0"
 
 [workspace.dependencies]
