@@ -29,7 +29,7 @@ cargo install httpgenerator
 ```
 
 Use this when you already have Rust and Cargo and want the canonical
-Rust ecosystem install path. Requires Rust 1.95+.
+Rust ecosystem install path. Requires Rust 1.96+.
 
 #### macOS/Linux
 
