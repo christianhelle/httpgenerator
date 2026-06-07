@@ -1,7 +1,6 @@
 use std::sync::Mutex;
 
 use exceptionless::ExceptionlessClient;
-use tokio::runtime::Handle;
 
 use super::{TelemetryEvent, TelemetrySink};
 
@@ -31,55 +30,45 @@ impl ExceptionlessTelemetrySink {
             return;
         }
 
-        let handle = match Handle::try_current() {
-            Ok(h) => h,
-            Err(_) => return,
-        };
-
         let client = self.client.clone();
-        let result = handle.block_on(async {
-            let mut failed = 0;
+        let mut failed = 0;
 
-            for event in events {
-                match event {
-                    TelemetryEvent::FeatureUsage(event) => {
-                        let mut builder = client
-                            .feature(&event.feature_name)
-                            .user_identity(&event.anonymous_identity);
+        for event in events {
+            match event {
+                TelemetryEvent::FeatureUsage(event) => {
+                    let builder = client
+                        .feature(&event.feature_name)
+                        .user_identity(&event.anonymous_identity)
+                        .data("supportKey", event.support_key.as_str());
 
-                        builder = builder.data("supportKey", event.support_key.as_str());
-
-                        if builder.send().await.is_err() {
-                            failed += 1;
-                        }
+                    if builder.send().await.is_err() {
+                        failed += 1;
                     }
-                    TelemetryEvent::Error(event) => {
-                        let error = ExceptionlessErrorOwned(
-                            event.error_type.clone(),
-                            event.message.clone(),
-                        );
+                }
+                TelemetryEvent::Error(event) => {
+                    let error = ExceptionlessErrorOwned(
+                        event.error_type.clone(),
+                        event.message.clone(),
+                    );
 
-                        let builder = client
-                            .error(&error)
-                            .tag("error")
-                            .source("httpgenerator")
-                            .user_identity(&event.anonymous_identity)
-                            .data("supportKey", event.support_key.as_str())
-                            .data("commandLine", event.command_line.as_str())
-                            .data("settings", serde_json::Value::String(event.settings_json));
+                    let builder = client
+                        .error(&error)
+                        .tag("error")
+                        .source("httpgenerator")
+                        .user_identity(&event.anonymous_identity)
+                        .data("supportKey", event.support_key.as_str())
+                        .data("commandLine", event.command_line.as_str())
+                        .data("settings", serde_json::Value::String(event.settings_json));
 
-                        if builder.send().await.is_err() {
-                            failed += 1;
-                        }
+                    if builder.send().await.is_err() {
+                        failed += 1;
                     }
                 }
             }
+        }
 
-            failed
-        });
-
-        if result > 0 {
-            eprintln!("Warning: {result} telemetry events failed to submit");
+        if failed > 0 {
+            eprintln!("Warning: {failed} telemetry events failed to submit");
         }
     }
 
