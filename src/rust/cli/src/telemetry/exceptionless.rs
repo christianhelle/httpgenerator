@@ -12,6 +12,12 @@ pub struct ExceptionlessTelemetrySink {
 
 const EXCEPTIONLESS_API_KEY: &str = "7VSRHLYiJdF7Xp0WaVwmEbJxVmrjqHnTIZNKkrkI";
 
+impl Default for ExceptionlessTelemetrySink {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ExceptionlessTelemetrySink {
     pub fn new() -> Self {
         Self {

@@ -60,14 +60,14 @@ pub enum LoadedOpenApiDocument {
         /// The decoded source document and its metadata.
         raw: RawOpenApiDocument,
         /// The parsed OpenAPI 3.0 model.
-        document: openapiv3::OpenAPI,
+        document: Box<openapiv3::OpenAPI>,
     },
     /// An OpenAPI 3.1 document with both raw and typed representations.
     OpenApi31 {
         /// The decoded source document and its metadata.
         raw: RawOpenApiDocument,
         /// The parsed OpenAPI 3.1 model.
-        document: openapiv3_1::OpenApi,
+        document: Box<openapiv3_1::OpenApi>,
     },
     /// An OpenAPI 3.1 document kept as raw input because typed parsing was intentionally skipped.
     OpenApi31Raw {
@@ -210,7 +210,7 @@ pub fn load_document_from_raw(
         }) if should_fallback_to_raw_openapi31(&raw, options.tolerate_invalid_openapi31) => {
             Ok(LoadedOpenApiDocument::OpenApi31Raw { raw })
         }
-        Err(error) => Err(OpenApiDocumentLoadError::TypedParse(error)),
+        Err(error) => Err(OpenApiDocumentLoadError::TypedParse(Box::new(error))),
     }
 }
 

@@ -9,9 +9,9 @@ use super::{OpenApiSpecificationVersion, RawOpenApiDocument, TypedOpenApiParseEr
 /// Version-specific typed OpenAPI models exposed by this crate.
 pub enum TypedOpenApiDocument {
     /// A parsed [`openapiv3::OpenAPI`] document.
-    OpenApi30(openapiv3::OpenAPI),
+    OpenApi30(Box<openapiv3::OpenAPI>),
     /// A parsed [`openapiv3_1::OpenApi`] document.
-    OpenApi31(openapiv3_1::OpenApi),
+    OpenApi31(Box<openapiv3_1::OpenApi>),
 }
 
 impl TypedOpenApiDocument {
@@ -57,7 +57,7 @@ pub fn parse_typed_document(
     match document.specification_version().map_err(|error| {
         TypedOpenApiParseError::VersionDetection {
             source: document.source().clone(),
-            error,
+            error: Box::new(error),
         }
     })? {
         OpenApiSpecificationVersion::Swagger2 => Err(TypedOpenApiParseError::UnsupportedVersion {
@@ -65,10 +65,12 @@ pub fn parse_typed_document(
             version: OpenApiSpecificationVersion::Swagger2,
         }),
         OpenApiSpecificationVersion::OpenApi30 => {
-            parse_openapi30_document(document).map(TypedOpenApiDocument::OpenApi30)
+            let document = parse_openapi30_document(document)?;
+            Ok(TypedOpenApiDocument::OpenApi30(Box::new(document)))
         }
         OpenApiSpecificationVersion::OpenApi31 => {
-            parse_openapi31_document(document).map(TypedOpenApiDocument::OpenApi31)
+            let document = parse_openapi31_document(document)?;
+            Ok(TypedOpenApiDocument::OpenApi31(Box::new(document)))
         }
     }
 }
@@ -103,7 +105,7 @@ where
     let detected_version = document.specification_version().map_err(|error| {
         TypedOpenApiParseError::VersionDetection {
             source: document.source().clone(),
-            error,
+            error: Box::new(error),
         }
     })?;
 
