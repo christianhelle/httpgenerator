@@ -2,7 +2,7 @@ use std::{ffi::OsString, path::PathBuf};
 
 use httpgenerator_cli::{
     AzureAuthStatus, CliError, ExecutionObserver, ExecutionSummary, NoopTelemetrySink,
-    TelemetryRecorder, args, execute, execute_with_observer, should_attempt_azure_auth, telemetry,
+    TelemetryRecorder, TelemetrySinkCollection, args, execute, execute_with_observer, should_attempt_azure_auth, telemetry,
 };
 
 struct ContractObserver;
@@ -34,19 +34,12 @@ fn lib_facade_exposes_the_intentional_public_cli_surface() {
     assert!(!should_attempt_azure_auth(&cli_args));
 
     let raw_args = [OsString::from("httpgenerator")];
-    let mut root_recorder: TelemetryRecorder<NoopTelemetrySink> =
-        TelemetryRecorder::from_cli_args(&raw_args, &cli_args, NoopTelemetrySink);
+    let mut root_recorder =
+        TelemetryRecorder::from_cli_args(&raw_args, &cli_args, NoopTelemetrySink.into());
     root_recorder.record_feature_usage(&cli_args);
-    let _: NoopTelemetrySink = root_recorder.into_sink();
-
-    struct ModuleSink;
-
-    impl telemetry::TelemetrySink for ModuleSink {
-        fn emit(&mut self, _event: telemetry::TelemetryEvent) {}
-    }
-
-    let _module_recorder =
-        telemetry::TelemetryRecorder::from_cli_args(&raw_args, &cli_args, ModuleSink);
+    let TelemetrySinkCollection::Noop = root_recorder.into_sink() else {
+        panic!("expected Noop sink");
+    };
 
     let feature_event = telemetry::TelemetryEvent::FeatureUsage(telemetry::FeatureUsageEvent {
         feature_name: "facade-contract".to_string(),

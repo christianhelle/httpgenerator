@@ -2,22 +2,27 @@ mod ui;
 
 use clap::FromArgMatches;
 use httpgenerator_cli::{
-    NoopTelemetrySink, TelemetryRecorder,
+    ExceptionlessTelemetrySink, NoopTelemetrySink, TelemetryRecorder, TelemetrySinkCollection,
     args::{CliArgs, build_command},
     execute_with_observer,
 };
 use std::{ffi::OsString, time::Instant};
 use ui::CliPresenter;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let raw_args = raw_args_with_help();
     let args = parse_args(&raw_args);
-    let mut telemetry = TelemetryRecorder::from_cli_args(&raw_args, &args, NoopTelemetrySink);
     let started_at = Instant::now();
     let mut presenter = CliPresenter::detect();
     presenter.print_header(args.no_logging);
 
-    match execute_with_observer(args.clone(), &mut presenter) {
+    let sink = create_telemetry_sink(&args);
+    let mut telemetry = TelemetryRecorder::from_cli_args(&raw_args, &args, sink);
+
+    let result = execute_with_observer(args.clone(), &mut presenter);
+
+    match result {
         Ok(_summary) => {
             telemetry.record_feature_usage(&args);
             presenter.print_success(started_at.elapsed());
@@ -28,6 +33,21 @@ fn main() {
             std::process::exit(1);
         }
     }
+
+    let recorder = telemetry.into_sink();
+    flush_telemetry(recorder).await;
+}
+
+fn create_telemetry_sink(args: &CliArgs) -> TelemetrySinkCollection {
+    if args.no_logging {
+        NoopTelemetrySink.into()
+    } else {
+        ExceptionlessTelemetrySink::new().into()
+    }
+}
+
+async fn flush_telemetry(sink: TelemetrySinkCollection) {
+    sink.flush().await;
 }
 
 fn raw_args_with_help() -> Vec<OsString> {

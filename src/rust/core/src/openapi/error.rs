@@ -205,7 +205,7 @@ pub enum TypedOpenApiParseError {
     /// Version detection failed before typed parsing could start.
     VersionDetection {
         source: OpenApiSource,
-        error: SpecificationVersionDetectionError,
+        error: Box<SpecificationVersionDetectionError>,
     },
     /// The crate does not expose a typed parser for the detected version.
     UnsupportedVersion {
@@ -257,7 +257,7 @@ pub enum OpenApiDocumentLoadError {
     /// Loading the raw document failed.
     RawLoad(RawOpenApiLoadError),
     /// Parsing the typed document failed.
-    TypedParse(TypedOpenApiParseError),
+    TypedParse(Box<TypedOpenApiParseError>),
 }
 
 impl fmt::Display for OpenApiDocumentLoadError {
@@ -343,9 +343,9 @@ impl Error for OpenApiNormalizationError {}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OpenApiDocumentNormalizationError {
     /// Loading or typed parsing failed.
-    Load(OpenApiDocumentLoadError),
+    Load(Box<OpenApiDocumentLoadError>),
     /// Normalization of the loaded document failed.
-    Normalize(OpenApiNormalizationError),
+    Normalize(Box<OpenApiNormalizationError>),
 }
 
 impl fmt::Display for OpenApiDocumentNormalizationError {

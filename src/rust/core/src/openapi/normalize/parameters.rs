@@ -28,13 +28,13 @@ pub(super) fn normalize_parameters(
         };
         let parameter_key = normalized.inline_key();
 
-        if let Some(parameter_key) = parameter_key {
-            if let Some(index) = merged.iter().position(|existing: &NormalizedParameter| {
+        if let Some(parameter_key) = parameter_key
+            && let Some(index) = merged.iter().position(|existing: &NormalizedParameter| {
                 existing.inline_key() == Some(parameter_key)
-            }) {
-                merged[index] = normalized;
-                continue;
-            }
+            })
+        {
+            merged[index] = normalized;
+            continue;
         }
 
         merged.push(normalized);

@@ -39,8 +39,8 @@ pub fn load_and_normalize_document(
     options: LoadOptions,
 ) -> Result<NormalizedOpenApiDocument, OpenApiDocumentNormalizationError> {
     let document =
-        load_document(input, options).map_err(OpenApiDocumentNormalizationError::Load)?;
-    normalize_loaded_document(&document).map_err(OpenApiDocumentNormalizationError::Normalize)
+        load_document(input, options).map_err(|e| OpenApiDocumentNormalizationError::Load(Box::new(e)))?;
+    normalize_loaded_document(&document).map_err(|e| OpenApiDocumentNormalizationError::Normalize(Box::new(e)))
 }
 
 /// Normalizes a previously loaded document into the generator's stable handoff model.

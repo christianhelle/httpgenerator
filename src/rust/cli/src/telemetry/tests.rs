@@ -5,6 +5,7 @@ use crate::args::{CliArgs, OutputTypeArg};
 use super::{
     MemoryTelemetrySink, TelemetryEvent, TelemetryRecorder,
     redaction::{feature_usage_names, redacted_command_line},
+    sink::TelemetrySink,
 };
 
 #[test]
@@ -97,8 +98,9 @@ fn record_error_captures_redacted_settings_and_support_context() {
         OsString::from("--authorization-header"),
         OsString::from("Bearer secret-token"),
     ];
+    let mut memory_sink = MemoryTelemetrySink::default();
     let mut recorder =
-        TelemetryRecorder::from_cli_args(&raw_args, &args, MemoryTelemetrySink::default());
+        TelemetryRecorder::from_cli_args(&raw_args, &args, memory_sink.into());
 
     recorder.record_error(&args, "CliError", "boom");
 
@@ -141,7 +143,7 @@ fn no_logging_disables_feature_and_error_events() {
     let mut recorder = TelemetryRecorder::from_cli_args(
         &[OsString::from("httpgenerator")],
         &args,
-        MemoryTelemetrySink::default(),
+        MemoryTelemetrySink::default().into(),
     );
 
     recorder.record_feature_usage(&args);
@@ -160,7 +162,7 @@ fn record_feature_usage_emits_ordered_feature_events() {
     let mut recorder = TelemetryRecorder::from_cli_args(
         &[OsString::from("httpgenerator")],
         &args,
-        MemoryTelemetrySink::default(),
+        MemoryTelemetrySink::default().into(),
     );
 
     recorder.record_feature_usage(&args);
