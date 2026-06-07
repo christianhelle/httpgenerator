@@ -6,12 +6,18 @@
 
 **Implemented enhancements:**
 
+- Integrate Exceptionless for telemetry collection [\#415](https://github.com/christianhelle/httpgenerator/pull/415) ([christianhelle](https://github.com/christianhelle))
+- Remove test runners and differential tests [\#412](https://github.com/christianhelle/httpgenerator/pull/412) ([christianhelle](https://github.com/christianhelle))
+- Use HashMap in generate\_http\_files for buffer lookup [\#411](https://github.com/christianhelle/httpgenerator/pull/411) ([christianhelle](https://github.com/christianhelle))
 - Migrate to new Visual Studio Extensibility SDK [\#402](https://github.com/christianhelle/httpgenerator/pull/402) ([christianhelle](https://github.com/christianhelle))
 - Migrate VS Code extension to use the Rust base CLI [\#399](https://github.com/christianhelle/httpgenerator/pull/399) ([christianhelle](https://github.com/christianhelle))
 - Fix webhook output generation in Rust CLI [\#396](https://github.com/christianhelle/httpgenerator/pull/396) ([christianhelle](https://github.com/christianhelle))
 
 **Merged pull requests:**
 
+- Remove Squad [\#414](https://github.com/christianhelle/httpgenerator/pull/414) ([christianhelle](https://github.com/christianhelle))
+- Upgrade Rust to 1.96 [\#413](https://github.com/christianhelle/httpgenerator/pull/413) ([christianhelle](https://github.com/christianhelle))
+- Deepen shallow modules across core and CLI [\#410](https://github.com/christianhelle/httpgenerator/pull/410) ([christianhelle](https://github.com/christianhelle))
 - build\(deps-dev\): bump tmp from 0.2.5 to 0.2.6 in /src/vscode [\#409](https://github.com/christianhelle/httpgenerator/pull/409) ([dependabot[bot]](https://github.com/apps/dependabot))
 - chore\(deps\): update dependency microsoft.net.test.sdk to 18.6.0 [\#408](https://github.com/christianhelle/httpgenerator/pull/408) ([renovate[bot]](https://github.com/apps/renovate))
 - chore\(deps\): update rust crate serde\_json to v1.0.150 [\#407](https://github.com/christianhelle/httpgenerator/pull/407) ([renovate[bot]](https://github.com/apps/renovate))
