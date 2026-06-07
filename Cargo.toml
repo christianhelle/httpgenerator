@@ -19,6 +19,7 @@ azure_core = "1.0.0"
 azure_identity = "1.0.0"
 clap = { version = "4.6.1", features = ["derive"] }
 console = "0.16.3"
+exceptionless = "0.1.0"
 httpgenerator-core = { version = "0.1.0", path = "src/rust/core" }
 openapiv3 = "2.2.0"
 openapiv3_1 = "0.1.5"
@@ -31,5 +32,6 @@ reqwest = { version = "0.12.28", default-features = false, features = [
 ] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.145", features = ["preserve_order"] }
+tokio = { version = "1", features = ["full"] }
 url = "2.5.7"
 yaml_serde = "0.10.4"

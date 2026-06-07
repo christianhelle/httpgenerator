@@ -6,19 +6,16 @@ use crate::args::CliArgs;
 use super::{
     ErrorEvent, FeatureUsageEvent, TelemetryContext, TelemetryEvent,
     redaction::{feature_usage_names, redacted_command_line, redacted_settings},
-    sink::TelemetrySink,
+    TelemetrySinkCollection,
 };
 
-pub struct TelemetryRecorder<S> {
+pub struct TelemetryRecorder {
     context: Option<TelemetryContext>,
-    sink: S,
+    sink: TelemetrySinkCollection,
 }
 
-impl<S> TelemetryRecorder<S>
-where
-    S: TelemetrySink,
-{
-    pub fn from_cli_args(raw_args: &[OsString], args: &CliArgs, sink: S) -> Self {
+impl TelemetryRecorder {
+    pub fn from_cli_args(raw_args: &[OsString], args: &CliArgs, sink: TelemetrySinkCollection) -> Self {
         let context = (!args.no_logging).then(|| {
             let anonymous_identity = anonymous_identity();
             let support_key = support_key_from_anonymous_identity(&anonymous_identity);
@@ -39,12 +36,11 @@ where
         };
 
         for feature_name in feature_usage_names(args) {
-            self.sink
-                .emit(TelemetryEvent::FeatureUsage(FeatureUsageEvent {
-                    feature_name,
-                    support_key: context.support_key.clone(),
-                    anonymous_identity: context.anonymous_identity.clone(),
-                }));
+            self.sink.emit(TelemetryEvent::FeatureUsage(FeatureUsageEvent {
+                feature_name,
+                support_key: context.support_key.clone(),
+                anonymous_identity: context.anonymous_identity.clone(),
+            }));
         }
     }
 
@@ -67,7 +63,11 @@ where
         }));
     }
 
-    pub fn into_sink(self) -> S {
+    pub fn into_sink(self) -> TelemetrySinkCollection {
         self.sink
+    }
+
+    pub async fn flush(self) {
+        self.sink.flush().await;
     }
 }
