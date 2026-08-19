@@ -6,6 +6,8 @@
 
 **Implemented enhancements:**
 
+- Migrate Visual Studio extension to use the Rust-based CLI [\#400](https://github.com/christianhelle/httpgenerator/issues/400)
+- Resolve dependency advisories across the repo [\#416](https://github.com/christianhelle/httpgenerator/pull/416) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Integrate Exceptionless for telemetry collection [\#415](https://github.com/christianhelle/httpgenerator/pull/415) ([christianhelle](https://github.com/christianhelle))
 - Remove test runners and differential tests [\#412](https://github.com/christianhelle/httpgenerator/pull/412) ([christianhelle](https://github.com/christianhelle))
 - Use HashMap in generate\_http\_files for buffer lookup [\#411](https://github.com/christianhelle/httpgenerator/pull/411) ([christianhelle](https://github.com/christianhelle))
