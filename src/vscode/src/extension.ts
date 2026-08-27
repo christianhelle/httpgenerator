@@ -428,10 +428,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    context.subscriptions.push(generateSingleHttpFileCommand);
-    context.subscriptions.push(generateMultipleHttpFilesCommand);
-    context.subscriptions.push(generateSingleHttpFileMenuCommand);
-    context.subscriptions.push(generateMultipleHttpFilesMenuCommand);
+    context.subscriptions.push(
+        generateSingleHttpFileCommand,
+        generateMultipleHttpFilesCommand,
+        generateSingleHttpFileMenuCommand,
+        generateMultipleHttpFilesMenuCommand
+    );
 }
 
 export function deactivate() {}
