@@ -42,7 +42,7 @@ function PrepareLocalRustCli {
         New-Item -ItemType Directory -Path $binDirectory | Out-Null
     }
 
-    Write-Host "cargo build --release -p httpgenerator"
+    Write-Output "cargo build --release -p httpgenerator"
     $process = Start-Process "cargo" -Args "build --release -p httpgenerator" -NoNewWindow -PassThru
     $process | Wait-Process
     if ($process.ExitCode -ne 0) {
@@ -355,7 +355,7 @@ function Generate {
         $args = ""
     )
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --no-logging $args" `
         -NoNewWindow `
@@ -366,7 +366,7 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args" `
         -NoNewWindow `
@@ -377,7 +377,7 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args" `
         -NoNewWindow `
@@ -412,7 +412,7 @@ function GenerateWithSpecificArgs {
         $args = ""
     )
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args" `
         -NoNewWindow `
@@ -498,7 +498,7 @@ function RunTests {
                 $filename = "./OpenAPI/$version/$_.$format"
                 $exists = Test-Path -Path $filename -PathType Leaf
                 if ($exists -eq $true) {
-                    Write-Host "Testing $filename"
+                    Write-Output "Testing $filename"
                     Copy-Item $filename ./openapi.$format
                     if ($version -eq "v3.1") {
                         Generate -app $app -format $format -output $_/$version/$format -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
@@ -507,19 +507,19 @@ function RunTests {
                         
                         # Additional parameter combination tests for v2.0 and v3.0
                         if ($_ -eq "petstore") {
-                            Write-Host "Testing $filename with --authorization-header"
+                            Write-Output "Testing $filename with --authorization-header"
                             GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test-token-123"""
                             
-                            Write-Host "Testing $filename with --load-authorization-header-from-environment"
+                            Write-Output "Testing $filename with --load-authorization-header-from-environment"
                             GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/auth-env" -outputType "OneFile" -args "--load-authorization-header-from-environment --authorization-header-variable-name ""my_token"""
                             
-                            Write-Host "Testing $filename with --skip-headers"
+                            Write-Output "Testing $filename with --skip-headers"
                             GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/skip-headers" -outputType "OneFile" -args "--skip-headers"
                             
-                            Write-Host "Testing $filename with --content-type application/xml"
+                            Write-Output "Testing $filename with --content-type application/xml"
                             GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/xml" -outputType "OneFile" -args "--content-type ""application/xml"""
                             
-                            Write-Host "Testing $filename with environment variable base URL"
+                            Write-Output "Testing $filename with environment variable base URL"
                             GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/env-baseurl" -outputType "OneFile" -args "--base-url ""{{MY_BASE_URL}}"""
                         }
                     }
