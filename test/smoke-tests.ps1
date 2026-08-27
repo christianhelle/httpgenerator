@@ -495,38 +495,87 @@ function RunTests {
         "json", "yaml" | ForEach-Object { 
             $format = $_
             $filenames | ForEach-Object {
-                $filename = "./OpenAPI/$version/$_.$format"
-                $exists = Test-Path -Path $filename -PathType Leaf
-                if ($exists -eq $true) {
-                    Write-Output "Testing $filename"
-                    Copy-Item $filename ./openapi.$format
-                    if ($version -eq "v3.1") {
-                        Generate -app $app -format $format -output $_/$version/$format -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
-                    } else {
-                        Generate -app $app -format $format -output $_/$version/$format -args "--generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
-                        
-                        # Additional parameter combination tests for v2.0 and v3.0
-                        if ($_ -eq "petstore") {
-                            Write-Output "Testing $filename with --authorization-header"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test-token-123"""
-                            
-                            Write-Output "Testing $filename with --load-authorization-header-from-environment"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/auth-env" -outputType "OneFile" -args "--load-authorization-header-from-environment --authorization-header-variable-name ""my_token"""
-                            
-                            Write-Output "Testing $filename with --skip-headers"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/skip-headers" -outputType "OneFile" -args "--skip-headers"
-                            
-                            Write-Output "Testing $filename with --content-type application/xml"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/xml" -outputType "OneFile" -args "--content-type ""application/xml"""
-                            
-                            Write-Output "Testing $filename with environment variable base URL"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/env-baseurl" -outputType "OneFile" -args "--base-url ""{{MY_BASE_URL}}"""
-                        }
-                    }
-                }
+                Invoke-TestGeneration -app $app -version $version -format $format -name $_
             }
         }
     }
+}
+
+function Invoke-TestGeneration {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]
+        $app,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $version,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $format,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $name
+
+    )
+
+    $filename = "./OpenAPI/$version/$name.$format"
+    if (-not (Test-Path -Path $filename -PathType Leaf)) {
+        return
+    }
+
+    Write-Output "Testing $filename"
+    Copy-Item $filename ./openapi.$format
+    if ($version -eq "v3.1") {
+        Generate -app $app -format $format -output "$name/$version/$format" -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
+        return
+    }
+
+    Generate -app $app -format $format -output "$name/$version/$format" -args "--generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
+
+    # Additional parameter combination tests for v2.0 and v3.0
+    if ($name -eq "petstore") {
+        Invoke-ExtraParameterTests -app $app -name $name -version $version -format $format
+    }
+}
+
+function Invoke-ExtraParameterTests {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]
+        $app,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $version,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $format
+
+    )
+
+    $filename = "./OpenAPI/$version/$name.$format"
+    Write-Output "Testing $filename with --authorization-header"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test-token-123"""
+
+    Write-Output "Testing $filename with --load-authorization-header-from-environment"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-env" -outputType "OneFile" -args "--load-authorization-header-from-environment --authorization-header-variable-name ""my_token"""
+
+    Write-Output "Testing $filename with --skip-headers"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/skip-headers" -outputType "OneFile" -args "--skip-headers"
+
+    Write-Output "Testing $filename with --content-type application/xml"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/xml" -outputType "OneFile" -args "--content-type ""application/xml"""
+
+    Write-Output "Testing $filename with environment variable base URL"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/env-baseurl" -outputType "OneFile" -args "--base-url ""{{MY_BASE_URL}}"""
 }
 
 Push-Location $PSScriptRoot
