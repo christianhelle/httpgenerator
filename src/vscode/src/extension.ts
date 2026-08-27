@@ -435,5 +435,3 @@ export function activate(context: vscode.ExtensionContext) {
         generateMultipleHttpFilesMenuCommand
     );
 }
-
-export function deactivate() {}
