@@ -28,27 +28,12 @@ public static class HttpFileGenerator
             settings.BaseUrl!.EndsWith("}}"))
         {
             // Load the base URL from an environment variable
-            return settings.OutputType switch
-            {
-                OutputType.OneRequestPerFile => GenerateMultipleFiles(
-                    settings,
-                    document,
-                    baseUrl,
-                    operationNameGenerator),
-                OutputType.OneFile => GenerateSingleFile(
-                    settings,
-                    document,
-                    operationNameGenerator,
-                    baseUrl),
-                OutputType.OneFilePerTag => GenerateFilePerTag(
-                    settings,
-                    document,
-                    baseUrl,
-                    operationNameGenerator),
-                _ => throw new ArgumentOutOfRangeException(
-                    nameof(settings.OutputType),
-                    $"Unknown output type: {settings.OutputType}")
-            };
+            return GenerateForOutputType(
+                settings,
+                document,
+                baseUrl,
+                operationNameGenerator,
+                settings.OutputType);
         }
 
         if (!Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute) &&
@@ -59,7 +44,22 @@ public static class HttpFileGenerator
                       baseUrl;
         }
 
-        return settings.OutputType switch
+        return GenerateForOutputType(
+            settings,
+            document,
+            baseUrl,
+            operationNameGenerator,
+            settings.OutputType);
+    }
+
+    private static GeneratorResult GenerateForOutputType(
+        GeneratorSettings settings,
+        OpenApiDocument document,
+        string baseUrl,
+        IOperationNameGenerator operationNameGenerator,
+        OutputType outputType)
+    {
+        return outputType switch
         {
             OutputType.OneRequestPerFile => GenerateMultipleFiles(
                 settings,
@@ -77,8 +77,8 @@ public static class HttpFileGenerator
                 baseUrl,
                 operationNameGenerator),
             _ => throw new ArgumentOutOfRangeException(
-                nameof(settings.OutputType),
-                $"Unknown output type: {settings.OutputType}")
+                nameof(outputType),
+                $"Unknown output type: {outputType}")
         };
     }
 
