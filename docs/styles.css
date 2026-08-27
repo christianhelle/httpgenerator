@@ -38,6 +38,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html {
@@ -511,11 +512,6 @@ strong {
   .section-title {
     font-size: 1.5rem;
   }
-}
-
-/* Smooth transitions for theme switching */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Focus styles for accessibility */
