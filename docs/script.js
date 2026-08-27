@@ -31,7 +31,7 @@ class ThemeManager {
 
     setTheme(theme) {
         this.theme = theme;
-        document.documentElement.setAttribute('data-theme', theme);
+        document.documentElement.dataset.theme = theme;
         this.updateThemeIcon();
         
         // Save to localStorage
