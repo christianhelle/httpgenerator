@@ -38,7 +38,7 @@ function PrepareLocalRustCli {
     $sourcePath = [System.IO.Path]::GetFullPath(
         [System.IO.Path]::Combine($PSScriptRoot, "..", "target", "release", $executableName))
 
-    if (!(Test-Path $binDirectory)) {
+    if (-not (Test-Path $binDirectory)) {
         New-Item -ItemType Directory -Path $binDirectory | Out-Null
     }
 
