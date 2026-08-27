@@ -195,7 +195,7 @@ public class GenerateCommand : AsyncCommand<Settings>
     [ExcludeFromCodeCoverage]
     private static void DisplayHeader(Settings settings)
     {
-        var version = typeof(GenerateCommand).Assembly.GetName().Version!;
+        var version = typeof(GenerateCommand).Assembly.GetName().Version;
 
         // Create a panel with the application header
         var panel = new Panel(new Markup($"[bold blue]🚀 HTTP File Generator[/] [dim]v{version}[/]"))
