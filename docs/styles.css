@@ -523,10 +523,6 @@ a:focus {
 }
 
 /* Improve code readability */
-.code-block {
-  position: relative;
-}
-
 .code-block pre::-webkit-scrollbar {
   height: 8px;
 }
