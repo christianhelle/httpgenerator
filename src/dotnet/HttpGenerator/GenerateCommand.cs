@@ -14,7 +14,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 {
     private static readonly string Crlf = Environment.NewLine;
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken = default)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         Analytics.Configure(settings);
 
