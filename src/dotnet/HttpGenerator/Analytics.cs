@@ -13,7 +13,7 @@ namespace HttpGenerator;
 [ExcludeFromCodeCoverage]
 public static class Analytics
 {
-    private static TelemetryClient telemetryClient = null!;
+    private static TelemetryClient telemetryClient = null;
 
     public static void Configure(Settings settings)
     {
@@ -38,7 +38,7 @@ public static class Analytics
         telemetryClient.Context.Session.Id = Guid.NewGuid().ToString();
         telemetryClient.Context.Operation.Id = Guid.NewGuid().ToString();
         telemetryClient.Context.Device.OperatingSystem = Environment.OSVersion.ToString();
-        telemetryClient.Context.Component.Version = typeof(Analytics).Assembly.GetName().Version!.ToString();
+        telemetryClient.Context.Component.Version = typeof(Analytics).Assembly.GetName().Version.ToString();
         telemetryClient.TelemetryConfiguration.TelemetryInitializers.Add(new SupportKeyInitializer());
     }
 
@@ -98,7 +98,7 @@ public static class Analytics
             return;
         
         string json = Serializer.Serialize(settings);
-        var properties = Serializer.Deserialize<Dictionary<string, object>>(json)!;
+        var properties = Serializer.Deserialize<Dictionary<string, object>>(json);
         
         exception
             .ToExceptionless(new ContextData(properties))
