@@ -1,9 +1,5 @@
 param (
     [Parameter(Mandatory=$false)]
-    [bool]
-    $Parallel = $true,
-
-    [Parameter(Mandatory=$false)]
     [switch]
     $Production = $false,
 
@@ -462,10 +458,6 @@ function RunTests {
         
         [Parameter(Mandatory=$false)]
         [bool]
-        $Parallel = $false,
-
-        [Parameter(Mandatory=$false)]
-        [bool]
         $Production = $false,
 
         [Parameter(Mandatory=$false)]
@@ -604,21 +596,21 @@ try {
 
         # Warm-up: populate caches, then discard timing
         Write-Host ">>> Warm-up run (Rust)..." 
-        RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -App $rustApp
+        RunTests -Method "RustCli" -SkipValidation $true -App $rustApp
         Write-Host ">>> Warm-up run (.NET)..."
-        RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -App $dotnetApp
+        RunTests -Method "HttpGenerator" -SkipValidation $true -App $dotnetApp
         Write-Host ""
 
         # Timed runs
         Write-Host ">>> Benchmarking Rust CLI..."
         $rustTime = Measure-Command {
-            RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -App $rustApp
+            RunTests -Method "RustCli" -SkipValidation $true -App $rustApp
         }
         Write-Host ""
 
         Write-Host ">>> Benchmarking .NET CLI..."
         $dotnetTime = Measure-Command {
-            RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -App $dotnetApp
+            RunTests -Method "HttpGenerator" -SkipValidation $true -App $dotnetApp
         }
         Write-Host ""
 
@@ -650,7 +642,7 @@ try {
         Write-Host $comparison
         Write-Host ""
     } else {
-        Measure-Command { RunTests -Method "RustCli" -Parallel $Parallel -Production $Production }
+        Measure-Command { RunTests -Method "RustCli" -Production $Production }
         Write-Host "`r`n"
     }
 }
