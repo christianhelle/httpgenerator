@@ -72,7 +72,7 @@ function PrepareLocalDotNetCli {
         [System.IO.Path]::Combine($PSScriptRoot, "..", "src", "dotnet", "HttpGenerator.slnx"))
 
     Write-Host "dotnet build --configuration Release $solutionPath"
-    $process = Start-Process "dotnet" -Args "build --configuration Release $solutionPath" -NoNewWindow -PassThru
+    $process = Start-Process "dotnet" -Args "build --configuration Release `"$solutionPath`"" -NoNewWindow -PassThru
     $process | Wait-Process
     if ($process.ExitCode -ne 0) {
         throw "dotnet build failed"
