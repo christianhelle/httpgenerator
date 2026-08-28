@@ -424,6 +424,35 @@ function GenerateWithSpecificArgs {
     }
 }
 
+function Get-TestApplication {
+    param (
+        [Parameter(Mandatory=$true)]
+        [ValidateSet("RustCli", "HttpGenerator")]
+        [string]
+        $Method,
+
+        [Parameter(Mandatory=$false)]
+        [bool]
+        $Production = $false
+    )
+
+    if ($Production -eq $true) {
+        if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
+            throw "httpgenerator was not found on PATH"
+        }
+
+        return "httpgenerator"
+    }
+
+    if ($Method -eq "RustCli") {
+        $null = PrepareLocalRustCli
+        return Get-LocalHttpGeneratorPath
+    }
+
+    $null = PrepareLocalDotNetCli
+    return Get-LocalDotNetGeneratorPath
+}
+
 function RunTests {
     param (
         [Parameter(Mandatory=$true)]
@@ -441,7 +470,11 @@ function RunTests {
 
         [Parameter(Mandatory=$false)]
         [bool]
-        $SkipValidation = $false
+        $SkipValidation = $false,
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $App = ""
     )
 
     $filenames = @(
@@ -463,31 +496,13 @@ function RunTests {
 
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
 
-    if ($Method -eq "RustCli") {
-        if ($Production -eq $true) {
-            if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
-                throw "httpgenerator was not found on PATH"
-            }
-            $app = "httpgenerator"
-        } else {
-            PrepareLocalRustCli
-            $app = Get-LocalHttpGeneratorPath
-        }
-    } else {
-        if ($Production -eq $true) {
-            if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
-                throw "httpgenerator was not found on PATH"
-            }
-            $app = "httpgenerator"
-        } else {
-            PrepareLocalDotNetCli
-            $app = Get-LocalDotNetGeneratorPath
-        }
+    if ([string]::IsNullOrEmpty($App)) {
+        $App = Get-TestApplication -Method $Method -Production $Production
     }
 
     if (-not $SkipValidation) {
-        ValidateCliOutputStructure -app $app
-        ValidateCliWarningStreamCapture -app $app
+        ValidateCliOutputStructure -app $App
+        ValidateCliWarningStreamCapture -app $App
     }
 
     "v2.0", "v3.0", "v3.1" | ForEach-Object {
@@ -495,7 +510,7 @@ function RunTests {
         "json", "yaml" | ForEach-Object { 
             $format = $_
             $filenames | ForEach-Object {
-                Invoke-TestGeneration -app $app -version $version -format $format -name $_
+                Invoke-TestGeneration -app $App -version $version -format $format -name $_
             }
         }
     }
@@ -563,7 +578,7 @@ function Invoke-ExtraParameterTests {
 
     $filename = "./OpenAPI/$version/$name.$format"
     Write-Output "Testing $filename with --authorization-header"
-    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test-token-123"""
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test token"""
 
     Write-Output "Testing $filename with --load-authorization-header-from-environment"
     GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-env" -outputType "OneFile" -args "--load-authorization-header-from-environment --authorization-header-variable-name ""my_token"""
@@ -584,29 +599,44 @@ try {
         Write-Host "=== Benchmark Mode: Testing both Rust and .NET CLIs ==="
         Write-Host ""
 
+        $rustApp = Get-TestApplication -Method "RustCli" -Production $false
+        $dotnetApp = Get-TestApplication -Method "HttpGenerator" -Production $false
+
         # Warm-up: populate caches, then discard timing
         Write-Host ">>> Warm-up run (Rust)..." 
-        RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -Production $false
+        RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -App $rustApp
         Write-Host ">>> Warm-up run (.NET)..."
-        RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -Production $false
+        RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -App $dotnetApp
         Write-Host ""
 
         # Timed runs
         Write-Host ">>> Benchmarking Rust CLI..."
         $rustTime = Measure-Command {
-            RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -Production $false
+            RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -App $rustApp
         }
         Write-Host ""
 
         Write-Host ">>> Benchmarking .NET CLI..."
         $dotnetTime = Measure-Command {
-            RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -Production $false
+            RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -App $dotnetApp
         }
         Write-Host ""
 
         $rustSec = $rustTime.TotalSeconds
         $dotnetSec = $dotnetTime.TotalSeconds
-        $ratio = if ($rustSec -gt 0) { $dotnetSec / $rustSec } else { 0 }
+        $comparison = if ($rustSec -eq $dotnetSec) {
+            "Rust and .NET completed in the same time"
+        } elseif ($rustSec -lt $dotnetSec) {
+            if ($rustSec -gt 0) {
+                "Rust is {0:F2}x faster than .NET" -f ($dotnetSec / $rustSec)
+            } else {
+                "Rust completed faster than .NET"
+            }
+        } elseif ($dotnetSec -gt 0) {
+            ".NET is {0:F2}x faster than Rust" -f ($rustSec / $dotnetSec)
+        } else {
+            ".NET completed faster than Rust"
+        }
 
         Write-Host "=================================="
         Write-Host "   Performance Comparison Report"
@@ -617,7 +647,7 @@ try {
         Write-Host ("{0,-20} {1,15:F3}" -f "Rust CLI", $rustSec)
         Write-Host ("{0,-20} {1,15:F3}" -f ".NET CLI", $dotnetSec)
         Write-Host ""
-        Write-Host ("Rust is {0:F2}x faster than .NET" -f $ratio)
+        Write-Host $comparison
         Write-Host ""
     } else {
         Measure-Command { RunTests -Method "RustCli" -Parallel $Parallel -Production $Production }
