@@ -28,27 +28,12 @@ public static class HttpFileGenerator
             settings.BaseUrl!.EndsWith("}}"))
         {
             // Load the base URL from an environment variable
-            return settings.OutputType switch
-            {
-                OutputType.OneRequestPerFile => GenerateMultipleFiles(
-                    settings,
-                    document,
-                    baseUrl,
-                    operationNameGenerator),
-                OutputType.OneFile => GenerateSingleFile(
-                    settings,
-                    document,
-                    operationNameGenerator,
-                    baseUrl),
-                OutputType.OneFilePerTag => GenerateFilePerTag(
-                    settings,
-                    document,
-                    baseUrl,
-                    operationNameGenerator),
-                _ => throw new ArgumentOutOfRangeException(
-                    nameof(settings.OutputType),
-                    $"Unknown output type: {settings.OutputType}")
-            };
+            return GenerateForOutputType(
+                settings,
+                document,
+                baseUrl,
+                operationNameGenerator,
+                settings.OutputType);
         }
 
         if (!Uri.IsWellFormedUriString(baseUrl, UriKind.Absolute) &&
@@ -59,7 +44,22 @@ public static class HttpFileGenerator
                       baseUrl;
         }
 
-        return settings.OutputType switch
+        return GenerateForOutputType(
+            settings,
+            document,
+            baseUrl,
+            operationNameGenerator,
+            settings.OutputType);
+    }
+
+    private static GeneratorResult GenerateForOutputType(
+        GeneratorSettings settings,
+        OpenApiDocument document,
+        string baseUrl,
+        IOperationNameGenerator operationNameGenerator,
+        OutputType outputType)
+    {
+        return outputType switch
         {
             OutputType.OneRequestPerFile => GenerateMultipleFiles(
                 settings,
@@ -77,8 +77,8 @@ public static class HttpFileGenerator
                 baseUrl,
                 operationNameGenerator),
             _ => throw new ArgumentOutOfRangeException(
-                nameof(settings.OutputType),
-                $"Unknown output type: {settings.OutputType}")
+                nameof(outputType),
+                $"Unknown output type: {outputType}")
         };
     }
 
@@ -95,19 +95,7 @@ public static class HttpFileGenerator
         {
             foreach (var kv in document.Paths)
             {
-                var pathItem = kv.Value;
-                var operations = new Dictionary<string, OpenApiOperation>();
-                
-                if (pathItem.Operations != null)
-                {
-                    foreach (var operation in pathItem.Operations)
-                    {
-                        var operationKeyString = operation.Key.ToString().ToLowerInvariant();
-                        operations[operationKeyString] = operation.Value;
-                    }
-                }
-                
-                foreach (var operations_kv in operations)
+                foreach (var operations_kv in GetOperations(kv.Value))
                 {
                     code.AppendLine(
                         GenerateRequest(
@@ -123,6 +111,20 @@ public static class HttpFileGenerator
 
         return new GeneratorResult(
             new[] { new HttpFile("Requests.http", code.ToString()) });
+    }
+
+    private static Dictionary<string, OpenApiOperation> GetOperations(IOpenApiPathItem pathItem)
+    {
+        var operations = new Dictionary<string, OpenApiOperation>();
+        if (pathItem.Operations != null)
+        {
+            foreach (var operation in pathItem.Operations)
+            {
+                operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
+            }
+        }
+
+        return operations;
     }
 
     private static void WriteFileHeaders(GeneratorSettings settings, StringBuilder code, string baseUrl)
@@ -161,18 +163,7 @@ public static class HttpFileGenerator
         files.Capacity = document.Paths.Count;
         foreach (var kv in document.Paths)
         {
-            var pathItem = kv.Value;
-            var operations = new Dictionary<string, OpenApiOperation>();
-            
-            if (pathItem.Operations != null)
-            {
-                foreach (var operation in pathItem.Operations)
-                {
-                    operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
-                }
-            }
-            
-            foreach (var operations_kv in operations)
+            foreach (var operations_kv in GetOperations(kv.Value))
             {
                 var operation = operations_kv.Value;
                 var verb = operations_kv.Key.CapitalizeFirstCharacter();
@@ -204,18 +195,7 @@ public static class HttpFileGenerator
         {
             foreach (var kv in document.Paths)
             {
-                var pathItem = kv.Value;
-                var operations = new Dictionary<string, OpenApiOperation>();
-                
-                if (pathItem.Operations != null)
-                {
-                    foreach (var operation in pathItem.Operations)
-                    {
-                        operations[operation.Key.ToString().ToLowerInvariant()] = operation.Value;
-                    }
-                }
-                
-                foreach (var operations_kv in operations)
+                foreach (var operations_kv in GetOperations(kv.Value))
                 {
                     var tag = operations_kv.Value.Tags?.FirstOrDefault()?.Name ?? defaultTag;
 

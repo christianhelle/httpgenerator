@@ -1,9 +1,5 @@
 param (
     [Parameter(Mandatory=$false)]
-    [bool]
-    $Parallel = $true,
-
-    [Parameter(Mandatory=$false)]
     [switch]
     $Production = $false,
 
@@ -38,11 +34,11 @@ function PrepareLocalRustCli {
     $sourcePath = [System.IO.Path]::GetFullPath(
         [System.IO.Path]::Combine($PSScriptRoot, "..", "target", "release", $executableName))
 
-    if (!(Test-Path $binDirectory)) {
+    if (-not (Test-Path $binDirectory)) {
         New-Item -ItemType Directory -Path $binDirectory | Out-Null
     }
 
-    Write-Host "cargo build --release -p httpgenerator"
+    Write-Output "cargo build --release -p httpgenerator"
     $process = Start-Process "cargo" -Args "build --release -p httpgenerator" -NoNewWindow -PassThru
     $process | Wait-Process
     if ($process.ExitCode -ne 0) {
@@ -71,8 +67,8 @@ function PrepareLocalDotNetCli {
     $solutionPath = [System.IO.Path]::GetFullPath(
         [System.IO.Path]::Combine($PSScriptRoot, "..", "src", "dotnet", "HttpGenerator.slnx"))
 
-    Write-Host "dotnet build --configuration Release $solutionPath"
-    $process = Start-Process "dotnet" -Args "build --configuration Release $solutionPath" -NoNewWindow -PassThru
+    Write-Output "dotnet build --configuration Release `"$solutionPath`""
+    $process = Start-Process "dotnet" -Args "build --configuration Release `"$solutionPath`"" -NoNewWindow -PassThru
     $process | Wait-Process
     if ($process.ExitCode -ne 0) {
         throw "dotnet build failed"
@@ -355,7 +351,7 @@ function Generate {
         $args = ""
     )
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --no-logging $args" `
         -NoNewWindow `
@@ -366,7 +362,7 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type OneFile --no-logging $args" `
         -NoNewWindow `
@@ -377,7 +373,7 @@ function Generate {
         throw "HttpGenerator failed"
     }
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type OneFilePerTag --no-logging $args" `
         -NoNewWindow `
@@ -412,7 +408,7 @@ function GenerateWithSpecificArgs {
         $args = ""
     )
 
-    Write-Host "$app ./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args"
+    Write-Output "$app ./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args"
     $process = Start-Process $app `
         -Args "./openapi.$format --output ./Generated/$output --output-type $outputType --no-logging $args" `
         -NoNewWindow `
@@ -424,6 +420,35 @@ function GenerateWithSpecificArgs {
     }
 }
 
+function Get-TestApplication {
+    param (
+        [Parameter(Mandatory=$true)]
+        [ValidateSet("RustCli", "HttpGenerator")]
+        [string]
+        $Method,
+
+        [Parameter(Mandatory=$false)]
+        [bool]
+        $Production = $false
+    )
+
+    if ($Production -eq $true) {
+        if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
+            throw "httpgenerator was not found on PATH"
+        }
+
+        return "httpgenerator"
+    }
+
+    if ($Method -eq "RustCli") {
+        $null = PrepareLocalRustCli
+        return Get-LocalHttpGeneratorPath
+    }
+
+    $null = PrepareLocalDotNetCli
+    return Get-LocalDotNetGeneratorPath
+}
+
 function RunTests {
     param (
         [Parameter(Mandatory=$true)]
@@ -433,15 +458,15 @@ function RunTests {
         
         [Parameter(Mandatory=$false)]
         [bool]
-        $Parallel = $false,
-
-        [Parameter(Mandatory=$false)]
-        [bool]
         $Production = $false,
 
         [Parameter(Mandatory=$false)]
         [bool]
-        $SkipValidation = $false
+        $SkipValidation = $false,
+
+        [Parameter(Mandatory=$false)]
+        [string]
+        $App = ""
     )
 
     $filenames = @(
@@ -463,31 +488,13 @@ function RunTests {
 
     Get-ChildItem '*.http' -Recurse | ForEach-Object { Remove-Item -Path $_.FullName }
 
-    if ($Method -eq "RustCli") {
-        if ($Production -eq $true) {
-            if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
-                throw "httpgenerator was not found on PATH"
-            }
-            $app = "httpgenerator"
-        } else {
-            PrepareLocalRustCli
-            $app = Get-LocalHttpGeneratorPath
-        }
-    } else {
-        if ($Production -eq $true) {
-            if (-not (Get-Command "httpgenerator" -ErrorAction SilentlyContinue)) {
-                throw "httpgenerator was not found on PATH"
-            }
-            $app = "httpgenerator"
-        } else {
-            PrepareLocalDotNetCli
-            $app = Get-LocalDotNetGeneratorPath
-        }
+    if ([string]::IsNullOrEmpty($App)) {
+        $App = Get-TestApplication -Method $Method -Production $Production
     }
 
     if (-not $SkipValidation) {
-        ValidateCliOutputStructure -app $app
-        ValidateCliWarningStreamCapture -app $app
+        ValidateCliOutputStructure -app $App
+        ValidateCliWarningStreamCapture -app $App
     }
 
     "v2.0", "v3.0", "v3.1" | ForEach-Object {
@@ -495,38 +502,87 @@ function RunTests {
         "json", "yaml" | ForEach-Object { 
             $format = $_
             $filenames | ForEach-Object {
-                $filename = "./OpenAPI/$version/$_.$format"
-                $exists = Test-Path -Path $filename -PathType Leaf
-                if ($exists -eq $true) {
-                    Write-Host "Testing $filename"
-                    Copy-Item $filename ./openapi.$format
-                    if ($version -eq "v3.1") {
-                        Generate -app $app -format $format -output $_/$version/$format -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
-                    } else {
-                        Generate -app $app -format $format -output $_/$version/$format -args "--generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
-                        
-                        # Additional parameter combination tests for v2.0 and v3.0
-                        if ($_ -eq "petstore") {
-                            Write-Host "Testing $filename with --authorization-header"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test-token-123"""
-                            
-                            Write-Host "Testing $filename with --load-authorization-header-from-environment"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/auth-env" -outputType "OneFile" -args "--load-authorization-header-from-environment --authorization-header-variable-name ""my_token"""
-                            
-                            Write-Host "Testing $filename with --skip-headers"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/skip-headers" -outputType "OneFile" -args "--skip-headers"
-                            
-                            Write-Host "Testing $filename with --content-type application/xml"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/xml" -outputType "OneFile" -args "--content-type ""application/xml"""
-                            
-                            Write-Host "Testing $filename with environment variable base URL"
-                            GenerateWithSpecificArgs -app $app -format $format -output "$_/$version/$format/env-baseurl" -outputType "OneFile" -args "--base-url ""{{MY_BASE_URL}}"""
-                        }
-                    }
-                }
+                Invoke-TestGeneration -app $App -version $version -format $format -name $_
             }
         }
     }
+}
+
+function Invoke-TestGeneration {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]
+        $app,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $version,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $format,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $name
+
+    )
+
+    $filename = "./OpenAPI/$version/$name.$format"
+    if (-not (Test-Path -Path $filename -PathType Leaf)) {
+        return
+    }
+
+    Write-Output "Testing $filename"
+    Copy-Item $filename ./openapi.$format
+    if ($version -eq "v3.1") {
+        Generate -app $app -format $format -output "$name/$version/$format" -args "--skip-validation --generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
+        return
+    }
+
+    Generate -app $app -format $format -output "$name/$version/$format" -args "--generate-intellij-tests --custom-header ""X-Custom-Header: 1234"" --base-url https://api.example.io/"
+
+    # Additional parameter combination tests for v2.0 and v3.0
+    if ($name -eq "petstore") {
+        Invoke-ExtraParameterTests -app $app -name $name -version $version -format $format
+    }
+}
+
+function Invoke-ExtraParameterTests {
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]
+        $app,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $name,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $version,
+
+        [Parameter(Mandatory=$true)]
+        [string]
+        $format
+
+    )
+
+    $filename = "./OpenAPI/$version/$name.$format"
+    Write-Output "Testing $filename with --authorization-header"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-header" -outputType "OneFile" -args "--authorization-header ""Bearer test token"""
+
+    Write-Output "Testing $filename with --load-authorization-header-from-environment"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/auth-env" -outputType "OneFile" -args "--load-authorization-header-from-environment --authorization-header-variable-name ""my_token"""
+
+    Write-Output "Testing $filename with --skip-headers"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/skip-headers" -outputType "OneFile" -args "--skip-headers"
+
+    Write-Output "Testing $filename with --content-type application/xml"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/xml" -outputType "OneFile" -args "--content-type ""application/xml"""
+
+    Write-Output "Testing $filename with environment variable base URL"
+    GenerateWithSpecificArgs -app $app -format $format -output "$name/$version/$format/env-baseurl" -outputType "OneFile" -args "--base-url ""{{MY_BASE_URL}}"""
 }
 
 Push-Location $PSScriptRoot
@@ -535,29 +591,44 @@ try {
         Write-Host "=== Benchmark Mode: Testing both Rust and .NET CLIs ==="
         Write-Host ""
 
+        $rustApp = Get-TestApplication -Method "RustCli" -Production $false
+        $dotnetApp = Get-TestApplication -Method "HttpGenerator" -Production $false
+
         # Warm-up: populate caches, then discard timing
         Write-Host ">>> Warm-up run (Rust)..." 
-        RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -Production $false
+        RunTests -Method "RustCli" -SkipValidation $true -App $rustApp
         Write-Host ">>> Warm-up run (.NET)..."
-        RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -Production $false
+        RunTests -Method "HttpGenerator" -SkipValidation $true -App $dotnetApp
         Write-Host ""
 
         # Timed runs
         Write-Host ">>> Benchmarking Rust CLI..."
         $rustTime = Measure-Command {
-            RunTests -Method "RustCli" -Parallel $Parallel -SkipValidation $true -Production $false
+            RunTests -Method "RustCli" -SkipValidation $true -App $rustApp
         }
         Write-Host ""
 
         Write-Host ">>> Benchmarking .NET CLI..."
         $dotnetTime = Measure-Command {
-            RunTests -Method "HttpGenerator" -Parallel $Parallel -SkipValidation $true -Production $false
+            RunTests -Method "HttpGenerator" -SkipValidation $true -App $dotnetApp
         }
         Write-Host ""
 
         $rustSec = $rustTime.TotalSeconds
         $dotnetSec = $dotnetTime.TotalSeconds
-        $ratio = if ($rustSec -gt 0) { $dotnetSec / $rustSec } else { 0 }
+        $comparison = if ($rustSec -eq $dotnetSec) {
+            "Rust and .NET completed in the same time"
+        } elseif ($rustSec -lt $dotnetSec) {
+            if ($rustSec -gt 0) {
+                "Rust is {0:F2}x faster than .NET" -f ($dotnetSec / $rustSec)
+            } else {
+                "Rust completed faster than .NET"
+            }
+        } elseif ($dotnetSec -gt 0) {
+            ".NET is {0:F2}x faster than Rust" -f ($rustSec / $dotnetSec)
+        } else {
+            ".NET completed faster than Rust"
+        }
 
         Write-Host "=================================="
         Write-Host "   Performance Comparison Report"
@@ -568,10 +639,10 @@ try {
         Write-Host ("{0,-20} {1,15:F3}" -f "Rust CLI", $rustSec)
         Write-Host ("{0,-20} {1,15:F3}" -f ".NET CLI", $dotnetSec)
         Write-Host ""
-        Write-Host ("Rust is {0:F2}x faster than .NET" -f $ratio)
+        Write-Host $comparison
         Write-Host ""
     } else {
-        Measure-Command { RunTests -Method "RustCli" -Parallel $Parallel -Production $Production }
+        Measure-Command { RunTests -Method "RustCli" -Production $Production }
         Write-Host "`r`n"
     }
 }

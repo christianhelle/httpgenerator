@@ -38,6 +38,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 html {
@@ -513,11 +514,6 @@ strong {
   }
 }
 
-/* Smooth transitions for theme switching */
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-}
-
 /* Focus styles for accessibility */
 .theme-toggle:focus,
 .nav-link:focus,
@@ -527,10 +523,6 @@ a:focus {
 }
 
 /* Improve code readability */
-.code-block {
-  position: relative;
-}
-
 .code-block pre::-webkit-scrollbar {
   height: 8px;
 }

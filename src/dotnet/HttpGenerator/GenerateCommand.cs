@@ -14,7 +14,7 @@ public class GenerateCommand : AsyncCommand<Settings>
 {
     private static readonly string Crlf = Environment.NewLine;
 
-    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken = default)
+    protected override async Task<int> ExecuteAsync(CommandContext context, Settings settings, CancellationToken cancellationToken)
     {
         Analytics.Configure(settings);
 
@@ -195,7 +195,7 @@ public class GenerateCommand : AsyncCommand<Settings>
     [ExcludeFromCodeCoverage]
     private static void DisplayHeader(Settings settings)
     {
-        var version = typeof(GenerateCommand).Assembly.GetName().Version!;
+        var version = typeof(GenerateCommand).Assembly.GetName().Version?.ToString() ?? "unknown";
 
         // Create a panel with the application header
         var panel = new Panel(new Markup($"[bold blue]🚀 HTTP File Generator[/] [dim]v{version}[/]"))

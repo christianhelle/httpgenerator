@@ -98,7 +98,7 @@ public static class Analytics
             return;
         
         string json = Serializer.Serialize(settings);
-        var properties = Serializer.Deserialize<Dictionary<string, object>>(json)!;
+        var properties = Serializer.Deserialize<Dictionary<string, object>>(json);
         
         exception
             .ToExceptionless(new ContextData(properties))
