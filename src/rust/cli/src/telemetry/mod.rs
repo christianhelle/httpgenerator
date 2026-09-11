@@ -31,9 +31,9 @@ impl TelemetrySinkCollection {
         }
     }
 
-    pub async fn flush(&self) {
+    pub fn flush(&self) {
         if let TelemetrySinkCollection::Exceptionless(sink) = self {
-            sink.flush().await;
+            sink.flush();
         }
     }
 

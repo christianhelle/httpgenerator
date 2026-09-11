@@ -9,8 +9,7 @@ use httpgenerator_cli::{
 use std::{ffi::OsString, time::Instant};
 use ui::CliPresenter;
 
-#[tokio::main]
-async fn main() {
+fn main() {
     let raw_args = raw_args_with_help();
     let args = parse_args(&raw_args);
     let started_at = Instant::now();
@@ -35,7 +34,7 @@ async fn main() {
     }
 
     let recorder = telemetry.into_sink();
-    flush_telemetry(recorder).await;
+    flush_telemetry(recorder);
 }
 
 fn create_telemetry_sink(args: &CliArgs) -> TelemetrySinkCollection {
@@ -46,8 +45,8 @@ fn create_telemetry_sink(args: &CliArgs) -> TelemetrySinkCollection {
     }
 }
 
-async fn flush_telemetry(sink: TelemetrySinkCollection) {
-    sink.flush().await;
+fn flush_telemetry(sink: TelemetrySinkCollection) {
+    sink.flush();
 }
 
 fn raw_args_with_help() -> Vec<OsString> {
