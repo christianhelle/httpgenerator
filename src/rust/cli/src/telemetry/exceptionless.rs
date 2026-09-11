@@ -58,21 +58,15 @@ impl TelemetrySink for ExceptionlessTelemetrySink {
 }
 
 fn submit(payload: &Value) -> Result<(), ()> {
-    let client = reqwest::blocking::Client::builder()
-        .timeout(SUBMIT_TIMEOUT)
+    let response = ureq::post(EXCEPTIONLESS_EVENTS_URL)
+        .config()
+        .timeout_global(Some(SUBMIT_TIMEOUT))
+        .http_status_as_error(false)
         .build()
-        .map_err(|_| ())?;
-
-    let response = client
-        .post(EXCEPTIONLESS_EVENTS_URL)
-        .header(reqwest::header::ACCEPT, "application/json")
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .header(
-            reqwest::header::AUTHORIZATION,
-            format!("Bearer {EXCEPTIONLESS_API_KEY}"),
-        )
-        .body(payload.to_string())
-        .send()
+        .header("Accept", "application/json")
+        .header("Content-Type", "application/json")
+        .header("Authorization", format!("Bearer {EXCEPTIONLESS_API_KEY}"))
+        .send(payload.to_string())
         .map_err(|_| ())?;
 
     if response.status().is_success() {

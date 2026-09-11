@@ -22,9 +22,9 @@ path = "src/main.rs"
 [dependencies]
 clap.workspace = true
 httpgenerator-core = { workspace = true, features = ["openapi"] }
-reqwest.workspace = true
 serde_json.workspace = true
 unicode-width = "0.2"
+ureq.workspace = true
 
 [build-dependencies]
 winresource = "0.1.31"

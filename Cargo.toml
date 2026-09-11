@@ -19,13 +19,11 @@ clap = { version = "4.6.1", features = ["derive"] }
 httpgenerator-core = { version = "0.1.0", path = "src/rust/core" }
 oasreader = { version = "0.1.0", features = ["typed"] }
 regex = "1.12.2"
-reqwest = { version = "0.12.28", default-features = false, features = [
-  "blocking",
-  "gzip",
-  "rustls-tls",
-] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = { version = "1.0.145", features = ["preserve_order"] }
+ureq = { version = "3.4.1", default-features = false, features = [
+  "rustls",
+] }
 url = "2.5.7"
 
 [profile.release]
