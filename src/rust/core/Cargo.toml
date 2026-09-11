@@ -24,7 +24,6 @@ openapi = [
 ]
 
 [dependencies]
-hostname = "0.4.1"
 oasreader = { workspace = true, optional = true }
 regex.workspace = true
 serde.workspace = true

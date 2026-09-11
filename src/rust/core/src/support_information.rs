@@ -72,10 +72,30 @@ fn current_user_name() -> String {
 }
 
 fn current_machine_name() -> Option<String> {
-    hostname::get()
+    platform_machine_name().or_else(|| env_value(&["COMPUTERNAME", "HOSTNAME"]))
+}
+
+#[cfg(windows)]
+fn platform_machine_name() -> Option<String> {
+    env_value(&["COMPUTERNAME"])
+}
+
+#[cfg(not(windows))]
+fn platform_machine_name() -> Option<String> {
+    // `/etc/hostname` covers most Linux distributions; the `hostname` command covers the rest,
+    // including macOS, where that file does not exist.
+    std::fs::read_to_string("/etc/hostname")
         .ok()
+        .map(OsString::from)
         .and_then(normalize_os_string)
-        .or_else(|| env_value(&["COMPUTERNAME", "HOSTNAME"]))
+        .or_else(|| {
+            std::process::Command::new("hostname")
+                .output()
+                .ok()
+                .filter(|output| output.status.success())
+                .map(|output| OsString::from(String::from_utf8_lossy(&output.stdout).into_owned()))
+                .and_then(normalize_os_string)
+        })
 }
 
 fn env_value(keys: &[&str]) -> Option<String> {
