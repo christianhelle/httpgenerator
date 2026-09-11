@@ -5,7 +5,6 @@ use crate::args::{CliArgs, OutputTypeArg};
 use super::{
     MemoryTelemetrySink, TelemetryEvent, TelemetryRecorder,
     redaction::{feature_usage_names, redacted_command_line},
-    sink::TelemetrySink,
 };
 
 #[test]
@@ -98,7 +97,7 @@ fn record_error_captures_redacted_settings_and_support_context() {
         OsString::from("--authorization-header"),
         OsString::from("Bearer secret-token"),
     ];
-    let mut memory_sink = MemoryTelemetrySink::default();
+    let memory_sink = MemoryTelemetrySink::default();
     let mut recorder =
         TelemetryRecorder::from_cli_args(&raw_args, &args, memory_sink.into());
 
