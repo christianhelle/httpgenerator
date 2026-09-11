@@ -2,8 +2,7 @@
 
 use std::{env, ffi::OsString};
 
-use base64::{Engine as _, engine::general_purpose::STANDARD};
-use sha2::{Digest, Sha256};
+use crate::digest::{base64_encode, sha256};
 
 /// Returns a stable anonymous identity derived from the current user and machine.
 ///
@@ -37,9 +36,9 @@ pub fn anonymous_identity_from_parts(user_name: &str, machine_name: Option<&str>
         .filter(|value| !value.is_empty())
         .unwrap_or("localhost");
     let value = format!("{user_name}@{machine_name}");
-    let hash = Sha256::digest(value.as_bytes());
+    let hash = sha256(value.as_bytes());
 
-    STANDARD.encode(hash).to_ascii_lowercase()
+    base64_encode(&hash).to_ascii_lowercase()
 }
 
 /// Returns the short support key for the current anonymous identity.
