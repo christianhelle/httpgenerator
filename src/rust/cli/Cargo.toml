@@ -21,7 +21,6 @@ path = "src/main.rs"
 
 [dependencies]
 clap.workspace = true
-console.workspace = true
 httpgenerator-core = { workspace = true, features = ["openapi"] }
 reqwest.workspace = true
 serde_json.workspace = true

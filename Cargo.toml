@@ -16,7 +16,6 @@ version = "0.1.0"
 
 [workspace.dependencies]
 clap = { version = "4.6.1", features = ["derive"] }
-console = "0.16.3"
 httpgenerator-core = { version = "0.1.0", path = "src/rust/core" }
 oasreader = { version = "0.1.0", features = ["typed"] }
 regex = "1.12.2"
