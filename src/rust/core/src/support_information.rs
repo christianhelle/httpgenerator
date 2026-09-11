@@ -92,7 +92,15 @@ fn normalize_os_string(value: OsString) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{anonymous_identity_from_parts, support_key_from_anonymous_identity};
+    use super::{anonymous_identity_from_parts, current_machine_name, support_key_from_anonymous_identity};
+
+    #[test]
+    fn machine_name_is_discovered_on_this_platform() {
+        let machine_name =
+            current_machine_name().expect("a machine name should be discoverable on this platform");
+
+        assert!(!machine_name.trim().is_empty());
+    }
 
     #[test]
     fn anonymous_identity_matches_dotnet_sha256_base64_lowercase() {
