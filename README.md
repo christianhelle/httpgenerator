@@ -9,7 +9,7 @@
 
 Generate .http files from OpenAPI specifications
 
-Specifications split across multiple files are supported. External `$ref`s to other local files or URLs are merged into a single document with [oasreader](https://crates.io/crates/oasreader).
+Specifications split across multiple files are supported. External `$ref`s to other local files or URLs are merged into a single document with [oasreader](https://crates.io/crates/oasreader). References that cannot be resolved fail validation; with `--skip-validation` they are reported as warnings and generation continues.
 
 `.http` files were made popular by the Visual Studio Code extension [REST Client](https://marketplace.visualstudio.com/items?itemName=humao.rest-client), which then was adopted by JetBrains IDE's, and later on [Visual Studio 2022](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.RestClient)
 
