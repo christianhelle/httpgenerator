@@ -5,6 +5,7 @@ use crate::{
 };
 
 use super::super::OpenApiNormalizationError;
+use super::references::resolve_reference;
 use super::schema::normalize_schema;
 
 pub(super) fn normalize_request_body(
@@ -26,13 +27,17 @@ fn normalize_openapi3_request_body(
     method: NormalizedHttpMethod,
     request_body: &Value,
 ) -> Result<Option<NormalizedRequestBody>, OpenApiNormalizationError> {
-    if let Some(reference) = request_body.get("$ref").and_then(Value::as_str) {
-        return Err(OpenApiNormalizationError::UnsupportedRequestBodyReference {
-            path: path.to_string(),
-            method,
-            reference: reference.to_string(),
-        });
-    }
+    let request_body = match resolve_reference(root, request_body) {
+        Ok(Some(request_body)) => request_body,
+        Ok(None) => return Ok(None),
+        Err(reference) => {
+            return Err(OpenApiNormalizationError::UnsupportedRequestBodyReference {
+                path: path.to_string(),
+                method,
+                reference,
+            });
+        }
+    };
 
     let Some(request_body) = request_body.as_object() else {
         return Err(OpenApiNormalizationError::InvalidStructure {
@@ -66,22 +71,29 @@ fn normalize_swagger2_request_body(
         return Ok(None);
     };
 
-    let Some(body_parameter) = parameters.iter().find(|parameter| {
-        parameter
-            .get("in")
-            .and_then(Value::as_str)
-            .is_some_and(|location| location == "body")
-    }) else {
+    let mut body_parameter = None;
+    for parameter in parameters {
+        let resolved = resolve_reference(root, parameter).map_err(|reference| {
+            OpenApiNormalizationError::UnsupportedRequestBodyReference {
+                path: path.to_string(),
+                method,
+                reference,
+            }
+        })?;
+        if let Some(parameter) = resolved.filter(|parameter| {
+            parameter
+                .get("in")
+                .and_then(Value::as_str)
+                .is_some_and(|location| location == "body")
+        }) {
+            body_parameter = Some(parameter);
+            break;
+        }
+    }
+
+    let Some(body_parameter) = body_parameter else {
         return Ok(None);
     };
-
-    if let Some(reference) = body_parameter.get("$ref").and_then(Value::as_str) {
-        return Err(OpenApiNormalizationError::UnsupportedRequestBodyReference {
-            path: path.to_string(),
-            method,
-            reference: reference.to_string(),
-        });
-    }
 
     let Some(body_parameter) = body_parameter.as_object() else {
         return Err(OpenApiNormalizationError::InvalidStructure {

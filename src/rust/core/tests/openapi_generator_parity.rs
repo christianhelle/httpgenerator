@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::openapi::{LoadOptions, load_and_normalize_document};
+use httpgenerator_core::openapi::{TypedParseOptions, load_and_normalize_document};
 use httpgenerator_core::{GeneratorSettings, OutputType, generate_http_files};
 
 fn petstore_input() -> String {
@@ -49,7 +49,7 @@ fn newline() -> &'static str {
 
 #[test]
 fn petstore_renders_expected_one_request_per_file_outputs() {
-    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
 
     let result = generate_http_files(&petstore_settings(), &document);
 
@@ -77,7 +77,7 @@ fn petstore_renders_expected_one_request_per_file_outputs() {
 
 #[test]
 fn petstore_renders_expected_one_file_content() {
-    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFile,
         ..petstore_settings()
@@ -104,7 +104,7 @@ fn petstore_renders_expected_one_file_content() {
 
 #[test]
 fn petstore_renders_expected_one_file_per_tag_outputs() {
-    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFilePerTag,
         ..petstore_settings()
@@ -129,7 +129,7 @@ fn petstore_renders_expected_one_file_per_tag_outputs() {
 
 #[test]
 fn petstore_preserves_skip_headers_and_base_url_override_quirks() {
-    let document = load_and_normalize_document(&petstore_input(), LoadOptions::default()).unwrap();
+    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
 
     let skip_header_result = generate_http_files(
         &GeneratorSettings {
@@ -165,7 +165,7 @@ fn petstore_preserves_skip_headers_and_base_url_override_quirks() {
 fn webhook_example_renders_expected_one_request_per_file_output() {
     let document = load_and_normalize_document(
         &webhook_input(),
-        LoadOptions {
+        TypedParseOptions {
             tolerate_invalid_openapi31: true,
         },
     )
@@ -192,7 +192,7 @@ fn webhook_example_renders_expected_one_request_per_file_output() {
 fn webhook_example_renders_expected_one_file_per_tag_output() {
     let document = load_and_normalize_document(
         &webhook_input(),
-        LoadOptions {
+        TypedParseOptions {
             tolerate_invalid_openapi31: true,
         },
     )
@@ -212,4 +212,44 @@ fn webhook_example_renders_expected_one_file_per_tag_output() {
             .contains("### Request: POST /newPet")
     );
     assert!(result.files[0].content.contains("POST {{baseUrl}}/newPet"));
+}
+
+fn multi_file_input() -> String {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("..")
+        .join("..")
+        .join("..")
+        .join("test")
+        .join("multi-file")
+        .join("petstore.yaml")
+        .to_string_lossy()
+        .into_owned()
+}
+
+#[test]
+fn specifications_split_across_files_render_request_bodies_from_external_components() {
+    let document =
+        load_and_normalize_document(&multi_file_input(), TypedParseOptions::default()).unwrap();
+    let settings = GeneratorSettings {
+        open_api_path: multi_file_input(),
+        ..GeneratorSettings::default()
+    };
+
+    let result = generate_http_files(&settings, &document);
+
+    let add_pet = result
+        .files
+        .iter()
+        .find(|file| file.filename == "PostAddPet.http")
+        .expect("addPet should be generated");
+    assert!(
+        add_pet.content.contains(r#""name": "example""#),
+        "{}",
+        add_pet.content
+    );
+    assert!(
+        add_pet.content.contains(r#""category": "#),
+        "{}",
+        add_pet.content
+    );
 }

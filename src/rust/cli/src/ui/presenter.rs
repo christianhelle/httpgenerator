@@ -1,5 +1,4 @@
-use httpgenerator_cli::{AzureAuthStatus, CliError, ExecutionObserver};
-use httpgenerator_core::openapi::OpenApiInspection;
+use httpgenerator_cli::{AzureAuthStatus, CliError, ExecutionObserver, OpenApiInspection};
 use std::{
     io::{self, IsTerminal, Write as IoWrite},
     path::PathBuf,
@@ -11,7 +10,8 @@ mod render;
 
 use self::render::{
     render_azure_auth_finished, render_azure_auth_started, render_error,
-    render_file_writing_started, render_files_written, render_header, render_success,
+    render_file_writing_started, render_files_written, render_header, render_reference_warnings,
+    render_success,
     render_validation_started, render_validation_succeeded,
 };
 use super::format::{mode_from_terminal, PresentationMode};
@@ -101,6 +101,10 @@ impl ExecutionObserver for CliPresenter {
 
     fn files_written(&mut self, paths: &[PathBuf]) {
         self.write_stdout(&render_files_written(self.stdout_mode, paths));
+    }
+
+    fn reference_warnings(&mut self, warnings: &[String]) {
+        self.write_stderr(&render_reference_warnings(self.stderr_mode, warnings));
     }
 }
 

@@ -1,5 +1,5 @@
-use httpgenerator_cli::{AzureAuthStatus, CliError};
-use httpgenerator_core::openapi::{OpenApiInspection, OpenApiSpecificationVersion, OpenApiStats};
+use httpgenerator_cli::{AzureAuthStatus, CliError, OpenApiInspection};
+use httpgenerator_core::openapi::{OpenApiSpecificationVersion, OpenApiStats};
 use std::{env, path::PathBuf, time::Duration};
 
 use crate::ui::format::{
@@ -149,6 +149,18 @@ pub(super) fn render_success(mode: PresentationMode, duration: Duration) -> Stri
             format_duration(duration)
         ),
     }
+}
+
+pub(super) fn render_reference_warnings(mode: PresentationMode, warnings: &[String]) -> String {
+    warnings
+        .iter()
+        .map(|warning| match mode {
+            PresentationMode::Rich => {
+                format!("{} {}\n", style("Warning:", &["33"]), style(warning, &["33"]))
+            }
+            PresentationMode::Plain => format!("Warning: {warning}\n"),
+        })
+        .collect()
 }
 
 pub(super) fn render_error(mode: PresentationMode, error: &CliError) -> String {

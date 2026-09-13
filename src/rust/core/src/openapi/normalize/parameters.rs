@@ -6,6 +6,7 @@ use crate::{
 };
 
 use super::super::OpenApiNormalizationError;
+use super::references::resolve_reference;
 use super::schema::normalize_schema;
 
 pub(super) fn normalize_parameters(
@@ -68,13 +69,17 @@ fn normalize_parameter(
     method: NormalizedHttpMethod,
     value: &Value,
 ) -> Result<Option<NormalizedParameter>, OpenApiNormalizationError> {
-    if let Some(reference) = value.get("$ref").and_then(Value::as_str) {
-        return Err(OpenApiNormalizationError::UnsupportedParameterReference {
-            path: path.to_string(),
-            method,
-            reference: reference.to_string(),
-        });
-    }
+    let value = match resolve_reference(root, value) {
+        Ok(Some(value)) => value,
+        Ok(None) => return Ok(None),
+        Err(reference) => {
+            return Err(OpenApiNormalizationError::UnsupportedParameterReference {
+                path: path.to_string(),
+                method,
+                reference,
+            });
+        }
+    };
 
     let Some(parameter) = value.as_object() else {
         return Err(OpenApiNormalizationError::InvalidStructure {

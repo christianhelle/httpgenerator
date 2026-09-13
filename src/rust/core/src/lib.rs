@@ -66,11 +66,11 @@
 //!
 //! ```no_run
 //! # #[cfg(feature = "openapi")] {
-//! use httpgenerator_core::openapi::{LoadOptions, LoadedOpenApiDocument, load_document};
+//! use httpgenerator_core::openapi::{OpenApiSpecificationVersion, read};
 //!
-//! let loaded = load_document("test/OpenAPI/v3.0/petstore.json", LoadOptions::default()).unwrap();
+//! let document = read("test/OpenAPI/v3.0/petstore.json").unwrap();
 //!
-//! assert!(matches!(loaded, LoadedOpenApiDocument::OpenApi30 { .. }));
+//! assert_eq!(document.specification_version, OpenApiSpecificationVersion::OpenApi30);
 //! # }
 //! ```
 

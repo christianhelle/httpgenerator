@@ -1,11 +1,21 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::openapi::OpenApiInspection;
+use httpgenerator_core::openapi::{OpenApiSpecificationVersion, OpenApiStats};
+
+/// The specification version and stats reported when validation succeeds.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OpenApiInspection {
+    pub specification_version: OpenApiSpecificationVersion,
+    pub stats: OpenApiStats,
+}
 
 pub trait ExecutionObserver {
     fn validation_started(&mut self) {}
 
     fn validation_succeeded(&mut self, _inspection: &OpenApiInspection) {}
+
+    /// Called with problems found while merging external references that did not stop the run.
+    fn reference_warnings(&mut self, _warnings: &[String]) {}
 
     fn azure_auth_started(&mut self) {}
 

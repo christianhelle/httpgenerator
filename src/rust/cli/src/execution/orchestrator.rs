@@ -3,8 +3,8 @@ use std::path::PathBuf;
 use httpgenerator_core::{
     generate_http_files,
     openapi::{
-        inspect_document, load_and_normalize_document, LoadOptions, OpenApiInspection,
-        OpenApiSpecificationVersion,
+        normalize_document, read, Diagnostic, OpenApiSpecificationVersion, ReadResult,
+        TypedParseOptions,
     },
     GeneratorSettings,
 };
@@ -12,7 +12,7 @@ use httpgenerator_core::{
 use crate::{
     args::CliArgs,
     auth::try_get_access_token,
-    observer::{ExecutionObserver, ExecutionSummary, NoopExecutionObserver},
+    observer::{ExecutionObserver, ExecutionSummary, NoopExecutionObserver, OpenApiInspection},
     writer::write_files,
     CliError,
 };
@@ -69,7 +69,27 @@ where
         observer.validation_started();
     }
 
-    let validation = validate_openapi_document(&open_api_path, args.skip_validation)?;
+    let openapi_document = read(&open_api_path).map_err(|error| {
+        if args.skip_validation {
+            CliError::LoadOpenApi(error.to_string())
+        } else {
+            CliError::InspectOpenApi(error.to_string())
+        }
+    })?;
+    // Unresolved references fail validation, so they are only warnings when validation is skipped.
+    let warnings = openapi_document
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| {
+            args.skip_validation || !matches!(diagnostic, Diagnostic::UnresolvedReference { .. })
+        })
+        .map(ToString::to_string)
+        .collect::<Vec<_>>();
+    if !warnings.is_empty() {
+        observer.reference_warnings(&warnings);
+    }
+
+    let validation = validate_openapi_document(&openapi_document, args.skip_validation)?;
     if let Some(inspection) = &validation {
         observer.validation_succeeded(inspection);
     }
@@ -84,13 +104,13 @@ where
         observer.azure_auth_finished(&azure_auth);
     }
 
-    let document = load_and_normalize_document(
-        &open_api_path,
-        LoadOptions {
+    openapi_document
+        .typed(TypedParseOptions {
             tolerate_invalid_openapi31: args.skip_validation,
-        },
-    )
-    .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
+        })
+        .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
+    let document = normalize_document(&openapi_document)
+        .map_err(|error| CliError::LoadOpenApi(error.to_string()))?;
     let settings = build_generator_settings(&args, open_api_path.clone(), authorization_header);
     let result = generate_http_files(&settings, &document);
     observer.file_writing_started(result.files.len());
@@ -128,20 +148,32 @@ fn build_generator_settings(
 }
 
 fn validate_openapi_document(
-    open_api_path: &str,
+    document: &ReadResult,
     skip_validation: bool,
 ) -> Result<Option<OpenApiInspection>, CliError> {
     if skip_validation {
         return Ok(None);
     }
 
-    let inspection = inspect_document(open_api_path)
-        .map_err(|error| CliError::InspectOpenApi(error.to_string()))?;
+    let inspection = OpenApiInspection {
+        specification_version: document.specification_version,
+        stats: document.stats(),
+    };
 
     if inspection.specification_version == OpenApiSpecificationVersion::OpenApi31 {
         return Err(CliError::UnsupportedValidationVersion {
             version: inspection.specification_version,
         });
+    }
+
+    let references = document
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| matches!(diagnostic, Diagnostic::UnresolvedReference { .. }))
+        .map(ToString::to_string)
+        .collect::<Vec<_>>();
+    if !references.is_empty() {
+        return Err(CliError::UnresolvedReferences { references });
     }
 
     Ok(Some(inspection))

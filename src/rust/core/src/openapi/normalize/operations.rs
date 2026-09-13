@@ -4,6 +4,7 @@ use crate::{NormalizedHttpMethod, NormalizedOperation};
 
 use super::super::OpenApiNormalizationError;
 use super::parameters::{get_parameter_values, normalize_parameters};
+use super::references::resolve_reference;
 use super::request_body::normalize_request_body;
 
 pub(super) fn normalize_operations(
@@ -41,19 +42,23 @@ fn normalize_operation_group(
     };
 
     for (raw_path, path_item_value) in path_items {
+        let path_item_value = match resolve_reference(root, path_item_value) {
+            Ok(Some(path_item_value)) => path_item_value,
+            Ok(None) => continue,
+            Err(reference) => {
+                return Err(OpenApiNormalizationError::UnsupportedPathItemReference {
+                    path: format!("{collection_name}.{raw_path}"),
+                    reference,
+                });
+            }
+        };
+
         let Some(path_item) = path_item_value.as_object() else {
             return Err(OpenApiNormalizationError::InvalidStructure {
                 path: format!("{collection_name}.{raw_path}"),
                 context: "expected a path item object".to_string(),
             });
         };
-
-        if let Some(reference) = path_item.get("$ref").and_then(Value::as_str) {
-            return Err(OpenApiNormalizationError::UnsupportedPathItemReference {
-                path: format!("{collection_name}.{raw_path}"),
-                reference: reference.to_string(),
-            });
-        }
 
         let normalized_path = normalize_operation_path(collection_name, raw_path);
         let path_parameters = get_parameter_values(path_item, &normalized_path, "parameters")?;

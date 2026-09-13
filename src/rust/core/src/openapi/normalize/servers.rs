@@ -4,15 +4,15 @@ use serde_json::Value;
 
 use crate::NormalizedServer;
 
-use super::super::{LoadedOpenApiDocument, OpenApiNormalizationError, OpenApiSource};
+use super::super::{OpenApiNormalizationError, OpenApiSource};
 
 pub(super) fn normalize_servers(
-    document: &LoadedOpenApiDocument,
+    value: &Value,
+    source: &OpenApiSource,
 ) -> Result<Vec<NormalizedServer>, OpenApiNormalizationError> {
-    let value = document.raw().value();
     let Some(servers) = value.get("servers") else {
         if value.get("swagger").is_some() {
-            return normalize_swagger2_servers(value, document.source());
+            return normalize_swagger2_servers(value, source);
         }
 
         return Ok(Vec::new());
