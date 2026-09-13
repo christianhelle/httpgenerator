@@ -3,90 +3,11 @@
 //! Each enum maps to one stage of the public ingestion pipeline so callers can match on the exact
 //! failure boundary they care about without losing source or version context.
 
-use std::{error::Error, fmt, path::PathBuf};
-
-use reqwest::StatusCode;
-use url::Url;
+use std::{error::Error, fmt};
 
 use crate::NormalizedHttpMethod;
 
-use super::{
-    ContentFormatDetectionError, OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion,
-    SourceClassificationError, SpecificationVersionDetectionError,
-};
-
-/// Errors returned while loading or decoding a raw OpenAPI document.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum RawOpenApiLoadError {
-    /// Source classification failed before any I/O started.
-    SourceClassification(SourceClassificationError),
-    /// Reading a local file failed.
-    FileRead { path: PathBuf, reason: String },
-    /// The initial HTTP request failed.
-    HttpRequest { url: Url, reason: String },
-    /// The remote server returned a non-success HTTP status.
-    HttpStatus { url: Url, status: StatusCode },
-    /// Reading or decoding the HTTP response body failed.
-    HttpBodyRead { url: Url, reason: String },
-    /// Detecting the raw content format failed.
-    FormatDetection {
-        source: OpenApiSource,
-        error: ContentFormatDetectionError,
-    },
-    /// Decoding JSON or YAML into a generic value failed.
-    Decode {
-        source: OpenApiSource,
-        format: OpenApiContentFormat,
-        reason: String,
-    },
-}
-
-impl fmt::Display for RawOpenApiLoadError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::SourceClassification(error) => {
-                write!(f, "failed to classify OpenAPI source: {error}")
-            }
-            Self::FileRead { path, reason } => {
-                write!(
-                    f,
-                    "failed to read OpenAPI file '{}': {reason}",
-                    path.display()
-                )
-            }
-            Self::HttpRequest { url, reason } => {
-                write!(f, "failed to fetch OpenAPI URL '{url}': {reason}")
-            }
-            Self::HttpStatus { url, status } => {
-                write!(f, "OpenAPI URL '{url}' returned HTTP {status}")
-            }
-            Self::HttpBodyRead { url, reason } => {
-                write!(
-                    f,
-                    "failed to read OpenAPI response body from '{url}': {reason}"
-                )
-            }
-            Self::FormatDetection { source, error } => {
-                write!(
-                    f,
-                    "failed to detect OpenAPI content format for '{source}': {error}"
-                )
-            }
-            Self::Decode {
-                source,
-                format,
-                reason,
-            } => {
-                write!(
-                    f,
-                    "failed to decode {format} OpenAPI document from '{source}': {reason}"
-                )
-            }
-        }
-    }
-}
-
-impl Error for RawOpenApiLoadError {}
+use super::{RawOpenApiLoadError, ReadError, SpecificationVersionDetectionError, TypedOpenApiParseError};
 
 /// Errors returned by the inspection helpers.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -107,78 +28,6 @@ impl fmt::Display for OpenApiInspectionError {
 }
 
 impl Error for OpenApiInspectionError {}
-
-/// Errors returned while converting a raw document into a typed OpenAPI model.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum TypedOpenApiParseError {
-    /// Version detection failed before typed parsing could start.
-    VersionDetection {
-        source: OpenApiSource,
-        error: Box<SpecificationVersionDetectionError>,
-    },
-    /// The crate does not expose a typed parser for the detected version.
-    UnsupportedVersion {
-        source: OpenApiSource,
-        version: OpenApiSpecificationVersion,
-    },
-    /// Deserializing into the version-specific Rust model failed.
-    Deserialize {
-        source: OpenApiSource,
-        version: OpenApiSpecificationVersion,
-        reason: String,
-    },
-}
-
-impl fmt::Display for TypedOpenApiParseError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::VersionDetection { source, error } => {
-                write!(
-                    f,
-                    "failed to detect OpenAPI specification version for '{source}': {error}"
-                )
-            }
-            Self::UnsupportedVersion { source, version } => {
-                write!(
-                    f,
-                    "typed OpenAPI parsing is not implemented for {version} documents from '{source}'"
-                )
-            }
-            Self::Deserialize {
-                source,
-                version,
-                reason,
-            } => {
-                write!(
-                    f,
-                    "failed to deserialize {version} document from '{source}': {reason}"
-                )
-            }
-        }
-    }
-}
-
-impl Error for TypedOpenApiParseError {}
-
-/// Errors returned by the typed document loaders.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum OpenApiDocumentLoadError {
-    /// Loading the raw document failed.
-    RawLoad(RawOpenApiLoadError),
-    /// Parsing the typed document failed.
-    TypedParse(Box<TypedOpenApiParseError>),
-}
-
-impl fmt::Display for OpenApiDocumentLoadError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::RawLoad(error) => write!(f, "{error}"),
-            Self::TypedParse(error) => write!(f, "{error}"),
-        }
-    }
-}
-
-impl Error for OpenApiDocumentLoadError {}
 
 /// Errors returned while normalizing a loaded OpenAPI document.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -245,8 +94,10 @@ impl Error for OpenApiNormalizationError {}
 /// Errors returned by the end-to-end normalize-from-source helpers.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OpenApiDocumentNormalizationError {
-    /// Loading or typed parsing failed.
-    Load(Box<OpenApiDocumentLoadError>),
+    /// Reading the document or merging its external references failed.
+    Read(Box<ReadError>),
+    /// The document does not fit the typed model for its specification version.
+    TypedParse(Box<TypedOpenApiParseError>),
     /// Normalization of the loaded document failed.
     Normalize(Box<OpenApiNormalizationError>),
 }
@@ -254,7 +105,8 @@ pub enum OpenApiDocumentNormalizationError {
 impl fmt::Display for OpenApiDocumentNormalizationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Load(error) => write!(f, "{error}"),
+            Self::Read(error) => write!(f, "{error}"),
+            Self::TypedParse(error) => write!(f, "{error}"),
             Self::Normalize(error) => write!(f, "{error}"),
         }
     }

@@ -23,40 +23,22 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
     ) -> model::GeneratorResult = generator::generate_http_files;
     let _: fn(
         &str,
-        openapi::LoadOptions,
+        openapi::TypedParseOptions,
     ) -> Result<
         normalized::NormalizedOpenApiDocument,
         openapi::OpenApiDocumentNormalizationError,
     > = openapi::load_and_normalize_document;
 
     // Type-level assertions for the remaining public loader entry points.
+    let _: fn(&str) -> Result<openapi::ReadResult, openapi::ReadError> = openapi::read;
     let _: fn(
-        &str,
-        openapi::LoadOptions,
-    ) -> Result<openapi::LoadedOpenApiDocument, openapi::OpenApiDocumentLoadError> =
-        openapi::load_document;
-    let _: fn(
-        openapi::OpenApiSource,
-        openapi::LoadOptions,
-    ) -> Result<openapi::LoadedOpenApiDocument, openapi::OpenApiDocumentLoadError> =
-        openapi::load_document_from_source;
-    let _: fn(
-        openapi::RawOpenApiDocument,
-        openapi::LoadOptions,
-    ) -> Result<openapi::LoadedOpenApiDocument, openapi::OpenApiDocumentLoadError> =
-        openapi::load_document_from_raw;
-    let _: fn(
-        &openapi::LoadedOpenApiDocument,
+        &openapi::ReadResult,
     ) -> Result<normalized::NormalizedOpenApiDocument, openapi::OpenApiNormalizationError> =
-        openapi::normalize_loaded_document;
+        openapi::normalize_document;
     let _: fn(
         &str,
     ) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
         openapi::load_raw_document;
-    let _: fn(
-        openapi::OpenApiSource,
-    ) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
-        openapi::load_raw_document_from_source;
     let _: fn(
         &str,
     ) -> Result<openapi::OpenApiInspection, openapi::OpenApiInspectionError> =
@@ -76,7 +58,9 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
         openapi::SpecificationVersionDetectionError,
     > = openapi::detect_specification_version;
     let _: fn(
-        &openapi::RawOpenApiDocument,
+        &serde_json::Value,
+        openapi::OpenApiSpecificationVersion,
+        openapi::TypedParseOptions,
     ) -> Result<openapi::TypedOpenApiDocument, openapi::TypedOpenApiParseError> =
         openapi::parse_typed_document;
 
@@ -129,7 +113,7 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
 fn openapi_and_generator_facades_stay_compatible_for_petstore() {
     let input = petstore_input();
     let document =
-        openapi::load_and_normalize_document(&input, openapi::LoadOptions::default()).unwrap();
+        openapi::load_and_normalize_document(&input, openapi::TypedParseOptions::default()).unwrap();
     let settings = model::GeneratorSettings {
         open_api_path: input,
         ..Default::default()

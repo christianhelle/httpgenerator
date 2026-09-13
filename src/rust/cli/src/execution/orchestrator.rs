@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use httpgenerator_core::{
     generate_http_files,
     openapi::{
-        inspect_document, load_and_normalize_document, LoadOptions, OpenApiInspection,
+        inspect_document, load_and_normalize_document, TypedParseOptions, OpenApiInspection,
         OpenApiSpecificationVersion,
     },
     GeneratorSettings,
@@ -86,7 +86,7 @@ where
 
     let document = load_and_normalize_document(
         &open_api_path,
-        LoadOptions {
+        TypedParseOptions {
             tolerate_invalid_openapi31: args.skip_validation,
         },
     )

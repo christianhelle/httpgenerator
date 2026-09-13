@@ -6,21 +6,37 @@ use crate::{
 };
 
 use crate::openapi::{
-    LoadOptions, OpenApiNormalizationError, OpenApiSource, decode_raw_document,
-    load_document_from_raw,
+    FetchError, OpenApiNormalizationError, OpenApiReader, OpenApiSource, ReadResult,
+    TypedParseOptions,
 };
 
-use super::{load_and_normalize_document, normalize_loaded_document};
+use super::{load_and_normalize_document, normalize_document};
+
+/// Reads `content` as if it was loaded from `source`.
+fn read_inline(source: OpenApiSource, content: &'static str) -> ReadResult {
+    let served = source.clone();
+    OpenApiReader::new()
+        .with_loader(move |requested: &OpenApiSource| {
+            if requested == &served {
+                Ok(content.to_string())
+            } else {
+                Err(FetchError::FileRead {
+                    path: requested.to_string().into(),
+                    reason: "not found".to_string(),
+                })
+            }
+        })
+        .read_source(source)
+        .unwrap()
+}
 
 #[test]
 fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.0/petstore.json")),
         include_str!("../../../../../../test/OpenAPI/v3.0/petstore.json"),
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let normalized = normalize_loaded_document(&loaded).unwrap();
+    );
+    let normalized = normalize_document(&document).unwrap();
 
     assert_eq!(
         normalized.specification_version,
@@ -95,13 +111,11 @@ fn normalizes_petstore_v30_fixture_into_generator_facing_operations() {
 
 #[test]
 fn normalizes_petstore_v20_fixture_into_generator_facing_operations() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("test/OpenAPI/v2.0/petstore.json")),
         include_str!("../../../../../../test/OpenAPI/v2.0/petstore.json"),
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let normalized = normalize_loaded_document(&loaded).unwrap();
+    );
+    let normalized = normalize_document(&document).unwrap();
 
     assert_eq!(
         normalized.specification_version,
@@ -205,7 +219,7 @@ fn swagger2_local_documents_without_host_or_base_path_use_parent_directory_serve
         .join("v2.0")
         .join("api-with-examples.json");
     let normalized =
-        load_and_normalize_document(input.to_str().unwrap(), LoadOptions::default()).unwrap();
+        load_and_normalize_document(input.to_str().unwrap(), TypedParseOptions::default()).unwrap();
     let mut expected_directory = std::fs::canonicalize(&input)
         .unwrap()
         .parent()
@@ -238,20 +252,18 @@ fn openapi30_local_documents_without_servers_do_not_use_parent_directory_server(
         .join("v3.0")
         .join("api-with-examples.json");
     let normalized =
-        load_and_normalize_document(input.to_str().unwrap(), LoadOptions::default()).unwrap();
+        load_and_normalize_document(input.to_str().unwrap(), TypedParseOptions::default()).unwrap();
 
     assert!(normalized.servers.is_empty());
 }
 
 #[test]
 fn webhook_only_v31_documents_normalize_into_webhook_operations() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("test/OpenAPI/v3.1/webhook-example.json")),
         include_str!("../../../../../../test/OpenAPI/v3.1/webhook-example.json"),
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let normalized = normalize_loaded_document(&loaded).unwrap();
+    );
+    let normalized = normalize_document(&document).unwrap();
 
     assert_eq!(
         normalized.specification_version,
@@ -274,7 +286,7 @@ fn webhook_only_v31_documents_normalize_into_webhook_operations() {
 
 #[test]
 fn openapi31_documents_collect_paths_and_webhooks_together() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("inline.json")),
         r#"{
                 "openapi": "3.1.0",
@@ -302,10 +314,8 @@ fn openapi31_documents_collect_paths_and_webhooks_together() {
                     }
                 }
             }"#,
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let normalized = normalize_loaded_document(&loaded).unwrap();
+    );
+    let normalized = normalize_document(&document).unwrap();
 
     assert_eq!(normalized.operations.len(), 2);
     assert!(normalized.operations.iter().any(
@@ -321,7 +331,7 @@ fn openapi31_documents_collect_paths_and_webhooks_together() {
 
 #[test]
 fn webhook_path_item_refs_fail_explicitly_during_normalization() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("inline.json")),
         r##"{
                 "openapi": "3.1.0",
@@ -332,10 +342,8 @@ fn webhook_path_item_refs_fail_explicitly_during_normalization() {
                     }
                 }
             }"##,
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let error = normalize_loaded_document(&loaded).unwrap_err();
+    );
+    let error = normalize_document(&document).unwrap_err();
 
     assert_eq!(
         error,
@@ -359,7 +367,7 @@ fn invalid_v31_documents_normalize_when_tolerated() {
             .join("non-oauth-scopes.json")
             .to_str()
             .unwrap(),
-        LoadOptions {
+        TypedParseOptions {
             tolerate_invalid_openapi31: true,
         },
     )
@@ -376,7 +384,7 @@ fn invalid_v31_documents_normalize_when_tolerated() {
 
 #[test]
 fn operation_level_parameters_override_path_level_parameters() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("inline.json")),
         r#"{
                 "openapi": "3.0.2",
@@ -409,10 +417,8 @@ fn operation_level_parameters_override_path_level_parameters() {
                     }
                 }
             }"#,
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let normalized = normalize_loaded_document(&loaded).unwrap();
+    );
+    let normalized = normalize_document(&document).unwrap();
 
     assert_eq!(normalized.operations.len(), 1);
     assert_eq!(normalized.operations[0].parameters.len(), 1);
@@ -426,7 +432,7 @@ fn operation_level_parameters_override_path_level_parameters() {
 
 #[test]
 fn top_level_request_body_refs_fail_explicitly_during_normalization() {
-    let raw = decode_raw_document(
+    let document = read_inline(
         OpenApiSource::Path(PathBuf::from("inline.json")),
         r##"{
                 "openapi": "3.0.2",
@@ -446,10 +452,8 @@ fn top_level_request_body_refs_fail_explicitly_during_normalization() {
                     }
                 }
             }"##,
-    )
-    .unwrap();
-    let loaded = load_document_from_raw(raw, LoadOptions::default()).unwrap();
-    let error = normalize_loaded_document(&loaded).unwrap_err();
+    );
+    let error = normalize_document(&document).unwrap_err();
 
     assert_eq!(
         error,
@@ -474,7 +478,7 @@ fn convenience_loader_normalizes_local_documents() {
             .join("petstore.json")
             .to_str()
             .unwrap(),
-        LoadOptions::default(),
+        TypedParseOptions::default(),
     )
     .unwrap();
 
