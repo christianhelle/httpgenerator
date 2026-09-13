@@ -71,16 +71,27 @@ fn normalize_swagger2_request_body(
         return Ok(None);
     };
 
-    let Some(body_parameter) = parameters
-        .iter()
-        .filter_map(|parameter| resolve_reference(root, parameter).ok().flatten())
-        .find(|parameter| {
+    let mut body_parameter = None;
+    for parameter in parameters {
+        let resolved = resolve_reference(root, parameter).map_err(|reference| {
+            OpenApiNormalizationError::UnsupportedRequestBodyReference {
+                path: path.to_string(),
+                method,
+                reference,
+            }
+        })?;
+        if let Some(parameter) = resolved.filter(|parameter| {
             parameter
                 .get("in")
                 .and_then(Value::as_str)
                 .is_some_and(|location| location == "body")
-        })
-    else {
+        }) {
+            body_parameter = Some(parameter);
+            break;
+        }
+    }
+
+    let Some(body_parameter) = body_parameter else {
         return Ok(None);
     };
 
