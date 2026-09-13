@@ -1,0 +1,38 @@
+name: .NET
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "*"
+    paths:
+      - ".github/workflows/dotnet.yml"
+      - "src/dotnet/**"
+  pull_request:
+    branches:
+      - "*"
+    paths:
+      - ".github/workflows/dotnet.yml"
+      - "src/dotnet/**"
+
+env:
+  VERSION: 1.1.0.${{ github.run_number }}
+
+jobs:
+  build:
+    name: .NET solution
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Build .NET solution
+        run: dotnet build -c Release src/dotnet/HttpGenerator.slnx -p:UseSourceLink=true -p:PackageVersion="${{ env.VERSION }}" -p:Version="${{ env.VERSION }}"
+
+      - name: Test .NET solution
+        run: dotnet test src/dotnet/HttpGenerator.slnx -c Release
