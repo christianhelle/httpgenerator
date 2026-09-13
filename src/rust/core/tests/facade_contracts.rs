@@ -39,14 +39,7 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
         &str,
     ) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
         openapi::load_raw_document;
-    let _: fn(
-        &str,
-    ) -> Result<openapi::OpenApiInspection, openapi::OpenApiInspectionError> =
-        openapi::inspect_document;
-    let _: fn(
-        &openapi::RawOpenApiDocument,
-    ) -> Result<openapi::OpenApiInspection, openapi::OpenApiInspectionError> =
-        openapi::inspect_raw_document;
+    let _: fn(&openapi::ReadResult) -> openapi::OpenApiStats = openapi::ReadResult::stats;
     let _: fn(
         &str,
     ) -> Result<openapi::OpenApiSource, openapi::SourceClassificationError> =

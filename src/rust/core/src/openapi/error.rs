@@ -7,27 +7,7 @@ use std::{error::Error, fmt};
 
 use crate::NormalizedHttpMethod;
 
-use super::{RawOpenApiLoadError, ReadError, SpecificationVersionDetectionError, TypedOpenApiParseError};
-
-/// Errors returned by the inspection helpers.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum OpenApiInspectionError {
-    /// Loading the raw document failed.
-    Load(RawOpenApiLoadError),
-    /// Detecting the specification version failed.
-    VersionDetection(SpecificationVersionDetectionError),
-}
-
-impl fmt::Display for OpenApiInspectionError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Load(error) => write!(f, "{error}"),
-            Self::VersionDetection(error) => write!(f, "{error}"),
-        }
-    }
-}
-
-impl Error for OpenApiInspectionError {}
+use super::{ReadError, TypedOpenApiParseError};
 
 /// Errors returned while normalizing a loaded OpenAPI document.
 #[derive(Debug, Clone, PartialEq, Eq)]

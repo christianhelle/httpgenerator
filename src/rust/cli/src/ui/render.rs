@@ -1,5 +1,5 @@
-use httpgenerator_cli::{AzureAuthStatus, CliError};
-use httpgenerator_core::openapi::{OpenApiInspection, OpenApiSpecificationVersion, OpenApiStats};
+use httpgenerator_cli::{AzureAuthStatus, CliError, OpenApiInspection};
+use httpgenerator_core::openapi::{OpenApiSpecificationVersion, OpenApiStats};
 use std::{env, path::PathBuf, time::Duration};
 
 use crate::ui::format::{

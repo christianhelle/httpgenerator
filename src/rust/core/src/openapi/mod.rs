@@ -15,8 +15,7 @@
 //!   [`read`] followed by [`normalize_document`]
 //! - **I need to customize how files and URLs are loaded** -> [`OpenApiReader`] followed by
 //!   [`normalize_document`]
-//! - **I only need format/version/source inspection** -> [`inspect_raw_document`] or
-//!   [`inspect_document`]
+//! - **I only need version and stats** -> [`read`] followed by [`ReadResult::stats`]
 //!
 //! # Examples
 //!
@@ -35,12 +34,8 @@
 //! ```
 
 mod error;
-mod inspect;
 mod normalize;
 
-pub use error::{
-    OpenApiDocumentNormalizationError, OpenApiInspectionError, OpenApiNormalizationError,
-};
-pub use inspect::{OpenApiInspection, OpenApiStats, inspect_document, inspect_raw_document};
+pub use error::{OpenApiDocumentNormalizationError, OpenApiNormalizationError};
 pub use normalize::{load_and_normalize_document, normalize_document};
 pub use oasreader::*;

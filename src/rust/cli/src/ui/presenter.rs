@@ -1,5 +1,4 @@
-use httpgenerator_cli::{AzureAuthStatus, CliError, ExecutionObserver};
-use httpgenerator_core::openapi::OpenApiInspection;
+use httpgenerator_cli::{AzureAuthStatus, CliError, ExecutionObserver, OpenApiInspection};
 use std::{
     io::{self, IsTerminal, Write as IoWrite},
     path::PathBuf,

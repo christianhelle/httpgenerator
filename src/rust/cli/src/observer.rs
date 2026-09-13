@@ -1,6 +1,13 @@
 use std::path::PathBuf;
 
-use httpgenerator_core::openapi::OpenApiInspection;
+use httpgenerator_core::openapi::{OpenApiSpecificationVersion, OpenApiStats};
+
+/// The specification version and stats reported when validation succeeds.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OpenApiInspection {
+    pub specification_version: OpenApiSpecificationVersion,
+    pub stats: OpenApiStats,
+}
 
 pub trait ExecutionObserver {
     fn validation_started(&mut self) {}

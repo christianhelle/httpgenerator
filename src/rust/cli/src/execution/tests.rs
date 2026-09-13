@@ -105,7 +105,7 @@ impl ExecutionObserver for RecordingObserver {
 
     fn validation_succeeded(
         &mut self,
-        inspection: &httpgenerator_core::openapi::OpenApiInspection,
+        inspection: &crate::OpenApiInspection,
     ) {
         self.events.push(format!(
             "validation_succeeded:{}",
