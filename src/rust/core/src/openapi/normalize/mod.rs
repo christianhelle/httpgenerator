@@ -1,5 +1,6 @@
 mod operations;
 mod parameters;
+mod references;
 mod request_body;
 mod schema;
 mod servers;

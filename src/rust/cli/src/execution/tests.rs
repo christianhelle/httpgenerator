@@ -580,3 +580,65 @@ fn execute_warns_about_references_that_were_left_unchanged() {
 
     cleanup(&summary);
 }
+
+#[test]
+fn execute_generates_when_skipped_validation_leaves_references_unresolved() {
+    let input = specification_files(
+        "unresolved-locations-spec",
+        &[(
+            "petstore.yaml",
+            r#"
+openapi: 3.1.0
+info:
+  title: Petstore
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      operationId: listPets
+      parameters:
+        - $ref: 'missing.yaml#/components/parameters/Limit'
+      responses:
+        '200':
+          description: ok
+    post:
+      operationId: addPet
+      requestBody:
+        $ref: 'missing.yaml#/components/requestBodies/Pet'
+      responses:
+        '200':
+          description: ok
+  /owners:
+    $ref: 'missing.yaml#/components/pathItems/Owners'
+"#,
+        )],
+    );
+    let mut observer = RecordingObserver::default();
+
+    let summary = execute_with_observer(
+        CliArgs {
+            open_api_path: Some(input),
+            output_folder: temp_output_dir("unresolved-locations-output")
+                .to_string_lossy()
+                .into_owned(),
+            skip_validation: true,
+            ..CliArgs::default()
+        },
+        &mut observer,
+    )
+    .unwrap();
+
+    assert_eq!(summary.files.len(), 2);
+    assert_eq!(
+        observer
+            .events
+            .iter()
+            .filter(|event| event.starts_with("reference_warning:"))
+            .count(),
+        3,
+        "{:?}",
+        observer.events
+    );
+
+    cleanup(&summary);
+}
