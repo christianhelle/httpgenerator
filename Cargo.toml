@@ -21,6 +21,7 @@ clap = { version = "4.6.1", features = ["derive"] }
 console = "0.16.3"
 exceptionless = "0.1.0"
 httpgenerator-core = { version = "0.1.0", path = "src/rust/core" }
+oasreader = { version = "0.1.0", features = ["typed"] }
 openapiv3 = "2.2.0"
 openapiv3_1 = "0.1.5"
 pollster = "0.4.0"

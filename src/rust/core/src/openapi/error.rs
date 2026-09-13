@@ -10,54 +10,10 @@ use url::Url;
 
 use crate::NormalizedHttpMethod;
 
-use super::{OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion};
-
-/// Errors returned while classifying a CLI input as a path or URL.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SourceClassificationError {
-    /// The supplied input was empty or whitespace-only.
-    EmptyInput,
-    /// The input looked like a URL, but the scheme is not supported.
-    UnsupportedUrlScheme(String),
-    /// The input used an HTTP(S) scheme but did not parse as a valid URL.
-    InvalidUrl { value: String, reason: String },
-}
-
-impl fmt::Display for SourceClassificationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::EmptyInput => write!(f, "OpenAPI source input cannot be empty"),
-            Self::UnsupportedUrlScheme(scheme) => {
-                write!(f, "unsupported OpenAPI source URL scheme '{scheme}'")
-            }
-            Self::InvalidUrl { value, reason } => {
-                write!(f, "invalid OpenAPI source URL '{value}': {reason}")
-            }
-        }
-    }
-}
-
-impl Error for SourceClassificationError {}
-
-/// Errors returned while detecting whether raw content is JSON or YAML.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ContentFormatDetectionError {
-    /// The supplied content was empty or whitespace-only.
-    EmptyContent,
-    /// The content did not look like supported JSON or YAML.
-    UnknownFormat,
-}
-
-impl fmt::Display for ContentFormatDetectionError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::EmptyContent => write!(f, "OpenAPI content cannot be empty"),
-            Self::UnknownFormat => write!(f, "unable to detect OpenAPI content format"),
-        }
-    }
-}
-
-impl Error for ContentFormatDetectionError {}
+use super::{
+    ContentFormatDetectionError, OpenApiContentFormat, OpenApiSource, OpenApiSpecificationVersion,
+    SourceClassificationError, SpecificationVersionDetectionError,
+};
 
 /// Errors returned while loading or decoding a raw OpenAPI document.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -65,25 +21,13 @@ pub enum RawOpenApiLoadError {
     /// Source classification failed before any I/O started.
     SourceClassification(SourceClassificationError),
     /// Reading a local file failed.
-    FileRead {
-        path: PathBuf,
-        reason: String,
-    },
+    FileRead { path: PathBuf, reason: String },
     /// The initial HTTP request failed.
-    HttpRequest {
-        url: Url,
-        reason: String,
-    },
+    HttpRequest { url: Url, reason: String },
     /// The remote server returned a non-success HTTP status.
-    HttpStatus {
-        url: Url,
-        status: StatusCode,
-    },
+    HttpStatus { url: Url, status: StatusCode },
     /// Reading or decoding the HTTP response body failed.
-    HttpBodyRead {
-        url: Url,
-        reason: String,
-    },
+    HttpBodyRead { url: Url, reason: String },
     /// Detecting the raw content format failed.
     FormatDetection {
         source: OpenApiSource,
@@ -143,41 +87,6 @@ impl fmt::Display for RawOpenApiLoadError {
 }
 
 impl Error for RawOpenApiLoadError {}
-
-/// Errors returned while detecting the top-level OpenAPI version field.
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub enum SpecificationVersionDetectionError {
-    /// Neither `openapi` nor `swagger` was present at the top level.
-    MissingVersionField,
-    /// The version field existed but was not a non-empty string.
-    InvalidVersionFieldType { field: &'static str },
-    /// The version field was present but outside the supported families.
-    UnsupportedVersion { field: &'static str, value: String },
-}
-
-impl fmt::Display for SpecificationVersionDetectionError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::MissingVersionField => {
-                write!(
-                    f,
-                    "OpenAPI document is missing a top-level 'openapi' or 'swagger' version field"
-                )
-            }
-            Self::InvalidVersionFieldType { field } => {
-                write!(f, "OpenAPI document field '{field}' must be a string")
-            }
-            Self::UnsupportedVersion { field, value } => {
-                write!(
-                    f,
-                    "unsupported OpenAPI version '{value}' in field '{field}'"
-                )
-            }
-        }
-    }
-}
-
-impl Error for SpecificationVersionDetectionError {}
 
 /// Errors returned by the inspection helpers.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -275,15 +184,9 @@ impl Error for OpenApiDocumentLoadError {}
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum OpenApiNormalizationError {
     /// The raw document tree did not match the structure expected by the normalizer.
-    InvalidStructure {
-        path: String,
-        context: String,
-    },
+    InvalidStructure { path: String, context: String },
     /// A path item used a `$ref` form that the normalizer does not yet support.
-    UnsupportedPathItemReference {
-        path: String,
-        reference: String,
-    },
+    UnsupportedPathItemReference { path: String, reference: String },
     /// An operation parameter used a `$ref` form that the normalizer does not yet support.
     UnsupportedParameterReference {
         path: String,
