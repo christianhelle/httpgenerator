@@ -603,3 +603,38 @@ fn unresolved_external_references_are_skipped_during_normalization() {
         operation.parameters.is_empty() && operation.request_body.is_none()
     }));
 }
+
+#[test]
+fn local_references_with_percent_encoded_fragments_are_resolved() {
+    let document = read_files(&[(
+        "/specs/main.yaml",
+        r##"
+openapi: 3.0.3
+info:
+  title: Encoded
+  version: 1.0.0
+paths:
+  /pets:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/Page%20size'
+      responses:
+        '200':
+          description: ok
+components:
+  parameters:
+    Page size:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+"##,
+    )]);
+
+    let normalized = normalize_document(&document).unwrap();
+
+    assert!(matches!(
+        normalized.operations[0].parameters.as_slice(),
+        [NormalizedParameter::Inline(parameter)] if parameter.name == "pageSize"
+    ));
+}
