@@ -387,3 +387,58 @@ fn execute_never_attempts_azure_auth_when_the_specification_cannot_be_read() {
         assert!(!output_folder.exists());
     }
 }
+
+/// The stats the legacy .NET CLI reports for a specification, in display order: path items,
+/// operations, parameters, request bodies, responses, links, callbacks and schemas.
+fn displayed_stats(summary: &ExecutionSummary) -> [usize; 8] {
+    let stats = summary
+        .validation
+        .as_ref()
+        .expect("the specification should be validated")
+        .stats;
+
+    [
+        stats.path_item_count,
+        stats.operation_count,
+        stats.parameter_count,
+        stats.request_body_count,
+        stats.response_count,
+        stats.link_count,
+        stats.callback_count,
+        stats.schema_count,
+    ]
+}
+
+#[test]
+fn execute_reports_the_same_validation_stats_as_the_legacy_cli() {
+    let multi_file = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../test/multi-file/petstore.yaml")
+        .to_string_lossy()
+        .into_owned();
+
+    for (name, input, expected) in [
+        (
+            "stats-v30",
+            test_fixture_path("v3.0", "petstore.json"),
+            [13, 19, 17, 9, 19, 0, 0, 73],
+        ),
+        (
+            "stats-v20",
+            test_fixture_path("v2.0", "petstore.json"),
+            [14, 20, 14, 9, 20, 0, 0, 67],
+        ),
+        ("stats-multi-file", multi_file, [13, 19, 17, 9, 19, 0, 0, 64]),
+    ] {
+        let output_folder = temp_output_dir(name);
+        let summary = execute(CliArgs {
+            open_api_path: Some(input.clone()),
+            output_folder: output_folder.to_string_lossy().into_owned(),
+            ..CliArgs::default()
+        })
+        .unwrap();
+
+        assert_eq!(displayed_stats(&summary), expected, "{input}");
+
+        cleanup(&summary);
+    }
+}
