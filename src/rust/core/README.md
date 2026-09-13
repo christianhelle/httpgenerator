@@ -15,5 +15,5 @@ cargo add httpgenerator-core
 
 - normalize OpenAPI-derived models into generator-friendly types
 - generate `.http` files with `generate_http_files`
-- load, inspect, and normalize OpenAPI documents through `httpgenerator_core::openapi::*`
+- read and normalize OpenAPI documents through `httpgenerator_core::openapi::*`, which re-exports the [oasreader](https://crates.io/crates/oasreader) crate, so specifications split across multiple files are merged before normalization
 - reuse filename, privacy, and support-information helpers
