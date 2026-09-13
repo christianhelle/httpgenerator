@@ -7,6 +7,7 @@
 **Implemented enhancements:**
 
 - Migrate Visual Studio extension to use the Rust-based CLI [\#400](https://github.com/christianhelle/httpgenerator/issues/400)
+- Use the oasreader crate to read OpenAPI specifications [\#418](https://github.com/christianhelle/httpgenerator/pull/418) ([christianhelle](https://github.com/christianhelle))
 - Fix SonarCloud quality gate issues [\#417](https://github.com/christianhelle/httpgenerator/pull/417) ([christianhelle](https://github.com/christianhelle))
 - Resolve dependency advisories across the repo [\#416](https://github.com/christianhelle/httpgenerator/pull/416) ([Copilot](https://github.com/apps/copilot-swe-agent))
 - Integrate Exceptionless for telemetry collection [\#415](https://github.com/christianhelle/httpgenerator/pull/415) ([christianhelle](https://github.com/christianhelle))
