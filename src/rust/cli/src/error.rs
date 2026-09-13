@@ -10,6 +10,9 @@ pub enum CliError {
     UnsupportedValidationVersion {
         version: OpenApiSpecificationVersion,
     },
+    UnresolvedReferences {
+        references: Vec<String>,
+    },
     CreateOutputDirectory {
         path: PathBuf,
         reason: String,
@@ -36,6 +39,11 @@ impl fmt::Display for CliError {
             Self::UnsupportedValidationVersion { version } => write!(
                 formatter,
                 "{version} documents are not supported by CLI validation yet; retry with --skip-validation"
+            ),
+            Self::UnresolvedReferences { references } => write!(
+                formatter,
+                "OpenAPI validation failed because external references could not be resolved; retry with --skip-validation to generate anyway:\n{}",
+                references.join("\n")
             ),
             Self::CreateOutputDirectory { path, reason } => write!(
                 formatter,
@@ -68,6 +76,7 @@ impl CliError {
             Self::InspectOpenApi(_) => "InspectOpenApi",
             Self::LoadOpenApi(_) => "LoadOpenApi",
             Self::UnsupportedValidationVersion { .. } => "UnsupportedValidationVersion",
+            Self::UnresolvedReferences { .. } => "UnresolvedReferences",
             Self::CreateOutputDirectory { .. } => "CreateOutputDirectory",
             Self::WriteFiles { .. } => "WriteFiles",
             Self::WriteTimeout { .. } => "WriteTimeout",

@@ -11,7 +11,7 @@ use crate::{
 };
 
 use super::orchestrator::execute_with;
-use super::{execute, should_attempt_azure_auth};
+use super::{execute, execute_with_observer, should_attempt_azure_auth};
 
 fn temp_output_dir(name: &str) -> PathBuf {
     std::env::temp_dir().join(format!(
@@ -120,6 +120,12 @@ impl ExecutionObserver for RecordingObserver {
 
     fn files_written(&mut self, paths: &[PathBuf]) {
         self.events.push(format!("files_written:{}", paths.len()));
+    }
+
+    fn reference_warnings(&mut self, warnings: &[String]) {
+        for warning in warnings {
+            self.events.push(format!("reference_warning:{warning}"));
+        }
     }
 }
 
@@ -441,4 +447,136 @@ fn execute_reports_the_same_validation_stats_as_the_legacy_cli() {
 
         cleanup(&summary);
     }
+}
+
+/// Writes `files` of `(name, content)` into a fresh directory and returns the path of the first.
+fn specification_files(name: &str, files: &[(&str, &str)]) -> String {
+    let directory = temp_output_dir(name);
+    fs::create_dir_all(&directory).unwrap();
+    for (file, content) in files {
+        fs::write(directory.join(file), content).unwrap();
+    }
+
+    directory.join(files[0].0).to_string_lossy().into_owned()
+}
+
+const PETSTORE_WITH_MISSING_COMPONENTS: &str = r#"
+openapi: 3.0.3
+info:
+  title: Petstore
+  version: 1.0.0
+paths:
+  /pets:
+    post:
+      operationId: addPet
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: 'missing.yaml#/components/schemas/Pet'
+      responses:
+        '200':
+          description: ok
+"#;
+
+#[test]
+fn execute_fails_validation_for_references_that_cannot_be_resolved() {
+    let input = specification_files(
+        "unresolved-spec",
+        &[("petstore.yaml", PETSTORE_WITH_MISSING_COMPONENTS)],
+    );
+    let output_folder = temp_output_dir("unresolved-output");
+
+    let error = execute(CliArgs {
+        open_api_path: Some(input),
+        output_folder: output_folder.to_string_lossy().into_owned(),
+        ..CliArgs::default()
+    })
+    .unwrap_err();
+
+    let CliError::UnresolvedReferences { references } = &error else {
+        panic!("expected unresolved references, got {error:?}");
+    };
+    assert_eq!(references.len(), 1);
+    assert!(
+        references[0].contains("missing.yaml#/components/schemas/Pet"),
+        "{references:?}"
+    );
+    assert!(error.to_string().contains("--skip-validation"), "{error}");
+    assert_eq!(error.telemetry_name(), "UnresolvedReferences");
+    assert!(!output_folder.exists());
+}
+
+#[test]
+fn execute_warns_about_unresolved_references_when_validation_is_skipped() {
+    let input = specification_files(
+        "unresolved-skipped-spec",
+        &[("petstore.yaml", PETSTORE_WITH_MISSING_COMPONENTS)],
+    );
+    let mut observer = RecordingObserver::default();
+
+    let summary = execute_with_observer(
+        CliArgs {
+            open_api_path: Some(input),
+            output_folder: temp_output_dir("unresolved-skipped-output")
+                .to_string_lossy()
+                .into_owned(),
+            skip_validation: true,
+            ..CliArgs::default()
+        },
+        &mut observer,
+    )
+    .unwrap();
+
+    assert_eq!(summary.files.len(), 1);
+    assert!(
+        observer.events.iter().any(|event| event.starts_with("reference_warning:")
+            && event.contains("missing.yaml#/components/schemas/Pet")),
+        "{:?}",
+        observer.events
+    );
+
+    cleanup(&summary);
+}
+
+#[test]
+fn execute_warns_about_references_that_were_left_unchanged() {
+    let input = specification_files(
+        "circular-spec",
+        &[
+            (
+                "tree.yaml",
+                "openapi: 3.0.3\ninfo:\n  title: Tree\n  version: 1.0.0\npaths:\n  /tree:\n    get:\n      responses:\n        '200':\n          description: ok\n          content:\n            application/json:\n              schema:\n                $ref: 'node.yaml'\n",
+            ),
+            (
+                "node.yaml",
+                "type: object\nproperties:\n  children:\n    type: array\n    items:\n      $ref: 'node.yaml'\n",
+            ),
+        ],
+    );
+    let mut observer = RecordingObserver::default();
+
+    let summary = execute_with_observer(
+        CliArgs {
+            open_api_path: Some(input),
+            output_folder: temp_output_dir("circular-output")
+                .to_string_lossy()
+                .into_owned(),
+            ..CliArgs::default()
+        },
+        &mut observer,
+    )
+    .unwrap();
+
+    assert!(
+        observer
+            .events
+            .iter()
+            .any(|event| event.starts_with("reference_warning:")
+                && event.contains("refers back to itself")),
+        "{:?}",
+        observer.events
+    );
+
+    cleanup(&summary);
 }

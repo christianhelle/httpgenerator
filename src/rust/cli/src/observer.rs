@@ -14,6 +14,9 @@ pub trait ExecutionObserver {
 
     fn validation_succeeded(&mut self, _inspection: &OpenApiInspection) {}
 
+    /// Called with problems found while merging external references that did not stop the run.
+    fn reference_warnings(&mut self, _warnings: &[String]) {}
+
     fn azure_auth_started(&mut self) {}
 
     fn azure_auth_finished(&mut self, _status: &AzureAuthStatus) {}

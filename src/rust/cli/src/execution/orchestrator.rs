@@ -3,7 +3,8 @@ use std::path::PathBuf;
 use httpgenerator_core::{
     generate_http_files,
     openapi::{
-        normalize_document, read, OpenApiSpecificationVersion, ReadResult, TypedParseOptions,
+        normalize_document, read, Diagnostic, OpenApiSpecificationVersion, ReadResult,
+        TypedParseOptions,
     },
     GeneratorSettings,
 };
@@ -75,6 +76,19 @@ where
             CliError::InspectOpenApi(error.to_string())
         }
     })?;
+    // Unresolved references fail validation, so they are only warnings when validation is skipped.
+    let warnings = openapi_document
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| {
+            args.skip_validation || !matches!(diagnostic, Diagnostic::UnresolvedReference { .. })
+        })
+        .map(ToString::to_string)
+        .collect::<Vec<_>>();
+    if !warnings.is_empty() {
+        observer.reference_warnings(&warnings);
+    }
+
     let validation = validate_openapi_document(&openapi_document, args.skip_validation)?;
     if let Some(inspection) = &validation {
         observer.validation_succeeded(inspection);
@@ -150,6 +164,16 @@ fn validate_openapi_document(
         return Err(CliError::UnsupportedValidationVersion {
             version: inspection.specification_version,
         });
+    }
+
+    let references = document
+        .diagnostics
+        .iter()
+        .filter(|diagnostic| matches!(diagnostic, Diagnostic::UnresolvedReference { .. }))
+        .map(ToString::to_string)
+        .collect::<Vec<_>>();
+    if !references.is_empty() {
+        return Err(CliError::UnresolvedReferences { references });
     }
 
     Ok(Some(inspection))

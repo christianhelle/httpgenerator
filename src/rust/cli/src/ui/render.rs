@@ -151,6 +151,18 @@ pub(super) fn render_success(mode: PresentationMode, duration: Duration) -> Stri
     }
 }
 
+pub(super) fn render_reference_warnings(mode: PresentationMode, warnings: &[String]) -> String {
+    warnings
+        .iter()
+        .map(|warning| match mode {
+            PresentationMode::Rich => {
+                format!("{} {}\n", style("Warning:", &["33"]), style(warning, &["33"]))
+            }
+            PresentationMode::Plain => format!("Warning: {warning}\n"),
+        })
+        .collect()
+}
+
 pub(super) fn render_error(mode: PresentationMode, error: &CliError) -> String {
     match (mode, error) {
         (PresentationMode::Rich, CliError::UnsupportedValidationVersion { version }) => {
