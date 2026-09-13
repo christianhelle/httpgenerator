@@ -354,3 +354,36 @@ fn should_attempt_azure_auth_only_when_scope_or_tenant_is_present_without_header
     args.authorization_header = Some("Bearer token".to_string());
     assert!(!should_attempt_azure_auth(&args));
 }
+
+#[test]
+fn execute_never_attempts_azure_auth_when_the_specification_cannot_be_read() {
+    for skip_validation in [false, true] {
+        let output_folder = temp_output_dir("unreadable-specification");
+        let token_requested = std::cell::Cell::new(false);
+        let mut observer = NoopExecutionObserver;
+
+        let error = execute_with(
+            CliArgs {
+                open_api_path: Some(test_fixture_path("v3.0", "does-not-exist.json")),
+                output_folder: output_folder.to_string_lossy().into_owned(),
+                skip_validation,
+                azure_scope: Some("api://example/.default".to_string()),
+                ..CliArgs::default()
+            },
+            &mut observer,
+            |_, _| {
+                token_requested.set(true);
+                Ok(Some("test-token".to_string()))
+            },
+        )
+        .unwrap_err();
+
+        if skip_validation {
+            assert!(matches!(error, CliError::LoadOpenApi(_)), "{error:?}");
+        } else {
+            assert!(matches!(error, CliError::InspectOpenApi(_)), "{error:?}");
+        }
+        assert!(!token_requested.get(), "skip_validation = {skip_validation}");
+        assert!(!output_folder.exists());
+    }
+}
