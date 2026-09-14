@@ -152,7 +152,7 @@ mod tests {
         }
 
         assert_eq!(
-            hex(sha256(&vec![b'a'; 56])),
+            hex(sha256(&[b'a'; 56])),
             "b35439a4ac6f0948b6d6f9e3c6af0f5f590ce20f1bde7090ef7970686ec6738a"
         );
     }
