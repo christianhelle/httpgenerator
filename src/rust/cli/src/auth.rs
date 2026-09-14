@@ -7,7 +7,8 @@
 use std::{
     io::{self, Read},
     process::{Child, Command, Stdio},
-    thread::{self, JoinHandle},
+    sync::mpsc::{self, Receiver, RecvTimeoutError},
+    thread,
     time::{Duration, Instant},
 };
 
@@ -140,10 +141,19 @@ fn wait_with_timeout(mut child: Child, timeout: Duration) -> io::Result<Option<C
 
     loop {
         if let Some(status) = child.try_wait()? {
+            // A descendant can outlive the process and keep the pipes open, so the output is only
+            // awaited for whatever remains of the deadline.
+            let (Some(stdout), Some(stderr)) = (
+                receive_before(&stdout, deadline),
+                receive_before(&stderr, deadline),
+            ) else {
+                return Ok(None);
+            };
+
             return Ok(Some(CliResponse {
                 success: status.success(),
-                stdout: stdout.join().unwrap_or_default(),
-                stderr: stderr.join().unwrap_or_default(),
+                stdout,
+                stderr,
             }));
         }
 
@@ -158,14 +168,27 @@ fn wait_with_timeout(mut child: Child, timeout: Duration) -> io::Result<Option<C
     }
 }
 
-fn read_in_background(pipe: Option<impl Read + Send + 'static>) -> JoinHandle<String> {
+fn read_in_background(pipe: Option<impl Read + Send + 'static>) -> Receiver<String> {
+    let (sender, receiver) = mpsc::channel();
+
     thread::spawn(move || {
         let mut bytes = Vec::new();
         if let Some(mut pipe) = pipe {
             let _ = pipe.read_to_end(&mut bytes);
         }
-        String::from_utf8_lossy(&bytes).into_owned()
-    })
+        let _ = sender.send(String::from_utf8_lossy(&bytes).into_owned());
+    });
+
+    receiver
+}
+
+/// Returns the collected output, or `None` if the pipe is still open when `deadline` passes.
+fn receive_before(output: &Receiver<String>, deadline: Instant) -> Option<String> {
+    match output.recv_timeout(deadline.saturating_duration_since(Instant::now())) {
+        Ok(output) => Some(output),
+        Err(RecvTimeoutError::Timeout) => None,
+        Err(RecvTimeoutError::Disconnected) => Some(String::new()),
+    }
 }
 
 fn spawn_error(program: &str, credential: &str, error: &std::io::Error) -> String {
@@ -391,6 +414,23 @@ mod tests {
             None
         );
         assert!(started.elapsed() < Duration::from_secs(10));
+    }
+
+    #[test]
+    fn times_out_when_a_descendant_keeps_the_output_pipe_open() {
+        // The parent exits straight away, but the background process inherits its stdout.
+        let child = if cfg!(windows) {
+            spawn_piped("cmd", &["/C", "start /b ping -n 6 127.0.0.1 & echo token"])
+        } else {
+            spawn_piped("sh", &["-c", "sleep 5 & echo token"])
+        };
+        let started = Instant::now();
+
+        assert_eq!(
+            wait_with_timeout(child, Duration::from_millis(500)).expect("waiting should work"),
+            None
+        );
+        assert!(started.elapsed() < Duration::from_secs(4));
     }
 
     #[test]
