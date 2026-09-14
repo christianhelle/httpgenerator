@@ -26,6 +26,7 @@ ureq = { version = "3.4.1", default-features = false, features = [
 url = "2.5.7"
 
 [profile.release]
+opt-level = "z"
 lto = "fat"
 codegen-units = 1
 strip = true
