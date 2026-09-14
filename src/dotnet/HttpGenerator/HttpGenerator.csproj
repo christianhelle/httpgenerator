@@ -10,6 +10,7 @@
         <Product>HTTP REST Client File Generator</Product>
         <Description>HttpGenerator is a CLI tool for generating .http files from OpenAPI specifications for the popular REST Client IDE extension.</Description>
         <PackAsTool>true</PackAsTool>
+        <ApplicationIcon>..\..\..\images\icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

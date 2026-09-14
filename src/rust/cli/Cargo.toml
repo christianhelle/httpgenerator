@@ -30,3 +30,6 @@ pollster.workspace = true
 serde_json.workspace = true
 tokio.workspace = true
 unicode-width = "0.2"
+
+[build-dependencies]
+winresource = "0.1.31"

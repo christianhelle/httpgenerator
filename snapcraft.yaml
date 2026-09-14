@@ -16,6 +16,7 @@ description: |
   - Skip validation for OpenAPI 3.1 documents when needed
 
 title: HTTP File Generator
+icon: images/icon.png
 contact: https://github.com/christianhelle/httpgenerator/issues
 issues: https://github.com/christianhelle/httpgenerator/issues
 source-code: https://github.com/christianhelle/httpgenerator
