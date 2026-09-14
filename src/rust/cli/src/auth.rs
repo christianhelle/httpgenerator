@@ -4,9 +4,19 @@
 //! directly, which is what the Azure identity SDKs do for these credential types. Shelling out
 //! keeps the dependency surface of this crate to the standard library plus JSON parsing.
 
-use std::process::Command;
+use std::{
+    io::{self, Read},
+    process::{Child, Command, Stdio},
+    thread::{self, JoinHandle},
+    time::{Duration, Instant},
+};
 
 use serde_json::Value;
+
+/// How long `az` or `azd` may take before the attempt is abandoned. A cold start of either CLI
+/// can take several seconds, so this is deliberately generous.
+const PROCESS_TIMEOUT: Duration = Duration::from_secs(30);
+const POLL_INTERVAL: Duration = Duration::from_millis(20);
 
 /// What a finished CLI process reported.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -104,14 +114,57 @@ fn run(program: &str, args: &[&str], credential: &str) -> Result<CliResponse, St
         }
     }
 
-    let output = build_command(program, args)
-        .output()
+    let child = build_command(program, args)
+        .stdin(Stdio::null())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
         .map_err(|error| spawn_error(program, credential, &error))?;
 
-    Ok(CliResponse {
-        success: output.status.success(),
-        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
-        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    match wait_with_timeout(child, PROCESS_TIMEOUT) {
+        Ok(Some(response)) => Ok(response),
+        Ok(None) => Err(format!(
+            "{credential} credential failed: `{program}` did not finish within {} seconds",
+            PROCESS_TIMEOUT.as_secs()
+        )),
+        Err(error) => Err(format!("{credential} credential failed: {error}")),
+    }
+}
+
+/// Waits for `child` to exit, killing it and returning `None` once `timeout` has passed.
+fn wait_with_timeout(mut child: Child, timeout: Duration) -> io::Result<Option<CliResponse>> {
+    // The pipes are drained on their own threads so a chatty process cannot block on a full pipe.
+    let stdout = read_in_background(child.stdout.take());
+    let stderr = read_in_background(child.stderr.take());
+    let deadline = Instant::now() + timeout;
+
+    loop {
+        if let Some(status) = child.try_wait()? {
+            return Ok(Some(CliResponse {
+                success: status.success(),
+                stdout: stdout.join().unwrap_or_default(),
+                stderr: stderr.join().unwrap_or_default(),
+            }));
+        }
+
+        if Instant::now() >= deadline {
+            // The reader threads are left behind: a grandchild process may still hold the pipes.
+            let _ = child.kill();
+            let _ = child.wait();
+            return Ok(None);
+        }
+
+        thread::sleep(POLL_INTERVAL);
+    }
+}
+
+fn read_in_background(pipe: Option<impl Read + Send + 'static>) -> JoinHandle<String> {
+    thread::spawn(move || {
+        let mut bytes = Vec::new();
+        if let Some(mut pipe) = pipe {
+            let _ = pipe.read_to_end(&mut bytes);
+        }
+        String::from_utf8_lossy(&bytes).into_owned()
     })
 }
 
@@ -217,11 +270,15 @@ fn summarize_error(error: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use std::io::{Error, ErrorKind};
+    use std::{
+        io::{Error, ErrorKind},
+        process::{Command, Stdio},
+        time::{Duration, Instant},
+    };
 
     use super::{
         CliResponse, build_command, is_safe_argument, spawn_error, summarize_error,
-        token_from_response, try_get_access_token, try_get_access_token_with,
+        token_from_response, try_get_access_token, try_get_access_token_with, wait_with_timeout,
     };
 
     fn succeeded(stdout: &str) -> CliResponse {
@@ -308,6 +365,48 @@ mod tests {
             error,
             Err("Azure CLI unavailable\nAzure Developer CLI unavailable".to_string())
         );
+    }
+
+    fn spawn_piped(program: &str, args: &[&str]) -> std::process::Child {
+        Command::new(program)
+            .args(args)
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .expect("test process should start")
+    }
+
+    #[test]
+    fn kills_a_process_that_outlives_the_timeout() {
+        let child = if cfg!(windows) {
+            spawn_piped("ping", &["-n", "30", "127.0.0.1"])
+        } else {
+            spawn_piped("sleep", &["30"])
+        };
+        let started = Instant::now();
+
+        assert_eq!(
+            wait_with_timeout(child, Duration::from_millis(200)).expect("waiting should work"),
+            None
+        );
+        assert!(started.elapsed() < Duration::from_secs(10));
+    }
+
+    #[test]
+    fn collects_the_output_of_a_process_that_finishes_in_time() {
+        let child = if cfg!(windows) {
+            spawn_piped("cmd", &["/C", "echo token"])
+        } else {
+            spawn_piped("sh", &["-c", "echo token"])
+        };
+
+        let response = wait_with_timeout(child, Duration::from_secs(10))
+            .expect("waiting should work")
+            .expect("the process should finish in time");
+
+        assert!(response.success);
+        assert_eq!(response.stdout.trim(), "token");
     }
 
     #[cfg(windows)]
