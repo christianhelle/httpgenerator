@@ -57,8 +57,11 @@ impl TelemetrySink for ExceptionlessTelemetrySink {
     }
 }
 
+/// Only transport failures count as failed submissions. The collector answers non-retryable
+/// statuses (such as 402 when the plan limit is reached) by discarding the events, which is not
+/// something the user can act on, so those are not reported.
 fn submit(payload: &Value) -> Result<(), ()> {
-    let response = ureq::post(EXCEPTIONLESS_EVENTS_URL)
+    ureq::post(EXCEPTIONLESS_EVENTS_URL)
         .config()
         .timeout_global(Some(SUBMIT_TIMEOUT))
         .http_status_as_error(false)
@@ -67,13 +70,8 @@ fn submit(payload: &Value) -> Result<(), ()> {
         .header("Content-Type", "application/json")
         .header("Authorization", format!("Bearer {EXCEPTIONLESS_API_KEY}"))
         .send(payload.to_string())
-        .map_err(|_| ())?;
-
-    if response.status().is_success() {
-        Ok(())
-    } else {
-        Err(())
-    }
+        .map(|_| ())
+        .map_err(|_| ())
 }
 
 /// Builds the Exceptionless wire representation of a telemetry event.
