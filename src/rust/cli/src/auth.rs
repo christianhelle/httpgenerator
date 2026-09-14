@@ -4,13 +4,31 @@
 //! directly, which is what the Azure identity SDKs do for these credential types. Shelling out
 //! keeps the dependency surface of this crate to the standard library plus JSON parsing.
 
-use std::process::{Command, Output};
+use std::process::Command;
 
 use serde_json::Value;
+
+/// What a finished CLI process reported.
+#[derive(Debug, Clone, PartialEq, Eq)]
+struct CliResponse {
+    success: bool,
+    stdout: String,
+    stderr: String,
+}
 
 pub fn try_get_access_token(
     tenant_id: Option<&str>,
     scope: &str,
+) -> Result<Option<String>, String> {
+    try_get_access_token_with(tenant_id, scope, run)
+}
+
+/// Tries the Azure CLI first and the Azure Developer CLI second, using `run` to invoke each one
+/// with a program name, its arguments and a credential name for error messages.
+fn try_get_access_token_with(
+    tenant_id: Option<&str>,
+    scope: &str,
+    mut run: impl FnMut(&str, &[&str], &str) -> Result<CliResponse, String>,
 ) -> Result<Option<String>, String> {
     let tenant_id = tenant_id
         .map(str::trim)
@@ -23,12 +41,20 @@ pub fn try_get_access_token(
 
     let mut errors = Vec::new();
 
-    match get_token_with_azure_cli(tenant_id, scope) {
+    let azure_cli = run("az", &azure_cli_args(tenant_id, scope), "Azure CLI")
+        .and_then(|response| token_from_response(&response, "accessToken", "Azure CLI"));
+    match azure_cli {
         Ok(token) => return Ok(Some(token)),
         Err(error) => errors.push(error),
     }
 
-    match get_token_with_azure_developer_cli(tenant_id, scope) {
+    let azure_developer_cli = run(
+        "azd",
+        &azure_developer_cli_args(tenant_id, scope),
+        "Azure Developer CLI",
+    )
+    .and_then(|response| token_from_response(&response, "token", "Azure Developer CLI"));
+    match azure_developer_cli {
         Ok(token) => return Ok(Some(token)),
         Err(error) => errors.push(error),
     }
@@ -36,7 +62,7 @@ pub fn try_get_access_token(
     Err(errors.join("\n"))
 }
 
-fn get_token_with_azure_cli(tenant_id: Option<&str>, scope: &str) -> Result<String, String> {
+fn azure_cli_args<'a>(tenant_id: Option<&'a str>, scope: &'a str) -> Vec<&'a str> {
     let mut args = vec![
         "account",
         "get-access-token",
@@ -51,15 +77,10 @@ fn get_token_with_azure_cli(tenant_id: Option<&str>, scope: &str) -> Result<Stri
         args.push(tenant_id);
     }
 
-    let output = run("az", &args, "Azure CLI")?;
-
-    token_from_output(&output, "accessToken", "Azure CLI")
+    args
 }
 
-fn get_token_with_azure_developer_cli(
-    tenant_id: Option<&str>,
-    scope: &str,
-) -> Result<String, String> {
+fn azure_developer_cli_args<'a>(tenant_id: Option<&'a str>, scope: &'a str) -> Vec<&'a str> {
     let mut args = vec!["auth", "token", "--scope", scope, "--output", "json"];
 
     if let Some(tenant_id) = tenant_id {
@@ -67,12 +88,10 @@ fn get_token_with_azure_developer_cli(
         args.push(tenant_id);
     }
 
-    let output = run("azd", &args, "Azure Developer CLI")?;
-
-    token_from_output(&output, "token", "Azure Developer CLI")
+    args
 }
 
-fn run(program: &str, args: &[&str], credential: &str) -> Result<Output, String> {
+fn run(program: &str, args: &[&str], credential: &str) -> Result<CliResponse, String> {
     // Only Windows routes the call through the command interpreter; elsewhere arguments are
     // passed to the process verbatim, so any characters are fine.
     if cfg!(windows) {
@@ -85,9 +104,15 @@ fn run(program: &str, args: &[&str], credential: &str) -> Result<Output, String>
         }
     }
 
-    build_command(program, args)
+    let output = build_command(program, args)
         .output()
-        .map_err(|error| spawn_error(program, credential, &error))
+        .map_err(|error| spawn_error(program, credential, &error))?;
+
+    Ok(CliResponse {
+        success: output.status.success(),
+        stdout: String::from_utf8_lossy(&output.stdout).into_owned(),
+        stderr: String::from_utf8_lossy(&output.stderr).into_owned(),
+    })
 }
 
 fn spawn_error(program: &str, credential: &str, error: &std::io::Error) -> String {
@@ -129,15 +154,16 @@ fn not_found_hint(program: &str) -> String {
     format!("`{program}` was not found on PATH")
 }
 
-fn token_from_output(output: &Output, field: &str, credential: &str) -> Result<String, String> {
-    let stdout = String::from_utf8_lossy(&output.stdout);
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        let details = if stderr.trim().is_empty() {
-            stdout.as_ref()
+fn token_from_response(
+    response: &CliResponse,
+    field: &str,
+    credential: &str,
+) -> Result<String, String> {
+    if !response.success {
+        let details = if response.stderr.trim().is_empty() {
+            &response.stdout
         } else {
-            stderr.as_ref()
+            &response.stderr
         };
 
         return Err(format!(
@@ -146,7 +172,7 @@ fn token_from_output(output: &Output, field: &str, credential: &str) -> Result<S
         ));
     }
 
-    let payload: Value = serde_json::from_str(stdout.trim()).map_err(|error| {
+    let payload: Value = serde_json::from_str(response.stdout.trim()).map_err(|error| {
         format!("{credential} credential failed: unexpected response ({error})")
     })?;
 
@@ -193,7 +219,120 @@ fn summarize_error(error: &str) -> String {
 mod tests {
     use std::io::{Error, ErrorKind};
 
-    use super::{is_safe_argument, spawn_error, summarize_error, try_get_access_token};
+    use super::{
+        CliResponse, build_command, is_safe_argument, spawn_error, summarize_error,
+        token_from_response, try_get_access_token, try_get_access_token_with,
+    };
+
+    fn succeeded(stdout: &str) -> CliResponse {
+        CliResponse {
+            success: true,
+            stdout: stdout.to_string(),
+            stderr: String::new(),
+        }
+    }
+
+    fn failed(stderr: &str) -> CliResponse {
+        CliResponse {
+            success: false,
+            stdout: String::new(),
+            stderr: stderr.to_string(),
+        }
+    }
+
+    #[test]
+    fn reads_the_token_field_of_each_cli_response_shape() {
+        let azure_cli = succeeded(r#"{"accessToken":" az-token ","expiresOn":"2026-01-01"}"#);
+        let azure_developer_cli = succeeded(r#"{"token":"azd-token","expiresOn":"2026-01-01"}"#);
+
+        assert_eq!(
+            token_from_response(&azure_cli, "accessToken", "Azure CLI"),
+            Ok("az-token".to_string())
+        );
+        assert_eq!(
+            token_from_response(&azure_developer_cli, "token", "Azure Developer CLI"),
+            Ok("azd-token".to_string())
+        );
+    }
+
+    #[test]
+    fn reports_failed_exits_missing_tokens_and_invalid_json() {
+        let failure = token_from_response(&failed("ERROR: Please run 'az login'"), "accessToken", "Azure CLI");
+        assert_eq!(
+            failure,
+            Err("Azure CLI credential failed: ERROR: Please run 'az login'".to_string())
+        );
+
+        let missing = token_from_response(&succeeded(r#"{"token":""}"#), "token", "Azure Developer CLI");
+        assert!(missing.is_err_and(|error| error.contains("did not contain an access token")));
+
+        let invalid = token_from_response(&succeeded("not json"), "accessToken", "Azure CLI");
+        assert!(invalid.is_err_and(|error| error.contains("unexpected response")));
+    }
+
+    #[test]
+    fn falls_back_to_the_azure_developer_cli_with_the_expected_arguments() {
+        let mut invocations = Vec::new();
+
+        let token = try_get_access_token_with(Some(" tenant "), " api://app/.default ", |program, args, _| {
+            invocations.push(format!("{program} {}", args.join(" ")));
+            Ok(match program {
+                "az" => failed("ERROR: Please run 'az login'"),
+                _ => succeeded(r#"{"token":"azd-token"}"#),
+            })
+        });
+
+        assert_eq!(token, Ok(Some("azd-token".to_string())));
+        assert_eq!(
+            invocations,
+            [
+                "az account get-access-token --scope api://app/.default --output json --tenant tenant",
+                "azd auth token --scope api://app/.default --output json --tenant-id tenant",
+            ]
+        );
+    }
+
+    #[test]
+    fn stops_at_the_azure_cli_token_and_joins_errors_when_both_fail() {
+        let mut calls = 0;
+        let token = try_get_access_token_with(None, "scope", |_, _, _| {
+            calls += 1;
+            Ok(succeeded(r#"{"accessToken":"az-token"}"#))
+        });
+        assert_eq!((token, calls), (Ok(Some("az-token".to_string())), 1));
+
+        let error = try_get_access_token_with(None, "scope", |_, _, credential| {
+            Err(format!("{credential} unavailable"))
+        });
+        assert_eq!(
+            error,
+            Err("Azure CLI unavailable\nAzure Developer CLI unavailable".to_string())
+        );
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn runs_the_cli_through_the_command_interpreter_on_windows() {
+        let command = build_command("az", &["account", "get-access-token"]);
+
+        assert_eq!(command.get_program(), "cmd");
+        assert_eq!(
+            command.get_args().collect::<Vec<_>>(),
+            ["/C", "az", "account", "get-access-token"]
+        );
+    }
+
+    #[cfg(not(windows))]
+    #[test]
+    fn runs_the_cli_directly_outside_windows() {
+        let command = build_command("az", &["account", "get-access-token"]);
+
+        assert_eq!(command.get_program(), "az");
+        assert_eq!(
+            command.get_args().collect::<Vec<_>>(),
+            ["account", "get-access-token"]
+        );
+    }
 
     #[test]
     fn summarize_error_removes_traceback_noise() {
