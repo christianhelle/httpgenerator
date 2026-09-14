@@ -11,12 +11,14 @@ on:
     paths:
       - ".github/workflows/dotnet.yml"
       - "src/dotnet/**"
+      - "images/icon.ico"
   pull_request:
     branches:
       - "*"
     paths:
       - ".github/workflows/dotnet.yml"
       - "src/dotnet/**"
+      - "images/icon.ico"
 
 env:
   VERSION: 1.1.0.${{ github.run_number }}
