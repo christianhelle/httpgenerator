@@ -2,6 +2,7 @@
 
 const FLAG: &str = "--authorization-header";
 const REPLACEMENT: &str = "--authorization-header [REDACTED]";
+const SCHEMES: [&str; 6] = ["basic", "bearer", "digest", "negotiate", "ntlm", "token"];
 
 /// Replaces `--authorization-header` argument values with a redacted marker.
 ///
@@ -100,13 +101,22 @@ fn value_end(after_flag: &str) -> Option<usize> {
 
     let mut consumed = value.find(char::is_whitespace).unwrap_or(value.len());
     let remainder = &value[consumed..];
+    let follows_a_scheme = SCHEMES
+        .iter()
+        .any(|scheme| value[..consumed].eq_ignore_ascii_case(scheme));
 
     // An authorization header is often written as a scheme and a credential, so a second word is
-    // redacted too unless it starts the next option.
+    // redacted too unless it starts the next option. After a known scheme the second word is the
+    // credential, which may itself start with a dash, so only a long option ends the value there.
     if let Some(gap) = remainder.find(|character: char| !character.is_whitespace()) {
         let next_argument = &remainder[gap..];
+        let starts_next_option = if follows_a_scheme {
+            next_argument.starts_with("--")
+        } else {
+            next_argument.starts_with('-')
+        };
 
-        if !next_argument.starts_with('-') {
+        if !starts_next_option {
             consumed += gap
                 + next_argument
                     .find(char::is_whitespace)
@@ -181,6 +191,22 @@ mod tests {
                 "petstore.json --authorization-header \"Bearer secret\" --output ./out"
             ),
             "petstore.json --authorization-header [REDACTED] --output ./out"
+        );
+    }
+
+    #[test]
+    fn redacts_credentials_that_start_with_a_dash_after_a_scheme() {
+        assert_eq!(
+            redact_authorization_headers("--authorization-header Bearer -secret --output ./out"),
+            "--authorization-header [REDACTED] --output ./out"
+        );
+        assert_eq!(
+            redact_authorization_headers("--authorization-header Basic -abc= --base-url https://x"),
+            "--authorization-header [REDACTED] --base-url https://x"
+        );
+        assert_eq!(
+            redact_authorization_headers("--authorization-header Bearer --base-url https://x"),
+            "--authorization-header [REDACTED] --base-url https://x"
         );
     }
 
