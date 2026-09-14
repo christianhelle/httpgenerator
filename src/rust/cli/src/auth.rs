@@ -81,12 +81,20 @@ fn run(program: &str, args: &[&str], credential: &str) -> Result<Output, String>
         }
     }
 
-    build_command(program, args).output().map_err(|error| {
+    build_command(program, args)
+        .output()
+        .map_err(|error| spawn_error(program, credential, &error))
+}
+
+fn spawn_error(program: &str, credential: &str, error: &std::io::Error) -> String {
+    if error.kind() == std::io::ErrorKind::NotFound {
         format!(
             "{credential} credential initialization failed: {} ({error})",
             not_found_hint(program)
         )
-    })
+    } else {
+        format!("{credential} credential initialization failed: could not start `{program}` ({error})")
+    }
 }
 
 #[cfg(windows)]
@@ -179,7 +187,9 @@ fn summarize_error(error: &str) -> String {
 
 #[cfg(test)]
 mod tests {
-    use super::{is_safe_argument, summarize_error, try_get_access_token};
+    use std::io::{Error, ErrorKind};
+
+    use super::{is_safe_argument, spawn_error, summarize_error, try_get_access_token};
 
     #[test]
     fn summarize_error_removes_traceback_noise() {
@@ -189,6 +199,17 @@ mod tests {
             summarize_error(error),
             "AzureCliCredential authentication failed. ERROR: The command failed with an unexpected error."
         );
+    }
+
+    #[test]
+    fn only_a_missing_executable_is_reported_as_not_found_on_path() {
+        let missing = Error::from(ErrorKind::NotFound);
+        let denied = Error::from(ErrorKind::PermissionDenied);
+
+        assert!(spawn_error("az", "Azure CLI", &missing).contains("`az` was not found on PATH"));
+        let message = spawn_error("az", "Azure CLI", &denied);
+        assert!(message.contains("could not start `az`"));
+        assert!(!message.contains("PATH"));
     }
 
     #[test]
