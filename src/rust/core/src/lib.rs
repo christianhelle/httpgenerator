@@ -75,6 +75,7 @@
 //! ```
 
 pub mod base_url;
+mod digest;
 pub mod file_naming;
 pub mod generator;
 pub mod model;

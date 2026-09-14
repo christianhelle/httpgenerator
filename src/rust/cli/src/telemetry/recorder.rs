@@ -67,7 +67,7 @@ impl TelemetryRecorder {
         self.sink
     }
 
-    pub async fn flush(self) {
-        self.sink.flush().await;
+    pub fn flush(self) {
+        self.sink.flush();
     }
 }

@@ -2,8 +2,7 @@
 
 use std::{env, ffi::OsString};
 
-use base64::{Engine as _, engine::general_purpose::STANDARD};
-use sha2::{Digest, Sha256};
+use crate::digest::{base64_encode, sha256};
 
 /// Returns a stable anonymous identity derived from the current user and machine.
 ///
@@ -37,9 +36,9 @@ pub fn anonymous_identity_from_parts(user_name: &str, machine_name: Option<&str>
         .filter(|value| !value.is_empty())
         .unwrap_or("localhost");
     let value = format!("{user_name}@{machine_name}");
-    let hash = Sha256::digest(value.as_bytes());
+    let hash = sha256(value.as_bytes());
 
-    STANDARD.encode(hash).to_ascii_lowercase()
+    base64_encode(&hash).to_ascii_lowercase()
 }
 
 /// Returns the short support key for the current anonymous identity.
@@ -73,10 +72,65 @@ fn current_user_name() -> String {
 }
 
 fn current_machine_name() -> Option<String> {
-    hostname::get()
-        .ok()
+    os_host_name()
         .and_then(normalize_os_string)
         .or_else(|| env_value(&["COMPUTERNAME", "HOSTNAME"]))
+}
+
+/// Queries the live host name from the operating system, as the `hostname` crate did.
+#[cfg(windows)]
+fn os_host_name() -> Option<OsString> {
+    use std::os::windows::ffi::OsStringExt;
+
+    const COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME: i32 = 5;
+
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn GetComputerNameExW(name_type: i32, buffer: *mut u16, size: *mut u32) -> i32;
+    }
+
+    let mut size = 0;
+    // SAFETY: a null buffer with a zero size only asks for the required buffer length.
+    unsafe {
+        GetComputerNameExW(COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME, std::ptr::null_mut(), &mut size)
+    };
+
+    let mut buffer = vec![0u16; size as usize];
+    // SAFETY: `buffer` holds `size` UTF-16 units, and `size` tells the call how many it may write.
+    let succeeded = unsafe {
+        GetComputerNameExW(COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME, buffer.as_mut_ptr(), &mut size)
+    } != 0;
+
+    succeeded.then(|| OsString::from_wide(&buffer[..size as usize]))
+}
+
+/// Queries the live host name from the operating system, as the `hostname` crate did.
+#[cfg(unix)]
+fn os_host_name() -> Option<OsString> {
+    use std::{
+        ffi::{c_char, c_int},
+        os::unix::ffi::OsStringExt,
+    };
+
+    unsafe extern "C" {
+        fn gethostname(name: *mut c_char, len: usize) -> c_int;
+    }
+
+    // POSIX caps host names at 255 bytes; one more byte leaves room for the terminating nul.
+    let mut buffer = vec![0u8; 256];
+    // SAFETY: the call writes at most `buffer.len() - 1` bytes into `buffer`.
+    let succeeded = unsafe { gethostname(buffer.as_mut_ptr().cast(), buffer.len() - 1) } == 0;
+
+    succeeded.then(|| {
+        let end = buffer.iter().position(|&byte| byte == 0).unwrap_or(buffer.len());
+        buffer.truncate(end);
+        OsString::from_vec(buffer)
+    })
+}
+
+#[cfg(not(any(windows, unix)))]
+fn os_host_name() -> Option<OsString> {
+    None
 }
 
 fn env_value(keys: &[&str]) -> Option<String> {
@@ -93,7 +147,18 @@ fn normalize_os_string(value: OsString) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{anonymous_identity_from_parts, support_key_from_anonymous_identity};
+    use std::ffi::OsString;
+
+    use super::{anonymous_identity_from_parts, normalize_os_string, support_key_from_anonymous_identity};
+
+    #[test]
+    fn machine_names_are_trimmed_and_blank_names_are_ignored() {
+        assert_eq!(
+            normalize_os_string(OsString::from("  build-agent\n")),
+            Some("build-agent".to_string())
+        );
+        assert_eq!(normalize_os_string(OsString::from(" \n")), None);
+    }
 
     #[test]
     fn anonymous_identity_matches_dotnet_sha256_base64_lowercase() {
