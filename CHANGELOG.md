@@ -19,6 +19,8 @@
 
 **Merged pull requests:**
 
+- Use the app icon for the Windows executables and snap package [\#420](https://github.com/christianhelle/httpgenerator/pull/420) ([christianhelle](https://github.com/christianhelle))
+- build\(deps-dev\): bump js-yaml from 4.3.1 to 4.3.2 in /src/vscode [\#419](https://github.com/christianhelle/httpgenerator/pull/419) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Remove Squad [\#414](https://github.com/christianhelle/httpgenerator/pull/414) ([christianhelle](https://github.com/christianhelle))
 - Upgrade Rust to 1.96 [\#413](https://github.com/christianhelle/httpgenerator/pull/413) ([christianhelle](https://github.com/christianhelle))
 - Deepen shallow modules across core and CLI [\#410](https://github.com/christianhelle/httpgenerator/pull/410) ([christianhelle](https://github.com/christianhelle))
