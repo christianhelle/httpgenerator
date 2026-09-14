@@ -73,11 +73,15 @@ fn get_token_with_azure_developer_cli(
 }
 
 fn run(program: &str, args: &[&str], credential: &str) -> Result<Output, String> {
-    for argument in args {
-        if !is_safe_argument(argument) {
-            return Err(format!(
-                "{credential} credential initialization failed: argument {argument:?} contains unsupported characters"
-            ));
+    // Only Windows routes the call through the command interpreter; elsewhere arguments are
+    // passed to the process verbatim, so any characters are fine.
+    if cfg!(windows) {
+        for argument in args {
+            if !is_safe_argument(argument) {
+                return Err(format!(
+                    "{credential} credential initialization failed: argument {argument:?} contains unsupported characters"
+                ));
+            }
         }
     }
 
