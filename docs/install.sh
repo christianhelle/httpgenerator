@@ -143,10 +143,8 @@ download_and_install() {
   temp_dir=$(mktemp -d)
   archive_path="$temp_dir/$archive_name"
 
-  cleanup() {
-    rm -rf "$temp_dir"
-  }
-  trap cleanup RETURN
+  # Removes itself after running, so it doesn't fire again when later functions return
+  trap 'rm -rf "$temp_dir"; trap - RETURN' RETURN
 
   log_info "Downloading $archive_name..."
 
