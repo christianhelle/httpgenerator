@@ -4,7 +4,7 @@ set -euo pipefail
 
 GITHUB_REPO="christianhelle/httpgenerator"
 BINARY_NAME="httpgenerator"
-INSTALL_DIR="${INSTALL_DIR:-~/.local/bin}"
+INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 DOCUMENTATION_URL="https://christianhelle.com/httpgenerator/"
 REQUESTED_VERSION="${VERSION:-}"
 
@@ -143,10 +143,8 @@ download_and_install() {
   temp_dir=$(mktemp -d)
   archive_path="$temp_dir/$archive_name"
 
-  cleanup() {
-    rm -rf "$temp_dir"
-  }
-  trap cleanup RETURN
+  # Removes itself after running, so it doesn't fire again when later functions return
+  trap 'rm -rf "$temp_dir"; trap - RETURN' RETURN
 
   log_info "Downloading $archive_name..."
 
@@ -229,17 +227,17 @@ HTTP File Generator installation script
 Usage: $0 [OPTIONS]
 
 Options:
-  -d, --dir DIR          Set the installation directory (default: /usr/local/bin)
+  -d, --dir DIR          Set the installation directory (default: \$HOME/.local/bin)
   -v, --version VERSION  Install a specific release tag instead of the latest GitHub Release
   -h, --help             Show this help message
 
 Environment variables:
-  INSTALL_DIR            Installation directory (default: /usr/local/bin)
+  INSTALL_DIR            Installation directory (default: \$HOME/.local/bin)
   VERSION                Release tag to install
 
 Examples:
   curl -fsSL https://christianhelle.com/httpgenerator/install | bash
-  curl -fsSL https://christianhelle.com/httpgenerator/install | INSTALL_DIR=\$HOME/.local/bin bash
+  curl -fsSL https://christianhelle.com/httpgenerator/install | INSTALL_DIR=/usr/local/bin bash
   curl -fsSL https://christianhelle.com/httpgenerator/install | bash -s -- --version 1.1.0
 EOF
 }
