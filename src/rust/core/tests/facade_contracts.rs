@@ -33,16 +33,13 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
     let _: fn(&str) -> Result<openapi::ReadResult, openapi::ReadError> = openapi::read;
     let _: fn(
         &openapi::ReadResult,
-    ) -> Result<normalized::NormalizedOpenApiDocument, openapi::OpenApiNormalizationError> =
+    )
+        -> Result<normalized::NormalizedOpenApiDocument, openapi::OpenApiNormalizationError> =
         openapi::normalize_document;
-    let _: fn(
-        &str,
-    ) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
+    let _: fn(&str) -> Result<openapi::RawOpenApiDocument, openapi::RawOpenApiLoadError> =
         openapi::load_raw_document;
     let _: fn(&openapi::ReadResult) -> openapi::OpenApiStats = openapi::ReadResult::stats;
-    let _: fn(
-        &str,
-    ) -> Result<openapi::OpenApiSource, openapi::SourceClassificationError> =
+    let _: fn(&str) -> Result<openapi::OpenApiSource, openapi::SourceClassificationError> =
         openapi::classify_source;
     let _: fn(
         &serde_json::Value,
@@ -106,7 +103,8 @@ fn facade_modules_expose_expected_public_types_and_signatures() {
 fn openapi_and_generator_facades_stay_compatible_for_petstore() {
     let input = petstore_input();
     let document =
-        openapi::load_and_normalize_document(&input, openapi::TypedParseOptions::default()).unwrap();
+        openapi::load_and_normalize_document(&input, openapi::TypedParseOptions::default())
+            .unwrap();
     let settings = model::GeneratorSettings {
         open_api_path: input,
         ..Default::default()

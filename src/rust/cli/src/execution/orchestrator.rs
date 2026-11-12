@@ -1,20 +1,19 @@
 use std::path::PathBuf;
 
 use httpgenerator_core::{
-    generate_http_files,
+    GeneratorSettings, generate_http_files,
     openapi::{
-        normalize_document, read, Diagnostic, OpenApiSpecificationVersion, ReadResult,
-        TypedParseOptions,
+        Diagnostic, OpenApiSpecificationVersion, ReadResult, TypedParseOptions, normalize_document,
+        read,
     },
-    GeneratorSettings,
 };
 
 use crate::{
+    CliError,
     args::CliArgs,
     auth::try_get_access_token,
     observer::{ExecutionObserver, ExecutionSummary, NoopExecutionObserver, OpenApiInspection},
     writer::write_files,
-    CliError,
 };
 
 use super::authorization::resolve_authorization_header;

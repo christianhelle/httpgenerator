@@ -3,8 +3,8 @@ use httpgenerator_core::openapi::{OpenApiSpecificationVersion, OpenApiStats};
 use std::{env, path::PathBuf, time::Duration};
 
 use crate::ui::format::{
-    format_duration, render_panel, render_rule, style, support_key_line, table_row, text_width,
-    PresentationMode,
+    PresentationMode, format_duration, render_panel, render_rule, style, support_key_line,
+    table_row, text_width,
 };
 
 pub(super) fn render_header(mode: PresentationMode, no_logging: bool) -> String {
@@ -156,7 +156,11 @@ pub(super) fn render_reference_warnings(mode: PresentationMode, warnings: &[Stri
         .iter()
         .map(|warning| match mode {
             PresentationMode::Rich => {
-                format!("{} {}\n", style("Warning:", &["33"]), style(warning, &["33"]))
+                format!(
+                    "{} {}\n",
+                    style("Warning:", &["33"]),
+                    style(warning, &["33"])
+                )
             }
             PresentationMode::Plain => format!("Warning: {warning}\n"),
         })

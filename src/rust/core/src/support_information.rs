@@ -92,13 +92,21 @@ fn os_host_name() -> Option<OsString> {
     let mut size = 0;
     // SAFETY: a null buffer with a zero size only asks for the required buffer length.
     unsafe {
-        GetComputerNameExW(COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME, std::ptr::null_mut(), &mut size)
+        GetComputerNameExW(
+            COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME,
+            std::ptr::null_mut(),
+            &mut size,
+        )
     };
 
     let mut buffer = vec![0u16; size as usize];
     // SAFETY: `buffer` holds `size` UTF-16 units, and `size` tells the call how many it may write.
     let succeeded = unsafe {
-        GetComputerNameExW(COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME, buffer.as_mut_ptr(), &mut size)
+        GetComputerNameExW(
+            COMPUTER_NAME_PHYSICAL_DNS_HOSTNAME,
+            buffer.as_mut_ptr(),
+            &mut size,
+        )
     } != 0;
 
     succeeded.then(|| OsString::from_wide(&buffer[..size as usize]))
@@ -122,7 +130,10 @@ fn os_host_name() -> Option<OsString> {
     let succeeded = unsafe { gethostname(buffer.as_mut_ptr().cast(), buffer.len() - 1) } == 0;
 
     succeeded.then(|| {
-        let end = buffer.iter().position(|&byte| byte == 0).unwrap_or(buffer.len());
+        let end = buffer
+            .iter()
+            .position(|&byte| byte == 0)
+            .unwrap_or(buffer.len());
         buffer.truncate(end);
         OsString::from_vec(buffer)
     })
@@ -149,7 +160,9 @@ fn normalize_os_string(value: OsString) -> Option<String> {
 mod tests {
     use std::ffi::OsString;
 
-    use super::{anonymous_identity_from_parts, normalize_os_string, support_key_from_anonymous_identity};
+    use super::{
+        anonymous_identity_from_parts, normalize_os_string, support_key_from_anonymous_identity,
+    };
 
     #[test]
     fn machine_names_are_trimmed_and_blank_names_are_ignored() {

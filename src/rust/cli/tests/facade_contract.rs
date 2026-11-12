@@ -2,7 +2,8 @@ use std::{ffi::OsString, path::PathBuf};
 
 use httpgenerator_cli::{
     AzureAuthStatus, CliError, ExecutionObserver, ExecutionSummary, NoopTelemetrySink,
-    TelemetryRecorder, TelemetrySinkCollection, args, execute, execute_with_observer, should_attempt_azure_auth, telemetry,
+    TelemetryRecorder, TelemetrySinkCollection, args, execute, execute_with_observer,
+    should_attempt_azure_auth, telemetry,
 };
 
 struct ContractObserver;

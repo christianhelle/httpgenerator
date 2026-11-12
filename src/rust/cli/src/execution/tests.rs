@@ -103,10 +103,7 @@ impl ExecutionObserver for RecordingObserver {
         self.events.push("validation_started".to_string());
     }
 
-    fn validation_succeeded(
-        &mut self,
-        inspection: &crate::OpenApiInspection,
-    ) {
+    fn validation_succeeded(&mut self, inspection: &crate::OpenApiInspection) {
         self.events.push(format!(
             "validation_succeeded:{}",
             inspection.specification_version
@@ -389,7 +386,10 @@ fn execute_never_attempts_azure_auth_when_the_specification_cannot_be_read() {
         } else {
             assert!(matches!(error, CliError::InspectOpenApi(_)), "{error:?}");
         }
-        assert!(!token_requested.get(), "skip_validation = {skip_validation}");
+        assert!(
+            !token_requested.get(),
+            "skip_validation = {skip_validation}"
+        );
         assert!(!output_folder.exists());
     }
 }
@@ -433,7 +433,11 @@ fn execute_reports_the_same_validation_stats_as_the_legacy_cli() {
             test_fixture_path("v2.0", "petstore.json"),
             [14, 20, 14, 9, 20, 0, 0, 67],
         ),
-        ("stats-multi-file", multi_file, [13, 19, 17, 9, 19, 0, 0, 64]),
+        (
+            "stats-multi-file",
+            multi_file,
+            [13, 19, 17, 9, 19, 0, 0, 64],
+        ),
     ] {
         let output_folder = temp_output_dir(name);
         let summary = execute(CliArgs {
@@ -530,8 +534,11 @@ fn execute_warns_about_unresolved_references_when_validation_is_skipped() {
 
     assert_eq!(summary.files.len(), 1);
     assert!(
-        observer.events.iter().any(|event| event.starts_with("reference_warning:")
-            && event.contains("missing.yaml#/components/schemas/Pet")),
+        observer
+            .events
+            .iter()
+            .any(|event| event.starts_with("reference_warning:")
+                && event.contains("missing.yaml#/components/schemas/Pet")),
         "{:?}",
         observer.events
     );

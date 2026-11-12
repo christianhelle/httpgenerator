@@ -101,7 +101,11 @@ pub(crate) fn base64_encode(bytes: &[u8]) -> String {
     let mut encoded = String::with_capacity(bytes.len().div_ceil(3) * 4);
 
     for chunk in bytes.chunks(3) {
-        let buffer = [chunk[0], *chunk.get(1).unwrap_or(&0), *chunk.get(2).unwrap_or(&0)];
+        let buffer = [
+            chunk[0],
+            *chunk.get(1).unwrap_or(&0),
+            *chunk.get(2).unwrap_or(&0),
+        ];
         let packed = u32::from_be_bytes([0, buffer[0], buffer[1], buffer[2]]);
 
         for offset in 0..4 {

@@ -198,7 +198,9 @@ fn spawn_error(program: &str, credential: &str, error: &std::io::Error) -> Strin
             not_found_hint(program)
         )
     } else {
-        format!("{credential} credential initialization failed: could not start `{program}` ({error})")
+        format!(
+            "{credential} credential initialization failed: could not start `{program}` ({error})"
+        )
     }
 }
 
@@ -222,7 +224,10 @@ fn build_command(program: &str, args: &[&str]) -> Command {
 fn is_safe_argument(argument: &str) -> bool {
     !argument.is_empty()
         && !argument.chars().any(|character| {
-            matches!(character, '&' | '|' | '<' | '>' | '^' | '"' | '%' | '\r' | '\n')
+            matches!(
+                character,
+                '&' | '|' | '<' | '>' | '^' | '"' | '%' | '\r' | '\n'
+            )
         })
 }
 
@@ -258,7 +263,9 @@ fn token_from_response(
         .map(str::trim)
         .filter(|token| !token.is_empty())
         .map(str::to_owned)
-        .ok_or_else(|| format!("{credential} credential failed: response did not contain an access token"))
+        .ok_or_else(|| {
+            format!("{credential} credential failed: response did not contain an access token")
+        })
 }
 
 fn summarize_error(error: &str) -> String {
@@ -337,13 +344,21 @@ mod tests {
 
     #[test]
     fn reports_failed_exits_missing_tokens_and_invalid_json() {
-        let failure = token_from_response(&failed("ERROR: Please run 'az login'"), "accessToken", "Azure CLI");
+        let failure = token_from_response(
+            &failed("ERROR: Please run 'az login'"),
+            "accessToken",
+            "Azure CLI",
+        );
         assert_eq!(
             failure,
             Err("Azure CLI credential failed: ERROR: Please run 'az login'".to_string())
         );
 
-        let missing = token_from_response(&succeeded(r#"{"token":""}"#), "token", "Azure Developer CLI");
+        let missing = token_from_response(
+            &succeeded(r#"{"token":""}"#),
+            "token",
+            "Azure Developer CLI",
+        );
         assert!(missing.is_err_and(|error| error.contains("did not contain an access token")));
 
         let invalid = token_from_response(&succeeded("not json"), "accessToken", "Azure CLI");
@@ -354,13 +369,17 @@ mod tests {
     fn falls_back_to_the_azure_developer_cli_with_the_expected_arguments() {
         let mut invocations = Vec::new();
 
-        let token = try_get_access_token_with(Some(" tenant "), " api://app/.default ", |program, args, _| {
-            invocations.push(format!("{program} {}", args.join(" ")));
-            Ok(match program {
-                "az" => failed("ERROR: Please run 'az login'"),
-                _ => succeeded(r#"{"token":"azd-token"}"#),
-            })
-        });
+        let token = try_get_access_token_with(
+            Some(" tenant "),
+            " api://app/.default ",
+            |program, args, _| {
+                invocations.push(format!("{program} {}", args.join(" ")));
+                Ok(match program {
+                    "az" => failed("ERROR: Please run 'az login'"),
+                    _ => succeeded(r#"{"token":"azd-token"}"#),
+                })
+            },
+        );
 
         assert_eq!(token, Ok(Some("azd-token".to_string())));
         assert_eq!(

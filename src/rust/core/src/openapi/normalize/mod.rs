@@ -38,8 +38,7 @@ pub fn load_and_normalize_document(
     input: &str,
     options: TypedParseOptions,
 ) -> Result<NormalizedOpenApiDocument, OpenApiDocumentNormalizationError> {
-    let document =
-        read(input).map_err(|e| OpenApiDocumentNormalizationError::Read(Box::new(e)))?;
+    let document = read(input).map_err(|e| OpenApiDocumentNormalizationError::Read(Box::new(e)))?;
     document
         .typed(options)
         .map_err(|e| OpenApiDocumentNormalizationError::TypedParse(Box::new(e)))?;

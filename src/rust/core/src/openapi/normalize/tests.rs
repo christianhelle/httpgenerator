@@ -559,14 +559,20 @@ components:
 "#,
         ),
     ]);
-    assert!(document.diagnostics.is_empty(), "{:?}", document.diagnostics);
+    assert!(
+        document.diagnostics.is_empty(),
+        "{:?}",
+        document.diagnostics
+    );
 
     let normalized = normalize_document(&document).unwrap();
 
     let list_pets = normalized
         .operations
         .iter()
-        .find(|operation| operation.path == "/pets" && operation.method == NormalizedHttpMethod::Get)
+        .find(|operation| {
+            operation.path == "/pets" && operation.method == NormalizedHttpMethod::Get
+        })
         .unwrap();
     assert!(matches!(
         list_pets.parameters.as_slice(),
@@ -577,7 +583,9 @@ components:
     let add_pet = normalized
         .operations
         .iter()
-        .find(|operation| operation.path == "/pets" && operation.method == NormalizedHttpMethod::Post)
+        .find(|operation| {
+            operation.path == "/pets" && operation.method == NormalizedHttpMethod::Post
+        })
         .unwrap();
     assert!(matches!(
         &add_pet.request_body,
@@ -598,10 +606,17 @@ fn unresolved_external_references_are_skipped_during_normalization() {
     let normalized = normalize_document(&document).unwrap();
 
     assert_eq!(normalized.operations.len(), 2);
-    assert!(normalized.operations.iter().all(|operation| operation.path == "/pets"));
-    assert!(normalized.operations.iter().all(|operation| {
-        operation.parameters.is_empty() && operation.request_body.is_none()
-    }));
+    assert!(
+        normalized
+            .operations
+            .iter()
+            .all(|operation| operation.path == "/pets")
+    );
+    assert!(
+        normalized.operations.iter().all(|operation| {
+            operation.parameters.is_empty() && operation.request_body.is_none()
+        })
+    );
 }
 
 #[test]

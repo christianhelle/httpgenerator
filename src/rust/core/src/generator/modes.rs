@@ -84,18 +84,18 @@ pub fn generate_http_files(
     for operation in &document.operations {
         let target = render_target(settings.output_type, operation, &mut seen_filenames);
         let key = target.key.clone();
-        let index = key_to_index
-            .entry(key)
-            .or_insert_with(|| {
-                let idx = buffers.len();
-                buffers.push(HttpFileBuffer {
-                    filename: target.filename,
-                    content: String::new(),
-                });
-                write_file_headers(settings, &mut buffers[idx].content, &base_url);
-                idx
+        let index = key_to_index.entry(key).or_insert_with(|| {
+            let idx = buffers.len();
+            buffers.push(HttpFileBuffer {
+                filename: target.filename,
+                content: String::new(),
             });
-        buffers[*index].content.push_str(&render_request(settings, operation));
+            write_file_headers(settings, &mut buffers[idx].content, &base_url);
+            idx
+        });
+        buffers[*index]
+            .content
+            .push_str(&render_request(settings, operation));
         push_blank_line(&mut buffers[*index].content);
     }
 
