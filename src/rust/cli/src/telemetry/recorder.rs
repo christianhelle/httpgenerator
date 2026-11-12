@@ -4,9 +4,8 @@ use std::ffi::OsString;
 use crate::args::CliArgs;
 
 use super::{
-    ErrorEvent, FeatureUsageEvent, TelemetryContext, TelemetryEvent,
+    ErrorEvent, FeatureUsageEvent, TelemetryContext, TelemetryEvent, TelemetrySinkCollection,
     redaction::{feature_usage_names, redacted_command_line, redacted_settings},
-    TelemetrySinkCollection,
 };
 
 pub struct TelemetryRecorder {
@@ -15,7 +14,11 @@ pub struct TelemetryRecorder {
 }
 
 impl TelemetryRecorder {
-    pub fn from_cli_args(raw_args: &[OsString], args: &CliArgs, sink: TelemetrySinkCollection) -> Self {
+    pub fn from_cli_args(
+        raw_args: &[OsString],
+        args: &CliArgs,
+        sink: TelemetrySinkCollection,
+    ) -> Self {
         let context = (!args.no_logging).then(|| {
             let anonymous_identity = anonymous_identity();
             let support_key = support_key_from_anonymous_identity(&anonymous_identity);
@@ -36,11 +39,12 @@ impl TelemetryRecorder {
         };
 
         for feature_name in feature_usage_names(args) {
-            self.sink.emit(TelemetryEvent::FeatureUsage(FeatureUsageEvent {
-                feature_name,
-                support_key: context.support_key.clone(),
-                anonymous_identity: context.anonymous_identity.clone(),
-            }));
+            self.sink
+                .emit(TelemetryEvent::FeatureUsage(FeatureUsageEvent {
+                    feature_name,
+                    support_key: context.support_key.clone(),
+                    anonymous_identity: context.anonymous_identity.clone(),
+                }));
         }
     }
 

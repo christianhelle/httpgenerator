@@ -98,8 +98,7 @@ fn record_error_captures_redacted_settings_and_support_context() {
         OsString::from("Bearer secret-token"),
     ];
     let memory_sink = MemoryTelemetrySink::default();
-    let mut recorder =
-        TelemetryRecorder::from_cli_args(&raw_args, &args, memory_sink.into());
+    let mut recorder = TelemetryRecorder::from_cli_args(&raw_args, &args, memory_sink.into());
 
     recorder.record_error(&args, "CliError", "boom");
 

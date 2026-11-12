@@ -51,7 +51,8 @@ pub fn resolve_base_url(
     }
 
     if let Some(configured_base_url) = configured_base_url
-        && configured_base_url.starts_with("{{") && configured_base_url.ends_with("}}")
+        && configured_base_url.starts_with("{{")
+        && configured_base_url.ends_with("}}")
     {
         return base_url;
     }

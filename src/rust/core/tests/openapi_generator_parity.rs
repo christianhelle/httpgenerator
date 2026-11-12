@@ -49,7 +49,8 @@ fn newline() -> &'static str {
 
 #[test]
 fn petstore_renders_expected_one_request_per_file_outputs() {
-    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
+    let document =
+        load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
 
     let result = generate_http_files(&petstore_settings(), &document);
 
@@ -77,7 +78,8 @@ fn petstore_renders_expected_one_request_per_file_outputs() {
 
 #[test]
 fn petstore_renders_expected_one_file_content() {
-    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
+    let document =
+        load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFile,
         ..petstore_settings()
@@ -104,7 +106,8 @@ fn petstore_renders_expected_one_file_content() {
 
 #[test]
 fn petstore_renders_expected_one_file_per_tag_outputs() {
-    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
+    let document =
+        load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
     let settings = GeneratorSettings {
         output_type: OutputType::OneFilePerTag,
         ..petstore_settings()
@@ -129,7 +132,8 @@ fn petstore_renders_expected_one_file_per_tag_outputs() {
 
 #[test]
 fn petstore_preserves_skip_headers_and_base_url_override_quirks() {
-    let document = load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
+    let document =
+        load_and_normalize_document(&petstore_input(), TypedParseOptions::default()).unwrap();
 
     let skip_header_result = generate_http_files(
         &GeneratorSettings {
