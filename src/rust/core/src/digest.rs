@@ -36,23 +36,23 @@ pub(crate) fn sha256(message: &[u8]) -> [u8; 32] {
     }
     padded.extend_from_slice(&bit_length.to_be_bytes());
 
-    for block in padded.chunks_exact(64) {
+    for block in padded.as_chunks::<64>().0 {
         compress(&mut state, block);
     }
 
     let mut digest = [0u8; 32];
-    for (target, word) in digest.chunks_exact_mut(4).zip(state) {
+    for (target, word) in digest.as_chunks_mut::<4>().0.iter_mut().zip(state) {
         target.copy_from_slice(&word.to_be_bytes());
     }
 
     digest
 }
 
-fn compress(state: &mut [u32; 8], block: &[u8]) {
+fn compress(state: &mut [u32; 8], block: &[u8; 64]) {
     let mut schedule = [0u32; 64];
 
-    for (index, word) in block.chunks_exact(4).enumerate() {
-        schedule[index] = u32::from_be_bytes([word[0], word[1], word[2], word[3]]);
+    for (index, word) in block.as_chunks::<4>().0.iter().enumerate() {
+        schedule[index] = u32::from_be_bytes(*word);
     }
 
     for index in 16..64 {
