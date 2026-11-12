@@ -29,8 +29,10 @@ fn lib_facade_exposes_the_intentional_public_cli_surface() {
     assert_eq!(summary.azure_auth, AzureAuthStatus::NotRequested);
     assert_eq!(summary.files, vec![PathBuf::from("request.http")]);
 
-    let mut cli_args = args::CliArgs::default();
-    cli_args.output_type = args::OutputTypeArg::OneFile;
+    let cli_args = args::CliArgs {
+        output_type: args::OutputTypeArg::OneFile,
+        ..Default::default()
+    };
     assert!(!should_attempt_azure_auth(&cli_args));
 
     let raw_args = [OsString::from("httpgenerator")];
