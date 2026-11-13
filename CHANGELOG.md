@@ -7,6 +7,8 @@
 **Implemented enhancements:**
 
 - Migrate Visual Studio extension to use the Rust-based CLI [\#400](https://github.com/christianhelle/httpgenerator/issues/400)
+- Fix Rust 1.100 warnings [\#423](https://github.com/christianhelle/httpgenerator/pull/423) ([christianhelle](https://github.com/christianhelle))
+- Shrink the Rust release binary from 10.9 MB to 2.5 MB [\#421](https://github.com/christianhelle/httpgenerator/pull/421) ([christianhelle](https://github.com/christianhelle))
 - Use the oasreader crate to read OpenAPI specifications [\#418](https://github.com/christianhelle/httpgenerator/pull/418) ([christianhelle](https://github.com/christianhelle))
 - Fix SonarCloud quality gate issues [\#417](https://github.com/christianhelle/httpgenerator/pull/417) ([christianhelle](https://github.com/christianhelle))
 - Resolve dependency advisories across the repo [\#416](https://github.com/christianhelle/httpgenerator/pull/416) ([Copilot](https://github.com/apps/copilot-swe-agent))
@@ -19,6 +21,7 @@
 
 **Merged pull requests:**
 
+- Fix installer exiting with code 1 and not expanding the default install dir [\#422](https://github.com/christianhelle/httpgenerator/pull/422) ([christianhelle](https://github.com/christianhelle))
 - Use the app icon for the Windows executables and snap package [\#420](https://github.com/christianhelle/httpgenerator/pull/420) ([christianhelle](https://github.com/christianhelle))
 - build\(deps-dev\): bump js-yaml from 4.3.1 to 4.3.2 in /src/vscode [\#419](https://github.com/christianhelle/httpgenerator/pull/419) ([dependabot[bot]](https://github.com/apps/dependabot))
 - Remove Squad [\#414](https://github.com/christianhelle/httpgenerator/pull/414) ([christianhelle](https://github.com/christianhelle))
